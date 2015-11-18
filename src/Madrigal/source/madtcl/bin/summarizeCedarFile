@@ -1,0 +1,86 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec MADROOT/bin/madtclsh "$0" ${1+"$@"}
+
+# $Id: summarizeCedarFile,v 1.5 2005/04/27 16:16:29 brideout Exp $
+
+# summarizeCedarFile prints a one line per record summary of a CEDAR
+# file.  The file may be any of the 5 supported CEDAR formats (Madrigal,
+# Blocked Binary, Cbf, Unblocked Binary or ASCII"), and may include any
+# mixture of prologue, header and data records. The format of the file is
+# determined automatically.
+
+# Usage: printCedarRecords filename firstRecord lastRecord
+
+# Get parameter codes
+cedarCode cedarCode
+
+# Get number of parameters
+set nargs $argc
+if {$nargs != 1} {
+    puts {Usage: summarizeCedarFile filename}
+    exit
+}
+
+# Get file name from the argument list
+set infile [lindex $argv 0]
+
+# Create madrec object for the input file. Specify file type 1 for automatic
+# determination of the CEDAR file type
+mad madin
+set status [catch {$madin open 1 $infile}]
+if {$status != 0} {
+    puts "mad open Error: [$madin get error]"
+    exit
+}
+
+# Print a one line per record summary of the file
+puts "  rec     Start Time            End Time      kinst krec kindat"
+set rec 0
+while {[set status [$madin getNextRecord]] == 0} {
+    incr rec
+    set recno [format %4d $rec]
+    set startTime [$madin get startTime]
+    set yr1 [lindex $startTime 0]
+    set mo1 [lindex $startTime 1]
+    set dy1 [lindex $startTime 2]
+    set hr1 [lindex $startTime 3]
+    set mn1 [lindex $startTime 4]
+    set sc1 [lindex $startTime 5]
+    set zero 0
+    if {[string length $hr1] == 1} {
+        set hr1 $zero$hr1
+    }
+    if {[string length $mn1] == 1} {
+        set mn1 $zero$mn1
+    }
+    if {[string length $sc1] == 1} {
+        set sc1 $zero$sc1
+    }
+    set endTime [$madin get endTime]
+    set yr2 [lindex $endTime 0]
+    set mo2 [lindex $endTime 1]
+    set dy2 [lindex $endTime 2]
+    set hr2 [lindex $endTime 3]
+    set mn2 [lindex $endTime 4]
+    set sc2 [lindex $endTime 5]
+    set zero 0
+    if {[string length $hr2] == 1} {
+        set hr2 $zero$hr2
+    }
+    if {[string length $mn2] == 1} {
+        set mn2 $zero$mn2
+    }
+    if {[string length $sc2] == 1} {
+        set sc2 $zero$sc2
+    }
+    puts "$recno  $mo1/$dy1/$yr1 $hr1:$mn1:$sc1  $mo2/$dy2/$yr2 $hr2:$mn2:$sc2 \
+         [$madin get kinst] \
+         [$madin get krec] \
+         [$madin get kindat]"
+}
+
+# Close file and delete madrec object
+$madin close
+$madin destroy

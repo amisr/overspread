@@ -1,0 +1,222 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec MADROOT/bin/madtclsh "$0" ${1+"$@"}
+
+# $Id: genExp,v 1.12 2008/07/29 15:47:27 brideout Exp $
+
+# usage: genExp [options] fileList
+
+# Generates Madrigal experiments and populates them with metadata and
+# madrigal files
+#
+# Now deprecated with Madrigal 2.5 - use the tools described in the Madrigal administrators
+# documentation instead
+
+# Initialization
+lappend auto_path MADROOT/madtcllib
+package require mtl
+set debug 0
+
+# Get command line options
+set nargs $argc
+if {$nargs < 1} {
+    puts "Usage: genExpFromFile \[options\] fileList"
+    puts "    options: -force: Overwrite existing experiment directories"
+    puts "             -noclobber: Do not overwrite existing experiment directories"
+    puts "             -useExisting: Assume directory exists but is empty"
+    puts "              no option specified: ask user whether directory should be overwritten"
+    exit
+}
+set force 0
+set noclobber 0
+set useExisting 0
+set i 0
+while {$i < [expr $nargs-1]} {
+    set option [lindex $argv $i]
+    if {$option == "-force"} {
+        set force 1
+    } elseif {$option == "-noclobber"} {
+        set noclobber 1
+    } elseif {$option == "-useExisting"} {
+        set useExisting 1
+    } else {
+        puts "Error: Unknown option $option"
+        exit
+    }
+    incr i
+}
+set fileList [lindex $argv [expr $nargs-1]]
+if {![file exists $fileList]} {
+    puts "$fileList does not exist"
+    exit
+}
+set fin [open $fileList r]
+
+
+# Create madrigal and experiment objects
+madrigal madrigal
+set madroot [madrigal cget -madroot]
+set siteID [madrigal cget -siteid]
+
+# Read the input file
+while {[gets $fin line] >= 6} {
+    set lineEntries [split $line " "]
+    set infiles [lappend infiles [lindex $line 0]]
+    set experimentPaths [lappend experimentPaths [lindex $line 1]]
+    set instrumentCodes [lappend instrumentCodes [lindex $line 2]]
+    set experimentNames [lappend experimentNames [lindex $line 3]]
+    set fileCategories [lappend fileCategories [lindex $line 4]]
+    set actions [lappend actions [lindex $line 5]]
+    set statuses [lappend statuses [lindex $line 6]]
+}
+close $fin
+puts "actions = $actions"
+
+# Process each of the files listed in the input file
+set i 0
+foreach infile $infiles {
+    madExperiment exp
+    set experimentPath [lindex $experimentPaths $i]
+    set experimentDirectory [file join $madroot experiments $experimentPath]
+    set instrumentCode [lindex $instrumentCodes $i]
+    set experimentName [lindex $experimentNames $i]
+    set fileCategory [lindex $fileCategories $i]
+    set action [lindex $actions $i]
+    set status [lindex $statuses $i]
+    exp configure -expPath $experimentPath
+    exp configure -expDirectory $experimentDirectory
+    exp configure -instrumentCode $instrumentCode
+    exp configure -name $experimentName
+    incr i
+
+    
+    puts ""
+    puts "___________________________________________________________________"
+    puts "Processing $infile"
+    puts "    experiment directory = $experimentDirectory"
+    puts "    $instrumentCode = $experimentName"
+    
+        # check if input file is real and doesn't yet exist
+	if {[file exists $infile] == 0 && $fileCategory == 4} {
+	    set futureRT 1
+	} else {
+	    set futureRT 0
+	}
+
+        # Check experiment directory
+        if {[file exists $experimentDirectory]} {
+            puts "experimentDirectory $experimentDirectory already exists"
+            if {($action==0 || $action==1) && $noclobber == 1} {
+                continue
+            }
+            if {($action==0 || $action==1) && $force==0 && $useExisting==0} {
+                puts "Do you really want to delete it?"
+                set answer [gets stdin]
+                if {[string range $answer 0 0] == "y"} {
+                    puts "Deleting $experimentDirectory"
+                    file delete -force $experimentDirectory
+                } else {
+                    continue
+                }
+            }
+        } else {
+            puts "New experiment directory $experimentDirectory"
+        }
+        if {$action == 0} {
+            puts "    Creating new experiment $experimentDirectory"
+	    # get time from directory name
+	    set dirLen [string length $experimentPath]
+	    set twoDYear [string range $experimentPath [expr $dirLen - 2] $dirLen]
+	    set startYear [expr $twoDYear + 2000]
+	    set monthName [string range $experimentPath [expr $dirLen - 5] [expr $dirLen - 3]]
+	    if {[string compare $monthName jan] == 0} {
+	        set startMonth 1
+	    } elseif {[string compare $monthName feb] == 0} {
+	        set startMonth 2
+	    } elseif {[string compare $monthName mar] == 0} {
+	        set startMonth 3
+	    } elseif {[string compare $monthName apr] == 0} {
+	        set startMonth 4
+	    } elseif {[string compare $monthName may] == 0} {
+	        set startMonth 5	
+	    } elseif {[string compare $monthName jun] == 0} {
+	        set startMonth 6
+	    } elseif {[string compare $monthName jul] == 0} {
+	        set startMonth 7
+	    } elseif {[string compare $monthName aug] == 0} {
+	        set startMonth 8
+	    } elseif {[string compare $monthName sep] == 0} {
+	        set startMonth 9
+	    } elseif {[string compare $monthName oct] == 0} {
+	        set startMonth 10	
+	    } elseif {[string compare $monthName nov] == 0} {
+	        set startMonth 11
+	    } elseif {[string compare $monthName dec] == 0} {
+	        set startMonth 12
+	    }
+	    set  startDay [string range $experimentPath [expr $dirLen - 7] [expr $dirLen - 6]]
+            set experimentYear $startYear
+            set experimentMonth $startMonth
+            set experimentDay $startDay
+            set dataType 1000
+            exp new $experimentName \
+                    $experimentYear $experimentMonth $experimentDay \
+                    $instrumentCode
+            madRec madrec
+	    if {$futureRT == 0} {
+                madrec open $infile mad
+                exp updateFromFile madrec $experimentPath
+	    } else {
+	        set madrec $infile
+	    }
+	    if {$futureRT == 0} {
+	        exp addFile madrec $experimentPath $fileCategory $status
+                delete madrec
+	    } else {
+	       exp addFile $madrec $experimentPath $fileCategory $status
+	    }
+	    
+        } elseif {$action == 1} {
+            puts "    Creating new experiment $experimentDirectory from $infile"
+            madRec madrec
+            madrec open $infile mad
+            exp generateFromFile madrec $experimentPath $experimentName
+            exp addFile madrec $experimentPath $fileCategory $status
+            delete madrec
+
+        } elseif {$action == 2} {
+            puts "   Adding $infile to experiment $experimentDirectory and updating expTab"
+            madRec madrec
+            madrec open $infile mad
+            exp updateFromFile madrec $experimentPath
+            exp addFile madrec $experimentPath $fileCategory $status
+            delete madrec
+
+        } elseif {$action == 3} {
+            puts "    Adding $infile to experiment $experimentDirectory"
+	    if {$futureRT == 0} {
+                madRec madrec
+                madrec open $infile mad
+                exp read $experimentPath
+                exp addFile madrec $experimentPath $fileCategory $status
+                delete madrec
+	    } else {
+	       set madrec $infile
+	       exp read $experimentPath
+	       exp addFile $madrec $experimentPath $fileCategory $status
+	    }
+
+        } else {
+            puts "    Unknown action $action. Ignoring this line"
+        }
+        if {$debug} {
+            exp print
+        }
+        exp write
+
+    delete exp
+}
+
+# Cleanup
+delete madrigal

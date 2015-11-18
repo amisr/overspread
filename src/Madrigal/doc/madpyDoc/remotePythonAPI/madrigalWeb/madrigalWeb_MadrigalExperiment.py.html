@@ -1,0 +1,315 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalExperiment</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalExperiment</font>
+            </th>
+            <th align="right"><font color="#000000">madrigalWeb/madrigalWeb.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalExperiment is a class that encapsulates information about a Madrigal Experiment.</h3>
+<p>    Attributes:</p>
+<PRE>
+        id (int) Example: 10000111.  Uniquely identifies experiment.
+
+        url (string) Example: 'http://www.haystack.mit.edu/cgi-bin/madtoc/1997/mlh/03dec97'
+
+        name (string) Example: 'Wide Latitude Substorm Study'
+
+        siteid (int) Example: 1
+
+        sitename (string) Example: 'Millstone Hill Observatory'
+
+        instcode (int) Code of instrument. Example: 30
+
+        instname (string) Instrument name. Example: 'Millstone Hill Incoherent Scatter Radar'
+
+        startyear - int
+
+        startmonth - int
+
+        startday - int
+
+        starthour - int
+
+        startmin - int
+
+        startsec - int
+
+        endyear - int
+
+        endmonth - int
+
+        endday - int
+
+        endhour - int
+
+        endmin - int
+
+        endsec - int
+
+        isLocal - True if a local experiment, False if not
+
+        madrigalUrl - url of Madrigal site.  Used if not a local experiment.
+
+</PRE>
+
+<p>    Non-standard Python modules used: None</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Feb. 10, 2004</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__cmp__">__cmp__</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#__str__">__str__</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__cmp__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__cmp__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__cmp__ ( self,  other )
+
+</pre></font>
+<h3>__cmp__ compares two MadrigalExperiment objects.</h3>
+<p>        Compared by start time, then by end time.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        id,
+        url,
+        name,
+        siteid,
+        sitename,
+        instcode,
+        instname,
+        startyear,
+        startmonth,
+        startday,
+        starthour,
+        startmin,
+        startsec,
+        endyear,
+        endmonth,
+        endday,
+        endhour,
+        endmin,
+        endsec,
+        isLocal,
+        madrigalUrl,
+        )
+
+</pre></font>
+<h3>__init__ initializes a MadrigalExperiment.</h3>
+<p>        Inputs:</p>
+<PRE>
+            id (int, or string that can be converted) Example: 10000111.  Uniquely identifies experiment.
+
+            url (string) Example: 'http://www.haystack.mit.edu/cgi-bin/madtoc/1997/mlh/03dec97'
+
+            name (string) Example: 'Wide Latitude Substorm Study'
+
+            siteid (int, or string that can be converted) Example: 1
+
+            sitename (string) Example: 'Millstone Hill Observatory'
+
+            instcode (int, or string that can be converted) Code of instrument. Example: 30
+
+            instname (string) Instrument name. Example: 'Millstone Hill Incoherent Scatter Radar'
+
+            startyear - int, or string that can be converted
+
+            startmonth - int, or string that can be converted
+
+            startday - int, or string that can be converted
+
+            starthour - int, or string that can be converted
+
+            startmin - int, or string that can be converted
+
+            startsec - int, or string that can be converted
+
+            endyear - int, or string that can be converted
+
+            endmonth - int, or string that can be converted
+
+            endday - int, or string that can be converted
+
+            endhour - int, or string that can be converted
+
+            endmin - int, or string that can be converted
+
+            endsec - int, or string that can be converted
+
+            isLocal - True if a local experiment, False if not
+
+            madrigalUrl - url of Madrigal site.  Used if not a local experiment.
+
+</PRE>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes all the class member variables.</p>
+
+<p>        Exceptions: If illegal argument passed in.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'In MadrigalExperiment, instname not string type: %s' %(str( instname ) )<br>
+ValueError, 'In MadrigalExperiment, isLocal not boolean: %s' %(str( isLocal ) )<br>
+ValueError, 'In MadrigalExperiment, madrigalUrl not string type: %s' %(str( madrigalUrl ) )<br>
+ValueError, 'In MadrigalExperiment, name not string type: %s' %(str( name ) )<br>
+ValueError, 'In MadrigalExperiment, sitename not string type: %s' %(str( sitename ) )<br>
+ValueError, 'In MadrigalExperiment, url not string type: %s' %(str( url ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__str__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__str__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__str__ ( self )
+
+</pre></font>
+<p>return a readible form of this object</p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Thu Jul 24 12:42:56 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

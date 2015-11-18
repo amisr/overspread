@@ -1,0 +1,1229 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalData</title>
+        </head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalData</font>
+            </th>
+            <th align="right"><font color="#000000">madrigalWeb/madrigalWeb.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalData is a class that aquires data from a particular Madrigal site.</h3>
+<p>    Usage example:</p>
+<PRE>
+        import madrigalWeb.madrigalWeb
+
+        test =  madrigalWeb.madrigalWeb.MadrigalData('http://www.haystack.mit.edu/madrigal')
+
+        instList = test.getInstrumentList()
+
+</PRE>
+
+<p>    Non-standard Python modules used: None</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Feb. 10, 2004</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+
+            <table border="0" cellspacing="2" cellpadding="2" width="100%">
+              <tr>
+            <td align="LEFT" valign="TOP">
+<a href="#__getSiteDict">__getSiteDict</a><br>
+<a href="#__getSiteId">__getSiteId</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#downloadFile">downloadFile</a><br>
+<a href="#geodeticToRadar">geodeticToRadar</a><br>
+<a href="#getAllInstruments">getAllInstruments</a><br>
+<a href="#getExperimentFileParameters">getExperimentFileParameters</a><br>
+<a href="#getExperimentFiles">getExperimentFiles</a><br>
+<a href="#getExperiments">getExperiments</a><br>
+<a href="#isprint">isprint</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#madCalculator">madCalculator</a><br>
+<a href="#madTimeCalculator">madTimeCalculator</a><br>
+<a href="#radarToGeodetic">radarToGeodetic</a><br>
+<a href="#simplePrint">simplePrint</a><br>
+</td>
+</tr>
+            </table>
+            
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getSiteDict"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getSiteDict&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getSiteDict ( self )
+
+</pre></font>
+<h3>__getSiteDict returns a dictionary with key = site id, value= site url.</h3>
+<p>        Uses getMetadata cgi script</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getSiteId"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getSiteId&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getSiteId ( self )
+
+</pre></font>
+<h3>__getSiteId returns the local site id</h3>
+<p>        Uses getMetadata cgi script</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+IOError, 'No siteId found'<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ ( self,  url )
+
+</pre></font>
+<h3>__init__ initializes a MadrigalData object.</h3>
+<p>        Inputs:</p>
+<PRE>
+            url - (string) url of main page of madrigal site. Example: 'http://www.haystack.mit.edu/madrigal'
+
+</PRE>
+
+<p>        Affects: Converts main page to cgi url, and stores that.</p>
+
+<p>        Also stores self.siteDict, with key = site id, value= site url, and self.siteId</p>
+
+<p>        Exceptions: If url not found.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'invalid url: ' + str( url )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="downloadFile"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">downloadFile&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+downloadFile (
+        self,
+        filename,
+        destination,
+        format='madrigal',
+        )
+
+</pre></font>
+<h3>downloadFile will download a Cedar file in the specified format.</h3>
+<p>        Inputs:</p>
+<p>            filename - The absolute filename to as returned via getExperimentFiles.</p>
+
+<p>            destination - where the file is to be stored</p>
+
+<p>            format - file format desired.  May be <code>madrigal</code>, <code>blockedBinary</code>, <code>ncar</code>,
+                     <code>unblockedBinary</code>, <code>ascii</code>.  Default is <code>madrigal</code></p>
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal format specified: %s' %(str( format ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="geodeticToRadar"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">geodeticToRadar&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+geodeticToRadar (
+        self,
+        slatgd,
+        slon,
+        saltgd,
+        gdlat,
+        glon,
+        gdalt,
+        )
+
+</pre></font>
+<h3>geodeticToRadar converts arrays of points in space to az, el, and range.</h3>
+<p>        Input arguments:</p>
+<ol><li><p>slatgd - radar geodetic latitude</p>
+
+</li>
+<li><p>slon - radar longitude</p>
+
+</li>
+<li><p>saltgd - radar altitude</p>
+
+</li>
+<li><p>gdlat - either a single geodetic latitude, or a list of geodetic latitudes</p>
+
+</li>
+<li><p>glon - either a single longitude, or a list of longitudes.  If so, len(gdlat)
+                      must = len(glon)</p>
+
+</li>
+<li><p>gdalt - either a single deodetic altitude, or a list of geodetic altitudes.
+                       If so, len(gdalt) must = len(gdlat)</p>
+
+</li></ol>
+
+<p>        Returns:</p>
+<p>            A list of lists, where each list contains 3 floats (az, el, and range)</p>
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'No data found at url' + str( url )<br>
+ValueError, 'all lists most have same length'<br>
+ValueError, 'error raised using url ' + str( url ) + ' ' + str( page )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getAllInstruments"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getAllInstruments&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getAllInstruments ( self )
+
+</pre></font>
+<p>returns a list of all MadrigalInstruments at the given Madrigal site</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'No data found at url' + str( url )<br>
+ValueError, 'error raised using url ' + str( url ) + ' ' + str( page )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getExperimentFileParameters"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getExperimentFileParameters&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getExperimentFileParameters ( self,  fullFilename )
+
+</pre></font>
+<h3>getExperimentFileParameters returns a list of all measured and derivable parameters in file</h3>
+<p>        Inputs:</p>
+<p>           fullFilename - full path to experiment file as returned by getExperimentFiles.</p>
+
+
+<p>        Outputs:</p>
+<p>            List of MadrigalParameter objects for that fullFilename.  Includes both measured
+            and derivable parameters in file.</p>
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'error raised using url ' + str( url ) + ' ' + str( page )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getExperimentFiles"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getExperimentFiles&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getExperimentFiles (
+        self,
+        id,
+        getNonDefault=False,
+        )
+
+</pre></font>
+<h3>returns a list of all default MadrigalExperimentFiles for a given experiment id</h3>
+<p>        Inputs:</p>
+<p>           id - Experiment id.</p>
+
+<p>           getNonDefault - if False (the default), only get default files, or realtime
+                           files if no default files found.  If True, get all files</p>
+
+
+<p>        Outputs:</p>
+<p>            List of MadrigalExperimentFile objects for that experiment id</p>
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'error raised using url ' + str( url ) + ' ' + str( page )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getExperiments"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getExperiments&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getExperiments (
+        self,
+        code,
+        startyear,
+        startmonth,
+        startday,
+        starthour,
+        startmin,
+        startsec,
+        endyear,
+        endmonth,
+        endday,
+        endhour,
+        endmin,
+        endsec,
+        local=1,
+        )
+
+</pre></font>
+<h3>returns a list of all MadrigalExperiments that meet criteria at the given Madrigal site</h3>
+<p>        Inputs:</p>
+<p>           code - int or list of ints representing instrument code(s). Special value of 0 selects all instruments.</p>
+
+<p>           startyear - int or string convertable to int</p>
+
+<p>           startmonth - int or string convertable to int</p>
+
+<p>           startday - int or string convertable to int</p>
+
+<p>           starthour - int or string convertable to int</p>
+
+<p>           startmin - int or string convertable to int</p>
+
+<p>           startsec - int or string convertable to int</p>
+
+<p>           endyear - int or string convertable to int</p>
+
+<p>           endmonth - int or string convertable to int</p>
+
+<p>           endday - int or string convertable to int</p>
+
+<p>           endhour - int or string convertable to int</p>
+
+<p>           endmin - int or string convertable to int</p>
+
+<p>           endsec - int or string convertable to int</p>
+
+<p>           local - 0 if all sites desired, 1 (default) if only local experiments desired</p>
+
+
+<p>        Outputs:</p>
+<p>            List of MadrigalExperiment objects that meet the criteria</p>
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'error raised using url ' + str( url ) + ' ' + str( page )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="isprint"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">isprint&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+isprint (
+        self,
+        file,
+        parms,
+        filters,
+        user_fullname,
+        user_email,
+        user_affiliation,
+        )
+
+</pre></font>
+<h3>returns as a string the isprint output given file, parms, filters without headers or summary.</h3>
+<p>        Inputs:</p>
+<p>            file - The absolute filename to be analyzed by isprint.</p>
+
+<p>            parms - Comma delimited string listing requested parameters (no spaces allowed).</p>
+
+<p>            filters - Space delimited string listing filters desired, as in isprint command</p>
+
+<p>            user_fullname - full name of user making request</p>
+
+<p>            user_email - email address of user making request</p>
+
+<p>            user_affiliation - affiliation of user making request</p>
+
+
+<p>        Returns:</p>
+<p>            a string holding the isprint output</p>
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'error raised using url ' + str( url )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="madCalculator"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">madCalculator&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+madCalculator (
+        self,
+        year,
+        month,
+        day,
+        hour,
+        min,
+        sec,
+        startLat,
+        endLat,
+        stepLat,
+        startLong,
+        endLong,
+        stepLong,
+        startAlt,
+        endAlt,
+        stepAlt,
+        parms,
+        oneDParmList=[],
+        oneDParmValues=[],
+        )
+
+</pre></font>
+<p>Input arguments:</p>
+<ol><li><p>year - int</p>
+
+</li>
+<li><p>month - int</p>
+
+</li>
+<li><p>day - int</p>
+
+</li>
+<li><p>hour - int</p>
+
+</li>
+<li><p>min - int</p>
+
+</li>
+<li><p>sec - int</p>
+
+</li>
+<li><p>startLat - Starting geodetic latitude, -90 to 90 (float)</p>
+
+</li>
+<li><p>endLat - Ending geodetic latitude, -90 to 90 (float)</p>
+
+</li>
+<li><p>stepLat - Latitude step (0.1 to 90) (float)</p>
+
+</li>
+<li><p>startLong - Starting geodetic longitude, -180 to 180  (float)</p>
+
+</li>
+<li><p>endLong - Ending geodetic longitude, -180 to 180 (float)</p>
+
+</li>
+<li><p>stepLong - Longitude step (0.1 to 180) (float)</p>
+
+</li>
+<li><p>startAlt - Starting geodetic altitude, &gt;= 0 (float)</p>
+
+</li>
+<li><p>endAlt - Ending geodetic altitude, &gt; 0 (float)</p>
+
+</li>
+<li><p>stepAlt - Altitude step (&gt;= 0.1) (float)</p>
+
+</li>
+<li><p>parms - comma delimited string of Madrigal parameters desired</p>
+
+</li>
+<li><p>oneDParmList - a list of one-D parameters whose values should
+                               be set for the calculation.  Can be codes or mnemonics.
+                               Defaults to empty list.</p>
+
+</li>
+<li><p>oneDParmValues - a list of values (doubles) associated with the one-D
+                                 parameters specified in oneDParmList. Defaults to empty list.</p>
+
+</li></ol>
+<p>        Returns:</p>
+<p>            A list of lists of doubles, where each list contains 3 + number of parameters doubles.
+            The first three doubles are the input latitude, longitude, and altitude.  The rest of the
+            doubles are the values of each of the calculated values.  If the value cannot be calculated,
+            it will be set to nan.</p>
+
+<p>            Example:</p>
+<p>                result = testData.madCalculator(1999,2,15,12,30,0,45,55,5,-170,-150,10,200,200,0,'bmag,bn')</p>
+
+<p>                result = [  [45.0, -170.0, 200.0, 4.1315700000000002e-05, 2.1013500000000001e-05]
+                            [45.0, -160.0, 200.0, 4.2336899999999998e-05, 2.03685e-05]
+                            [45.0, -150.0, 200.0, 4.3856400000000002e-05, 1.97411e-05]
+                            [50.0, -170.0, 200.0, 4.3913599999999999e-05, 1.9639999999999998e-05]
+                            [50.0, -160.0, 200.0, 4.4890099999999999e-05, 1.8870999999999999e-05]
+                            [50.0, -150.0, 200.0, 4.6337800000000002e-05, 1.80077e-05]
+                            [55.0, -170.0, 200.0, 4.6397899999999998e-05, 1.78115e-05]
+                            [55.0, -160.0, 200.0, 4.7265400000000003e-05, 1.6932500000000001e-05]
+                            [55.0, -150.0, 200.0, 4.85495e-05,            1.5865399999999999e-05] ]</p>
+
+<p>                Columns:     gdlat  glon    gdalt  bmag                    bn</p>
+
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'No data found at url' + str( url )<br>
+ValueError, 'error raised using url ' + str( url ) + ' ' + str( page )<br>
+ValueError, 'len(oneDParmList) != len(oneDParmValues)'<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="madTimeCalculator"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">madTimeCalculator&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+madTimeCalculator (
+        self,
+        startyear,
+        startmonth,
+        startday,
+        starthour,
+        startmin,
+        startsec,
+        endyear,
+        endmonth,
+        endday,
+        endhour,
+        endmin,
+        endsec,
+        stephours,
+        parms,
+        )
+
+</pre></font>
+<p>Input arguments:</p>
+<ol><li><p>startyear - int</p>
+
+</li>
+<li><p>startmonth - int</p>
+
+</li>
+<li><p>startday - int</p>
+
+</li>
+<li><p>starthour - int</p>
+
+</li>
+<li><p>startmin - int</p>
+
+</li>
+<li><p>startsec - int</p>
+
+</li>
+<li><p>endyear - int</p>
+
+</li>
+<li><p>endmonth - int</p>
+
+</li>
+<li><p>endday - int</p>
+
+</li>
+<li><p>endhour - int</p>
+
+</li>
+<li><p>endmin - int</p>
+
+</li>
+<li><p>endsec - int</p>
+
+</li>
+<li><p>stephours - float - number of hours per time step</p>
+
+</li>
+<li><p>parms - comma delimited string of Madrigal parameters desired (must not depend on location)</p>
+
+</li></ol>
+<p>        Returns:</p>
+<p>            A list of lists, where each list contains 6 ints (year, month, day, hour, min, sec)  + number
+            of parameters.  If the value cannot be calculated, it will be set to nan.</p>
+
+<p>            Example:</p>
+<p>                result = testData.madTestCalculator(1999,2,15,12,30,0,
+                                                    1999,2,20,12,30,0,
+                                                    24.0, <code>kp,dst</code>)</p>
+
+<p>                result = [[1999.0, 2.0, 15.0, 12.0, 30.0, 0.0, 3.0, -9.0]
+                          [1999.0, 2.0, 16.0, 12.0, 30.0, 0.0, 1.0, -6.0]
+                          [1999.0, 2.0, 17.0, 12.0, 30.0, 0.0, 4.0, -31.0]
+                          [1999.0, 2.0, 18.0, 12.0, 30.0, 0.0, 6.7000000000000002, -93.0]
+                          [1999.0, 2.0, 19.0, 12.0, 30.0, 0.0, 5.2999999999999998, -75.0]]</p>
+
+<p>                Columns:     year, month, day, hour, min, sec, kp, dst</p>
+
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'No data found at url' + str( url )<br>
+ValueError, 'error raised using url ' + str( url ) + ' ' + str( page )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="radarToGeodetic"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">radarToGeodetic&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+radarToGeodetic (
+        self,
+        slatgd,
+        slon,
+        saltgd,
+        az,
+        el,
+        radarRange,
+        )
+
+</pre></font>
+<h3>radarToGeodetic converts arrays of az, el, and ranges to geodetic locations.</h3>
+<p>        Input arguments:</p>
+<ol><li><p>slatgd - radar geodetic latitude</p>
+
+</li>
+<li><p>slon - radar longitude</p>
+
+</li>
+<li><p>saltgd - radar altitude</p>
+
+</li>
+<li><p>az - either a single azimuth, or a list of azimuths</p>
+
+</li>
+<li><p>el - either a single elevation, or a list of elevations.  If so, len(el)
+                    must = len(az)</p>
+
+</li>
+<li><p>radarRange - either a single range, or a list of ranges.  If so, len(radarRange)
+                            must = len(az)</p>
+
+</li></ol>
+
+<p>        Returns:</p>
+<p>            A list of lists, where each list contains 3 floats (gdlat, glon, and gdalt)</p>
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'No data found at url' + str( url )<br>
+ValueError, 'all lists most have same length'<br>
+ValueError, 'error raised using url ' + str( url ) + ' ' + str( page )<br>
+ValueError, 'unable to open url ' + str( url )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="simplePrint"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">simplePrint&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+simplePrint (
+        self,
+        filename,
+        user_fullname,
+        user_email,
+        user_affiliation,
+        )
+
+</pre></font>
+<h3>simplePrint prints the data in the given file is a simple ascii format.</h3>
+<p>        simplePrint prints only the parameters in the file, without filters or derived
+        parameters.  To choose which parameters to print, to print derived parameters, or
+        to filter the data, use isprint instead.</p>
+
+<p>        Inputs:</p>
+<p>            filename - The absolute filename to be printed.  Returned by getExperimentFiles.</p>
+
+<p>            user_fullname - full name of user making request</p>
+
+<p>            user_email - email address of user making request</p>
+
+<p>            user_affiliation - affiliation of user making request</p>
+
+
+<p>        Returns: string representing all data in the file in ascii, space-delimited form.
+                 The first line if the list of parameters printed.  The first six parameters will
+                 always be year, month, day, hour, min, sec, representing the middle time of
+                 the measurment.</p>
+
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Thu Nov  6 12:21:37 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Command line interface to Madrigal</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" --><!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="wt_usersGuide.html" --><!-- InstanceParam name="href_next_top" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_back_top" type="text" value="wt_plotData.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="wt_plotData.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="wt_usersGuide.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_prev_top" type="text" value="wt_plotData.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="wt_usersGuide.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="wt_plotData.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="wt_usersGuide.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="rt_contents.html" -->
+</head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_plotData.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_usersGuide.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rt_contents.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Command line interface to Madrigal <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_plotData.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Plot data from instruments <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_usersGuide.html"><!-- InstanceBeginEditable name="UpTitle" -->Madrigal user's guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="rt_contents.html"><!-- InstanceBeginEditable name="NextTitle" -->Remote access programming tutorial toc <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Command line interface to Madrigal</h1>
+<p>Madrigal contains a number of command line applications that allow access to Madrigal data. Some of these require local access to the files on the Madrigal server, some use the remote API and so can be run from anywhere. This section describes the isprint application in detail, which is relevant both to direct users of the isprint application, and to users of the many API isprint methods that use the same arguments as the isprint command line application.</p>
+<p>Command line applications:</p>
+<blockquote>
+  <p>Local applications (run only on a madrigal server) </p>
+</blockquote>
+<ul>
+  <li><a href="#isprint">isprint</a> (arguments are used by many isprint API methods)</li>
+  <li><a href="#printCedarRecords">printCedarRecords</a></li>
+  <li><a href="#summarizeCedarFile">summarizeCedarFile</a></li>
+</ul>
+<p>Remote applications (can be run from anywhere - included in either python or Matlab remote API downloads) </p>
+<ul>
+  <li><a href="#globalIsprint">globalIsprint.py</a> (search over multiple Madrigal experiments - python version) </li>
+  <li><a href="#globalIsprintMatlab">globalIsprint.m</a> (search over multiple Madrigal experiments - Matlab version)</li>
+  <li><a href="#madrigalPColor">madrigalPColor.py</a> - plot PColor plot of data from a given Madrigal file</li>
+  <li><a href="#madrigalScatter">madrigaScatter.py</a> - plot scatter plot of data from a given Madrigal file </li>
+</ul>
+<h2><a name="isprint" id="isprint"></a>Isprint</h2>
+The application isprint is used to display both measured and derived data from one particular Cedar/Madrigal file. The input file can be any valid Cedar format. It will generate a table of user selected parameters subject to user specified filters. The name isprint original referred to &quot;<strong><u>I</u></strong>ncoherent <strong><u>s</u></strong>catter <strong><u>print</u></strong>&quot; but the application now generically prints any data file in the Cedar format. The engine underlying isprint is the main method for outputting Madrigal data. This application is located in <em>madroot</em>/bin.
+<p>The isprint application: </p>
+<ul>
+  <li>Works with any Cedar file format. </li>
+  <li>Treats measured and derived parameters in the same way. </li>
+  <li>Accepts any parameter (or two parameters added, subtracted, multiplied, or divided) as a filter, with any number of allowed ranges. </li>
+  <li>Keeps track of 1D versus 2D data, and only prints one line of data if only 1D parameters are requested. </li>
+</ul>
+<p>To use isprint, the user needs to specify four things:</p>
+<ol>
+  <li>The full filename </li>
+  <li>The parameters desired to be displayed (if any) </li>
+  <li>Any filters to limit the amount of data shown (if any) </li>
+  <li>Any non-default formatting options </li>
+</ol>
+<blockquote>
+  <h3>The full filename </h3>
+</blockquote>
+<p>file= path to file (this argument is required) <br />
+    <em>Example: file=/opt/madrigal/experiments/1998/mlh/20jan98/mlh980120g.001 </em> </p>
+<blockquote>
+  <h3>The parameters desired to be displayed </h3>
+</blockquote>Simply enter the desired parameter mnemonic (case-insensitive). They will be displayed in the order entered. If none given, only the header records will be displayed. <br />
+<em>Example: azm gdalt Range ti Dti </em>
+<blockquote>
+  <h3>Any filters to limit the amount of data shown </h3>
+  <h5>Time range </h5>
+</blockquote>
+<p>date1=mm/dd/yyyy - starting date to be examined. If time1 not given, defaults to 0 UT. <br />
+    <em>Example: date1=01/20/1998 </em> </p>
+<p>time1=hh:mm:ss - starting UT time to be examined. If date1 given, is applied to date1. If not, applies on the first day of the experiment. <br />
+    <em>Example: time1=13:30:00 </em> </p>
+<p>date2=mm/dd/yyyy - ending date to be examined. If time2 not given, defaults to 0 UT. <br />
+    <em>Example: date2=01/21/1998 </em> </p>
+<p>time2=hh:mm:ss - ending UT time to be examined - If date2 not given, refers to date1. If date1 and date2 not given, refers to 1st day. <br />
+    <em>Example: time2=15:45:00 </em> </p>
+<p><em><strong>In the follow arguments ranges are used. If any range value is not given, it may be used to indicate no lower or upper limit (but the comma is always required). Ranges are inclusive of the end points. </strong></em> </p>
+<blockquote>
+  <h5>Geodetic altitude </h5>
+</blockquote>
+<p>z=lower alt limit1, upper alt limit1 [or lower alt limit2 , upper alt limit2 ...] (km) <br />
+    <em>Example 1: z=100,500 </em> This would limit the geodetic altitude to 100 to 500 km. <br />
+    <em>Example 2: z=100,200or300,400 </em> This would limit the geodetic altitude to 100 to 200 km or 300 to 400 km. <br />
+    <em>Example 3: z=,200or300,400 </em> Since the lower limit of the first range is missing, this would limit the geodetic altitude to anything below 200 km or from 300 to 400 km. </p>
+<blockquote>
+  <h5>Azimuth (from -180 to 180) </h5>
+</blockquote>
+<p>az=lower az limit1, upper az limit1 [or lower az limit2 , upper az limit2 ...] (from -180 to 180 degrees) <br />
+    <em>Example 1: az=100,120 </em> This would limit the azimuth to 100 to 120 degrees. <br />
+    <em>Example 2: az=-180,-90or90,180 </em> This would limit the azimuth to between -180 and -90 degrees or to between 90 and 180 degrees. Note this allows a filter to go through 180 degrees. </p>
+<blockquote>
+  <h5>Elevation (from 0 to 90) </h5>
+</blockquote>
+<p>el=lower el limit1, upper el limit1 [or lower el limit2 , upper el limit2 ...] (from 0 to 90) <br />
+    <em>Example 1: el=0,45 </em> This would limit the elevation from 0 to 45 degrees. </p>
+<blockquote>
+  <h5>Pulse length (in seconds) </h5>
+</blockquote>
+<p>plen=lower pl limit1, upper pl limit1 [or lower pl limit2 , upper pl limit2 ...] (pulse len in sec) <br />
+    <em>Example 1: plen=,5e-4 </em> This would limit the pulse length to 5e-4 seconds or less. </p>
+<blockquote>
+  <h5>Free form filters </h5>
+</blockquote>
+<p>filter=[mnemonic] or [mnemonic1,[+-*/]mnemonic2] , lower limit1 , upper limit1 [or lower limit2 , upper limit2 ...] (any number of filters may be added) <br />
+    <em>Example: filter=ti,500,1000or2000,3000 </em> Limits the data to points where Ti is between 500 and 1000 degrees or between 2000 and 3000 degrees. Note that the units are always those of the Cedar standard. <br />
+    <em>Example: filter=gdalt,-,sdwht,0, </em> This filter implies "gdalt - sdwht" must be greater than 0.0. Since sdwht is shadow height (the distance above any point on the earth where the sun is first visible), this filter implies that only data in direct sunlight will be displayed. <br />
+    <em>Example: filter=ti,/,Dti,100, </em> Limits the data to points where the ratio Ti/dTi is more than 100. </p>
+<blockquote>
+  <h3>Format options </h3>
+</blockquote>
+<p>header=t or f (defaults to header=t, show headers at the beginning of each record) <br />
+    <em>Example: header=f </em> </p>
+<p>badval=bad value string (defaults to "missing") <br />
+    <em>Example: badval=n/a </em> </p>
+<p>assumed=assumed value string (defaults to "assumed") <br />
+    <em>Example: assumed=-32766 </em> </p>
+<p>knownbad=known bad value string (defaults to "knownbad") <br />
+    <em>Example: knownbad=WARNING-BADVALUE </em> </p>
+<p>mxchar=maximum characters per line (defaults to no maximum) <br />
+    <em>Example: mxchar=80 </em></p>
+<p>Example: <code>isprint file=/opt/madrigal/experiments/1998/mlh/20jan98/mil980120g.003 date1=01/20/1998 time1=15:00:00 date2=01/20/1998 time2=16:00:00 z=200,300or500,600 badval=noData filter=gdalt,-,sdwht,0, filter=ti,500,1000 uth gdalt gdlat glon ti te </code></p>
+<p>This example would show data from mil980120g.003 between 15 and 16 UT on 01/20/1998 where altitude is either between 200 and 300 km or between 500 and 600 km, and where gdalt-sdwht is greater than 0 (point is in sunlight), and where ti is between 500 and 1000. "noData" would be printed if data was not available. </p>
+<p>&nbsp;</p>
+<h2><a name="printCedarRecords" id="printCedarRecords"></a>printCedarRecords</h2>
+    printCedarRecord prints specified records of a CEDAR file. The file may be any of the 5 supported CEDAR formats (Madrigal, Blocked Binary, Cbf, Unblocked Binary or ASCII"), and may include any mixture of prologue, header and data records. The format of the file is determined automatically.
+This application is located in <em>madroot</em>/bin.<p>Usage: printCedarRecords filename firstRecord lastRecord</p>
+    <p></p>
+
+    <h2><a name="summarizeCedarFile" id="summarizeCedarFile"></a>summarizeCedarFile</h2>
+    summarizeCedarFile prints a one line per record summary of a CEDAR file. The file may be any of the 5 supported CEDAR formats (Madrigal, Blocked Binary, Cbf, Unblocked Binary or ASCII"), and may include any mixture of prologue, header and data records. The format of the file is determined automatically.
+This application is located in <em>madroot</em>/bin.<p>Usage: summarize CedarFilefilename</p>
+    <h2><a name="globalIsprint" id="globalIsprint"></a>globalIsprint.py</h2>
+    <p>This script runs a global search through Madrigal data from a given URL. It is installed when you install the <a href="rt_python.html">Remote python API</a>. Because it is a remote program, it can be run from any machine on the internet, using any operating system. It is a python script. </p>
+    <pre>&nbsp;
+
+    </pre>
+    <pre>Usage:</pre>
+    <pre> globalIsprint --url=&lt;Madrigal url&gt; --parms=&lt;Madrigal parms&gt; --output=&lt;output file&gt; \
+       --user_fullname=&lt;user fullname&gt; --user_fullname=&lt;user fullname&gt; \
+       --user_fullname=&lt;user fullname&gt; [options]</pre>
+    <pre> where:</pre>
+    <pre> --url=&lt;Madrigal url&gt; - url to homepage of site to be searched
+       (ie, http://www.haystack.mit.edu/madrigal/)
+       This is required.</pre>
+    <pre> --parms=&lt;Madrigal parms&gt; - a comma delimited string listing the desired Madrigal parameters
+       in mnemonic form.  (Example: gdalt,dte,te).  Data will be returned
+       in the same order as given in this string. See
+       http://madrigal.haystack.mit.edu/cgi-bin/madrigal/getMetadata and
+       choose &quot;Parameter code table&quot; for all possible parameters</pre>
+    <pre> --output=&lt;output file name&gt; - the file name to store the resulting data.</pre>
+    <pre> --user_fullname=&lt;user fullname&gt; - the full user name (probably in quotes unless your name is Sting or Madonna)</pre>
+    <pre> --user_email=&lt;user email&gt;</pre>
+    <pre> --user_affiliation=&lt;user affiliation&gt; - user affiliation.  Use quotes if it contains spaces.</pre>
+    <pre> and options are:</pre>
+    <pre> --startDate=&lt;MM/DD/YYY&gt; - start date to filter experiments before.  Defaults to allow all experiments.</pre>
+    <pre> --endDate=&lt;MM/DD/YYY&gt; - end date to filter experiments after.  Defaults to allow all experiments.</pre>
+    <pre> --inst=&lt;instrument list&gt; - comma separated list of instrument codes or names.  See Madrigal documentation
+       using http://madrigal.haystack.mit.edu/cgi-bin/madrigal/getMetadata and
+       choose &quot;Instrument Table&quot;
+       for this list.  Defaults to allow all instruments. If names are given, the
+       argument must be enclosed in double quotes.  An asterick will perform matching as
+       in glob.  Examples::
+   
+       --inst=10,30
+   
+       --inst=&quot;Jicamarca IS Radar,Arecibo*&quot;</pre>
+    <pre> --kindat=&lt;kind of data list&gt; - comma separated list of kind of data codes.  See Madrigal documentation
+       for this list.  Defaults to allow all kinds of data.  If names are given, the
+       argument must be enclosed in double quotes.  An asterick will perform matching as
+       in glob. Examples::
+   
+       --kindat=3001,13201
+   
+       --kindat=&quot;INSCAL Basic Derived Parameters,*efwind*,2001&quot;</pre>
+    <pre> --filter=&lt;[mnemonic] or [mnemonic1,[+-*/]mnemonic2]&gt;,&lt;lower limit1&gt;,&lt;upper limit1&gt;[or&lt;lower limit2&gt;,&lt;upper limit2&gt;...]
+       a filter using any measured or derived Madrigal parameter, or two Madrigal parameters either added,
+       subtracted, multiplied or divided.  Each filter has one or more allowed ranges.  The filter accepts
+       data that is in any allowed range.  If the Madrigal parameter value is missing, the filter will always
+       reject that data.  Multiple filter arguments are allowed on the command line.  To skip either a lower
+       limit or an upper limit, leave it blank.  Examples::</pre>
+    <pre> filter=ti,500,1000  (Accept when 500 &lt;= Ti &lt;= 1000)</pre>
+    <pre> filter=gdalt,-,sdwht,0,  (Accept when gdalt &gt; shadowheight - that is, point in direct sunlight)</pre>
+    <pre> filter=gdalt,200,300or1000,1200 (Accept when 200 &lt;= gdalt &lt;= 300 OR 1000 &lt;= gdalt &lt;= 1200)</pre>
+    <pre> --seasonalStartDate=&lt;MM/DD&gt; - seasonal start date to filter experiments before.  Use this to select only part of the
+       year to collect data.  Defaults to Jan 1.  Example:  --seasonalStartDate=07/01 would only allow
+       experiments after July 1st from each year.</pre>
+    <pre> 
+       --seasonalEndDate=&lt;MM/DD&gt; - seasonal end date to filter experiments after.  Use this to select only part of the
+       year to collect data.  Defaults to Dec 31.  Example:  --seasonalEndDate=10/31 would only allow
+       experiments before Oct 31 of each year.</pre>
+    <pre> --showFiles - if given, show file names.  Default is to not show file names.</pre>
+    <pre> --showSummary - if given, summarize all arguments at the beginning.  Default is to not show summary.</pre>
+    <pre> --includeNonDefault - if given, include all files, including history.  Default is to search only default files.</pre>
+    <pre> --missing=&lt;missing string&gt; (defaults to &quot;missing&quot;)</pre>
+    <pre> --assumed=&lt;assumed string&gt; (defaults to &quot;assumed&quot;)</pre>
+    <pre> --knownbad=&lt;knownbad string&gt; (defaults to &quot;knownbad&quot;)</pre>
+    <pre> --verbose - if given, print each file processed info to stdout.  Default is to run silently.</pre>
+    <pre>
+   Example:
+   
+        globalIsprint.py --url=http://www.haystack.mit.edu/madrigal/ --parms='uth,gdalt,ti' --output=test.dat 
+	    --startDate=01/19/1998 --endDate=01/21/1998 --inst=&quot;Millstone*&quot; --verbose --user_fullname=&quot;Bill Rideout&quot; 
+	    --user_email=brideout@haystack.mit.edu  --user_affiliation=MIT
+    </pre>
+    <h2><a name="globalIsprintMatlab" id="globalIsprintMatlab"></a>globalIsprint.m</h2>
+    <p>This script runs a global search through Madrigal data from a given URL. It is installed when you install the <a href="rt_matlab.html">Remote Matlab API</a>. Because it is a remote program, it can be run from any machine on the internet, using any operating system. It is a Matlab script. Because it uses the Matlab method urlread, which has an upper limit to the amount of data it can read in one call, it is not as robust as globalIsprint.py. It is recommended that globalIsprint.py be used instead if at all possible. </p>
+    <pre>function [] = globalIsprint(url, ...<br />    parms, ...<br />    output, ...<br />    user_fullname, ...<br />    user_email, ...<br />    user_affiliation, ...<br />    startTime, ...<br />    endTime, ...<br />    inst)<br />% globalIsprint is a script to search through the entire Madrigal database<br />% for appropriate data to print in ascii to a file<br />%<br />%    Inputs:<br />%<br />%        url - url to homepage of site to be searched (Example: <br />%              'http://www.haystack.mit.edu/madrigal/'<br />%<br />%        parms - a comma delimited string listing the desired Madrigal <br />%            parameters in mnemonic form.  <br />%            (Example: 'year,month,day,hour,min,sec,gdalt,dte,te').  <br />%            Ascii space-separated ata will be returned in the same  <br />%            order as given in this string. See <br />%            http://madrigal.haystack.mit.edu/cgi-bin/madrigal/getMetadata<br />%            &quot;Parameter code table&quot; for all possible parameters.<br />%<br />%        output - the local file name to store the resulting ascii data.<br />%                 (Example: '/tmp/isprint.txt')<br />%<br />%        user_fullname - the full user name (Example: 'Bill Rideout')<br />%<br />%        user email -  Example: 'brideout@haystack.mit.edu'<br />%<br />%        user_affiliation - Example: 'MIT'<br />%<br />%        startTime - a Matlab time to begin search at. Example:<br />%                    datenum('20-Jan-1998 00:00:00') Time in UT<br />%<br />%        endTime - a Matlab time to end search at. Example:<br />%                  datenum('21-Jan-1998 23:59:59') Time in UT<br />%<br />%        inst - instrument code (integer).  See <br />%            http://madrigal.haystack.mit.edu/cgi-bin/madrigal/getMetadata<br />%            &quot;Instrument Table&quot; for this list. Examples: 30 for Millstone<br />%            Hill Incoherent Scatter Radar, 80 for Sondrestrom Incoherent <br />%            Scatter Radar<br />%<br />%    Returns: Nothing.<br />%<br />%    Affects: Writes results to output file<br />%<br />%        <br />%<br />%  Example: globalIsprint('http://www.haystack.mit.edu/madrigal/', ...<br />%                         'year,month,day,hour,min,sec,gdalt,dte,te', ...<br />%                         '/tmp/isprint.txt', ...<br />%                         'Bill Rideout', ...<br />%                         'brideout@haystack.mit.edu', ...<br />%                         'MIT', ...<br />%                         datenum('20-Jan-1998 00:00:00'), ...<br />%                         datenum('21-Jan-1998 23:59:59'), ...<br />%                         30);<br />%</pre>
+    <h2><a name="madrigalPColor" id="madrigalPColor"></a>madrigalPColor.py</h2>
+    <p>madrigalPColor.py is a command-line application  that creates PColor plots from Madrigal. For example, it could be used to plot electron density versus altitude and time for a given Madrigal experiment file. </p>
+    <p>This application can be run from anywhere, and is included in the python Madrigal remote API download. Use of this module requires matplotlib (matplotlib.sourceforge.net).</p>
+    <p><strong>Usage:</strong></p>
+    <pre>python madrigalPColor.py  --url=&lt;url&gt; --file=&lt;file&gt; --parm=&lt;parm&gt;
+       --output=&lt;output&gt; --name=&lt;name&gt; --email=&lt;email&gt; --affiliation=&lt;affiliation&gt;
+     [--filter=&lt;filter&gt; --title=&lt;title&gt; --startHour=startHour --endHour=endHour<br />    --minAlt=minimum_altitude --maxAlt=maximum_altitude --minParm=minimum_parm_value <br />    --maxParm=maximum_parameter_value]</pre>
+    <p>See <a href="#isprint">isprint</a> for details of how filters work.</p>
+    <p>Example:</p>
+    <pre>python madrigalPColor.py  --url=http://madrigal.haystack.mit.edu/madrigal \
+       --file=/opt/madrigal/experiments/1998/mlh/20jan98/mlh980120g.002 --parm=nel \
+       --output=/tmp/mlh_20jan98.png --name=&quot;Bill Rideout&quot; --email=brideout@haystack.mit.edu \
+       --affiliation=MIT --filter=&quot;filter=elm,80,90 filter=gdalt,,500&quot;</pre>
+    <h2><a name="madrigalScatter" id="madrigalScatter"></a>madrigalScatter.py</h2>
+<p>madrigalScatter.py is a command-line application  that creates scatter plots from Madrigal. For example, it could be used to Kp versus  time  for a given Madrigal experiment file.</p>
+<p>This application can be run from anywhere, and is included in the python Madrigal remote API download. Use of this module requires matplotlib (matplotlib.sourceforge.net).</p>
+<p><strong>Usage:</strong></p>
+<pre>python madrigalScatter.py  --url=&lt;url&gt; --file=&lt;file&gt; --parm=&lt;parm&gt;
+   --output=&lt;output&gt; --name=&lt;name&gt; --email=&lt;email&gt; --affiliation=&lt;affiliation&gt;
+   [--filter=&lt;filter&gt; --title=&lt;title&gt; --startHour=startHour --endHour=endHour<br />    --yMin=y_minimum --yMax=y_maximum]</pre>
+<p>See <a href="#isprint">isprint</a> for details of how filters work.</p>
+<p>Example:</p>
+<pre>python madrigalScatter.py  --url=http://madrigal.haystack.mit.edu/madrigal \
+   --file=/opt/madrigal/experiments/1998/mlh/20jan98/mlh980120g.002 --parm=systmp \
+   --output=/tmp/mlh_20jan98.png --name=&quot;Bill Rideout&quot; --email=brideout@haystack.mit.edu \
+   --affiliation=MIT --filter=&quot;filter=elm,80,90&quot;
+
+</pre>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_plotData.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_usersGuide.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rt_contents.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Command line interface to Madrigal<!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_plotData.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Plot data from instruments <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_usersGuide.html"><!-- InstanceBeginEditable name="UpTitle2" -->Madrigal user's guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="rt_contents.html"><!-- InstanceBeginEditable name="NextTitle2" -->Remote access programming tutorial toc <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

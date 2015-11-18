@@ -1,0 +1,1335 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalWeb</title>
+        </head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalWeb</font>
+            </th>
+            <th align="right"><font color="#000000">ui/web.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalWeb is the class that produces output for the web.</h3>
+<p>    All text written to the web is produced in this class.</p>
+
+<p>    Non-standard Python modules used:
+    None</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Dec. 17, 2001</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+
+            <table border="0" cellspacing="2" cellpadding="2" width="100%">
+              <tr>
+            <td align="LEFT" valign="TOP">
+<a href="#__dropLock">__dropLock</a><br>
+<a href="#__getLock">__getLock</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#filterHtmlFormat">filterHtmlFormat</a><br>
+<a href="#generateLogout">generateLogout</a><br>
+<a href="#getCgiString">getCgiString</a><br>
+<a href="#getCgiStringFromList">getCgiStringFromList</a><br>
+<a href="#getCookieDateOneYearAgo">getCookieDateOneYearAgo</a><br>
+<a href="#getCookieDateOneYearAhead">getCookieDateOneYearAhead</a><br>
+<a href="#getFirstOwner">getFirstOwner</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#getFirstPrivDir">getFirstPrivDir</a><br>
+<a href="#getFirstPubDir">getFirstPubDir</a><br>
+<a href="#getFirstUserDir">getFirstUserDir</a><br>
+<a href="#getIntListFromStrList">getIntListFromStrList</a><br>
+<a href="#getOptionAllUserDirTags">getOptionAllUserDirTags</a><br>
+<a href="#getOptionFilterTags">getOptionFilterTags</a><br>
+<a href="#getOptionKindatListTags">getOptionKindatListTags</a><br>
+<a href="#getOptionKinstListTags">getOptionKinstListTags</a><br>
+<a href="#getOptionListTags">getOptionListTags</a><br>
+<a href="#getOptionMonthTags">getOptionMonthTags</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#getOptionNumericTags">getOptionNumericTags</a><br>
+<a href="#getOptionPrivDirTags">getOptionPrivDirTags</a><br>
+<a href="#getOptionPubDirTags">getOptionPubDirTags</a><br>
+<a href="#getRulesOfTheRoad">getRulesOfTheRoad</a><br>
+<a href="#getSpaceString">getSpaceString</a><br>
+<a href="#isTrusted">isTrusted</a><br>
+<a href="#logDataAccess">logDataAccess</a><br>
+<a href="#outputHead">outputHead</a><br>
+<a href="#outputIsprintReport">outputIsprintReport</a><br>
+</td>
+</tr>
+            </table>
+            
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__dropLock"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__dropLock&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__dropLock ( self,  filename )
+
+</pre></font>
+<h3>__dropLock is a private helper function that drops exclusive access to filename via a locking file.</h3>
+<p>        Inputs: filename = the file that exclusive access is required to.</p>
+
+<p>        Returns: None</p>
+
+<p>        Affects: Removes file filename + .LCK as a lock mechanism</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getLock"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getLock&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getLock ( self,  filename )
+
+</pre></font>
+<h3>__getLock is a private helper function that provides exclusive access to filename via a locking file.</h3>
+<p>        Inputs: filename = the file that exclusive access is required to.</p>
+
+<p>        Returns: None</p>
+
+<p>        Affects: Writes file filename + .LCK as a lock mechanism</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write lock file</p>
+
+<p>        Notes: Will sleep for 1 second at a time, for a maximum of _MaxSleep seconds (presently 10)
+        if the file is not modified. After each second, it will check for the lock file to be removed
+        or modified. If it was modified, it resets the count to 0 sec and starts counting again. After
+        _MaxSleep counts it then assumes lock file is orphaned and returns.  Orphaned file will be
+        removed when dropLock is called.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( "Unable to open " + filename + ".LCK as locking file ", None )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ ( self,  madDB=None )
+
+</pre></font>
+<h3>__init__ initializes MadrigalWeb by reading from MadridalDB..</h3>
+<p>        Inputs: Existing MadrigalDB object, by default = None.</p>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes self.__metaDir, self._logFile.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="filterHtmlFormat"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">filterHtmlFormat&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+filterHtmlFormat ( self,  madFilter )
+
+</pre></font>
+<h3>filterHtmlFormat returns a filter formatted as an html table for display on the web.</h3>
+<p>        Inputs: a madrigal filter</p>
+
+<p>        Returns: a filter formated as an html table for display on the web.</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="generateLogout"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">generateLogout&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+generateLogout (
+        self,
+        fileName,
+        expName,
+        )
+
+</pre></font>
+<h3>generateLogout generates a java script which sends a user to the madLogin page to logout automatically.</h3>
+<p>        Inputs: fileName: the madrigal file to return to
+                expName:  the experiment name of the file to return to</p>
+
+<p>        Returns: a java script which sends a user to the madLogin page to logout automatically</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getCgiString"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getCgiString&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getCgiString ( self,  strWithSpaces )
+
+</pre></font>
+<h3>getCgiString returns a string based on strWithSpaces with all spaces replaced by %20's</h3>
+<p>        Inputs: strWithSpaces - a string that may contain spaces</p>
+
+<p>        Returns: a string based on strWithSpaces with all spaces replaced by %20's</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getCgiStringFromList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getCgiStringFromList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getCgiStringFromList ( self,  list )
+
+</pre></font>
+<h3>getCgiStringFromList returns a string based on a list with items separated by %20's</h3>
+<p>        Inputs: list - a python list</p>
+
+<p>        Returns: a string based on list with items separated by %20's</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getCookieDateOneYearAgo"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getCookieDateOneYearAgo&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getCookieDateOneYearAgo ( self )
+
+</pre></font>
+<h3>getCookieDateOneYearAgo returns a string formated as per cookie standard of time one year in the past.</h3>
+<p>        Inputs: none</p>
+
+<p>        Returns: a string formated as per cookie standard of time one year in the past. Used to set the expires
+        attribute of a cookie to be deleted</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getCookieDateOneYearAhead"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getCookieDateOneYearAhead&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getCookieDateOneYearAhead ( self )
+
+</pre></font>
+<h3>getCookieDateOneYearAhead returns a string formated as per cookie standard of time one year in future.</h3>
+<p>        Inputs: none</p>
+
+<p>        Returns: a string formated as per cookie standard of time one year in future. Used to set the expires
+        attribute of a cookie to be persisted.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFirstOwner"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFirstOwner&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFirstOwner ( self,  madUserDataObj )
+
+</pre></font>
+<h3>getFirstOwner returns the first owner name of a public directory - used by default when a new file is loaded.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: the first owner name of a public directory - used when a new file is loaded.  Empty string if no
+        public directories exist.</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFirstPrivDir"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFirstPrivDir&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFirstPrivDir (
+        self,
+        madUserDataObj,
+        username,
+        )
+
+</pre></font>
+<h3>getFirstPrivDir returns the first private directory name found - used by default when a new file is loaded.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: the first private directory name found - used by default when a new file is loaded.  Empty string if no
+        public directories exist.</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFirstPubDir"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFirstPubDir&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFirstPubDir ( self,  madUserDataObj )
+
+</pre></font>
+<h3>getFirstPubDir returns the first public directory name found - used by default when a new file is loaded.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: the first public directory name found - used by default when a new file is loaded.  Empty string if no
+        public directories exist.</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFirstUserDir"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFirstUserDir&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFirstUserDir (
+        self,
+        madUserDataObj,
+        username,
+        )
+
+</pre></font>
+<h3>getFirstUserDir returns the first directory name found for a given user - used by default when save filter is loaded.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: the first directory name found owned by a given user - used by default when save filter file is loaded.  Empty string if no
+        public directories exist.</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getIntListFromStrList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getIntListFromStrList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getIntListFromStrList ( self,  strList )
+
+</pre></font>
+<h3>getIntListFromStrList returns a list containing integers given a list of integers in string form</h3>
+<p>        Inputs: strList - a list a strings that can be converted to integers</p>
+
+<p>        Returns: a list containing integers given a list of integers in string form</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: MadrigalError thrown if a string in the list cannot be converted to an integer.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError("Unable to convert following list to integers: " + str( strList ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionAllUserDirTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionAllUserDirTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionAllUserDirTags (
+        self,
+        madUserDataObj,
+        filterOwner,
+        dirName='',
+        )
+
+</pre></font>
+<h3>getOptionAllUserDirTags outputs a series of html option tags with representing the list of all dirs owned by a user</h3>
+<p>        Inputs: madUserDataObj - an object of type MadrigalUserData
+            filterOwner - a string representing the username of the filter owner</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;&lt;dirName&gt; (public)&quot;&gt;&lt;dirName&gt;...
+        where (public) or (private) is appended to value based on dir type.  If dirName is passed in and
+        found to match, then that dir will be selected.  Otherwise, the first row will be selected</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionFilterTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionFilterTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionFilterTags (
+        self,
+        madUserDataObj,
+        filterOwner,
+        filterDir,
+        filterName='',
+        )
+
+</pre></font>
+<h3>getOptionFilterTags outputs a series of html option tags with representing the list of filters</h3>
+<p>        Inputs: madUserDataObj - an object of type MadrigalUserData
+            filterOwner - a string representing the username of the filter owner
+            filterDir - a string representing the name of the private directory
+            filterName - a string representing the filter name to be selected - if blank or not found, select first</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;&lt;filterName&gt;&quot;&gt;&lt;filterName&gt;...
+        If a filterName is passed in and found to match, then that filter will be selected.  Otherwise,
+        the first row will be selected</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionKindatListTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionKindatListTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionKindatListTags (
+        self,
+        optionList,
+        selectedNumber=None,
+        )
+
+</pre></font>
+<h3>getOptionKindatListTags outputs a series of html option tags of form &lt;option value=&quot;&lt;kindat num&gt;&quot;&gt;&lt;kindat description&gt;..</h3>
+<p>        Inputs: optionList - a list of kindat numbers to be options
+            selectedNumber - the number of the item to be selected by default.  If None, none selected</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;&lt;kindatt num&gt;&quot;&gt;&lt;kindat description&gt;...</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionKinstListTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionKinstListTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionKinstListTags (
+        self,
+        optionList,
+        selectedNumber=None,
+        )
+
+</pre></font>
+<h3>getOptionKinstListTags outputs a series of html option tags of form &lt;option value=&quot;&lt;kinst num&gt;&quot;&gt;&lt;kinst description&gt;..</h3>
+<p>        Inputs: optionList - a list of kinst numbers to be options
+            selectedNumber - the number of the item to be selected by default.  If None, none selected</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;&lt;kinst num&gt;&quot;&gt;&lt;kinst description&gt;...</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionListTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionListTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionListTags (
+        self,
+        optionList,
+        selectedNumber=None,
+        )
+
+</pre></font>
+<h3>getOptionListTags outputs a series of html option tags with representing the items in a list</h3>
+<p>        Inputs: optionList - a list of items to be options
+            selectedNumber - the number of the item to be selected by default.  If None, none selected</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;&lt;item&gt;&quot;&gt;&lt;item&gt;...</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionMonthTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionMonthTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionMonthTags ( self,  selectedMonth )
+
+</pre></font>
+<h3>getOptionMonthTags outputs a series of html option tags with representing the months of the year</h3>
+<p>        Inputs: selectedMonth - an integer (1-12) representing the month to be selected</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;1&quot;&gt;Jan&lt;option value=&quot;2&quot;&gt;Feb...</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionNumericTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionNumericTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionNumericTags (
+        self,
+        startNum,
+        endNum,
+        selectedNum,
+        )
+
+</pre></font>
+<h3>getOptionTags outputs a series of html option tags with numerical values from startNum to endNum</h3>
+<p>        Inputs: startNum - integer value of first option tag
+            endNum - integer value of last option tag
+            selectedNum - integer value of which tag is selected</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;1&quot;&gt;1&lt;option value=&quot;2&quot;&gt;2...</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionPrivDirTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionPrivDirTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionPrivDirTags (
+        self,
+        madUserDataObj,
+        filterOwner,
+        filterDir='',
+        )
+
+</pre></font>
+<h3>getOptionDirTags outputs a series of html option tags with representing the list of private directories</h3>
+<p>        Inputs: madUserDataObj - an object of type MadrigalUserData
+            filterOwner - a string representing the username of the filter owner
+            filterDir - a string representing the name of the private directory</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;&lt;dirName&gt;&quot;&gt;&lt;dirName&gt;...
+        If a filterOwner and filterDir are passed in and found to match, then that dir will be selected.  Otherwise,
+        the first row will be selected</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getOptionPubDirTags"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getOptionPubDirTags&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getOptionPubDirTags (
+        self,
+        madUserDataObj,
+        filterOwner='',
+        filterDir='',
+        )
+
+</pre></font>
+<h3>getOptionDirTags outputs a series of html option tags with representing the list of public directories</h3>
+<p>        Inputs: madUserDataObj - an object of type MadrigalUserData
+            filterOwner - a string representing the username of the filter owner
+            filterDir - a string representing the name of the directory</p>
+
+<p>        Returns: a string containing option tags of form &lt;option value=&quot;&lt;userName:dirName&gt;&quot;&gt;&lt;userName:dirName&gt;...
+        If a filterOwner and filterDir are passed in and found to match, then that dir will be selected.  Otherwise,
+        the first row will be selected</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getRulesOfTheRoad"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getRulesOfTheRoad&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getRulesOfTheRoad ( self )
+
+</pre></font>
+<h3>getRulesOfTheRoad returns a string giving the rules in html formal for using madrigal data.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: a string giving the rules in html formal for using madrigal data</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getSpaceString"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getSpaceString&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getSpaceString ( self,  cgiString )
+
+</pre></font>
+<h3>getSpaceString returns a string based on cgiString with all %20's replaced by spaces</h3>
+<p>        Inputs: cgiString - a string that may contain %20's replacing spaces</p>
+
+<p>        Returns: a string based on cgiString with all %20's replaced by spaces</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="isTrusted"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">isTrusted&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+isTrusted ( self )
+
+</pre></font>
+<h3>isTrusted returns 1 if browser ip matches any in the trustedIPs.txt file; 0 otherwise.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: 1 if browser ip matches any in the trustedIPs.txt file; 0 otherwise.  Also returns
+        0 if no browser ip available or trustedIPs.txt cannot be opened.</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="logDataAccess"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">logDataAccess&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+logDataAccess (
+        self,
+        fullFilenameList,
+        user_fullname=None,
+        user_email=None,
+        user_affiliation=None,
+        )
+
+</pre></font>
+<h3>logDataAccess logs queries that access low-level data.</h3>
+<p>        Records user name, email, affiliation, datetime, and full path the file(s) accessed.</p>
+
+<p>        Inputs:</p>
+<p>            fullFilenameList either a list of full filenames, or a string with one filename</p>
+
+<p>            user_fullname - if None, try to read from cookie.  Also, any commas replaced by spaces.</p>
+
+<p>            user_email - if None, try to read from cookie.  Also, any commas replaced by spaces.</p>
+
+<p>            user_affiliation - if None, try to read from cookie.  Also, any commas replaced by spaces.</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Affects: Write line to log file with 5 or more comma-delimited columns.  Example:</p>
+<p>            Bill Rideout,brideout@haystack.mit.edu,MIT Haystack,2002-12-25 00:00:00,             /opt/madrigal/experiments/2005/mlh/01sep05/mlh050901g.001,/opt/madrigal/experiments/2005/mlh/02sep05/mlh050902g.001</p>
+
+
+<p>        Uses __getLock and __dropLock to ensure single users access to log file</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="outputHead"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">outputHead&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+outputHead ( self,  title )
+
+</pre></font>
+<h3>outputHead outputs a standard html &lt;head&gt; with the given title</h3>
+<p>        Inputs: title - string : title of cgi page</p>
+
+<p>        Returns: a standard html &lt;head&gt; with the given title.  This function
+        also defines the &quot;lb&quot; class used to format buttons, so changing that
+        format here changes it in all madrigal python cgi pages.</p>
+
+<p>        Affects: None.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="outputIsprintReport"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">outputIsprintReport&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+outputIsprintReport (
+        self,
+        madFilter,
+        madForm,
+        filename,
+        )
+
+</pre></font>
+<h3>outputIsprintReport prints a isprint-formated maddata object given a madrigal filter.</h3>
+<p>        Works by calling madrigal._Madrec.getIsprintReport</p>
+
+<h4>Inputs: 1) madFilter = the MadrigalFilter that determines all the settings.</h4>
+<ol><li><p>madForm - a cgi.FieldStorage object representing the submitted form</p>
+
+</li>
+<li><p>filename  = the full path to the madrigal file to use</p>
+
+</li></ol>
+
+<p>        Returns: None</p>
+
+<p>        Affects: prints a isprint-formated maddata object given a madrigal filter.</p>
+
+<p>        Exceptions: None.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( "Illegal mnemonic operator: " + mnemList [ 1 ], None )<br>
+madrigal.admin.MadrigalError( "Illegal mnemonic string: " + str( madFilter.mnemStr1 ), None )<br>
+madrigal.admin.MadrigalError( "Illegal mnemonic string: " + str( madFilter.mnemStr2 ), None )<br>
+
+</td></tr>
+</table>
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri May 30 14:39:57 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

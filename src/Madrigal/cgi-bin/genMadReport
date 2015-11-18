@@ -1,0 +1,652 @@
+#!/Users/mnicolls/Documents/Work/Madrigal/bin/python
+
+import sys, os, traceback
+import cgi, Cookie
+import time
+import types
+import urllib2
+
+
+
+
+class MadrigalReport:
+    """GetEmailFromUser is the class that produces the MadrigalReport page.
+    
+    MadrigalReport has the following structure:  the entire cgi is contained in one class, with a
+    main function at the end which serves simply to call the __init__  function of the class.  This
+    __init__ function is responsible for calling all other class methods. It is made up of a single
+    try block, with the purpose of reporting all exceptions in well-formatted html to both the user
+    and the administrator. The __init__ function first makes sure the pythonlib can be found.  It
+    then calls setScriptState to determine from any cgi arguments what the script is supposed to do.
+    The script state is always set in self.state.  The particular values allowed for MadrigalReport
+    are discussed below.
+
+    The __init__ function then calls createObjects to create whatever python api objects are required
+    to complete the script.  If the user has made a request that may succeed or may fail, that request is
+    then processed.  The script thereafter calls outputHead to output the header section and any required
+    javascript.  Finally, __init__ calls a few functions for each of the main sections of the body.
+
+    If any uncaught exception is thrown, its caught by the __init__ try block.  If it's a MadrigalError,
+    additional information is available.  The catch blocks attempt to display the error message on the screen
+    by backing out of of large number of possible tags, which might prevent its display (in any case, the error
+    message will always be available in the page source.  The formatted error message is also sent to the email
+    address given in the siteTab.txt metadata file.
+
+    Every attempt is made to generate easy to read source html, since it is often an easy starting point for
+    analyzing the script.  Table structure is indicated by indentation, as is javascript code structure.
+
+    Allowed values of self.state:
+
+    'default':          Default when page is called.
+
+    'inst_chosen':      Instruments have been chosen and page reloads to get kindats specific to chosen instruments.
+
+    'parm_chosen':      Parameters have been chosen and page relaods to let users continue selecting search criteria.
+
+
+    All the python cgi scripts maintain state through form elements, either visible on the page, or as hidden elements.
+    The names of all form elements used by madSearch are listed below:
+
+    calling page:       gives the name of the file being analyzed, either relative to the experiments directory (in which
+			case it does not begin with a forward slash, or absolute path (in which case is begins with a
+			forward slash.)  Stored as hidden element.  
+
+
+    state:	        gives the state of the script (see above).  Defaults to 'edit' if not passed in. Stored as hidden
+                        element and modified by javascript.
+
+    stationName:        a select input giving the list of instruments available. Defaults to 'All Instruments'.
+
+    kindatName:         a select input giving the list of kinds of data available. Defaults to 'All kinds of data'.
+
+    sd:                 an input text field giving the start day to select data - integer.
+
+    sm:                 an input text field giving the start month to select data - integer (1-12)
+
+    sy:                 an input text field giving the start year to select data - validated as integer.
+
+    ed:                 an input text field giving the end day to select data - integer.
+
+    em:                 an input text field giving the end month to select data - integer (1-12)
+
+    ey:                 an input text field giving the end year to select data - validated as integer.
+
+    ssd:                an input text field giving the seasonal start day to select data - integer.
+
+    ssm:                an input text field giving the seasonal start month to select data - integer (1-12)
+
+    sed:                an input text field giving the seasonal end day to select data - integer.
+
+    sem:                an input text field giving the seasonal end month to select data - integer (1-12)
+
+    filters:            an input text field giving the paramter filters to enter filters in logical expressions
+        
+    keywordsearch:      an input text field giving the experiment name to enter partial keyword of experiment
+
+    header:             a check box giving the option show a header or vice versa
+
+    emailAddress:       an input text field in GetEmailFromUser that gets the user's emaill address
+
+    queryStr:           gets all names and values of hidden elements (in javascript), so that a redirect to madSearch with all previously entered info is possible
+
+    tempFiltersList:    contains a temporary list of filters in printHiddenElements()
+
+    parmList:           contains a list of selected parameters
+
+    parmMnemonicList:   converts parmList to a list of CEDAR parameter mnemonic list
+
+    email:              gets the users email that was entered by the user
+
+    KeywordSearch:      gets the keyword that was entered by the user
+
+    filterList:         gets the list of parameter filters that was entered by the user
+
+    Header:             determines the summary level of the report
+
+    StartMonth:         gets start month entered for generating report
+
+    StartYear:          gets start year entered for generating report
+    
+    StartDay:           gets start day entered for generating report
+
+    EndDay:             gets end day entered for generating report
+
+    EndMonth:           gets end month entered for generating report 
+
+    EndYear:            gets end year entered for generating report
+
+    seasonalStartMonth: gets seasonal start month entered for generating report
+
+    seasonalStartDay:   gets seasonal start day entered for generating report
+
+    seasonalEndDay:     gets seasonal end day entered for generating report
+
+    seasonalEndMonth:   gets seasonal end month entered for generating report
+
+    startDate:          converts start date to tuples
+    
+    endDate:            converts end date to tuples
+
+    startDayOfYear:     converts seasonal start dates to julian day
+    
+    endDayOfYear:       converts seasonal end dates to julian day
+
+    stationNameStr:     gets instrument list selected in report
+
+    stationNameList:    converts stationNameStr to a list
+
+    stationNameIntList: gets an instrument integer list from the string list
+
+    instrumentName:     gets name(s) of selected instruments for report email header
+
+    kindatNameStr:      gets kindat list selected in report
+    
+    kindatNameList:     converts kindatNameStr to a list
+
+    kindatNameIntList:  gets a kindat integer list from the string list
+
+    codeName:           gets kindat descriptions for corresponding code names
+
+    date:               gets local time for email report header
+
+    emailHeader:        gets string of email header
+
+    getFileInfo:        returns a list of full file names that match the search arguments
+
+        
+    Change history:
+
+    Written by "Ezinne Uzo-Okoro":mailto:euzookoro@haystack.mit.edu  July 31, 2002
+
+    $Id: genMadReport,v 1.22 2009/03/17 13:17:44 brideout Exp $
+    """
+
+
+
+    # constants
+    __scriptName = 'genMadReport'
+
+    # maximum number of files that can be searched at once
+    __maxFiles = 200
+
+    
+    # states the script can be entered
+
+    def __init__(self):
+        """__init__ run the entire MadrigalSearch script.  All other functions are private and called by __init__.
+
+        Inputs: None
+        
+        Returns: void
+
+        Affects: Ouputs cgi script MadrigalSearch.
+
+        Exceptions: None.
+        """
+
+
+        # catch any exception, and write an appropriate message to user and to admin
+        try:
+
+            # check if pythonlibpath env variable exists
+            # written 'PYTHON' + 'LIBPATH' to stop automatic replacement during setup
+            temp = os.environ.get('PYTHON' + 'LIBPATH')
+            if temp != None:
+                    sys.path.append(temp)
+		    
+            # append path madroot/lib (needed only if python not installed by setup)
+            sys.path.append('/Users/mnicolls/Documents/Work/Madrigal/lib/python')
+
+            # prepare to handle MadrigalError
+            import madrigal.admin
+	    
+        except ImportError:
+	    
+	    # Fatal error - madpy library not found
+            print "Content-Type: text/html"
+            print
+            print "Unable to import the madrigal python library - please alert the sys admin!"
+            sys.exit(0)
+	    
+        try:
+
+            # set flag as to whether script headers have been written
+            self.scriptHeaders = 0
+            
+            # determine from form arguments and cookies which script state to use
+            self.setScriptState()
+            
+            # create needed Madrigal objects
+            self.createObjects()
+
+            # process requested login or password change
+            self.success = ''
+
+            # self.result indicates whether query could be started
+            self.result = -1
+            
+            # output html
+
+            #print header
+            self.outputHead('Generating Report')
+
+            #print body tag
+            print self.madDBObj.getHtmlStyle()
+
+            self.printHeading()
+
+            self.printJavaScript()
+            
+            self.getvalues()
+
+            self.printDescription()
+
+            self.printEndPage()
+
+            
+
+        except madrigal.admin.MadrigalError, e:
+            # handle a MadrigalError
+
+            # back out of any tag so error message appears
+            if self.scriptHeaders != 0:
+                print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            errStr = errStr + e.getExceptionHtml()
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            if self.scriptHeaders == 0: # not yet printed
+                print "Content-Type: text/html"
+                print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        except SystemExit:
+            sys.exit(0)
+
+        except:
+            # handle a normal error
+            
+            # back out of any tag so error message appears
+            if self.scriptHeaders != 0:
+                print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            if self.scriptHeaders == 0: # not yet printed
+                print "Content-Type: text/html"
+                print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        # end __init__
+
+
+    def setScriptState(self):
+        
+        #create a form object
+        self.madForm = cgi.FieldStorage()
+
+        self.state = 'local' # no global searches allowed
+
+
+    def createObjects(self):
+
+        # all states require a MadrigalDB object
+        import madrigal.metadata
+        self.madDBObj = madrigal.metadata.MadrigalDB()
+
+        # if madroot not set, set it now
+        if os.environ.get('MAD' + 'ROOT') == None:
+            os.environ['MAD' + 'ROOT'] = self.madDBObj.getMadroot()
+
+        # create object for MadrigalInstrument
+        self.madInstrumentObj = madrigal.metadata.MadrigalInstrument(self.madDBObj)
+
+        # create object for MadrigalKindat
+        self.madKindatObj = madrigal.metadata.MadrigalKindat(self.madDBObj)
+
+        #create object for MadrigalReport
+        import madrigal.ui.report
+        self.madReportObj = madrigal.ui.report.MadrigalReport(self.madDBObj)
+        
+        # create a MadrigalWeb object
+        import madrigal.ui.web
+        self.madWebObj = madrigal.ui.web.MadrigalWeb(self.madDBObj)
+
+        # create object for MadrigalParameters
+        import madrigal.data
+        self.madParametersObj = madrigal.data.MadrigalParameters(self.madDBObj)
+
+        # create MadrigalSite object
+        self.madSiteObj = madrigal.metadata.MadrigalSite(self.madDBObj)
+
+
+    def outputHead(self, title):
+
+        print "Content-Type: text/html"
+        print                               # blank line
+        self.scriptHeaders = 1
+        print '<html>'
+        print '<head>'
+        print '\t<title>' + title + '</title>'
+        print '\t<style type="text/css">.lb {background: #eeeeff}</style>'
+        print '</head>'
+
+
+    def printHeading(self):
+        
+        print '<center><p>'
+        print '<i>Initializing global search...</i><p>'
+        # force this to be output while file search underway
+        sys.stdout.flush()
+
+
+    def printJavaScript(self):
+
+        # since there is no form element
+        # queryStr gets all names and values of hidden elements, so that a redirect to madSearch
+        # with all previously entered info is possible
+        queryStr = ''
+        for key in self.madForm.keys():
+            value = self.madForm.getvalue(key)
+            if type(value) == types.ListType:
+                for item in value:
+                    item = cgi.escape(str(item))
+                    item = item.replace('+', '%2B')
+                    queryStr += '" + escape("' + cgi.escape(str(key)) + '") + "=' + \
+                                str(item) + '" + "&'               
+            elif type(value) == types.StringType:
+                value = cgi.escape(str(value))
+                value = value.replace('+', '%2B')
+                queryStr += '" + escape("' + cgi.escape(str(key)) + '") + "=' + \
+                            value + '" + "&' 
+
+        print '<script language = "JavaScript">'
+        print '\tfunction done()'
+        print '\t{'
+        print '\t\twindow.location.href="madSearch?' + queryStr + '"'
+        print '\t}'
+        print '\ttimerID = setTimeout("done()", 15000)'
+        print '</script>'
+
+
+
+    def getvalues(self):
+
+        # making parm list from all names with value = "on" except header, showKindat
+        parmList = []
+        for key in self.madForm.keys():
+            if key in ('showKindat', 'header'):
+                continue
+            if self.madForm.getfirst(key) == 'on':
+                parmList.append(key)
+
+
+        # getting email
+        email = self.madForm.getvalue("emailAddress")
+
+        # getting keyword
+        KeywordSearch = self.madForm.getvalue("keywordsearch")
+        if KeywordSearch != None:
+            KeywordSearch = '*' + KeywordSearch + '*'
+
+        # build filter strings
+        delimiter = ' '
+        delimiter2 = ','
+        filterList = ['','','','','']
+        for i in range(5):
+            mnemStr = self.madForm.getvalue("mnemStr" + str(i+1))
+            if mnemStr == None:
+                continue
+            # split via space
+            mnemStrList = mnemStr.split(' ')
+            # remove any empty strings
+            newMnemStrList = []
+            for item in mnemStrList:
+                if len(item) > 0:
+                    newMnemStrList.append(item)
+            if len(newMnemStrList) not in (1, 3):
+                raise "Illegal filter " + delimiter.join(mnemStrList)
+            filterList[i] += delimiter2.join(newMnemStrList)
+            # now get lower and upper range
+            filterList[i] += ','
+            if self.madForm.getvalue("lower" + str(i+1)) != None:
+                filterList[i] += self.madForm.getvalue("lower" + str(i+1))
+            filterList[i] += ','
+            if self.madForm.getvalue("upper" + str(i+1)) != None:
+                filterList[i] += self.madForm.getvalue("upper" + str(i+1))
+
+
+        # getting "Show header" value
+        Header = 0
+        if self.madForm.has_key("header"):
+            Header = 0
+        else:
+            Header = 1
+
+        # getting dates   
+        StartMonth = self.madForm.getvalue("sm")
+        StartYear = self.madForm.getvalue("sy")
+        StartDay = self.madForm.getvalue("sd")
+        EndDay = self.madForm.getvalue("ed")
+        EndMonth = self.madForm.getvalue("em")
+        EndYear = self.madForm.getvalue("ey")
+
+        # getting seasonal dates
+        seasonalStartMonth = int(self.madForm.getvalue("ssm"))
+        seasonalStartDay = int(self.madForm.getvalue("ssd"))
+        seasonalEndDay = int(self.madForm.getvalue("sed"))
+        seasonalEndMonth = int(self.madForm.getvalue("sem"))
+
+        # converting start and end date to tuples
+        startDate = [int(StartYear), int(StartMonth), int(StartDay), 0, 0, 0, 0, 0, 0]
+        endDate = [int(EndYear), int(EndMonth), int(EndDay), 23, 59, 59, 0, 0, 0]
+                
+        # converting seasonal dates to julian days
+        startDayOfYear = time.gmtime(time.mktime((1972, seasonalStartMonth, seasonalStartDay, 0, 0, 0, 0, 0, -1)) - time.timezone)                       
+        endDayOfYear = time.gmtime(time.mktime((1972, seasonalEndMonth, seasonalEndDay, 0, 0, 0, 0, 0, -1)) - time.timezone)
+        
+        # getting instrument list
+        stationNameStr = self.madForm.getvalue("stationName")
+        # checking for lists or strings and changing as appropriate
+        if type(stationNameStr) != types.ListType:
+            stationNameList = [stationNameStr]
+        else:
+            stationNameList = stationNameStr
+        stationNameIntList = self.madWebObj.getIntListFromStrList(stationNameList)
+        instrumentName = ''
+        for name in stationNameIntList:
+            if name == 0:
+                instrumentName = "\n\tAll Instruments"
+            else:
+                instrumentName = instrumentName + '\n\t' + str(self.madInstrumentObj.getInstrumentName(name))
+ 
+        #getting kindat list
+        kindatNameStr = self.madForm.getvalue("kindatName")
+        if type(kindatNameStr) == types.StringType:
+            kindatNameList = [kindatNameStr]
+        elif type(kindatNameStr) == types.ListType:
+            kindatNameList = kindatNameStr
+        else:
+            kindatNameList = []
+
+        if len(kindatNameList) != 0:
+            kindatNameIntList = self.madWebObj.getIntListFromStrList(kindatNameList)
+        else:
+            kindatNameIntList = []
+        # getting kindat descriptions for code names
+        codeName = ''
+        for code in kindatNameIntList:
+            if code == 0:
+                codeName = "\n\tAll Kinds of Data"
+            else:
+                codeName = codeName + '\n\t ' + str(self.madKindatObj.getKindatDescription(code))
+
+        # getting local time for email report header
+        date = time.localtime()
+
+        # getting string of email header
+        emailHeader = str('Report requested from the Madrigal Database Search Query by ' + str(email) + '\n' + str(date[1]) + \
+                          '/' + str(date[2]) + '/' + str(date[0]) + '\n' + \
+                          'Instruments:' + str(instrumentName) + '\nKinds of Data:' + str(codeName) + \
+                          '\nExperiment Name:\n\t' + str(KeywordSearch) + '\nStartDate\t= ' + str(StartDay) + \
+                          '/' + str(StartMonth) + '/' + str(StartYear) + '\nEndDate\t\t= ' + str(EndDay) + '/' + str(EndMonth) + \
+                          '/' + str(EndYear) + '\nYearly filter\t= ' + str(seasonalStartDay) + '/' + str(seasonalStartMonth) + \
+                          ' - ' + str(seasonalEndDay) + '/' + str(seasonalEndMonth) + '\nData filters:\n')
+        
+        delimiter = ' '
+        for filter in filterList:
+            if len(filter) > 0:
+                displayFiltList = filter.split(',')
+                if len(displayFiltList) == 3:
+                    emailHeader += '\t' + displayFiltList[0] + \
+                                   ', lower limit: ' + displayFiltList[1] + ', upper limit: ' + displayFiltList[2] + '\n'
+                elif len(displayFiltList) == 5:
+                    emailHeader += '\t' + delimiter.join(displayFiltList[0:3]) + \
+                                   ', lower limit: ' + displayFiltList[3] + ', upper limit: ' + displayFiltList[4] + '\n'
+                else:
+                    emailHeader += '\t' + str(filter) + '\n'
+                
+        emailHeader += 'Parameters displayed:\t' + str(parmList) + '\n\n'
+
+        # generating report
+        # see whether user should access private files
+        limitAccess = 2 # allow access to public and public archive experiments
+        if self.madWebObj.isTrusted():
+            limitAccess = 3 # allow access to all regular and archive experiments
+
+        
+        getFileInfo = self.madDBObj.getFileListFromMetadata(KeywordSearch,
+                                                            stationNameIntList,
+                                                            kindatNameIntList,
+                                                            startDate,
+                                                            endDate,
+                                                            startDayOfYear[7],
+                                                            endDayOfYear[7],
+                                                            limitAccess,
+                                                            0,
+                                                            1,
+                                                            1)
+        
+        # check if no files found.  If so, set self.result = -2:
+        if len(getFileInfo) == 0:
+            self.result = -2
+        # check if too many files found.  If so, set self.result = -3:
+        elif len(getFileInfo) > self.__maxFiles:
+            self.result = -3
+        else:
+	    # first, create a list sorted by kinst, then start date
+            getFileInfo.sort(_fileSort)
+            newFileList = []
+            for file in getFileInfo:
+                newFileList.append(file[0])
+            getFileInfo = newFileList
+
+            # log data access
+            self.madWebObj.logDataAccess(newFileList)
+            
+            self.result = self.madReportObj.genBackgroundReport(email, getFileInfo, parmList, filterList, emailHeader, Header)
+
+
+        # set number of files found
+        self.numFilesFound = len(getFileInfo)
+
+
+    def printDescription(self):
+
+        print '<form method=get enctype="application/x-www-form-urlencoded">'
+        if self.result not in (-1, -2, -3):
+            print '<br><br><font size=4>\tThank you. Your requested report is being generated. '
+            print 'A total of ' + str(self.numFilesFound) + ' files are being searched for data, '
+            print 'which should take less than ' + str(self.numFilesFound * 2) + ' minutes to complete. '
+            print '(Typical time is ' + str(self.numFilesFound / 5.0) + ' minutes.) '
+            print 'Please check your email then.</font>'
+        elif self.result == -2:
+            print '<br><br><font size=4>\tSorry, the selection criteria you set resulted in no ' + \
+                  'madrigal files being selected.  Please modify your selection criteria.</font>'
+        elif self.result == -3:
+            print '<br><br><font size=4>\tSorry, the selection criteria you set resulted in more than ' + \
+                  'the allowed maximum of ' + str(self.__maxFiles) + \
+                  ' madrigal files being selected.  Please modify your selection criteria.</font>'
+        else:
+            print '<br><br><font size=4>\tSorry.  The maximum number of global queries is already being run. ' + \
+		  'Please resubmit your query later.</font>'
+        print '<P>You will be redirected to the global query page in 15 seconds.</center>'
+        
+        
+    def printEndPage(self):
+        
+        print '</form></body></html>'       # end body, and html 
+
+
+def _fileSort(file1, file2):
+    """ a private method to sort tuples of filename, kinst, startTime.  Sort first by kinst, then start time. """
+    if file1[1] > file2[1]:
+        return 1
+    elif file1[1] < file2[1]:
+        return -1
+    elif file1[2] > file2[2]:
+        return 1
+    elif file1[2] < file2[2]:
+        return -1
+    else:
+        return 0
+    
+    
+          
+
+if __name__ == '__main__':
+
+    # Script genMadSearch
+    # This script only calls the init function of the class MadrigalReport
+    # All work is done by the init function
+    MadrigalReport()
+
+    

@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Breakdown of the Madrigal installation script </title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" --><!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="admin.html" --><!-- InstanceParam name="href_next_top" type="text" value="dev_contents.html" --><!-- InstanceParam name="href_back_top" type="text" value="ad_logging.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="ad_logging.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="admin.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="dev_contents.html" --><!-- InstanceParam name="href_prev_top" type="text" value="ad_logging.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="admin.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="dev_contents.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="ad_logging.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="admin.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="dev_contents.html" -->
+</head>
+
+<body>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="ad_logging.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="admin.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="dev_contents.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Breakdown of the Madrigal installation script <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="ad_logging.html"><!-- InstanceBeginEditable name="PreviousTitle" -->User access logging <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="admin.html"><!-- InstanceBeginEditable name="UpTitle" -->Madrigal admin guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="dev_contents.html"><!-- InstanceBeginEditable name="NextTitle" -->Developer's toc <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Breakdown of the Madrigal installation script </h1>
+<p>The main Madrigal installation script is  <em>madroot</em>/installMadrigal. On this page the main parts of that script are described.</p>
+<p><strong>checkConfig</strong> - this tcl script checks the validity of the entries in the madrigal.cfg file. </p>
+<p><strong>setPermissions</strong> - this tcl script sets appropriate file permissions </p>
+<p><strong>configureSource</strong> - this tcl script edits any scripts  in the source directory that need hard-coded  keywords set in the madrigal.cfg file. It also installs some files needed by the IRI model. </p>
+<p>Autotools (configure, make, make install) then runs from the <em>madroot</em>/source directory and compiles and installs:</p>
+<blockquote>
+  <p><strong>geo library</strong> - the Fortran geo library is next built using the Fortran compiler specified in madrigal.cfg. This library contains a large number of geometric and scientific routines called by the C library madrec. The build directory is <em>madroot</em>/source/madf/geolib. The library is installed in <em>madroot</em>/lib. To rebuild this library manually, cd to that directory and run <em>make</em> and <em>make install</em>. The application looker1 is also built from Fortran. The build directory is <em>madroot</em>/source/madf/applications. The executable is installed in <em>madroot</em>/bin. To rebuild this program manually, cd to that directory and run <em>make</em> and <em>make install</em>.</p>
+  <p><strong>madrec library</strong> - the C madrec library  is next built using the C compiler specified in madrigal.cfg. This library is the heart of Madrigal - it reads and writes Madrigal files, and derives all Madrigal parameters. Python and Tcl all call this library.  The build directory is <em>madroot</em>/source/madc/madrec. The library is installed in <em>madroot</em>/lib. To rebuild this library manually, cd to that directory and run <em>make</em> and <em>make install</em>.</p>
+  <p><strong>madtclsh application</strong> - the madtclsh application is a tclsh extension with capabilities added from the madrec library. It is installed in <em>madroot</em>/bin, and is the application that runs the tcl scripts. The build directory is <em>madroot</em>/source/madc/madtcl. To rebuild this program manually, cd to that directory and run <em>make</em> and <em>make install</em>.</p>
+</blockquote>
+<p><strong>configureHtml</strong> - this tcl script edits the documentation files in the doc directory, replacing keywords set in the madrigal.cfg file, and copies them into the web servers document root as set in madrigal.cfg. If you as an administrator modify any documentation in the doc directory (such as to add <a href="ad_other.html#siteSpecific">site-specific documentation</a>), run this script again to install your changes on the web server. </p>
+<p><strong>configureScripts</strong> - this tcl script edits all the python and tcl scripts in the source directory, putting the modified versions either in the web server's cgi directory, or in <em>madroot</em>/bin.</p>
+<p><strong>python application</strong> - the python application (version 2.5.2) is built next.The large majority of Madrigal is built on python, which is in turn built on the madrec and geo libraries. Madrigal now automatically installs the following external modules in python: pyxml, numpy, and matplotlib. </p>
+<p><strong>configureExperiments</strong> - this tcl script edits all the metadata in each experiment to be sure the site id is the local one. This script also allows you to <a href="ad_other.html#copy_exp">copy an experiment directory from one Madrigal site to another</a>.</p>
+<p><strong>updateMetadata</strong> - the final step in the installation of Madrigal is the updating of metadata through the updateMaster and other scripts.  </p>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="ad_logging.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="admin.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="dev_contents.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Breakdown of the Madrigal installation script <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="ad_logging.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->User access logging <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="admin.html"><!-- InstanceBeginEditable name="UpTitle2" -->Madrigal admin guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="dev_contents.html"><!-- InstanceBeginEditable name="NextTitle2" -->Developer's toc <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

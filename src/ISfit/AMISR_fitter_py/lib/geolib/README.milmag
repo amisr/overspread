@@ -1,0 +1,58 @@
+The coefficients in the module MILMAG were generated from IGRF2000
+found at:
+
+   ftp://nssdcftp.gsfc.nasa.gov/models/geomagnetic/igrf
+   
+A directory was created on a local machine:
+
+   madroot/source/madf/geolib/igrf2000
+   
+..and the entire contents of the remote igrf directory at nssdcftp was
+transferred to the local igrf2000 directory.
+
+then:
+
+    % cd madroot/source/madf/geolib
+    % tclsh cofrm.tcl madroot/source/madf/geolib/igrf2000 > milmag.h
+    
+milmag.f was edited. 
+
+The old coefficient data statements (i.e. for LG,LGT,TMSET and DNMAX)
+were replaced with the contents of milmag.h
+      DATA TMSET(1)/1945.0D0/,DNMAX(1)/11/
+      .
+      .
+      .
+
+The declarations for LG, LGT, TMSET were changed:
+   50,51c43,44
+   <      *                 P(MAXNCO),SHMIT(MAXNCO),SP(NMAXM),TMSET(11)
+   <       INTEGER DNMAX(11),LG(MAXNCO,11),LGT(MAXNCO,11)
+   ---
+   >      *                 P(MAXNCO),SHMIT(MAXNCO),SP(NMAXM),TMSET(12)
+   >       INTEGER DNMAX(12),LG(MAXNCO,12),LGT(MAXNCO,12)
+
+The IF statements which checked for proper input were changed:
+   379c400
+   <       IF (TM.LT.1945 .OR. TM.GE.2001.D0) THEN
+   ---
+   >       IF (TM.LT.1945 .OR. TM.GE.2006.D0) THEN
+   384c405
+   <          IF (TM.GE.2001.D0) TM = 2000.D0
+   ---
+   >          IF (TM.GE.2006.D0) TM = 2005.D0
+
+The IF statements which indicate the set of coefficients to use for
+a particular epoch were changed:
+   429c450,451
+   <          ELSE IF (TM.GE.1995.D0 .AND. DSET.NE.11) THEN
+   ---
+   >          ELSE IF (TM.GE.1995.D0 .AND. TM.LT.2000.D0 .AND.
+   >      *            DSET.NE.11) THEN
+   430a453,455
+   >             SHMIT(1) = 0.D0
+   >          ELSE IF (TM.GE.2000.D0 .AND. DSET.NE.12) THEN
+   >             DSET = 12
+
+Finally, the edited version of milmag.f was run through the NAG
+applications (e.g. /opt/local/bin/nag_decs).

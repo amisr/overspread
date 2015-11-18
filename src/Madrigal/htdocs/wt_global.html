@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Global Madrigal database report</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" --><!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_next_top" type="text" value="wt_plotData.html" --><!-- InstanceParam name="href_back_top" type="text" value="wt_download.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="wt_download.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="wt_plotData.html" --><!-- InstanceParam name="href_prev_top" type="text" value="wt_download.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="wt_plotData.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="wt_download.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="wt_plotData.html" -->
+</head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_download.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_accessData.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_plotData.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Global Madrigal database report <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_download.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Downloading Madrigal files <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_accessData.html"><!-- InstanceBeginEditable name="UpTitle" -->Access data through the web <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="wt_plotData.html"><!-- InstanceBeginEditable name="NextTitle" -->Plot data from instruments <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Global Madrigal database report</h1>
+<p> The Global Madrigal database report is designed to allow searches of the entire local Madrigal Database at once, rather than on only one experiment at a time. These searches can be based on characteristics of the experiment, such as instrument, date, or experiment name, and in addition, can depend on the actual data, such as, whether the ion temperature was above a certain level. This report outputs data in ascii format. This tutorial describes the various way you can select what part of the Madrigal database you want to download. Do do a global search for another Madrigal site, you need to navigate to that site first - this web page only returns data from the local Madrigal site. </p>
+<p>The amount of data you can request may be limited by server capacity. Download   the script <a href="ug_commandLine.html#globalIsprint">globalIsprint.py</a> to run an unlimited search from your local computer. This script is generally more robust than the web interface, with better error messages. </p>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="376" valign="middle"><h5><a name="instrument" id="instrument"></a>Select instrument(s)</h5>
+    <p> This filter allows you to select the instruments you are interested in. You have the option to select more than one instrument. </p>
+    <h5><a name="date" id="date"></a>Experiment dates</h5>
+    <p> This lets you enter the time period you would like to search. It defaults to Jan 1, 1950 to the end of the present year</p>    
+    <h5>Show individual filenames in report </h5>
+    <p>Select this to include the name of the individual files just before their data in the report. If not selected, only the data will be included.</p>    </td>
+    <td width="506" valign="top"><p><img src="icons/global_1.jpeg" alt="Global search web page" width="504" height="356" /></p></td>
+  </tr>
+  <tr>
+    <td height="3"></td>
+    <td></td>
+  </tr>
+</table>
+<h5><a name="parameter" id="parameter"></a>Select parameters to display </h5>
+<p>Use this button to select a list of parameters to be shown in your report. After selecting parameters, you'll be returned to this page, and the parameters you selected will be displayed. UT1, the absolute time is selected by default, but you can always deselect it.</p>
+<h4>Advanced filters </h4>
+<p>The following filters are available only if you click the <em>Show advanced filters</em> checkbox. </p>
+<h5><a name="kindat" id="kindat"></a>Select kind(s) of data</h5>
+<p>This is a filter that lets you select the kinds of data you would like to search with a particular instrument. A &quot;kind of data&quot; is defined individually at each Madrigal site, and describes the way the raw data was processed to derived the particular Madrigal file. If more than one instrument is selected, a list of the kinds of data for those instruments would be displayed. You can then  select which kinds of data you need to in your search. If you don't know which kinds of data to select, simply select them all..</p>
+<h5><a name="season" id="season"></a>Select seasonal filter </h5>
+<p> This filter lets you search through the database in a seasonal or monthly manner. For example, if you need to search for data during the spring time, you enter 3/21 and 6/21 in the start and end date input boxes, respectively. You would then get all experiments between 3/21 and 6/21 that were also in the overall date range entered above. Similarly, if you are only interested in data from November, just enter 11/1 and 11/31, respectively, in the start and end date input boxes. If you do not need this option as a criterion for your search, you can ignore it, since the default will search through the entire year. </p>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="412" valign="top"><h5><a name="name" id="name"></a>Enter complete or partial experiment name </h5>
+    <p> If you want to filter experiments based on experiment name, enter the name of the experiment or partial name. This name-based search is not case sensitive, and you have the option of leaving it blank to get all experiment names. </p>
+    <h5><a name="parameter" id="parameter"></a>Select parameters and set up filters</h5>
+    <p><em>Select parameter(s) to display</em> </p>
+    <p>Use this button to select a list of parameters to be shown in your report. After selecting parameters, you'll be returned to this page, and the parameters you selected will be displayed. UT1, the absolute time is selected by default, but you can always deselect it.</p>    </td>
+    <td width="506" valign="top"><p><img src="icons/global_2.jpeg" alt="Global search advanced options" width="503" height="356" /></p></td>
+  </tr>
+  <tr>
+    <td height="3"></td>
+    <td></td>
+  </tr>
+</table>
+<h5>Set up filters using any Madrigal parameter(s)</h5>
+<p>Use these parameter filters to apply any filter you want to the data. It doesn't matter whether the parameter is measured
+ (that is, read directly from the file), or derived - any parameter(s) that can be selected for display can be used for a 
+ filter. The filters look like the following: </p>
+ 
+<form><table COLS=3 WIDTH="90%">
+<tr>
+<td width="60%">Mnemonic (or Mnem1 +,-,*,/ Mnem2)<br>(example: gdalt <i>or</i> gdalt - sdwht)<br>
+Leave spaces between mnemonics and operator</td>
+<td width="20%">Lower limit (leave blank if none)</td>
+<td width="20%">Upper limit (leave blank if none)</td>
+</tr>
+<tr>
+<td><input WIDTH="60%" name="mnemStr1" value="gdalt - sdwht" size=30></td>
+<td><input WIDTH="20%" name="lower1" value="0.0" size=10></td>
+<td><input WIDTH="20%" name="upper1" value="" size=10></td>
+</tr>
+<tr>
+<td><input WIDTH="60%" name="mnemStr2" value="bmag" size=30></td>
+<td><input WIDTH="20%" name="lower2" value="0.0" size=10></td>
+<td><input WIDTH="20%" name="upper2" value="3e-5" size=10></td>
+</tr>
+<tr>
+<td><input WIDTH="60%" name="mnemStr3" value="" size=30></td>
+<td><input WIDTH="20%" name="lower3" value="" size=10></td>
+<td><input WIDTH="20%" name="upper3" value="" size=10></td>
+</tr>
+<tr>
+<td><input WIDTH="60%" name="mnemStr4" value="" size=30></td>
+<td><input WIDTH="20%" name="lower4" value="" size=10></td>
+<td><input WIDTH="20%" name="upper4" value="" size=10></td>
+</tr>
+<tr>
+<td><input WIDTH="60%" name="mnemStr5" value="" size=30></td>
+<td><input WIDTH="20%" name="lower5" value="" size=10></td>
+<td><input WIDTH="20%" name="upper5" value="" size=10></td>
+</tr>
+</table></form>
+<p>These filters work as follows: The first filter implies &quot;gdalt - sdwht&quot; must be greater than 0.0. Since sdwht is shadow height (the distance above any point on the earth where the sun is first visible), this filter implies that only data in direct sunlight will be displayed. The second filter says that BMAG (the magnitude of the magnetic field) must be between 0 and 3e-5 Tesla. Note that the meaning and units of any parameter are available by clicking on them. You'll need to leave spaces between parameters and operators because some parameter names include &quot;+&quot;. </p>
+<p>Note that the filter can be based on any single parameter (such as BMAG above), or any two parameters either added, subtracted, multiplied, or divided (as in the &quot;gdalt - sdwht&quot; example above). Leaving either the lower limit or the upper limit blank means there will be either no lower limit or no upper limit. Leaving both blank means the filter is ignored. Note that if the parameter you enter is missing or cannot be calculated, it will be rejected no matter what the range is, since missing data is never in any range.</p>
+<p><em>Continue button</em></p>
+<p>When you select Continue, you will see a summary of all the filter parameters you selected. You can then return to this page to modify any selection, or enter your email address to generate your search. Note that when you generate a search, the web page will estimate the time needed to complete your search based on the number of files. When the report is generated, you will receive an email containing the link to your report. <br />
+</p>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_download.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_accessData.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_plotData.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Global Madrigal database report<!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_download.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Downloading Madrigal files <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_accessData.html"><!-- InstanceBeginEditable name="UpTitle2" -->Access data through the web <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="wt_plotData.html"><!-- InstanceBeginEditable name="NextTitle2" -->Plot data from instruments<!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

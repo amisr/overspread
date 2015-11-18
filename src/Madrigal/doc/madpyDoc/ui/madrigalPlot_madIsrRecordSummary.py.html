@@ -1,0 +1,145 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: madIsrRecordSummary</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: madIsrRecordSummary</font>
+            </th>
+            <th align="right"><font color="#000000">ui/madrigalPlot.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <p>madIsrRecordSummary is the class that produces a summary plot of a single ISR record.</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__init__">__init__</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        TiData,
+        TiError,
+        TeData,
+        TeError,
+        VoData,
+        VoError,
+        NelData,
+        NelError,
+        isPopl,
+        description,
+        fullFilename,
+        useRange=False,
+        altResl=None,
+        )
+
+</pre></font>
+<h3>__init__ writes a madIsrRecordSummary  to a file.</h3>
+<p>        Inputs:</p>
+<p>            TiData - an Nx2 numeric array of Ti (col 0) and altitude in km (col 1)</p>
+
+<p>            TiError - an N length array of error in Ti</p>
+
+<p>            TeData - an Nx2 numeric array of Te (col 0) and altitude in km (col 1)</p>
+
+<p>            TeError - an N length array of error in Te</p>
+
+<p>            VoData - an Nx2 numeric array of Vo (col 0) and altitude in km (col 1)</p>
+
+<p>            VoError - an N length array of error in Vo</p>
+
+<p>            NelData - an Nx2 numeric array of (Popl or Nel in m^-3) (col 0) and altitude in km (col 1)</p>
+
+<p>            NelError - an 2xN length array of lower, upper error in Popl or Nel</p>
+
+<p>            isPopl - true if Nel contains Popl data, false if Nel data</p>
+
+<p>            description - text to put in fourth panel of plot - use carriage returns to separate lines</p>
+
+<p>            fullFilename - full filename to save output png file.</p>
+
+<p>            useRange - if False (the default), y axis = Altitude.  If True, y axis = Range.</p>
+
+<p>            altResl - altitude resolution in km.  If not None, show altitude resolution on each graph.</p>
+
+
+<p>        Returns: void</p>
+
+<p>        Affects: None</p>
+
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri May 30 14:39:57 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

@@ -1,0 +1,1312 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalUserData</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalUserData</font>
+            </th>
+            <th align="right"><font color="#000000">ui/userData.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalUserData is an object that provides access to all user data.</h3>
+<p>    The object MadrigalUserData is an object that provides read and write access to
+    all persisted user information on the Madrigal web site.  For the moment this data
+    consists of directories of filters used in isprint, but other information may be added
+    later.  At the moment this data is stored in xml files, but the public part of this
+    class should not change if another storage implementation (e.g., a database) is used</p>
+
+<p>    Usage example:</p>
+<PRE>
+        import madrigal.ui.userData
+
+        test = madrigal.ui.userData.MadrigalUserData()
+
+        print test.getUsersList()
+
+</PRE>
+
+<p>    Non-standard Python modules used:</p>
+
+<p>    xml from PyXML SIG</p>
+
+<p>    MadrigalError exception thrown if:</p>
+<ol><li><p>Problem reading/writing to xml files containing user data</p>
+
+</li></ol>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Dec. 11, 2001</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+
+            <table border="0" cellspacing="2" cellpadding="2" width="100%">
+              <tr>
+            <td align="LEFT" valign="TOP">
+<a href="#__createFilterElement">__createFilterElement</a><br>
+<a href="#__dropLock">__dropLock</a><br>
+<a href="#__elementExists">__elementExists</a><br>
+<a href="#__getLock">__getLock</a><br>
+<a href="#__getText">__getText</a><br>
+<a href="#__getXmlString">__getXmlString</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#__isValidFileName">__isValidFileName</a><br>
+<a href="#__loadUserData">__loadUserData</a><br>
+<a href="#addDirectory">addDirectory</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#addFilter">addFilter</a><br>
+<a href="#addUser">addUser</a><br>
+<a href="#changePassword">changePassword</a><br>
+<a href="#getAllDirInfo">getAllDirInfo</a><br>
+<a href="#getFilter">getFilter</a><br>
+<a href="#getFilterNameList">getFilterNameList</a><br>
+<a href="#getPrivateDirNameList">getPrivateDirNameList</a><br>
+<a href="#getPublicDirNameList">getPublicDirNameList</a><br>
+<a href="#getUsersList">getUsersList</a><br>
+<a href="#removeDirectory">removeDirectory</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#removeFilter">removeFilter</a><br>
+<a href="#userExists">userExists</a><br>
+<a href="#verifyUser">verifyUser</a><br>
+</td>
+</tr>
+            </table>
+            
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__createFilterElement"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__createFilterElement&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__createFilterElement (
+        self,
+        userDoc,
+        filter,
+        )
+
+</pre></font>
+<h3>__createFilterElement is a private helper function that takes a MadrigalFilter python object and converts to an xml node.</h3>
+<p>        Inputs: userDoc - the xml document to be added to, filter - a MadrigalFilter object to be
+        persisted as an xml node in an xml file.</p>
+
+<p>        Returns: the xml node created</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None</p>
+
+<p>        Notes: Each attribute added to the node takes four lines of code, basically 1) create new element,
+        2) create text element, 3 append text element to new element, and 4) append new element to its parent.
+        Since a MadrigalFilter has at the moment 23 attributes, this function is long but simply repeats those
+        4 steps above.  One dom implementaion hint:  always finish creating a node first before appending to a
+        parent.  Once a node is appended to a parent, it cannot have other nodes appended to it.  So always
+        append from the bottom up.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__dropLock"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__dropLock&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__dropLock ( self,  filename )
+
+</pre></font>
+<h3>__dropLock is a private helper function that drops exclusive access to filename via a locking file.</h3>
+<p>        Inputs: filename = the file that exclusive access is required to.</p>
+
+<p>        Returns: None</p>
+
+<p>        Affects: Removes file filename + .LCK as a lock mechanism</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__elementExists"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__elementExists&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__elementExists (
+        self,
+        elem,
+        elemTag,
+        doc,
+        )
+
+</pre></font>
+<h3>__elementExists is a private helper function that returns 1 if the xml doc has a element elemTag with text elem, 0 otherwise.</h3>
+<p>        Inputs: elem - a string to match text nodes against, elemTag - a string giving the element name to search in,
+        and doc is the xml document.</p>
+
+<p>        Returns: returns 1 if the xml doc has a element elemTag with text elem, 0 otherwise.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None</p>
+
+<p>        Usage:  If an xml file contains &lt;person age=43&gt; John Doe  &lt;/person&gt;, and you call
+        self.__elementExists(<code>John Doe</code>, <code>person</code>, doc), 1 will be returned</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getLock"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getLock&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getLock ( self,  filename )
+
+</pre></font>
+<h3>__getLock is a private helper function that provides exclusive access to filename via a locking file.</h3>
+<p>        Inputs: filename = the file that exclusive access is required to.</p>
+
+<p>        Returns: None</p>
+
+<p>        Affects: Writes file filename + .LCK as a lock mechanism</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write lock file</p>
+
+<p>        Notes: Will sleep for 1 second at a time, for a maximum of _MaxSleep seconds (presently 10)
+        if the file is not modified. After each second, it will check for the lock file to be removed
+        or modified. If it was modified, it resets the count to 0 sec and starts counting again. After
+        _MaxSleep counts it then assumes lock file is orphaned and returns.  Orphaned file will be
+        removed when dropLock is called.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( "Unable to open " + filename + ".LCK as locking file ", None )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getText"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getText&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getText ( self,  nodelist )
+
+</pre></font>
+<h3>__getText is a private helper function that returns a string made up of all the text nodes of a node list.</h3>
+<p>        Inputs: A list of xml nodes.</p>
+
+<p>        Returns: a string made up of all the text nodes of a node list.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None</p>
+
+<p>        Usage:  If an xml file contains &lt;person age=43&gt; John Doe  &lt;/person&gt;, and the
+        element you have (elem) is the <code>person</code> element, then
+        self.__getText(elem.childNodes) will return <code>John Doe</code>, since <code>John Doe</code>
+        is a child text node of person, and __getText strips leading and trailing
+        whitespace.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getXmlString"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getXmlString&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getXmlString ( self,  obj )
+
+</pre></font>
+<h3>__getXmlString is a private helper function that extends <code>str</code> by making it return an empty string on a null object.</h3>
+<p>        Inputs: obj - the object to be converted to a string.</p>
+
+<p>        Returns: if the object == None, returns '', otherwise returns str(obj).  Normally str(None) returns &quot;None&quot;</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ ( self,  madDB=None )
+
+</pre></font>
+<h3>__init__ initializes MadrigalUserData by reading from MadridalDB..</h3>
+<p>        Inputs: Existing MadrigalDB object, by default = None.</p>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes self.__metaDir.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__isValidFileName"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__isValidFileName&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__isValidFileName ( self,  name )
+
+</pre></font>
+<h3>__isValidFileName is a private helper function that validates that the string name does not contain excluded characters.</h3>
+<p>        Inputs: name - the string to be validated.</p>
+
+<p>        Returns: 1 if all characters are allowed, 0 otherwise.  Valid if the following characters are not found in the
+        string after leading and trailing whitespace is removed: [' ', <code>/</code>, <code>&lt;</code>, <code>&gt;</code>, '']</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__loadUserData"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__loadUserData&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__loadUserData ( self )
+
+</pre></font>
+<h3>__loadUserData is a private helper function that reads in user information from an xml file.</h3>
+<p>        Inputs: None.</p>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Populates self.__userList.</p>
+
+<p>        Exceptions: MadrigalError thrown  if problem parsing users.xml.</p>
+
+<p>        Depends on: Existance of file in metadata dir self.__userXMLDir + <code>/</code> + self.__userXMLFile (now userdata/user.xml)</p>
+
+<p>        This file must be of the form of the following format:</p>
+<p>            &lt;?xml version='1.0'?&gt;</p>
+
+<h4>&lt;users&gt;</h4>
+<h5>&lt;user&gt;</h5>
+<p>                &lt;name&gt;brideout&lt;/name&gt;</p>
+
+<p>                &lt;password&gt;briWy6v1L.z1E&lt;/password&gt;</p>
+
+
+<p>              &lt;/user&gt;</p>
+
+<p>              possibly more users...</p>
+
+
+<p>            &lt;/users&gt;</p>
+
+
+<p>        The password is stored encrypted by crypt.crypt(password, self.__cryptStr).  Implemented via xml.dom, since it is
+        only a short file, but for higher speed (and more complex code) could be implemented with sax since read only.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( "Unable to open " + filename, None )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="addDirectory"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">addDirectory&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+addDirectory (
+        self,
+        username,
+        dirname,
+        dirtype,
+        )
+
+</pre></font>
+<h3>addDirectory returns 1 if directory added successfully to &lt;username&gt;.xml, error string otherwise.</h3>
+<p>        Inputs: username string, directory name string, dirtype string (public or private).</p>
+
+<p>        Returns: 1 if directory added successfully, error string otherwise. dirtype
+        must be either public or private.  Directory names are case sensitive, so Bill and bill
+        can both be directories</p>
+
+<p>        Affects: Adds new directory to &lt;username&gt;.xml file</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write to &lt;username&gt;.xml file</p>
+
+<p>        Notes:  uses getLock and dropLock to insure exclusive access to &lt;username&gt;.xml file</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError, "Unable to open " + filename<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="addFilter"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">addFilter&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+addFilter (
+        self,
+        username,
+        dirname,
+        filter,
+        )
+
+</pre></font>
+<h3>addFilter returns 1 if a new filter is added successfully to a directory in &lt;username&gt;.xml, 0 otherwise.</h3>
+<p>        Inputs: username string, directory name string, MadrigalFilter object to be added.</p>
+
+<p>        Returns: 1 if filter added successfully, error string otherwise. </p>
+
+<p>        Affects: Adds new filter to &lt;username&gt;.xml file</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write to &lt;username).xml file</p>
+
+<p>        Notes:  uses getLock and dropLock to insure exclusive access to &lt;username&gt;.xml file</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError, "Unable to open " + filename<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="addUser"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">addUser&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+addUser (
+        self,
+        username,
+        password,
+        )
+
+</pre></font>
+<h3>addUser returns 1 if user added successfully, error string otherwise.</h3>
+<p>        Inputs: username string, password string (password is not yet encrypted).</p>
+
+<p>        Returns: 1 if user added successfully, error string otherwise.   </p>
+
+<p>        Affects: Adds new user to self.__userList, writes new empty &lt;username&gt;.xml file
+        username is always converted and stored as lower case, so its case insensitive.</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write to user xml file</p>
+
+<p>        Notes:  uses getLock and dropLock to insure exclusive access to user file</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="changePassword"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">changePassword&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+changePassword (
+        self,
+        username,
+        password,
+        )
+
+</pre></font>
+<h3>changePassword returns 1 if user password changed successfully, error string otherwise.</h3>
+<p>        Inputs: username string, password string (password is not yet encrypted).</p>
+
+<p>        Returns: 1 if password changed successfully, error string otherwise.</p>
+
+<p>        Affects: Modifies password in self.__userList, writes new user.xml file</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write user xml file</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getAllDirInfo"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getAllDirInfo&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getAllDirInfo ( self )
+
+</pre></font>
+<h3>getAllDirInfo returns a dictionary with key=username, value=list of MadrigalDirectory objects owned by user.</h3>
+<p>        Inputs: none.</p>
+
+<p>        Returns: a dictionary with key=username, value=list of MadrigalDirectory objects owned by user.  See this file
+        for the description of the information in a MadrigalDirectory class.</p>
+
+<p>        Affects: builds __dirsDict.  Other public functions that use __dirsDict will call getAllDirInfo to
+        populate __dirsDict if its = None</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to read a user file</p>
+
+<p>        Usage example:</p>
+<PRE>
+            import madrigal.ui.userData
+
+            test = madrigal.ui.userData.MadrigalUserData()
+
+            userDirInfo = test.getAllDirInfo()
+
+            # print all the directory information for user brideout
+
+            for madDir in userDirInfo['brideout']:
+
+                print 'Directory name is ' + madDir.dirName
+
+                print 'This directory type (public or private) is ' + madDir.dirType
+
+                print 'The filter names in this directory are:'
+
+                for filtername in madDir.filterList:
+
+                    print '    ' + filtername
+
+</PRE>
+
+<p>        Notes: Presently implemented by the sax handler class getDirInfoParser (included in this file).</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError, "Unable to open " + userFile<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFilter"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFilter&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFilter (
+        self,
+        username,
+        dirname,
+        filtername,
+        )
+
+</pre></font>
+<h3>getFilter returns a MadrigalFilter object specified by the username, dirname, and filtername.</h3>
+<p>        Inputs: username string (case insensitive), dirname string (case sensitive), filtername string(case sensitive).</p>
+
+<p>        Returns: a MadrigalFilter object specified by the username, dirname, and filtername.  If none matches,
+        return None</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to read a user file</p>
+
+<p>        Notes: Presently implemented by the sax handler class getFilterParser (included in this file) for greater
+        speed than the use of dom.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError, "Unable to open " + userFile<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFilterNameList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFilterNameList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFilterNameList (
+        self,
+        username,
+        dirName,
+        )
+
+</pre></font>
+<h3>getFilterNameList returns a list of strings of the names of all filters in a given directory of a given user.</h3>
+<p>        Inputs: username (string), directory name (string).</p>
+
+<p>        Returns: a list of strings of the names of all filters in a given directory of a given user (empty list if none)</p>
+
+<p>        Affects: Builds __dirsDict by calling getAllDirInfo if not yet populated</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getPrivateDirNameList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getPrivateDirNameList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getPrivateDirNameList ( self,  username )
+
+</pre></font>
+<h3>getPrivateDirNameList returns a list of strings of the names of all private directories for a given user.</h3>
+<p>        Inputs: username (string).</p>
+
+<p>        Returns: a list of strings of the names of all private directories owned by that user.
+        Empty list if none</p>
+
+<p>        Affects: Builds __dirsDict by calling getAllDirInfo if not yet populated</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getPublicDirNameList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getPublicDirNameList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getPublicDirNameList ( self )
+
+</pre></font>
+<h3>getPublicDirNameList returns a list of strings of the names of all public directories in form <code>user:dirName</code>.</h3>
+<p>        Inputs: none.</p>
+
+<p>        Returns: a list of strings of the names of all public directories</p>
+
+<p>        Affects: Builds __dirsDict by calling getAllDirInfo if not yet populated</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getUsersList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getUsersList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getUsersList ( self )
+
+</pre></font>
+<h3>getUsersList returns a list of user names/encrypted passwords that already exist.</h3>
+<p>        Inputs: none.</p>
+
+<p>        Returns: a list of user names/passwords.  Each item in the returned list is itself a
+        list with two strings: 1) username, and 2) encrypted password.</p>
+
+<p>        Usage example:</p>
+<PRE>
+            import madrigal.ui.userData
+
+            test = madrigal.ui.userData.MadrigalUserData()
+
+            userlist = test.getUsersList()
+
+            for user in userlist:
+
+                print 'User name is ' + user[0] + ' and encrypted password is ' + user[1]
+
+</PRE>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: none</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="removeDirectory"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">removeDirectory&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+removeDirectory (
+        self,
+        username,
+        dirname,
+        )
+
+</pre></font>
+<h3>removeDirectory returns 1 if a  directory is removed successfully from a directory in &lt;username&gt;.xml, error string otherwise.</h3>
+<p>        Inputs: username string, directory name to be removed.</p>
+
+<p>        Returns: 1 if filter removed successfully, error string otherwise. Will not remove a directory that contains filters.</p>
+
+<p>        Affects: Removes existing dirctory from &lt;username&gt;.xml file</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write to &lt;username).xml file</p>
+
+<p>        Notes:  uses getLock and dropLock to insure exclusive access to &lt;username&gt;.xml file</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError, "Unable to open " + filename<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="removeFilter"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">removeFilter&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+removeFilter (
+        self,
+        username,
+        dirname,
+        filtername,
+        )
+
+</pre></font>
+<h3>removeFilter returns 1 if a  filter is removed successfully from a directory in &lt;username&gt;.xml, error string otherwise.</h3>
+<p>        Inputs: username string, directory name string, filtername of filter to be removed.</p>
+
+<p>        Returns: 1 if filter removed successfully, error string otherwise. </p>
+
+<p>        Affects: Removes existing filter from &lt;username&gt;.xml file</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write to &lt;username).xml file</p>
+
+<p>        Notes:  uses getLock and dropLock to insure exclusive access to &lt;username&gt;.xml file</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError, "Unable to open " + filename<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="userExists"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">userExists&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+userExists ( self,  username )
+
+</pre></font>
+<h3>userExists returns 1 if username (case insensitive) exists, 0 otherwise.</h3>
+<p>        Inputs: username string.</p>
+
+<p>        Returns: 1 if username (case insensitive) exists, 0 otherwise.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: none</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="verifyUser"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">verifyUser&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+verifyUser (
+        self,
+        username,
+        password,
+        )
+
+</pre></font>
+<h3>verifyUser returns 1 if username, password okay, 0 otherwise.</h3>
+<p>        Inputs: username string, password string.</p>
+
+<p>        Returns: 1 if username, password okay, 0 otherwise.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: none</p>
+
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri Dec 30 09:02:26 2005 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

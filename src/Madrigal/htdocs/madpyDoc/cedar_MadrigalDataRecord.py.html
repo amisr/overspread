@@ -1,0 +1,1559 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalDataRecord</title>
+        </head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalDataRecord</font>
+            </th>
+            <th align="right"><font color="#000000">cedar.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <p>MadrigalDataRecord holds all the information in a Cedar data record.</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+
+            <table border="0" cellspacing="2" cellpadding="2" width="100%">
+              <tr>
+            <td align="LEFT" valign="TOP">
+<a href="#__get2DIncrValueList__">__get2DIncrValueList__</a><br>
+<a href="#__get2DMainValueList__">__get2DMainValueList__</a><br>
+<a href="#__get2DValueList__">__get2DValueList__</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#__str__">__str__</a><br>
+<a href="#add1D">add1D</a><br>
+<a href="#add2D">add2D</a><br>
+<a href="#delete1D">delete1D</a><br>
+<a href="#delete2DParm">delete2DParm</a><br>
+<a href="#delete2DRows">delete2DRows</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#get1D">get1D</a><br>
+<a href="#get1DParms">get1DParms</a><br>
+<a href="#get2D">get2D</a><br>
+<a href="#get2DParms">get2DParms</a><br>
+<a href="#getEndTimeList">getEndTimeList</a><br>
+<a href="#getHeaderKodLines">getHeaderKodLines</a><br>
+<a href="#getKindat">getKindat</a><br>
+<a href="#getKinst">getKinst</a><br>
+<a href="#getNrow">getNrow</a><br>
+<a href="#getStartTimeList">getStartTimeList</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#getType">getType</a><br>
+<a href="#set1D">set1D</a><br>
+<a href="#set2D">set2D</a><br>
+<a href="#setEndTimeList">setEndTimeList</a><br>
+<a href="#setKindat">setKindat</a><br>
+<a href="#setKinst">setKinst</a><br>
+<a href="#setStartTimeList">setStartTimeList</a><br>
+<a href="#writeRecord">writeRecord</a><br>
+</td>
+</tr>
+            </table>
+            
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__get2DIncrValueList__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__get2DIncrValueList__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__get2DIncrValueList__ (
+        self,
+        code,
+        scaleFactor,
+        )
+
+</pre></font>
+<h3>__get2DIncrValueList__ returns a list containing all the additional increment 2D values of a given main parameter.</h3>
+<p>        Inputs:</p>
+<p>            parm - parameter code (integer).  Must
+                   be a parameter with an additional increment parameter.</p>
+
+
+<p>        Outputs: a list containing all the additional increment 2D values of a given main parameter.
+                 Special values will be given the values <code>missing</code>, <code>assumed</code>, or <code>knownbad</code></p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__get2DMainValueList__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__get2DMainValueList__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__get2DMainValueList__ (
+        self,
+        code,
+        scaleFactor,
+        )
+
+</pre></font>
+<h3>__get2DMainValueList__ returns a list containing all the 2D values of a given main parameter.</h3>
+<p>        Inputs:</p>
+<p>            code - parameter code (integer).  Must
+                   be a parameter with an additional increment parameter.</p>
+
+
+<p>        Outputs: a list containing all the 2D values of a given main parameter that has an
+                 additional increment parameter.  Special values will be given the values <code>missing</code>, <code>assumed</code>, or <code>knownbad</code></p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__get2DValueList__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__get2DValueList__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__get2DValueList__ ( self,  parm )
+
+</pre></font>
+<h3>__get2DValueList__ returns a list containing all the 2D values of a given parameter.</h3>
+<p>        Inputs:</p>
+<p>            parm - can be defined as code (integer) or case-insensitive mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+
+<p>        Outputs: a list containing all the 2D values of a given parameter.  Special values will
+                 be given the values <code>missing</code>, <code>assumed</code>, or <code>knownbad</code></p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        kinst,
+        kindat,
+        sYear,
+        sMonth,
+        sDay,
+        sHour,
+        sMin,
+        sSec,
+        sCentisec,
+        eYear,
+        eMonth,
+        eDay,
+        eHour,
+        eMin,
+        eSec,
+        eCentisec,
+        oneDList,
+        twoDList,
+        nrow,
+        madInstObj=None,
+        madParmObj=None,
+        )
+
+</pre></font>
+<h3>__init__ creates a MadrigalDataRecord with all missing data.</h3>
+<p>        Inputs:</p>
+<p>            kinst - the kind of instrument code.  A warning will be raised if not in instTab.txt.</p>
+
+<p>            kindat - kind of data code. Must be a non-negative integer.</p>
+
+<p>            sYear,sMonth,sDay,sHour,sMin,sSec,sCentisec - record start time. sCentisec must be 0-99</p>
+
+<p>            eYear,eMonth,eDay,eHour,eMin,eSec,eCentisec - record end time. eCentisec must be 0-99</p>
+
+<p>            oneDList - list of one-dimensional parameters in record. Parameters can be defined as codes
+                       (integers) or case-insensitive mnemonic strings (eg, &quot;Gdalt&quot;)</p>
+
+<p>            twoDList - list of two-dimensional parameters in record. Parameters can be defined as codes
+                       (integers) or case-insensitive mnemonic strings (eg, &quot;Gdalt&quot;)</p>
+
+<p>            nrow - number of rows of 2D data to create. Until set, all values default to missing.</p>
+
+<p>            madInstObj - a madrigal.metadata.MadrigalInstrument object.  If None, one will be created.
+                              Used to verify kinst.</p>
+
+<p>            madParmObj - a madrigal.data.MadrigalParameter object.  If None, one will be created.
+                              Used to verify convert parameters to codes.</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Returns: None</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+'kindat cannot be negative: %i' %( kindat )<br>
+ValueError, 'nrow must not be less that zero: = %i' %( nrow )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__str__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__str__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__str__ ( self )
+
+</pre></font>
+<p>returns a string representation of a MadrigalDataRecord</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="add1D"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">add1D&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+add1D ( self,  oneDParm )
+
+</pre></font>
+<h3>add1D adds a new one-dim parameter to a MadrigalDataRecord</h3>
+<p>        Input: oneDParm - Parameter can be defined as codes (integer) or case-insensitive
+               mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+<p>        Affects: adds tuple to self.__oneDList, where tuple has five elements:
+        (code, lower-case mnemonic, parameter description, scaleFactor, hasAddIncrement)</p>
+
+<p>        Also adds one item to self.__oneDData, with value = missing.  Creates self.__oneDData if
+        does not exist.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal use of an "additional increment" Cedar parameter %s, since this module sets values via doubles, not ints' %( mnem )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="add2D"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">add2D&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+add2D ( self,  twoDParm )
+
+</pre></font>
+<h3>add2D adds a new two-dim parameter to a MadrigalDataRecord</h3>
+<p>        Input: twoDParm - Parameter can be defined as codes (integer) or case-insensitive
+               mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+<p>        Affects: adds tuple to self.__twoDList, where tuple has five elements:
+        (code, lower-case mnemonic, parameter description, scaleFactor, hasAddIncrement)</p>
+
+<p>        Also adds one column with self.__nrow rows to self.__twoDData, with value = missing.
+        Creates self.__twoDData if does not exist.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal use of an "additional increment" Cedar parameter %s, since this module sets values via doubles, not ints' %( mnem )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="delete1D"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">delete1D&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+delete1D ( self,  parm )
+
+</pre></font>
+<h3>delete1D removes the given 1D parameter from the record</h3>
+<p>        Inputs:</p>
+<p>            parm - can be defined as code (integer) or case-insensitive mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Raise exception if 1D parm does not exist</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Parameter %s not found as 1D parameter in this data record' %(str( parm ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="delete2DParm"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">delete2DParm&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+delete2DParm ( self,  parm )
+
+</pre></font>
+<h3>delete2DParm removes the given 2D parameter from every row in the record</h3>
+<p>        Inputs:</p>
+<p>            parm - can be defined as code (integer) or case-insensitive mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Raise exception if 2D parm does not exist</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, '2D Parameter %s not found in this data record' %(str( parm ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="delete2DRows"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">delete2DRows&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+delete2DRows ( self,  rows )
+
+</pre></font>
+<h3>delete2DRows removes the given 2D row or rows in the record (first is row 0)</h3>
+<p>        Inputs:</p>
+<p>            row number (integer) or list of row numbers to delete (first is row 0)</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Raise exception if row does not exist</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal value of row %i with nrow = %i' %( thisRow, self.__nrow )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="get1D"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">get1D&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+get1D ( self,  parm )
+
+</pre></font>
+<h3>get1D returns the 1D value for a given 1D parameter</h3>
+<p>        Inputs:</p>
+<p>            parm - can be defined as code (integer) or case-insensitive mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+
+<p>        Outputs: double value, or the strings &quot;missing&quot;, &quot;assumed&quot;, or &quot;knownbad&quot;</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, '1D Parameter %s not found in this data record' %(str( parm ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="get1DParms"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">get1DParms&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+get1DParms ( self )
+
+</pre></font>
+<h3>get1DParms returns a list of 1D parameters in the MadrigalDataRecord.</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: a list of 1D parameters in the MadrigalDataRecord. Each parameter
+        has the attributes: code (int), mnemonic (string), and description (string)</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="get2D"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">get2D&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+get2D (
+        self,
+        parm,
+        row,
+        )
+
+</pre></font>
+<h3>get2D returns the 2D value for a given 2D parameter</h3>
+<p>        Inputs:</p>
+<p>            parm - can be defined as code (integer) or case-insensitive mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+<p>            row - row number to get data.  Starts at 0.</p>
+
+
+<p>        Outputs: double value, or the strings &quot;missing&quot;, &quot;assumed&quot;, or &quot;knownbad&quot;</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, '2D Parameter %s not found in this data record' %(str( parm ) )<br>
+ValueError, 'Illegal value of row %i with nrow = %i' %( row, self.__nrow )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="get2DParms"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">get2DParms&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+get2DParms ( self )
+
+</pre></font>
+<h3>get2DParms returns a list of 2D parameters in the MadrigalDataRecord.</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: a list of 2D parameters in the MadrigalDataRecord. Each parameter
+        has the attributes: code (int), mnemonic (string), and description (string)</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getEndTimeList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getEndTimeList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getEndTimeList ( self )
+
+</pre></font>
+<h3>getEndTimeList returns a tuple containing eYear, eMonth, eDay, eHour, eMin, eSec, and eCentisec</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: a tuple containing eYear, eMonth, eDay, eHour, eMin, eSec, and eCentisec.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getHeaderKodLines"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getHeaderKodLines&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getHeaderKodLines ( self )
+
+</pre></font>
+<h3>getHeaderKodLines creates the lines in the Madrigal header record that start KOD and describe parms</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: a string of length 80*num 1D parms.  Each 80 characters contains a description
+                 of a single parm accodring to the Cedar Standard</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKindat"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKindat&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKindat ( self )
+
+</pre></font>
+<h3>getKindat returns the kind of data code (int) for a given data record.</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: the kind of data code (int) for a given data record.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKinst"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKinst&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKinst ( self )
+
+</pre></font>
+<h3>getKinst returns the kind of instrument code (int) for a given data record.</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: the kind of instrument code (int) for a given data record.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getNrow"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getNrow&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getNrow ( self )
+
+</pre></font>
+<h3>getNrow returns the number of 2D data rows (int) for a given data record.</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: the number of 2D data rows.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getStartTimeList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getStartTimeList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getStartTimeList ( self )
+
+</pre></font>
+<h3>getStartTimeList returns a tuple containing sYear, sMonth, sDay, sHour, sMin, sSec, and sCentisec</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: a tuple containing sYear, sMonth, sDay, sHour, sMin, sSec, and sCentisec.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getType"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getType&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getType ( self )
+
+</pre></font>
+<p>returns the type <code>data</code></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="set1D"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">set1D&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+set1D (
+        self,
+        parm,
+        value,
+        )
+
+</pre></font>
+<h3>set1D sets a 1D value for a given 1D parameter</h3>
+<p>        Inputs:</p>
+<p>            parm - can be defined as code (integer) or case-insensitive mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+<p>            value - double (or string convertable to double) value to set 1D parameter to.  To set special Cedar values, the global values
+                    missing, assumed, or knownbad may be used, or the strings &quot;missing&quot;, &quot;assumed&quot;, or &quot;knownbad&quot;</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Note: if value exceeds the dynamic range of given parameter (ie,
+                    if value &lt; -32766*scaleFactor or value &gt; 32767*scaleFactor, then WARNING printed to stderr
+                    and value set to missing</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Cannot set a Madrigal parameter to %s' %(str( value ) )<br>
+ValueError, 'Parameter %s not found as 1D parameter in this data record' %(str( parm ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="set2D"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">set2D&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+set2D (
+        self,
+        parm,
+        row,
+        value,
+        )
+
+</pre></font>
+<h3>set2D sets a 2D value for a given 2D parameter and row</h3>
+<p>        Inputs:</p>
+<p>            parm - can be defined as code (integer) or case-insensitive mnemonic string (eg, &quot;Gdalt&quot;)</p>
+
+<p>            row - row number to set data.  Starts at 0.</p>
+
+<p>            value - double (or string convertable to double) value to set 2D parameter to. To set special Cedar values, the global values
+                    missing, assumed, or knownbad may be used, or the strings &quot;missing&quot;, &quot;assumed&quot;, or &quot;knownbad&quot;</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Note: if value exceeds the dynamic range of given parameter (ie,
+                    if value &lt; -32766*scaleFactor or value &gt; 32767*scaleFactor, then WARNING printed to stderr
+                    and value set to missing</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Cannot set a Madrigal parameter to %s' %(str( value ) )<br>
+ValueError, 'Illegal value of row %i with nrow = %i' %( row, self.__nrow )<br>
+ValueError, 'Parameter %s not found as 2D parameter in this data record' %(str( parm ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setEndTimeList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setEndTimeList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setEndTimeList (
+        self,
+        eYear,
+        eMonth,
+        eDay,
+        eHour,
+        eMin,
+        eSec,
+        eCentisec=0,
+        )
+
+</pre></font>
+<h3>setEndTimeList changes the data record end time</h3>
+<p>        Inputs: integers eYear, eMonth, eDay, eHour, eMin, eSec. eCentisec defaults to 0</p>
+
+<p>        Outputs: None</p>
+
+<p>        Affects: changes self.__eYear, self.__eMonth, self.__eDay, self.__eHour, self.__eMin,
+                 self.__eSec, and self.__eCentisec. Also self.__eTime</p>
+
+<p>        Prints warning if new start time after present end time</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal datetime %s' %(str(( eYear, eMonth, eDay, eHour, eMin, eSec ) ) )<br>
+ValueError, 'Illegal eCentisec %i' %( eCentisec )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setKindat"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setKindat&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setKindat ( self,  newKindat )
+
+</pre></font>
+<h3>setKindat sets the kind of data code (int) for a given data record.</h3>
+<p>        Inputs: newKindat (integer)</p>
+
+<p>        Outputs: None</p>
+
+<p>        Affects: sets self.__kindat</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+'kindat cannot be negative: %i' %( kindat )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setKinst"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setKinst&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setKinst ( self,  newKinst )
+
+</pre></font>
+<h3>setKinst sets the kind of instrument code (int) for a given data record.</h3>
+<p>        Inputs: newKinst - new instrument code (integer)</p>
+
+<p>        Outputs: None</p>
+
+<p>        Affects: sets self.__kinst</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Kinst must not be less than 0, not %i' %( newKinst )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setStartTimeList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setStartTimeList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setStartTimeList (
+        self,
+        sYear,
+        sMonth,
+        sDay,
+        sHour,
+        sMin,
+        sSec,
+        sCentisec=0,
+        )
+
+</pre></font>
+<h3>setStartTimeList changes the data record start time</h3>
+<p>        Inputs: integers sYear, sMonth, sDay, sHour, sMin, sSec. sCentisec defaults to 0</p>
+
+<p>        Outputs: None</p>
+
+<p>        Affects: changes self.__sYear, self.__sMonth, self.__sDay, self.__sHour, self.__sMin,
+                 self.__sSec, and self.__sCentisec.  Also self.__sTime</p>
+
+<p>        Prints warning if new start time after present end time</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal datetime %s' %(str(( sYear, sMonth, sDay, sHour, sMin, sSec ) ) )<br>
+ValueError, 'Illegal sCentisec %i' %( sCentisec )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="writeRecord"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">writeRecord&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+writeRecord (
+        self,
+        cedarFile,
+        format,
+        )
+
+</pre></font>
+<h3>writeRecord writes a MadrigalDataRecord to an open cedarFile.</h3>
+<p>           Users should not call this method directly.  Use MadrigalCedarFile.write
+           to persist data.</p>
+
+<p>           Inputs:</p>
+<h4>cedarFile - pointer to madrec as returned by madrigal._Madrec.madrecOpen</h4>
+<p>                format - a format to save the file in.  For now, the allowed values are <code>Madrigal</code>, <code>BlockedBinary</code>,
+                <code>UnblockedBinary</code>, <code>Cbf</code>, and <code>Ascii</code>.  </p>
+
+
+
+<p>           Outputs: None</p>
+
+<p>           Affects: writes MadrigalDataRecord to cedar file</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+IOError, 'Tried to set 1D error parm %s to zero' %(thisParm [ 1 ] )<br>
+IOError, 'Tried to set 2D error parm %s to zero' %(thisParm [ 0 ] )<br>
+IOError, 'error in cedarSet1dParm'<br>
+
+</td></tr>
+</table>
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Tue Mar 17 10:13:25 2009 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

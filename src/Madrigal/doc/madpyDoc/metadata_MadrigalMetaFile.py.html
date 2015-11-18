@@ -1,0 +1,1750 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalMetaFile</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalMetaFile</font>
+            </th>
+            <th align="right"><font color="#000000">metadata.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalMetaFile is an object that provides access to Madrigal file info from the metadata.</h3>
+<p>    This object provides access to all Madrigal experiment information in the metadata file fileTab.txt.</p>
+
+<p>    Usage example:</p>
+<PRE>
+        import madrigal.metadata
+
+        import madrigal.admin
+
+        try:
+
+            test = madrigal.metadata.MadrigalMetaFile()
+
+            print test.getFileCount()
+
+        except madrigal.admin.MadrigalError, e:
+
+            print e.getExceptionStr()
+
+</PRE>
+
+<p>    Non-standard Python modules used:
+    None</p>
+
+<p>    MadrigalError exception thrown if:</p>
+<ol><li><p>MadrigalMetadata fails to open or parse metadata file</p>
+
+</li>
+<li><p>Columns expected to be ints or floats cannot be converted</p>
+
+</li></ol>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  May. 7, 2002</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+
+            <table border="0" cellspacing="2" cellpadding="2" width="100%">
+              <tr>
+            <td align="LEFT" valign="TOP">
+<a href="#__init__">__init__</a><br>
+<a href="#__str__">__str__</a><br>
+<a href="#deleteRowByFilename">deleteRowByFilename</a><br>
+<a href="#getAccessByPosition">getAccessByPosition</a><br>
+<a href="#getCategoryByFilename">getCategoryByFilename</a><br>
+<a href="#getCategoryByPosition">getCategoryByPosition</a><br>
+<a href="#getExpIdByFilename">getExpIdByFilename</a><br>
+<a href="#getExpIdByPosition">getExpIdByPosition</a><br>
+<a href="#getFileCount">getFileCount</a><br>
+<a href="#getFilenameByPosition">getFilenameByPosition</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#getHasCatalogByFilename">getHasCatalogByFilename</a><br>
+<a href="#getHasCatalogByPosition">getHasCatalogByPosition</a><br>
+<a href="#getHasHeaderByFilename">getHasHeaderByFilename</a><br>
+<a href="#getHasHeaderByPosition">getHasHeaderByPosition</a><br>
+<a href="#getKindatByFilename">getKindatByFilename</a><br>
+<a href="#getKindatByPosition">getKindatByPosition</a><br>
+<a href="#getLine">getLine</a><br>
+<a href="#getMetadataSummaryByFilename">getMetadataSummaryByFilename</a><br>
+<a href="#getStatusByFilename">getStatusByFilename</a><br>
+<a href="#getStatusByPosition">getStatusByPosition</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#setAccess">setAccess</a><br>
+<a href="#setAccessByPosition">setAccessByPosition</a><br>
+<a href="#setCategoryByPosition">setCategoryByPosition</a><br>
+<a href="#setExpIdByPosition">setExpIdByPosition</a><br>
+<a href="#setHasCatalogByPosition">setHasCatalogByPosition</a><br>
+<a href="#setHasHeaderByPosition">setHasHeaderByPosition</a><br>
+<a href="#setKindatByPosition">setKindatByPosition</a><br>
+<a href="#setStatusByPosition">setStatusByPosition</a><br>
+<a href="#writeMetadata">writeMetadata</a><br>
+</td>
+</tr>
+            </table>
+            
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        madDB=None,
+        initFile=None,
+        )
+
+</pre></font>
+<h3>__init__ initializes MadrigalMetaFile by reading from fileTab.txt (or initFile).</h3>
+<h4>Inputs: Existing MadrigalDB object, by default = None.</h4>
+<p>            String representing the full path to the metadata file. Default is None, in
+            which case file read is MadrigalDB.getMetadataDir()/fileTab.txt.</p>
+
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes all the class member variables.</p>
+
+<p>        Exceptions: MadrigalError thrown  by MadrigalMetadata if file not opened or parsed successfully.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( 'Error in count of first row of ' + str( self.__filename ), None )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__str__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__str__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__str__ ( self )
+
+</pre></font>
+<p>return possibly modified file as a string in same format as writeMetadata</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="deleteRowByFilename"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">deleteRowByFilename&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+deleteRowByFilename ( self,  filename )
+
+</pre></font>
+<h3>deleteRowByFilename deletes a row with a given filename.</h3>
+<p>        Inputs: filename - name of file to search for.</p>
+
+<p>        Returns: None.</p>
+
+<p>        Affects: Removes item from self.__fileList if filename found</p>
+
+<p>        Exceptions: Thrown if filename not found.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( 'Could not delete file ' + filename + ' from ' + self.__filename, None )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getAccessByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getAccessByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getAccessByPosition ( self,  position=0 )
+
+</pre></font>
+<h3>getAccessByPosition returns the access (0=public, 1=private) of the file at given position.</h3>
+<p>        Inputs: position of file in list (first position is zero).  Defaults to first.</p>
+
+<p>        Returns: the access level (0=public, 1=private) of the file at given position as an integer.  
+        Returns None if position &gt;= number of experiments.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if access column cannot be parsed into an integer</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in fileTab.txt parsing metadata row: ' + str( position ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getCategoryByFilename"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getCategoryByFilename&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getCategoryByFilename ( self,  filename )
+
+</pre></font>
+<h3>getCategoryByFilename returns the category (eg., 1=default, 2=variant, 3=history, 4=real-time) of the file with the given filename.</h3>
+<p>        Inputs: filename - name of file to search for.</p>
+
+<p>        Returns: the category (eg., 1=default, 2=variant, 3=history, 4=real-time) of the first row found with the
+        given filename.  Since
+        filename may not be unique (although it usually is), the first match found is used.  If
+        no matches found, returns None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if category column cannot be parsed into an integer</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in fileTab.txt parsing metadata row: ' + str( position ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getCategoryByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getCategoryByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getCategoryByPosition ( self,  position=0 )
+
+</pre></font>
+<h3>getCategoryByPosition returns the category (eg., 1=default, 2=variant, 3=history, 4=real-time) of the file at given position.</h3>
+<p>        Inputs: position of file in list (first position is zero).  Defaults to first.</p>
+
+<p>        Returns: the category (eg., 1=default, 2=variant, 3=history, 4=real-time) of the file at given position as an integer.  
+        Returns None if position &gt;= number of experiments.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if category column cannot be parsed into an integer</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in fileTab.txt parsing metadata row: ' + str( position ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getExpIdByFilename"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getExpIdByFilename&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getExpIdByFilename ( self,  filename )
+
+</pre></font>
+<h3>getExpIdByFilename returns the first experiment id (integer) with the given filename.</h3>
+<p>        Inputs: filename - name of file to search for.</p>
+
+<p>        Returns: the experiment id (integer) of the first row found with the given filename.  Since
+        filename may not be unique (although it usually is), the first match found is used.  If
+        no matches found, returns None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if exp id cannot be parsed into an integer</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in fileTab.txt parsing metadata row: ' + str( position ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getExpIdByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getExpIdByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getExpIdByPosition ( self,  position=0 )
+
+</pre></font>
+<h3>getExpIdByPosition returns the experiment id (integer) of the file at given position.</h3>
+<p>        Inputs: position of file in list (first position is zero).  Defaults to first.</p>
+
+<p>        Returns: the experiment id (integer) of the file at given position as an integer.  
+        Returns None if position &gt;= number of experiments.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if kinst exp id cannot be parsed into an integer</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in fileTab.txt parsing metadata row: ' + str( position ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFileCount"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFileCount&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFileCount ( self )
+
+</pre></font>
+<h3>getFileCount returns the number of files (rows) in the metadata file.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: the number of files (rows) in the metadata file.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFilenameByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFilenameByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFilenameByPosition ( self,  position=0 )
+
+</pre></font>
+<h3>getFilenameByPosition returns the filename of the file at given position.</h3>
+<p>        Inputs: position of file in list (first position is zero).  Defaults to first.</p>
+
+<p>        Returns: the filename of the file at given position as a string.  
+        Returns None if position &gt;= number of experiments.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getHasCatalogByFilename"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getHasCatalogByFilename&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getHasCatalogByFilename ( self,  filename )
+
+</pre></font>
+<h3>getHasCatalogByFilename returns true if the file with the given name has any catalog records, False otherwise.</h3>
+<p>        Inputs: filename - name of file to search for.</p>
+
+<p>        Returns: true if the file with the given name has any catalog records, False otherwise.  Returns none if name
+        not found</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getHasCatalogByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getHasCatalogByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getHasCatalogByPosition ( self,  position=0 )
+
+</pre></font>
+<h3>getHasCatalogByPosition returns True if the file at given position has any catalog records, False otherwise.</h3>
+<p>        Inputs: position of file in list (first position is zero).  Defaults to first.</p>
+
+<p>        Returns:  True if the file at given position has any catalog records, False otherwise 
+        Returns None if position &gt;= number of experiments.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getHasHeaderByFilename"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getHasHeaderByFilename&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getHasHeaderByFilename ( self,  filename )
+
+</pre></font>
+<h3>getHasHeaderByFilename returns true if the file with the given name has any header records, False otherwise.</h3>
+<p>        Inputs: filename - name of file to search for.</p>
+
+<p>        Returns: true if the file with the given name has any header records, False otherwise.  Returns none if name
+        not found</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if filename not found.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getHasHeaderByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getHasHeaderByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getHasHeaderByPosition ( self,  position=0 )
+
+</pre></font>
+<h3>getHasHeaderByPosition returns True if the file at given position has any header records, False otherwise.</h3>
+<p>        Inputs: position of file in list (first position is zero).  Defaults to first.</p>
+
+<p>        Returns:  True if the file at given position has any header records, False otherwise 
+        Returns None if position &gt;= number of experiments.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKindatByFilename"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKindatByFilename&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKindatByFilename ( self,  filename )
+
+</pre></font>
+<h3>getKindatByFilename returns the first kindat (integer) with the given filename.</h3>
+<p>        Inputs: filename - name of file to search for.</p>
+
+<p>        Returns: the kindat (integer) of the first row found with the given filename.  Since
+        filename may not be unique (although it usually is), the first match found is used.  If
+        no matches found, returns None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if kindat cannot be parsed into an integer</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in fileTab.txt parsing metadata row: ' + str( position ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKindatByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKindatByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKindatByPosition ( self,  position=0 )
+
+</pre></font>
+<h3>getKindatByPosition returns the kindat (kind of data code) of the file at given position.</h3>
+<p>        Inputs: position of file in list (first position is zero).  Defaults to first.</p>
+
+<p>        Returns: the kinst (kind of instrument code) of the file at given position as an integer.  
+        Returns None if position &gt;= number of experiments.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if kinst column cannot be parsed into an integer</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in fileTab.txt parsing metadata row: ' + str( position ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getLine"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getLine&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getLine ( self,  position )
+
+</pre></font>
+<h3>getLine returns the line at a given position.  Returns None if position &gt; number of lines.</h3>
+<p>        Inputs:  position - position in file.  First line = 0</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMetadataSummaryByFilename"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMetadataSummaryByFilename&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMetadataSummaryByFilename (
+        self,
+        filename,
+        madExpObj=None,
+        madInstObj=None,
+        madKindatObj=None,
+        )
+
+</pre></font>
+<h3>getMetadataSummaryByFilename returns a string summarizing the file's metadata given a filename.</h3>
+<h4>Inputs: filename - name of file to search for.</h4>
+<p>            The next three inputs are other metadata objects.  If these objects already exist, performance will
+            be improved by passing them in rather than recreating them.  If they do not exist, they will be
+            created:</p>
+
+<p>            madExpObj - a MadrigalExperiment object to get experiment metadata from.  If None (the default),
+            a new MadrigalExperiment object is created.</p>
+
+<p>            madInstObj - a MadrigalInstrument object to get experiment metadata from.  If None (the default),
+            a new MadrigalInstrument object is created.</p>
+
+<p>            madKindatObj - a MadrigalKindat object to get experiment metadata from.  If None (the default),
+            a new MadrigalKindat object is created.</p>
+
+
+<p>        Returns: A string summarizing the metadata about the file.  The format is:</p>
+<PRE>
+                Start Date and Time: 01/06/1997  14:07  
+                End Date and Time:   01/10/1997  23:45
+                Instrument: Millstone Hill Incoherent Scatter Radar
+                Experiment name: World Day - Mesosphere/Lower-Thermosphere Coupling Study
+                Kind of data: INSCAL (8.0) Basic Derived Parameters
+
+</PRE>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if any parsing error in metadata.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getStatusByFilename"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getStatusByFilename&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getStatusByFilename ( self,  filename )
+
+</pre></font>
+<h3>getStatusByFilename returns the status description of the file with the given name.</h3>
+<p>        Inputs: filename - name of file to search for.</p>
+
+<p>        Returns: the status description of the file with the given name.  Returns none if name
+        not found</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: Thrown if filename not found.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getStatusByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getStatusByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getStatusByPosition ( self,  position=0 )
+
+</pre></font>
+<h3>getStatusByPosition returns the status description of the file at given position.</h3>
+<p>        Inputs: position of file in list (first position is zero).  Defaults to first.</p>
+
+<p>        Returns: the status description of the file at given position as a string.  
+        Returns None if position &gt;= number of experiments.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setAccess"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setAccess&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setAccess ( self,  accessType )
+
+</pre></font>
+<h3>setAccess sets the access column to all 0's (public) or all 1's (private).</h3>
+<p>        Inputs: accessType - either 0 to set to public access, or 1 to set to private access.</p>
+
+<p>        Returns: None.</p>
+
+<p>        Affects: Overwrite fileTab.txt file with access column set to all 0's (public)
+        or all 1's (private).</p>
+
+<p>        Exceptions: Thrown if file cannot be written, if accessType is not 0 or 1</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( 'MadrigalMetaFile.setAccess called with arg = ' + str( accessType ) + ', must be either 0 or 1', None )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setAccessByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setAccessByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setAccessByPosition (
+        self,
+        position,
+        access,
+        )
+
+</pre></font>
+<h3>setAccessByPosition sets the value of access for the file at the given position.</h3>
+<p>        Inputs:</p>
+<p>            position - position of file in list (first position is zero).</p>
+
+<p>            access - 0 of False for public, 1 or True for private</p>
+
+
+<p>        Returns:  None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: If position beyond length.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal value for access in setAccessByPosition: %s' %(str( access ) )<br>
+ValueError, 'setAccessByPosition called for position %i beyond length %i' %(position, len( self.__fileList ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setCategoryByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setCategoryByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setCategoryByPosition (
+        self,
+        position,
+        category,
+        )
+
+</pre></font>
+<h3>setCategoryByPosition sets the value of category for the file at the given position.</h3>
+<p>        Inputs:</p>
+<p>            position - position of file in list (first position is zero).</p>
+
+<p>            category - 1=default, 2=variant, 3=history, 4=real-time</p>
+
+
+<p>        Returns:  None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: If position beyond length.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal value for category in setCategoryByPosition: %s' %(str( category ) )<br>
+ValueError, 'setCategoryByPosition called for position %i beyond length %i' %(position, len( self.__fileList ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setExpIdByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setExpIdByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setExpIdByPosition (
+        self,
+        position,
+        expId,
+        )
+
+</pre></font>
+<h3>setExpIdByPosition sets the experiment id of the file at given position.</h3>
+<p>        Inputs:</p>
+<p>            position - position of file in list (first position is zero).</p>
+
+<p>            expId - the new experiment id to use</p>
+
+
+<p>        Returns: None.</p>
+
+<p>        Affects: sets the experiment id of the file at given position</p>
+
+<p>        Exceptions: MadrigalError if any item in row cannot be cast to correct format, or
+        position not found.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in setExpIdByPosition with args %s: %s' %(str( position, expId ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setHasCatalogByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setHasCatalogByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setHasCatalogByPosition (
+        self,
+        position,
+        hasCatalog,
+        )
+
+</pre></font>
+<h3>setHasCatalogByPosition sets the value of hasCatalog for the file at the given position.</h3>
+<p>        Inputs:</p>
+<p>            position - position of file in list (first position is zero).</p>
+
+<p>            hasCatalog - 1 or True for yes, 0 or False for no</p>
+
+
+<p>        Returns:  None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: If position beyond length.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal value for hasCatalog in setHasCatalogByPosition: %s' %(str( hasCatalog ) )<br>
+ValueError, 'setHasCatalogByPosition called for position %i beyond length %i' %(position, len( self.__fileList ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setHasHeaderByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setHasHeaderByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setHasHeaderByPosition (
+        self,
+        position,
+        hasHeader,
+        )
+
+</pre></font>
+<h3>setHasHeaderByPosition sets the value of hasHeader for the file at the given position.</h3>
+<p>        Inputs:</p>
+<p>            position - position of file in list (first position is zero).</p>
+
+<p>            hasHeader - 1 or True for yes, 0 or False for no</p>
+
+
+<p>        Returns:  None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: If position beyond length.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal value for hasHeader in setHasHeaderByPosition: %s' %(str( hasHeader ) )<br>
+ValueError, 'setHasHeaderByPosition called for position %i beyond length %i' %(position, len( self.__fileList ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setKindatByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setKindatByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setKindatByPosition (
+        self,
+        position,
+        kindat,
+        )
+
+</pre></font>
+<h3>setKindatByPosition sets the value of kindat for the file at the given position.</h3>
+<p>        Inputs:</p>
+<p>            position - position of file in list (first position is zero).</p>
+
+<p>            kindat - integer kindat value</p>
+
+
+<p>        Returns:  None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: If position beyond length.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'setKindatByPosition called for position %i beyond length %i' %(position, len( self.__fileList ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setStatusByPosition"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setStatusByPosition&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setStatusByPosition (
+        self,
+        position,
+        status,
+        )
+
+</pre></font>
+<h3>setStatusByPosition sets the value of status string for the file at the given position.</h3>
+<p>        Inputs:</p>
+<p>            position - position of file in list (first position is zero).</p>
+
+<p>            status - string describing status</p>
+
+
+<p>        Returns:  None.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: If position beyond length.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal value for status in setStatusByPosition: %s' %(str( status ) )<br>
+ValueError, 'setStatusByPosition called for position %i beyond length %i' %(position, len( self.__fileList ) )<br>
+ValueError, 'status string in fileTab.txt cannot contain a comma: <%s> is illegal' %( status )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="writeMetadata"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">writeMetadata&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+writeMetadata ( self,  newFullPath=None )
+
+</pre></font>
+<h3>writeMetadata writes a new version of the fileTab.txt file.</h3>
+<p>        Inputs: newFullPath:  a new path to write the fileTab.txt file to, if
+        not the same as the original metadata file opened.  Defaults to None, which overwrites
+        metadata file that was read from.</p>
+
+<p>        Returns: None.</p>
+
+<p>        Affects: Writes updated version of metadata file.</p>
+
+<p>        Exceptions: If unable to write file</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError("Unable to write metadata file " + str( newFullPath ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri May 30 14:39:57 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

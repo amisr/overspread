@@ -1,0 +1,15 @@
+/Volumes/ISR_DATA_02/processed_data/PFISR/2010/05/
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64016-plline-000_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64016-plline-001_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64016-plline-002_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64112-plline-000_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64112-plline-001_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64112-plline-002_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64112-plline-003_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64124-plline-000_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64124-plline-001_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64124-plline-002_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64124-plline-003_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64157-plline-000_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64157-plline-001_lp_5min_.txt
+PLCal30_3dt/20100523.001/cal-0/PLCal30_3dt-64157-plline-002_lp_5min_.txt

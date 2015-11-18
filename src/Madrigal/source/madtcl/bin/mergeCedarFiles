@@ -1,0 +1,191 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec MADROOT/bin/madtclsh "$0" ${1+"$@"}
+
+# $Id: mergeCedarFiles,v 1.6 2005/04/27 16:16:28 brideout Exp $
+
+# mergeCedarFiles merges specified records of a set of CEDAR files into
+# a single file.  The input file may be any of the 5 supported CEDAR
+# formats (Madrigal, Blocked Binary, Cbf, Unblocked Binary or ASCII"),
+# and may include any mixture of prologue, header and data records. The
+# format of the input file is determined automatically.
+
+# Usage: mergeCedarFiles [options]
+#   Options:
+#       -i file rec1 rec2    Add records rec1 to rec2 of file to outFile
+#       -o outFile
+#       -t fileType          set type of outFile to fileType
+#           filetype = 1  Madrigal     
+#           filetype = 2  Blocked Binary 
+#           filetype = 3  Cbf
+#           filetype = 4  Unblocked binary
+#           filetype = 5  Ascii
+#   If more than one input file is present, the specified records are
+#   added in the order in which they are encountered. If output filetype
+#   is not specified, filetype = 1 (Madrigal).
+#
+
+proc printUsage {} {
+
+puts "Usage: mergeCedarFiles \[options\]"
+puts "  Options:"
+puts "      -i file rec1 rec2    Add records rec1 to rec2 of file to outFile"
+puts "      -o outFile"
+puts "      -t fileType          set type of outFile to fileType"
+puts "          filetype = 1  Madrigal"
+puts "          filetype = 2  Blocked Binary "
+puts "          filetype = 3  Cbf"
+puts "          filetype = 4  Unblocked binary"
+puts "          filetype = 5  Ascii"
+puts "  If more than one input file is present, the specified records are"
+puts "  added in the order in which they are encountered. If output filetype"
+puts "  is not specified, filetype = 1 (Madrigal)."
+
+    return 0 
+}
+
+# Get parameter codes
+cedarCode cedarCode
+
+# Get number of parameters
+set nargs $argc
+if {$nargs <4 } {
+    printUsage
+    exit
+}
+
+set i 0
+set infiles {}
+set rec1s {}
+set rec2s {}
+set filetype 20
+set isinfile 0
+set isoutfile 0
+while {$i < $nargs} {
+
+    set option [lindex $argv $i]
+
+    if {$option == "-i"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        set infiles [lappend infiles [lindex $argv $i]]
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            printUsage
+            return -1
+        }
+        if {[regexp {^[0-9]+$} [lindex $argv $i]] == 0} {
+            puts "Error: bad input file record range"
+            printUsage
+            printUsage
+            return -1
+        }
+        set rec1s [lappend rec1s [lindex $argv $i]]
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        if {[regexp {^[0-9]+$} [lindex $argv $i]] == 0} {
+            puts "Error: bad input file record range"
+            printUsage
+            return -1
+        }
+        set rec2s [lappend rec2s [lindex $argv $i]]
+        incr i
+        set isinfile 1
+
+    } elseif {$option == "-o"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        set outfile [lindex $argv $i]
+        incr i
+        set isoutfile 1
+
+    } elseif {$option == "-t"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        set filetype [expr 19 + [lindex $argv $i]]
+        incr i
+
+    } else {
+        puts "Error: Unknown option $option"
+        return -1
+    }
+
+}
+
+if {$isinfile == 0} {
+    puts "Error: input file not specified"
+    printUsage
+    return -1
+}
+if {$isoutfile == 0} {
+    puts "Error: output file not specified"
+    printUsage
+    return -1
+}
+
+# Create madrec object for the output file.
+mad madout
+set status [catch {$madout open $filetype $outfile}]
+if {$status != 0} {
+    puts "mad open Error: [$madout get error]"
+    exit
+}
+
+# Loop over input files
+
+for {set i 0} {$i < [llength $infiles]} {incr i} {
+    # Create madrec object for the input file. Specify file type 1 for
+    # automatic determination of the CEDAR file type
+    mad madin
+    set infile [lindex $infiles $i]
+    puts "processing file $infile"
+    set rec1 [lindex $rec1s $i]
+    set rec2 [lindex $rec2s $i]
+    if {[file exists $infile]} {
+        set status [catch {$madin open 1 $infile}]
+        if {$status != 0} {
+            puts "mad open Error: [$madin get error]"
+            exit
+        }
+    } else {
+        puts "Input file $infile does not exist"
+        exit
+    }
+
+    # Skip the first rec1 records
+    for {set j 0} {$j < [expr $rec1-1]} {incr j} {
+        $madin getNextRecord
+    }
+
+    # Copy the specified records
+    for {set j 0} {$j <= [expr $rec2-$rec1]} {incr j} {
+        if {[set status [$madin getNextRecord]] != 0} {
+            # puts EOF
+            break
+        }
+        $madin copy $madout
+        $madout putNextRecord
+    }
+
+    # Close input file and destroy madrec object
+    $madin close
+    $madin destroy
+}
+
+# Close output file and destroy madrec object
+$madout close
+$madout destroy

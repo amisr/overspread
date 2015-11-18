@@ -1,0 +1,32 @@
+ 
+Example 1 - read in a madrigal file
+ The following is data for the 5th data record:
+    Pulse length is 
+   0.00128
+    The first 4 Ti values are:
+1324.00000
+ 832.00000
+1020.00000
+1145.00000
+ The number of data records found in file:
+  1143
+ 
+ Example 2 - create new file tMadrecF77.out
+ 
+ Example 3 - append to existing file
+   and save as tMadrecF77_append.out
+ 
+ Example 4: Manipulate an in memory file
+ The following are min and max values of Ti in file:
+   0.00000
+9912.00000
+ The following is data for key 1/20/1998 15:00:
+    Pulse length is 
+   0.00030
+    The first 4 Ti values are:
+ 279.00000
+ 298.00000
+ 345.00000
+ 773.00000
+ 
+Test complete

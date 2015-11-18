@@ -1,0 +1,6 @@
+clear all; close all;
+
+fname='/Volumes/ISR_Data/Data AMISR Poker Flat/20070123.004/D0016185.Dt1.h5';
+
+
+

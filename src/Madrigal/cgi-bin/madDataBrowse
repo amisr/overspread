@@ -1,0 +1,2074 @@
+#!/Users/mnicolls/Documents/Work/Madrigal/bin/python
+
+import sys, os, traceback, types
+import os.path
+import cgi, Cookie
+import time, datetime
+import os.path
+import calendar
+
+
+
+
+class MadrigalDataBrowse:
+    """MadrigalDataBrowse is the class that produces the MadrigalDataBrowse page (replaces isprint).
+
+    Like all my python cgi scripts, madDataBrowse has the following structure:  the entire cgi is
+    contained in one class, with a main function at the end which serves simply to call the __init__
+    function of the class.  This __init__ function is responsible for calling all other class methods.
+    It is made up of a single try block, with the purpose of reporting all exceptions in well-formatted
+    html to both the user and the administrator. The __init__ function first makes sure the pythonlib
+    can be found.  It then calls setScriptState to determine from any cgi arguments and cookies what the
+    script is supposed to do.  The script state is always set in self.state.  The particular values
+    allowed for MadrigalDataBrowse are discussed below.
+
+    The __init__ function then calls createObjects to create whatever python api objects are required
+    to complete the script.  It then calls outputHead to output the header section and any required
+    javascript.  Finally, __init__ calls a few functions for each of the main sections of the body.
+
+    If any uncaught exception is thrown, its caught by the __init__ try block.  If its an MadrigalError,
+    additional information is available.  The catch blocks attempt to display the error message on the screen
+    by backing out of of large number of possible tags, which might prevent its display (in any case, the error
+    message will always be available in the page source.  The formatted error message is also sent to the email
+    address given in the siteTab.txt metadata file.
+
+    Every attempt is made to generate easy to read source html, since it is often an easy starting point for analyzing
+    the script.  Table structure is indicated by indentation, as is javascript code structure.
+
+    Allowed values of self.state:
+    
+    newFile:	        A new file needs to be analyzed for default values.
+
+    newFilt:	        A new filter has been selected.  The dates
+			remain the same, but all other form elements are determined by the filter.
+
+    edit:               The user has editted filters or changed the month, and is 
+    			returning to madDataBrowse.
+
+
+    All the python cgi scripts maintain state through form elements, either visible on the page, or as hidden elements.
+    A cookie is used to determine the username.  The names of all form elements used by
+    madDataBrowse are listed below:
+
+    timeStr:		a hidden element that displays the file start and end times - used at top of page.  Determined
+			dynamically when file first loaded by MadrigalFile()
+			
+    kinstStr:		a hidden element that displays the file kinst list in string form - used at top of page.  Determined
+			dynamically when file first loaded by MadrigalFile()
+
+    updateType:		a hidden element that determines whether a new filter was selected.  Allowed values are
+                        filter, file, edit
+
+    filterName:		a hidden element that determines the filter name selected (since there can be two filter lists)
+
+    fileName:		gives the name of the file being analyzed, either relative to the experiments directory (in which
+			case it does not begin with a forward slash, or absolute path (in which case is begins with a
+			forward slash.)  When file first loaded given as part of the url query string, thereafter passed
+			as a hidden element.
+
+    expName             the name of the experiment (displayed at the top of the page).  When file first loaded given as
+                        part of the url query string, thereafter passed as a hidden element.
+
+    webFormat:		a hidden element that gives the name of the parameter list to use.  Defaults to "Comprehensive" if
+			not passed in when new file loaded.
+
+    measList:		a hidden element that consists of all the parameters found in the file listed as mnemonics separated
+			by '++'.  Used to determine which parameters to display.Determined dynamically when file first loaded
+			by MadrigalFile()
+
+    derivList:          a hidden element that consists of all the parameters not found in the file but that need to be
+			displayed, listed as integers separated by '++'.  Used to determine which parameters to display.
+			Determined dynamically when file first loaded by MadrigalFile()
+
+    bothList:          	a hidden element that consists of all the parameters in either measList or derivList, listed as mnemonics
+			separated by '++'.  Used to determine which parameters to display.  Determined dynamically when file
+			first loaded by MadrigalFile()
+
+    startDay:		a select input giving the start day to select data - integer.
+
+    startMonth:		a select input giving the start month to select data - integer (1-12)
+
+    startYear:		an input text field giving the start year to select data - validated as integer.
+
+    endDay:		a select input giving the end day to select data - integer.
+
+    endMonth:		a select input giving the end month to select data - integer (1-12)
+
+    endYear:		an input text field giving the end year to select data - validated as integer.
+
+    startHour:		an input text field giving the start hour to select data - validated as integer 0-24.
+
+    startMin:		an input text field giving the start minute to select data - validated as integer 0-60.
+
+    startSec:		an input text field giving the start second to select data - validated as integer 0-60.
+
+    endHour:		an input text field giving the end hour to select data - validated as integer 0-24.
+
+    endMin:		an input text field giving the end minute to select data - validated as integer 0-60.
+
+    endSec:		an input text field giving the end second to select data - validated as integer 0-60.
+
+    minValidAlt:	an input text field giving the minimum altitude to select data - validated as integer.
+
+    maxValidAlt:	an input text field giving the maximum altitude to select data - validated as integer.
+
+    minAz1:		an input text field giving the minimum azimuth to select data - validated as float 0-360.
+
+    maxAz1:		an input text field giving the maximum azimuth to select data - validated as float 0-360.
+
+    minEl1:		an input text field giving the minimum elevation to select data - validated as float 0-90.
+
+    maxEl1:		an input text field giving the maximum elevation to select data - validated as float 0-90.
+
+    minAz2:		an input text field giving a second minimum azimuth to select data - validated as float 0-360.
+
+    maxAz2:		an input text field giving a second maximum azimuth to select data - validated as float 0-360.
+
+    minEl2:		an input text field giving a second minimum elevation to select data - validated as float 0-90.
+
+    maxEl2:		an input text field giving a second maximum elevation to select data - validated as float 0-90.
+
+    minPLen:		an input text field giving the minimum pulse length to select data - validated as float.
+
+    maxPLen:		an input text field giving the maximum pulse length to select data - validated as float.
+
+    kinstList:          a select input giving the kinst id to filter on - only if more than one kinst.
+
+    kinstListStr:	a hidden element that consists of all kinst values as integers separated by '+' - only if more
+			than one kinst.  Determined when file loaded.
+
+    kindatList:         a select input giving the kindat id to filter on - only if more than one kindat.
+
+    kindatListStr:	a hidden element that consists of all kindat values as integers separated by '+' - only if more
+			than one kindat.  Determined when file loaded.
+
+    mnemStr1:           an input text field that allows a general mnemonic or two mnemonics separated by +-*/ to be
+                        used as a filter
+
+    lower1:             an input text field giving the lower limit as a double for mnemStr1.  If blank, no lower
+                        limit
+
+    upper1:             an input text field giving the upper limit as a double for mnemStr1.  If blank, no upper
+                        limit
+
+    mnemStr2:           an input text field that allows a general mnemonic or two mnemonics separated by +-*/ to be
+                        used as a filter
+
+    lower2:             an input text field giving the lower limit as a double for mnemStr1.  If blank, no lower
+                        limit
+
+    upper2:             an input text field giving the upper limit as a double for mnemStr1.  If blank, no upper
+                        limit
+
+    <parameters>:	a series of checkbox inputs with names = parameter mnemonics.  Text is
+			also a link to a pop-up window with the parameter code, mnemonic, and description via javascript.
+
+    header:		a checkbox input that determines whether to display headers.
+
+    badval:		an input text field that determines how isprint should display bad values.
+
+    mxchar:             an input text field that determines max chars per column (50-9999 allowed)
+
+    
+
+    Change history:
+
+    Written by "Bill Rideout":mailto:wrideout@haystack.mit.edu  Dec. 28, 2001
+
+    Removed login, public directories - username now email.  Apr. 4, 2008
+
+    $Id: madDataBrowse,v 1.54 2008/08/28 14:40:45 brideout Exp $
+    """
+
+    # constants
+    __scriptName = 'madDataBrowse'
+    __missing    = 1.0e-38      # missing data indicator
+
+    
+    # states the script can be entered
+
+    # new file
+    newFile = 0
+
+    # new filter selected
+    newFilt = 1
+
+    # user was editting filters or changed months
+    edit = 2
+
+
+    # default web format
+    defaultWebFormat = 'Comprehensive'
+
+    # number of parameters per column
+    maxParmCols = 5
+
+    def __init__(self):
+        """__init__ run the entire MadrigalDataBrowse script.  All other functions are private and called by __init__.
+
+        Inputs: None
+        
+        Returns: void
+
+        Affects: Ouputs cgi script MadrigalDataBrowse.
+
+        Exceptions: None.
+        """
+
+        # print the header immediately, before any exceptions can occur
+        print "Content-Type: text/html"     # HTML is following
+        print                               # blank line, end of headers
+
+        # catch any exception, and write an appropriate message to user and to admin
+        try:
+
+            # check if pythonlibpath env variable exists
+            # written 'PYTHON' + 'LIBPATH' to stop automatic replacement during setup
+            temp = os.environ.get('PYTHON' + 'LIBPATH')
+            if temp != None:
+                    sys.path.append(temp)
+		    
+            # append path madroot/lib (needed only if python not installed by setup)
+            sys.path.append('/Users/mnicolls/Documents/Work/Madrigal/lib/python')
+
+            # prepare to handle MadrigalError
+            import madrigal.admin
+	    
+        except ImportError:
+	    
+	    # Fatal error - madpy library not found
+            print "Unable to import the madrigal python library - please alert the sys admin!"
+            sys.exit(0)
+	    
+        try:
+
+            # determine from form arguments and cookies which script state to use
+            self.state = self.setScriptState()
+
+            # create needed Madrigal objects based on state
+            self.createObjects()
+
+            # output html
+
+            #print header
+            self.outputHead('New version of isprint on the web! (' + self.webFormat + ')')
+
+            #print body tag
+            print self.madDBObj.getHtmlStyle()
+
+            self.printTitle()
+
+            self.printTopLinks()
+
+            self.printFileSummary()
+
+            self.printFilterSection()
+
+            self.printParameterSection()
+
+            self.printBottomSection()
+            
+
+        except madrigal.admin.MadrigalError, e:
+            # handle a MadrigalError
+
+            # back out of any tag so error message appears
+            print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            errStr = errStr + e.getExceptionHtml()
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        except SystemExit:
+            sys.exit(0)
+
+        except:
+            # handle a normal error
+            
+            # back out of any tag so error message appears
+            print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            print "Content-Type: text/html"
+            print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        # end __init__
+
+
+    def setScriptState(self):
+        
+        #create a form object
+        self.madForm = cgi.FieldStorage()
+
+	# get email information from cookie
+        self.cookie = Cookie.SimpleCookie()
+        if os.environ.has_key('HTTP_COOKIE'):
+            self.cookie.load(os.environ['HTTP_COOKIE'])
+            try:
+                self.username = self.cookie["user_email"].value
+            except:
+                self.username = None
+        else:
+	    # no cookie
+            self.username = None
+
+	#get the webFormat (or default if not entered)
+        if self.madForm.has_key('webFormat'):
+            self.webFormat = self.madForm.getvalue('webFormat')
+        else:
+            self.webFormat = self.defaultWebFormat # comprehensive
+
+	# now determine the correct script state
+        if not self.madForm.has_key('timeStr'):
+            # must be a new file
+            return self.newFile
+
+        if  self.madForm.has_key('updateType'):
+            if self.madForm.getvalue('updateType') == 'filter':
+                return self.newFilt
+            
+            if self.madForm.getvalue('updateType') == 'file':
+                return self.newFile
+            
+            if self.madForm.getvalue('updateType') == 'edit':
+                return self.edit
+            
+            else:
+                raise ('Script called with illegal value of updateType form element.')
+        else:
+            raise ('Script called without required form element updateType.')
+
+
+
+    def createObjects(self):
+
+        # all states require a MadrigalDB object
+        import madrigal.metadata
+        self.madDBObj = madrigal.metadata.MadrigalDB()
+
+        # if madroot not set, set it now
+        if os.environ.get('MAD' + 'ROOT') == None:
+            os.environ['MAD' + 'ROOT'] = self.madDBObj.getMadroot()
+
+        # all states require a MadrigalWeb object
+        import madrigal.ui.web
+        self.madWebObj = madrigal.ui.web.MadrigalWeb(self.madDBObj)
+
+	# all states require a MadrigalWebFormat object
+        self.madWebForObj = madrigal.ui.web.MadrigalWebFormat()
+
+	# all states require a MadrigalUserData oject
+        import madrigal.ui.userData
+        self.madUserDataObj = madrigal.ui.userData.MadrigalUserData(self.madDBObj)
+
+        # get the passed in fileName
+        if self.madForm.has_key('fileName'):
+            self.fileName = self.madForm.getvalue("fileName")
+        else:
+            print '<h3> This cgi script was called without the proper arguments.</h3>' + \
+                  'Since this script uses post, you cannot bookmark this page. ' + \
+                  'Please contact your site administrator with any questions.'
+
+            sys.exit(0)
+
+
+	#get full file name if not absolute path already:
+        if self.fileName[0] != '/':
+            self.fileName = self.madDBObj.getExperimentDir() + '/' + self.fileName
+
+        import madrigal.data
+        self.madParmObj = madrigal.data.MadrigalParameters(self.madDBObj)
+        
+        # create fileInfo if state newFile
+        if self.state == self.newFile:
+            self.fileInfo = madrigal.data.MadrigalFile(self.fileName, self.madDBObj)
+	    # get lists of measured, derived, and both parameters
+            self.measList = []
+            self.derivList = []
+            self.bothList = []
+            self.sureList = []
+            self.fileInfo.getMeasDervBothParmLists(self.madWebForObj.getFormat(self.webFormat),
+                                                   self.measList,
+                                                   self.derivList,
+                                                   self.bothList,
+                                                   self.sureList)
+            
+            # remove additional increment parms from self.bothList if main parm there
+            self.bothList = self.removeAddIncr(self.bothList)
+            
+	# else populate parm lists from form
+        else:
+            self.measList = self.madForm.getvalue('measList').split('%20')
+            self.derivList = self.madForm.getvalue('derivList').split('%20')
+            self.bothList = self.madForm.getvalue('bothList').split('%20')
+
+        # get category dict
+        self.categoryDict = self.madParmObj.getCategoryDict(self.bothList)
+
+        # get mnemonic list
+        self.mnemonicList = self.madParmObj.getParmMnemonicList(self.bothList)
+
+        # get description list
+        self.descList = self.madParmObj.getParmDescriptionList(self.bothList)
+
+	# create filtObj if state newFilt
+        if self.state == self.newFilt:
+            # check for missing fields
+            self.filtObj = self.madUserDataObj.getFilter(self.username,
+                                                         'private',
+                                                         self.madForm.getvalue("filterName"))
+
+            # get list of parameters to select as mnemonics
+            self.filtParmList = []
+            if self.filtObj.parmlist != None:
+                for parm in self.filtObj.parmlist.split():
+                    self.filtParmList.append(self.madParmObj.getParmMnemonic(parm))
+
+        # get kindat description
+        if self.state == self.newFile:
+            kindatList = self.fileInfo.getKindatList()
+            if len(kindatList) == 0:
+                self.kindatDescription = 'Unknown'
+            else:
+                madKindatObj = madrigal.metadata.MadrigalKindat(self.madDBObj)
+                self.kindatDescription = madKindatObj.getKindatDescription(kindatList[0])
+                if self.kindatDescription == None:
+                    self.kindatDescription = 'Unknown'
+                elif len(self.kindatDescription) == 0:
+                    self.kindatDescription = 'Unknown'
+        else:
+            try:
+                self.kindatDescription = self.madForm.getvalue("kindatDesc")
+            except:
+                self.kindatDescription = 'Unknown'
+        
+
+    def removeAddIncr(self, parmList):
+        """removeAddIncr creates a new parmList with additional parm removed if main parm exists.
+
+        Input - parmList - a list of parameter mnemonics
+
+        Returns - a new list of parameter mnemonics with additional parm removed if main parm exists
+        """
+        codeList =  []  # list of input parms in code (int) form
+        removeParmList = [] # list of add increment parms mnemonics to possibly remove
+        retParmList = []
+
+        for parm in parmList:
+            code = self.madParmObj.getParmCodeFromMnemonic(parm)
+            if code != 0:
+                codeList.append(code)
+
+        for code in codeList:
+            if self.madParmObj.hasAddIncrement(code):
+                if code > 0:
+                    removeParmList.append(self.madParmObj.getParmMnemonic(code + 1))
+                else:
+                    removeParmList.append(self.madParmObj.getParmMnemonic(code - 1))
+
+        for parm in parmList:
+            if parm not in removeParmList:
+                retParmList.append(parm)
+
+        return(retParmList)
+            
+
+
+    def outputHead(self, title):
+
+        print '<html>'
+        print '<head>'
+        print '\t<title>' + title + '</title>'
+        print '\t<style type="text/css">.lb {background: #ADD8E6}</style>'
+        self.printJavaScript()
+        print '</head>'
+
+
+
+    def printJavaScript(self):
+        print '<script language = "JavaScript">'
+        # data verification functions
+        self.printTrim()
+        self.printIsInt()
+        self.printIsFloat()
+        self.printIsEmpty()
+        self.printInRange()
+        self.printGetNumTokens()
+        self.printValidateFilter()
+        self.printNewFilt()
+        self.printRestoreDefault()
+        self.printReload()
+        self.printNewFormat()
+        self.printSave()
+        self.printDataDisplay()
+        self.printEdit()
+        self.printParmOverview()
+        self.printPopup()
+        self.printGetDesc()
+        self.printMLookup()
+        self.printCParamDiction()
+        print '</script>'
+
+
+    def printTrim(self):
+        print '\tfunction trim(strText)'
+        print '\t{'
+        print '\t\t// this will get rid of leading spaces'
+        print '\t\twhile (strText.substring(0,1) == \' \')'
+        print '\t\t\tstrText = strText.substring(1, strText.length);'
+        print '\t\t// this will get rid of trailing spaces'
+        print '\t\twhile (strText.substring(strText.length-1,strText.length) == \' \')'
+        print '\t\t\tstrText = strText.substring(0, strText.length-1);'
+        print '\t\treturn strText;'
+        print '\t}\n'
+
+
+    def printIsInt(self):
+        print '\tfunction isInt(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj.value);'
+        print '\t\tvar newLength = newValue.length;'
+        print '\t\tfor (var i = 0; i != newLength; i++)'
+        print '\t\t{'
+        print '\t\t\taChar = newValue.substring(i,i+1);'
+        print '\t\t\tif(aChar < "0" || aChar > "9")'
+        print '\t\t\t{'
+        print '\t\t\t\treturn false;'
+        print '\t\t\t}'
+        print '\t\t}'
+        print '\t\treturn true;'
+        print '\t}\n'
+
+
+    def printIsFloat(self):
+        print '\tfunction isFloat(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj.value);'
+        print '\t\tvar newLength = newValue.length;'
+        print '\t\tfor (var i = 0; i != newLength; i++)'
+        print '\t\t{'
+        print '\t\t\taChar = newValue.substring(i,i+1);'
+        print '\t\t\tif((aChar < "0" || aChar > "9") && (aChar != ".") && (aChar != "-") && (aChar != "e") && (aChar != "E"))'
+        print '\t\t\t{'
+        print '\t\t\t\treturn false;'
+        print '\t\t\t}'
+        print '\t\t}'
+        print '\t\treturn true;'
+        print '\t}\n'
+
+
+    def printInRange(self):
+        print '\tfunction inRange(num, lowerLimit, upperLimit)'
+        print '\t{'
+        print '\t\tif(num >= lowerLimit && num <= upperLimit)'
+        print '\t\t{'
+        print '\t\t\treturn true;'
+        print '\t\t}'
+        print '\t\tif(typeof num != "number")'
+        print '\t\t{'
+        print '\t\t\treturn true;'
+        print '\t\t}'
+        print '\t\treturn false;'
+        print '\t}\n'
+
+
+    def printIsEmpty(self):
+        print '\tfunction isEmpty(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj.value);'
+        print '\t\tvar newLength = newValue.length;'
+        print '\t\tif(newLength == 0)'
+        print '\t\t{'
+        print '\t\t\treturn true;'
+        print '\t\t}'
+        print '\t\treturn false;'
+        print '\t}\n'
+
+    def printGetNumTokens(self):
+        print '\tfunction getNumTokens(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj.value);'
+        print '\t\tvar arrayOfStrings = newValue.split(" ");'
+        print '\t\treturn arrayOfStrings.length;'
+        print '\t}\n'
+
+    def printValidateFilter(self):
+        # check that all filter values are valid via javascript before form submitted
+        print '\tfunction validateFilter(madForm)'
+        print '\t{'
+        print '\t\tif (!isInt(madForm.startYear) || isEmpty(madForm.startYear))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start year.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.endYear) || isEmpty(madForm.endYear))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end year.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.startHour))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start hour.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.startHour.value), 0, 24) && madForm.startHour.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start hour.  Must be between 0 and 24.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.startMin))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start minute.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.startMin.value), 0, 60) && madForm.startMin.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start minute.  Must be between 0 and 60.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.startSec))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start second.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.startSec.value), 0, 60) && madForm.startSec.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end second.  Must be between 0 and 60.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.endHour))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end hour.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.endHour.value), 0, 24) && madForm.endHour.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end hour.  Must be between 0 and 24.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.endMin))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end minute.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.endMin.value), 0, 60) && madForm.endMin.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end minute.  Must be between 0 and 60.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.endSec))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end second.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.endSec.value), 0, 60) && madForm.endSec.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end second.  Must be between 0 and 60.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # only print if 'GDALT' is shown:
+        if 'GDALT' in self.mnemonicList:
+            print '\t\tif (!isFloat(madForm.minValidAlt))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum altitude.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!isFloat(madForm.maxValidAlt))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum altitude.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+        # only print if 'AZ1' or 'AZM' is shown:
+        if 'AZ1' in self.mnemonicList or 'AZM' in self.mnemonicList:
+            print '\t\tif (!isFloat(madForm.minAz1))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum azimuth.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!inRange(parseFloat(madForm.minAz1.value), -180.0, 180.0) && madForm.minAz1.value.length != 0)'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum azimuth.  Must be between -180.0 and 180.0 degrees.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!isFloat(madForm.maxAz1))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum azimuth.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!inRange(parseFloat(madForm.maxAz1.value), -180.0, 180.0) && madForm.maxAz1.value.length != 0)'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum azimuth.  Must be between -180.0 and 180.0 degrees.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+        # only print if 'EL1' or 'ELM' is shown:
+        if 'EL1' in self.mnemonicList or 'ELM' in self.mnemonicList:
+            print '\t\tif (!isFloat(madForm.minEl1))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum elevation.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!inRange(parseFloat(madForm.minEl1.value), 0.0, 90.0) && madForm.minEl1.value.length != 0)'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum elevation.  Must be between 0.0 and 90.0 degrees.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!isFloat(madForm.maxEl1))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum elevation.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!inRange(parseFloat(madForm.maxEl1.value), 0.0, 90.0) && madForm.maxEl1.value.length != 0)'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum elevation.  Must be between 0.0 and 90.0 degrees.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+        # only print if 'AZ1' or 'AZM' is shown:
+        if 'AZ1' in self.mnemonicList or 'AZM' in self.mnemonicList:
+            print '\t\tif (!isFloat(madForm.minAz2))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum azimuth 2.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!inRange(parseFloat(madForm.minAz2.value), -180.0, 180.0) && madForm.minAz2.value.length != 0)'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum azimuth 2.  Must be between -180.0 and 180.0 degrees.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!isFloat(madForm.maxAz2))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum azimuth 2.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!inRange(parseFloat(madForm.maxAz2.value), -180.0, 180.0) && madForm.maxAz2.value.length != 0)'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum azimuth 2.  Must be between -180.0 and 180.0 degrees.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+        # only print if 'EL1' or 'ELM' is shown:
+        if 'EL1' in self.mnemonicList or 'ELM' in self.mnemonicList:
+            print '\t\tif (!isFloat(madForm.minEl2))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum elevation 2.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!inRange(parseFloat(madForm.minEl2.value), 0.0, 90.0) && madForm.minEl2.value.length != 0)'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum elevation 2.  Must be between 0.0 and 90.0 degrees.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!isFloat(madForm.maxEl2))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum elevation 2.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!inRange(parseFloat(madForm.maxEl2.value), 0.0, 90.0) && madForm.maxEl2.value.length != 0)'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum elevation 2.  Must be between 0.0 and 90.0 degrees.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+        # only print if 'PL' is shown:
+        if 'PL' in self.mnemonicList:
+            print '\t\tif (!isFloat(madForm.minPLen))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for minimum pulse length.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+            print '\t\tif (!isFloat(madForm.maxPLen))'
+            print '\t\t{'
+            print '\t\t\talert("Invalid entry for maximum pulse length.  Please correct and try again.");'
+            print '\t\t\treturn false;'
+            print '\t\t}'
+        #mnemStr1
+        print '\t\tif (!(getNumTokens(madForm.mnemStr1) < 2 || getNumTokens(madForm.mnemStr1) == 3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for parameter string in optional filter 1.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (getNumTokens(madForm.mnemStr1) > 0 && madForm.mnemStr1.value.length > 0)'
+        print '\t\t{'
+        print '\t\t\tvar mnemStr=trim(madForm.mnemStr1.value)'
+        print '\t\t\tvar mnemList = mnemStr.split(" ")'
+        print '\t\t\tfor(var i=0; i<mnemList.length; i++)'
+        print '\t\t\t{'
+        print '\t\t\t\tif(mnemList[i] == "+" || mnemList[i] == "-" || mnemList[i] == "*" || mnemList[i] == "/")'
+        print '\t\t\t\t\tcontinue;'
+        print '\t\t\t\tif(typeof(getDesc(mnemList[i].toUpperCase())) != "string")'
+        print '\t\t\t\t{'
+        print '\t\t\t\t\talert("Illegal parameter found in optional filter 1: " + mnemList[i])'
+        print '\t\t\t\t\treturn false;'
+        print '\t\t\t\t}'
+        print '\t\t\t}'
+        print '\t\t}'
+        # lower range 1
+        print '\t\tif (!isFloat(madForm.lower1))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for lower limit in optional filter 1.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # upper range 1
+        print '\t\tif (!isFloat(madForm.upper1))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for upper limit in optional filter 1.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        #mnemStr2
+        print '\t\tif (!(getNumTokens(madForm.mnemStr2) < 2 || getNumTokens(madForm.mnemStr2) == 3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for parameter string in optional filter 2.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (getNumTokens(madForm.mnemStr2) > 0 && madForm.mnemStr2.value.length > 0)'
+        print '\t\t{'
+        print '\t\t\tvar mnemStr=trim(madForm.mnemStr2.value)'
+        print '\t\t\tvar mnemList = mnemStr.split(" ")'
+        print '\t\t\tfor(var i=0; i<mnemList.length; i++)'
+        print '\t\t\t{'
+        print '\t\t\t\tif(mnemList[i] == "+" || mnemList[i] == "-" || mnemList[i] == "*" || mnemList[i] == "/")'
+        print '\t\t\t\t\tcontinue;'
+        print '\t\t\t\tif(typeof(getDesc(mnemList[i].toUpperCase())) != "string")'
+        print '\t\t\t\t{'
+        print '\t\t\t\t\talert("Illegal parameter found in optional filter 2: " + mnemList[i])'
+        print '\t\t\t\t\treturn false;'
+        print '\t\t\t\t}'
+        print '\t\t\t}'
+        print '\t\t}'
+        # lower range 2
+        print '\t\tif (!isFloat(madForm.lower2))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for lower limit in optional filter 2.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # upper range 2
+        print '\t\tif (!isFloat(madForm.upper2))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for upper limit in optional filter 2.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # mxcar
+        print '\t\tif (!isInt(madForm.mxchar))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for maximum characters per row.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.mxchar.value), 50, 9999) && madForm.mxchar.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for maximum characters per column.  Must be between 50 and 9999.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\treturn true;'
+        print '\t}\n'
+
+
+    def printNewFilt(self):
+        print '\tfunction newFilt(madForm)'
+        print '\t{'
+        print '\t\tif(madForm.filterName.value == "")'
+        print '\t\t{'
+        print '\t\t\talert("No filter selected");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tmadForm.updateType.value = "filter"'
+        print '\t\tmadForm.action="madDataBrowse"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+
+    def printRestoreDefault(self):
+        print '\tfunction restoreDefault(madForm)'
+        print '\t{'
+        print '\t\tmadForm.updateType.value = "file"'
+        print '\t\tmadForm.webFormat.value="Comprehensive"'
+        print '\t\tmadForm.action="madDataBrowse"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printReload(self):
+        print '\tfunction reload(madForm)'
+        print '\t{'
+        print '\t\tmadForm.updateType.value = "edit"'
+        print '\t\tmadForm.action="madDataBrowse"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printNewFormat(self):
+        print '\tfunction newFormat(madForm)'
+        print '\t{'
+        print '\t\tmadForm.updateType.value = "file"'
+        if self.webFormat != 'Comprehensive':
+            print '\t\tmadForm.webFormat.value="Comprehensive"'
+        else:
+            print '\t\tmadForm.webFormat.value="Short"'
+        print '\t\tmadForm.action="madDataBrowse"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printSave(self):
+        print '\tfunction save(madForm)'
+        print '\t{'
+        print '\t\tif (!validateFilter(madForm))'
+        print '\t\t{'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tmadForm.action="madSaveFilter"'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printEdit(self):
+        print '\tfunction edit(madForm)'
+        print '\t{'
+        print '\t\tif (!validateFilter(madForm))'
+        print '\t\t{'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tmadForm.action="madEditFilter"'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printDataDisplay(self):
+        print '\tfunction dataDisplay(madForm)'
+        print '\t{'
+        print '\t\tif (!validateFilter(madForm))'
+        print '\t\t{'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tmadForm.action="madDataDisplay"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printParmOverview(self):
+        print '\tfunction parmOverview(madForm)'
+        print '\t{'
+        print '\t\tmadForm.action="madParmOverview"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printPopup(self):
+        print '\tfunction popup(acronym)'
+        print '\t{'
+        print '\t\tinfo2 = window.open ("","","WIDTH=600,HEIGHT=400,SCROLLBARS=yes")'
+        print '\t\tinfo2.document.write("<HTML><HEAD><TITLE>" + acronym + "<\/TITLE>")'
+        print '\t\tinfo2.document.write("' + self.madDBObj.getHtmlStyle() + '")'
+        print '\t\tinfo2.document.write("<CENTER><B>")'
+        print '\t\tinfo2.document.write(acronym)'
+        print '\t\tinfo2.document.write("<\/B><\/CENTER><P>")'
+        print '\t\tinfo2.document.write(getDesc(acronym))'
+        print '\t\tinfo2.document.write(\'<p><form><center><input type="button" value="Close Window" onClick="window.close()">\')'
+        print '\t\tinfo2.document.write(\'<\/form><\/center>\')'
+        print '\t\tinfo2.document.write("<\/BODY><\/HTML>")'
+        print '\t\tinfo2.document.close()'
+        print '\t}\n'
+
+
+    def printGetDesc(self):
+        print '\tfunction getDesc(name)'
+        print '\t{'
+        print '\t\tvar o = new cParamDiction()'
+        print '\t\treturn(o.Lookup(name))'
+        print '\t}\n'
+
+
+    def printMLookup(self):
+        print '\tfunction mLookup(strKeyName)'
+        print '\t{'
+        print '\t\treturn(this[strKeyName])'
+        print '\t}\n'
+
+
+    def printCParamDiction(self):
+        print '\t// A dictionary object of Parameters and Descriptions:'
+        print '\tfunction cParamDiction()'
+        print '\t{'
+        print '\t\tthis.Lookup = mLookup'
+        i = 0
+        for parm in self.mnemonicList:
+            print '\t\tthis["' + parm + \
+                      '"] = "' + self.descList[i].replace('</', '<\/') + '"'
+            i = i + 1
+        print '\t}\n'
+
+
+    def printTitle(self):
+        print '<h1><center>Print file as ascii (isprint)</center></h1>'
+        kindatDesc = self.kindatDescription
+        if kindatDesc == None:
+            kindatDesc = 'Unknown'
+        if self.madForm.has_key('expName'):
+            print '<h3>Experiment: ' + self.madWebObj.getSpaceString(self.madForm.getvalue('expName')) + \
+                  ' &nbsp;&nbsp;&nbsp;File: ' + os.path.basename(self.fileName) + \
+                  ' &nbsp;&nbsp;&nbsp;Type of data: ' + self.madWebObj.getSpaceString(kindatDesc) + '</h3>'
+
+
+    def printTopLinks(self):
+        print '<center><table width="90%" border="1"><tr>'
+        print '\t<td>'
+        # get expName for madExperiments.cgi from fileName
+        dirPath = self.fileName.split(self.madDBObj.getMadroot() + '/experiments/')
+        try:
+            expName = dirPath[1]
+            # remove file name at end
+            expName = expName[0:expName.rfind('/')]
+            # replace / in argument for tcl scripts
+            expName = expName.replace('/', '%2f')
+        except:
+            expName = 'Unkown'
+        print '\t<a href=madExperiment.cgi?exp=' + \
+              expName + '&expTitle=' + \
+              self.madWebObj.getCgiString(self.madForm.getvalue('expName')).replace('%20', '+') + \
+              '&displayLevel=0>Return to experiment list</a>'
+        print '\t</td>'
+        print '\t<td>'
+        print '\tReturn to <a href=/' + self.madDBObj.getRelativeTopLevel() + '/index.html>Madrigal homepage</a>'
+        print '\t</td>'
+        print '\t<td>'
+        print '\tA <a href=/' + self.madDBObj.getRelativeTopLevel() + '/wt_dataBrowser.html>tutorial</a> on how to use this page'
+        print '\t</td>'
+        print '\t<td>'
+        print '\tReturn to <a href=accessData.cgi>access data</a> page'
+        print '\t</td>'
+        print '</tr>'
+        print """<tr><td colspan="4"><center><i>Instructions</i></center>
+        <ol><li>If you want to filter the data, use the first section: <i>Available Filters</i>.
+        Skip the filter section to get all data.</li>
+        <li>In the next section (<i>Avaliable Parameters</i>), select the parameters you want to print.  The parameters printed in bold are
+        the ones in this file, while the others are derived from those parameters. Click on the parameter
+        to see its definition.</li>
+        <li>At the bottom are some optional output formatting options.</li>
+        <li>Click <i>Display Data</i>.</li>
+        </ol></td></tr>"""
+        print '</table></center>'
+
+
+    def printFileSummary(self):
+        print '<hr>'
+        print '<form action=madDataBrowse method=post name=form1>'
+        if self.state == self.newFile:
+            startTimeList = self.fileInfo.getEarliestTime()
+            startDatetime = datetime.datetime(startTimeList[0], startTimeList[1],startTimeList[2],
+                                              startTimeList[3], startTimeList[4],startTimeList[5])
+            self.timeStr = startDatetime.strftime('%Y-%m-%d %H:%M:%S')
+
+            self.timeStr += ' - '
+            endTimeList = self.fileInfo.getLatestTime()
+            endDatetime = datetime.datetime(endTimeList[0], endTimeList[1],endTimeList[2],
+                                            endTimeList[3], endTimeList[4],endTimeList[5])
+            self.timeStr += endDatetime.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            self.timeStr = self.madForm.getvalue('timeStr')
+        print self.madWebObj.getSpaceString(self.timeStr)
+	# convert string to cgi form
+        self.timeStr = self.madWebObj.getCgiString(self.timeStr)
+        print ': '
+        if self.state == self.newFile:
+            self.kinstStr = self.fileInfo.getKinstListStr()
+        else:
+            self.kinstStr = self.madForm.getvalue('kinstStr')
+        print self.madWebObj.getSpaceString(self.kinstStr)
+        # convert string to cgi form
+        self.kinstStr = self.madWebObj.getCgiString(self.kinstStr)
+        # set up hidden form elements
+        print '<input type=hidden name=timeStr value=' + \
+              self.timeStr + '>'
+        print '<input type=hidden name=kinstStr value=' + \
+              self.kinstStr + '>'
+        print '<input type=hidden name=updateType value=filter>'
+        print '<input type=hidden name=fileName value=' + \
+              self.fileName + '>'
+        if self.madForm.has_key('expName'):
+            print '<input type=hidden name=expName value=' + \
+              self.madWebObj.getCgiString(self.madForm.getvalue('expName')) + '>'
+        print '<input type=hidden name=webFormat value=' + \
+              self.webFormat + '>'
+        print '<input type=hidden name=measList value=' + \
+              self.madWebObj.getCgiStringFromList(self.measList) + '>'
+        print '<input type=hidden name=derivList value=' + \
+              self.madWebObj.getCgiStringFromList(self.derivList) + '>'
+        print '<input type=hidden name=bothList value=' + \
+              self.madWebObj.getCgiStringFromList(self.bothList) + '>'
+        print '<input type=hidden name=kindatDesc value=' + \
+              self.madWebObj.getCgiString(self.kindatDescription) + '>'
+        print '<hr>'
+
+
+    def printFilterSection(self):
+        self.printFilterSectionStart()
+        self.printFilterSelectTable()
+        self.printFreeformFilterTable()
+        self.printSavedFilterTable()
+        self.printFilterSectionEnd()
+
+
+    def printFilterSectionStart(self):
+        print '<h3><a href=/' + self.madDBObj.getRelativeTopLevel() + '/wt_dataBrowser.html#filter>Available Filters</a>'
+        if self.state == self.newFilt:
+            print ' - Using filter <i>' + \
+                  self.madForm.getvalue('filterName') +'</i>'
+            print '</h3><p>Description: ' + str(self.filtObj.description)
+        else:
+            print ' - Using default or manually entered selections</h3>'
+        print '<table BORDER CELLPADDING=10 COLS=2 WIDTH="100%">'
+        print '\t<tr VALIGN=TOP>'
+        print '\t\t<td width="60%"> <div align=center><b>Set data filters manually, or ...</b></div>'
+        print '\t\t<ul><li>Data will be listed only if it falls within the range of the filter</li>'
+        print '\t\t<li>For azimuth and elevation, two separate ranges can now be used</li>'
+        print '\t\t<li><a href=' + \
+              self.madDBObj.getTopLevelUrl() + '/wt_dataBrowser.html#filter>'
+        print '\t\tExplanation of Filters</a></li></ul>'
+	
+
+
+    def printFilterSelectTable(self):
+        print '\t\t<table COLS=4 WIDTH="90%">'
+        self.printStartDate()
+        self.printStartTime()
+        self.printEndDate()
+        self.printEndTime()
+        self.printAltitudeSelect()
+        self.printAzimuth1Select()
+        self.printElevation1Select()
+        self.printAdditionalRangeExplanation()
+        self.printAzimuth2Select()
+        self.printElevation2Select()
+        self.printPulseLengthSelect()
+        self.printKinstSelect()
+        self.printKindatSelect()
+        print '\t\t</table>'
+
+
+    def printFreeformFilterTable(self):
+        print '\t\t<table COLS=4 WIDTH="90%">'
+        print '\t\t<i><a href=/madrigal/wt_dataBrowser.html#filter>Optional free-form filters using ' + \
+              'any parameter mnemonic on this page</a></i>'
+        print '\t\t<table COLS=3 WIDTH="90%">'
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td width="60%">Mnemonic (or Mnem1 +,-,*,/ Mnem2)<br>(example: gdalt <i>or</i> gdalt - sdwht)<br>'
+        print '\t\t\t\tLeave spaces between mnemonics and operator</td>'
+        print '\t\t\t\t<td width="20%">Lower limit<br>(leave blank if none)</td>'
+        print '\t\t\t\t<td width="20%">Upper limit<br>(leave blank if none)</td>'
+        print '\t\t\t</tr>'
+        self.printFreeForm1()
+        self.printFreeForm2()
+        print '\t\t</table></td>'
+
+    def printStartDate(self):
+        if self.state == self.newFile:
+            self.startYear = self.fileInfo.getEarliestTime()[0]
+            self.startMonth = self.fileInfo.getEarliestTime()[1]
+            self.startDay = self.fileInfo.getEarliestTime()[2]
+        else:
+            self.startYear = int(self.madForm.getvalue('startYear'))
+            self.startMonth = int(self.madForm.getvalue('startMonth'))
+            self.startDay = int(self.madForm.getvalue('startDay'))
+        numDaysInMonth = calendar.monthrange(1980, self.startMonth)[1]
+        print '\t\t\t<tr><td>Start date:&nbsp;</td>'
+        print '\t\t\t\t<td><select name="startMonth" onChange=reload(this.form)>' + \
+            self.madWebObj.getOptionMonthTags(self.startMonth) + \
+              '</select></td>'
+        print '\t\t\t\t<td><select name="startDay">' + \
+              self.madWebObj.getOptionNumericTags(1, numDaysInMonth, self.startDay) + \
+              '</select></td>'
+        print '\t\t\t\t<td><input name="startYear" value=' + \
+            str(self.startYear) + ' size=4></td>'
+        print '\t\t\t</tr>'
+
+
+    
+    def printStartTime(self):
+        if self.state == self.newFile:
+            # new file
+            self.startHour = self.fileInfo.getEarliestTime()[3]
+            self.startMin = self.fileInfo.getEarliestTime()[4]
+            self.startSec = self.fileInfo.getEarliestTime()[5]
+        elif self.state == self.newFilt:
+            # new filter
+            self.startHour = self.filtObj.starthour
+            if self.startHour == None:
+                self.startHour = '""'
+            self.startMin = self.filtObj.startmin
+            if self.startMin == None:
+                self.startMin = '""'
+            self.startSec = self.filtObj.startsec
+            if self.startSec == None:
+                self.startSec = '""'
+        else:
+            # edit
+            if self.madForm.has_key('startHour'):
+                self.startHour = int(self.madForm.getvalue('startHour'))
+            else:
+                self.startHour = '""'
+            if self.madForm.has_key('startMin'):
+                self.startMin = int(self.madForm.getvalue('startMin'))
+            else:
+                self.startMin = '""'
+            if self.madForm.has_key('startSec'):
+                self.startSec = int(self.madForm.getvalue('startSec'))
+            else:
+                self.startSec = '""'
+        print '\t\t\t<tr><td>Start time:&nbsp;</td>'
+        print '\t\t\t\t<td>H:&nbsp;<input name="startHour" value=' + \
+              str(self.startHour) + ' size=2></td>'
+        print '\t\t\t\t<td>M:&nbsp;<input name="startMin" value=' + \
+              str(self.startMin) + ' size=2></td>'
+        print '\t\t\t\t<td>S:&nbsp;<input name="startSec" value=' + \
+              str(self.startSec) + ' size=2></td>'
+        print '\t\t\t</tr>'
+
+
+    def printEndDate(self):
+        if self.state == self.newFile:
+            self.endYear = self.fileInfo.getLatestTime()[0]
+            self.endMonth = self.fileInfo.getLatestTime()[1]
+            self.endDay = self.fileInfo.getLatestTime()[2]
+        else:
+            self.endYear = int(self.madForm.getvalue('endYear'))
+            self.endMonth = int(self.madForm.getvalue('endMonth'))
+            self.endDay = int(self.madForm.getvalue('endDay'))
+        numDaysInMonth = calendar.monthrange(1980, self.endMonth)[1]
+        print '\t\t\t<tr><td>End date:&nbsp;</td>'
+        print '\t\t\t\t<td><select name="endMonth" onChange=reload(this.form)>' + \
+              self.madWebObj.getOptionMonthTags(self.endMonth) + \
+              '</select></td>'
+        print '\t\t\t\t<td><select name="endDay">' + \
+              self.madWebObj.getOptionNumericTags(1, numDaysInMonth, self.endDay) + \
+              '</select></td>'
+        print '\t\t\t\t<td><input name="endYear" value=' + \
+              str(self.endYear) + ' size=4></td>'
+        print '\t\t\t</tr>'
+
+
+    def printEndTime(self):
+        if self.state == self.newFile:
+            # new file
+            self.endHour = self.fileInfo.getLatestTime()[3]
+            self.endMin = self.fileInfo.getLatestTime()[4]
+            self.endSec = self.fileInfo.getLatestTime()[5]
+        elif self.state == self.newFilt:
+            # new filter
+            self.endHour = self.filtObj.endhour
+            if self.endHour == None:
+                self.endHour = '""'
+            self.endMin = self.filtObj.endmin
+            if self.endMin == None:
+                self.endMin = '""'
+            self.endSec = self.filtObj.endsec
+            if self.endSec == None:
+                self.endSec = '""'
+        else:
+            # edit
+            if self.madForm.has_key('endHour'):
+                self.endHour = int(self.madForm.getvalue('endHour'))
+            else:
+                self.endHour = '""'
+            if self.madForm.has_key('endMin'):
+                self.endMin = int(self.madForm.getvalue('endMin'))
+            else:
+                self.endMin = '""'
+            if self.madForm.has_key('endSec'):
+                self.endSec = int(self.madForm.getvalue('endSec'))
+            else:
+                self.endSec = '""'
+        print '\t\t\t<tr><td>End time:&nbsp;</td>'
+        print '\t\t\t\t<td>H:&nbsp;<input name="endHour" value=' + \
+              str(self.endHour) + ' size=2></td>'
+        print '\t\t\t\t<td>M:&nbsp;<input name="endMin" value=' + \
+              str(self.endMin) + ' size=2></td>'
+        print '\t\t\t\t<td>S:&nbsp;<input name="endSec" value=' + \
+              str(self.endSec) + ' size=2></td>'
+        print '\t\t\t</tr>'
+
+
+    def printAltitudeSelect(self):
+        # only print if 'GDALT' is shown:
+        if 'GDALT' in self.mnemonicList:
+            if self.state == self.newFile:
+                # new file
+                # check if GDALT can be derived by all record types
+                if 'GDALT' in self.sureList:
+                    self.minValidAlt = 0.0
+                    self.maxValidAlt = self.fileInfo.getMaxValidAltitude() + 0.01
+                    # if these values are too small ignore
+                    if self.maxValidAlt < 5.0:
+                        self.minValidAlt = ''
+                        self.maxValidAlt = ''
+                else:
+                    # some record types cannot calculate GDALT, while others can
+                    # set default alt filter to blank to allow all records
+                    print '<tr><td colspan=4><i>Note: Not all records can derive alt. ' + \
+                          'Setting any alt limits will filter out those records.</i></td></tr>'
+                    self.minValidAlt = ''
+                    self.maxValidAlt = ''
+            elif self.state == self.newFilt:
+                # new filter
+                self.minValidAlt = self.filtObj.minalt
+                if self.minValidAlt == None:
+                    self.minValidAlt = ''
+                self.maxValidAlt = self.filtObj.maxalt
+                if self.maxValidAlt == None:
+                    self.maxValidAlt = ''
+            else:
+                # edit
+                if self.madForm.has_key('minValidAlt'):
+                    self.minValidAlt = float(self.madForm.getvalue('minValidAlt'))
+                else:
+                    self.minValidAlt = ''
+                if self.madForm.has_key('maxValidAlt'):
+                    self.maxValidAlt = float(self.madForm.getvalue('maxValidAlt'))
+                else:
+                    self.maxValidAlt = ''
+            print '\t\t\t<tr><td>Min altitude:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="minValidAlt" value="' + \
+                  str(self.minValidAlt) + '" size=8></td>'
+            print '\t\t\t\t<td>Max altitude:</td>'
+            if type(self.maxValidAlt) == types.FloatType:
+                if self.maxValidAlt != self.__missing: 
+                    self.maxValidAlt = ('%12.2f' % self.maxValidAlt).strip()
+                else:
+                    self.maxValidAlt = ''
+            print '\t\t\t\t<td><input name="maxValidAlt" value="' + \
+                  str(self.maxValidAlt) + '" size=8></td>'
+            print '\t\t\t</tr>'
+
+    def printAzimuth1Select(self):
+        # only print if 'az1' or 'azm' is shown:
+        if 'AZ1' in self.mnemonicList or 'AZM' in self.mnemonicList:
+            if self.state == self.newFile:
+                # new file
+                # check if AZM can be derived by all record types
+                if 'AZM' in self.sureList:
+                    self.minAz1 = -180.0
+                    self.maxAz1 = 180.0
+                else:
+                    # some record types cannot calculate AZM, while others can
+                    # set default azm filter to blank to allow all records
+                    print '<tr><td colspan=4><i>Note: Not all records can derive az. ' + \
+                          'Setting any az limits will filter out those records.</i></td></tr>'
+                    self.minAz1 = ''
+                    self.maxAz1 = ''
+            elif self.state == self.newFilt:
+                # new filter
+                self.minAz1 = self.filtObj.minaz
+                if self.minAz1 == None:
+                    self.minAz1 = ''
+                self.maxAz1 = self.filtObj.maxaz
+                if self.maxAz1 == None:
+                    self.maxAz1 = ''
+                # check if we can convert to -180 to 180
+                try:
+                    if float(self.minAz1) == 0.0 and float(self.maxAz1) == 360.0:
+                        self.minAz1 = '-180.0'
+                        self.maxAz1 = '180.0'
+                except:
+                    pass
+            else:
+                # edit
+                if self.madForm.has_key('minAz1'):
+                    self.minAz1 = float(self.madForm.getvalue('minAz1'))
+                else:
+                    self.minAz1 = ''
+                if self.madForm.has_key('maxAz1'):
+                    self.maxAz1 = float(self.madForm.getvalue('maxAz1'))
+                else:
+                    self.maxAz1 = ''
+            print '\t\t\t<tr><td colspan=4><i>Note: Az from -180 to 180.  <a href=/' + \
+                  self.madDBObj.getRelativeTopLevel() + '/wt_dataBrowser.html#filter>' + \
+                  'Az range is clockwise, so if (eg.):<br>'
+            print '\t\t\t[lower az, upper az] = [170, -170], range goes through 180 degrees.</a></i></td></tr>'
+            print '\t\t\t<tr><td>Min azimuth:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="minAz1" value="' + \
+                  str(self.minAz1) + '" size=8></td>'
+            print '\t\t\t\t<td>Max azimuth:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="maxAz1" value="' + \
+                  str(self.maxAz1) + '" size=8></td>'
+            print '\t\t\t</tr>'
+
+    def printElevation1Select(self):
+        # only print if 'el1' or 'elm' is shown:
+        if 'EL1' in self.mnemonicList or 'ELM' in self.mnemonicList:
+            if self.state == self.newFile:
+                # new file
+                # check if ELM can be derived by all record types
+                if 'ELM' in self.sureList:
+                    self.minEl1 = 0.0
+                    self.maxEl1 = 90.0
+                else:
+                    # some record types cannot calculate ELM, while others can
+                    # set default elm filter to blank to allow all records
+                    print '<tr><td colspan=4><i>Note: Not all records can derive el. ' + \
+                          'Setting any el limits will filter out those records.</i></td></tr>'
+                    self.minEl1 = ''
+                    self.maxEl1 = ''
+            elif self.state == self.newFilt:
+                # new filter
+                self.minEl1 = self.filtObj.minel
+                if self.minEl1 == None:
+                    self.minEl1 = ''
+                self.maxEl1 = self.filtObj.maxel
+                if self.maxEl1 == None:
+                    self.maxEl1 = ''
+            else:
+                # edit
+                if self.madForm.has_key('minEl1'):
+                    self.minEl1 = float(self.madForm.getvalue('minEl1'))
+                else:
+                    self.minEl1 = ''
+                if self.madForm.has_key('maxEl1'):
+                    self.maxEl1 = float(self.madForm.getvalue('maxEl1'))
+                else:
+                    self.maxEl1 = ''
+            print '\t\t\t<tr><td>Min elevation:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="minEl1" value="' + \
+                  str(self.minEl1) + '" size=8></td>'
+            print '\t\t\t\t<td>Max elevation:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="maxEl1" value="' + \
+                  str(self.maxEl1) + '" size=8></td>'
+            print '\t\t\t</tr>'
+
+
+
+    def printAdditionalRangeExplanation(self):
+        # only print if 'el1' or 'elm' or 'az1' or 'azm' is shown:
+        if 'AZ1' in self.mnemonicList or 'AZM' in self.mnemonicList or 'EL1' in self.mnemonicList or 'ELM' in self.mnemonicList:
+            print '\t\t\t<tr>'
+            print '\t\t\t\t<td colspan=4><i><a href=/' + self.madDBObj.getRelativeTopLevel() + '/wt_dataBrowser.html#filter>Additional az, el ranges ' + \
+                  '(Data is included if in <u>either</u> range)</a>' + \
+                  '</i></td>'
+            print '\t\t\t</tr>'
+
+
+
+    def printAzimuth2Select(self):
+        # only print if 'az1' or 'azm' is shown:
+        if 'AZ1' in self.mnemonicList or 'AZM' in self.mnemonicList:
+            if self.state == self.newFile:
+                # new file
+                # check if AZM can be derived by all record types
+                if 'AZM' in self.sureList:
+                    self.minAz2 = 0.0
+                    self.maxAz2 = 0.0
+                else:
+                    # some record types cannot calculate AZM, while others can
+                    # set default azm filter to blank to allow all records
+                    print '<tr><td colspan=4><i>Note: Not all records can derive az. ' + \
+                          'Setting any az limits will filter out those records.</i></td></tr>'
+                    self.minAz2 = ''
+                    self.maxAz2 = ''
+            elif self.state == self.newFilt:
+                # new filter
+                self.minAz2 = self.filtObj.minaz2
+                if self.minAz2 == None:
+                    self.minAz2 = ''
+                self.maxAz2 = self.filtObj.maxaz2
+                if self.maxAz2 == None:
+                    self.maxAz2 = ''
+            else:
+                # edit
+                if self.madForm.has_key('minAz2'):
+                    self.minAz2 = float(self.madForm.getvalue('minAz2'))
+                else:
+                    self.minAz2 = ''
+                if self.madForm.has_key('maxAz2'):
+                    self.maxAz2 = float(self.madForm.getvalue('maxAz2'))
+                else:
+                    self.maxAz2 = ''
+            print '\t\t\t<tr><td>Min azimuth 2:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="minAz2" value="' + \
+                  str(self.minAz2) + '" size=8></td>'
+            print '\t\t\t\t<td>Max azimuth 2:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="maxAz2" value="' + \
+                  str(self.maxAz2) + '" size=8></td>'
+            print '\t\t\t</tr>'
+
+
+    def printElevation2Select(self):
+        # only print if 'el1' or 'elm' is shown:
+        if 'EL1' in self.mnemonicList or 'ELM' in self.mnemonicList:
+            if self.state == self.newFile:
+                # new file
+                # check if ELM can be derived by all record types
+                if 'ELM' in self.sureList:
+                    self.minEl2 = 0.0
+                    self.maxEl2 = 0.0
+                else:
+                    # some record types cannot calculate ELM, while others can
+                    # set default elm filter to blank to allow all records
+                    print '<tr><td colspan=4><i>Note: Not all records can derive el. ' + \
+                          'Setting any el limits will filter out those records.</i></td></tr>'
+                    self.minEl2 = ''
+                    self.maxEl2 = ''
+            elif self.state == self.newFilt:
+                # new filter
+                self.minEl2 = self.filtObj.minel2
+                if self.minEl2 == None:
+                    self.minEl2 = ''
+                self.maxEl2 = self.filtObj.maxel2
+                if self.maxEl2 == None:
+                    self.maxEl2 = ''
+            else:
+                # edit
+                if self.madForm.has_key('minEl2'):
+                    self.minEl2 = float(self.madForm.getvalue('minEl2'))
+                else:
+                    self.minEl2 = ''
+                if self.madForm.has_key('maxEl2'):
+                    self.maxEl2 = float(self.madForm.getvalue('maxEl2'))
+                else:
+                    self.maxEl2 = ''
+            print '\t\t\t<tr><td>Min elevation 2:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="minEl2" value="' + \
+                  str(self.minEl2) + '" size=8></td>'
+            print '\t\t\t\t<td>Max elevation 2:&nbsp;</td>'
+            print '\t\t\t\t<td><input name="maxEl2" value="' + \
+                  str(self.maxEl2) + '" size=8></td>'
+            print '\t\t\t</tr>'
+
+
+
+    def printPulseLengthSelect(self):
+        # only print if 'pl' is shown:
+        if 'PL' in self.mnemonicList:
+            if self.state == self.newFile:
+                # check if PL can be derived by all record types
+                if 'PL' in self.sureList:
+                    self.minPLen = 0.0
+                    self.maxPLen = self.fileInfo.getMaxPulseLength()*1.e6 + 0.1
+                else:
+                    # some record types cannot calculate PL, while others can
+                    # set default PL filter to blank to allow all records
+                    print '<tr><td colspan=4><i>Note: Not all records contain pulse len. ' + \
+                          'Setting any pl limits will filter out those records.</i></td></tr>'
+                    self.minPLen = ''
+                    self.maxPLen = ''
+            elif self.state == self.newFilt:
+                # new filter
+                self.minPLen = self.filtObj.minpl
+                if self.minPLen == None:
+                    self.minPLen = ''
+                self.maxPLen = self.filtObj.maxpl
+                if self.maxPLen == None:
+                    self.maxPLen = ''
+            else:
+                # edit
+                if self.madForm.has_key('minPLen'):
+                    self.minPLen = float(self.madForm.getvalue('minPLen'))
+                else:
+                    self.minPLen = ''
+                if self.madForm.has_key('maxPLen'):
+                    self.maxPLen = float(self.madForm.getvalue('maxPLen'))
+                else:
+                    self.maxPLen = ''
+            print '\t\t\t<tr><td>Min pulse len (microsec):&nbsp;</td>'
+            print '\t\t\t\t<td><input name="minPLen" value="' + \
+                  str(self.minPLen) + '" size=8></td>'
+            print '\t\t\t\t<td>Max pulse len (microsec):</td>'
+            print '\t\t\t\t<td><input name="maxPLen" value="' + \
+                  str(self.maxPLen) + '" size=8></td>'
+            print '\t\t\t</tr>'
+	
+
+    def printKinstSelect(self):
+        if self.state == self.newFile:
+            # new file
+            # skip if only one kinst in file
+            if len(self.fileInfo.getKinstList()) < 2:
+                self.kinstList = None
+                return
+            # otherwise set up kinstList and print
+            i = 1
+            self.kinstList = ''
+            for kinst in self.fileInfo.getKinstList():
+                self.kinstList = self.kinstList + str(kinst)
+                if i < len(self.fileInfo.getKinstList()):
+                    self.kinstList = self.kinstList + '+'
+                    i = i + 1
+                    
+            print '\t\t\t<tr><td>Select kinst:&nbsp;</td>'
+            print '\t\t\t\t<td colspan=3><select name="kinstList">' + \
+                  '<option value=0 selected>all' + \
+                  self.madWebObj.getOptionKinstListTags(self.fileInfo.getKinstList()) + \
+                  '</select>'
+            print '\t\t\t\t<input type=hidden name=kinstListStr value=' + \
+                  self.kinstList + '></td>'
+            print '\t\t\t</tr>'
+            return
+
+        # otherwise, deal with case of using filters 
+        # see if kinst filter is needed - if no kinst list, only one kinst, so ignore
+        if self.madForm.has_key('kinstListStr'):
+
+            self.kinstList = self.madForm.getvalue('kinstListStr')
+            splitKinstList = self.madForm.getvalue('kinstListStr').split('+')
+
+            # find matching kinst, if any
+            match = None
+            # first look for match with filter case - can be 'all' or an integer
+            if self.state == self.newFilt:
+                if self.filtObj.flkinst != None:
+                    i = 0
+                    for kinst in splitKinstList:
+                        if kinst == str(self.filtObj.flkinst):
+                            match = i
+                        i = i + 1
+
+            # now look for match with case edit
+            if self.state == self.edit:
+                i = 0
+                for kinst in splitKinstList:
+                    if kinst == self.madForm.getvalue('kinstList'):
+                        match = i
+                    i = i + 1
+            
+            
+            # now print the kinst select tag for the filter
+            print '\t\t\t<tr><td>Select kinst:&nbsp;</td>'
+            
+            # if no match, select all by default
+            if match == None:
+                    print '\t\t\t\t<td colspan=3><select name="kinstList">' + \
+                          '<option value=0 selected>all' + \
+                          self.madWebObj.getOptionKinstListTags(splitKinstList) + \
+                          '</select>'
+                    
+            # otherwise, select kinst in filter
+            else:
+                    print '\t\t\t\t<td colspan=3><select name="kinstList">' + \
+                          '<option value=0>all' + \
+                          self.madWebObj.getOptionKinstListTags(splitKinstList, match) + \
+                          '</select>'
+            print '\t\t\t\t<input type=hidden name=kinstListStr value=' + \
+                  self.kinstList + '></td>'
+            print '\t\t\t</tr>'
+
+
+    def printKindatSelect(self):
+        if self.state == self.newFile:
+            # new file
+            # skip if only one kindat in file
+            if len(self.fileInfo.getKindatList()) < 2:
+                self.kindatList = None
+                return
+            # otherwise set up kindatList and print
+            i = 1
+            self.kindatList = ''
+            for kindat in self.fileInfo.getKindatList():
+                self.kindatList = self.kindatList + str(kindat)
+                if i < len(self.fileInfo.getKindatList()):
+                    self.kindatList = self.kindatList + '+'
+                    i = i + 1
+                    
+            print '\t\t\t<tr><td>Select kindat:&nbsp;</td>'
+            print '\t\t\t\t<td colspan=3><select name="kindatList">' + \
+                  '<option value=0 selected>all' + \
+                  self.madWebObj.getOptionKindatListTags(self.fileInfo.getKindatList()) + \
+                  '</select>'
+            print '\t\t\t\t<input type=hidden name=kindatListStr value=' + \
+                  self.kindatList + '></td>'
+            print '\t\t\t</tr>'
+            return
+
+        # otherwise, deal with case of using filters or a new directory
+        # see if kindat filter is needed - if no kindat list, only one kindat, so ignore
+        if self.madForm.has_key('kindatListStr'):
+
+            self.kindatList = self.madForm.getvalue('kindatListStr')
+            splitKindatList = self.madForm.getvalue('kindatListStr').split('+')
+
+            # find matching kindat, if any
+            match = None
+            # first look for match with filter case - can be 'all' or an integer
+            if self.state == self.newFilt:
+                if self.filtObj.flkdat != None:
+                    i = 0
+                    for kindat in splitKindatList:
+                        if kindat == str(self.filtObj.flkdat):
+                            match = i
+                        i = i + 1
+
+            # now look for match with edit
+            if self.state == self.edit:
+                i = 0
+                for kindat in splitKindatList:
+                    if kindat == self.madForm.getvalue('kindatList'):
+                        match = i
+                    i = i + 1
+            
+            
+            # now print the kindat select tag for the filter or new directory cases
+            print '\t\t\t<tr><td>Select kindat:&nbsp;</td>'
+            
+            # if no match, select all by default
+            if match == None:
+                    print '\t\t\t\t<td colspan=3><select name="kindatList">' + \
+                          '<option value=0 selected>all' + \
+                          self.madWebObj.getOptionKindatListTags(splitKindatList) + \
+                          '</select>'
+                    
+            # otherwise, select kindat in filter
+            else:
+                    print '\t\t\t\t<td colspan=3><select name="kindatList">' + \
+                          '<option value=0>all' + \
+                          self.madWebObj.getOptionKindatListTags(splitKindatList, match) + \
+                          '</select>'
+            print '\t\t\t\t<input type=hidden name=kindatListStr value=' + \
+                  self.kindatList + '></td>'
+            print '\t\t\t</tr>'
+            
+    def printFreeForm1(self):
+        if self.state == self.newFile:
+            # new file
+            self.mnemStr1 = ''
+            self.lower1 = ''
+            self.upper1 = ''
+        elif self.state == self.newFilt:
+            # new filter
+            self.mnemStr1 = self.filtObj.mnemStr1
+            if self.mnemStr1 == None:
+                self.mnemStr1 = ''
+            self.lower1 = self.filtObj.lower1
+            if self.lower1 == None:
+                self.lower1 = ''
+            self.upper1 = self.filtObj.upper1
+            if self.upper1 == None:
+                self.upper1 = ''
+        else:
+            # edit
+            if self.madForm.has_key('mnemStr1'):
+                self.mnemStr1 = self.madForm.getvalue('mnemStr1')
+            else:
+                self.mnemStr1 = ''
+            if self.madForm.has_key('lower1'):
+                self.lower1 = float(self.madForm.getvalue('lower1'))
+            else:
+                self.lower1 = ''
+            if self.madForm.has_key('upper1'):
+                self.upper1 = float(self.madForm.getvalue('upper1'))
+            else:
+                self.upper1 = ''
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td><input WIDTH="60%" name="mnemStr1" value="' + self.mnemStr1 + '" size=30></td>'
+        print '\t\t\t\t<td><input WIDTH="20%" name="lower1" value="' + str(self.lower1) + '" size=10></td>'
+        print '\t\t\t\t<td><input WIDTH="20%" name="upper1" value="' + str(self.upper1) + '" size=10></td>'
+        print '\t\t\t</tr>'
+
+    def printFreeForm2(self):
+        if self.state == self.newFile:
+            # new file
+            self.mnemStr2 = ''
+            self.lower2 = ''
+            self.upper2 = ''
+        elif self.state == self.newFilt:
+            # new filter
+            self.mnemStr2 = self.filtObj.mnemStr2
+            if self.mnemStr2 == None:
+                self.mnemStr2 = ''
+            self.lower2 = self.filtObj.lower2
+            if self.lower2 == None:
+                self.lower2 = ''
+            self.upper2 = self.filtObj.upper2
+            if self.upper2 == None:
+                self.upper2 = ''
+        else:
+            # edit
+            if self.madForm.has_key('mnemStr2'):
+                self.mnemStr2 = self.madForm.getvalue('mnemStr2')
+            else:
+                self.mnemStr2 = ''
+            if self.madForm.has_key('lower2'):
+                self.lower2 = float(self.madForm.getvalue('lower2'))
+            else:
+                self.lower2 = ''
+            if self.madForm.has_key('upper2'):
+                self.upper2 = float(self.madForm.getvalue('upper2'))
+            else:
+                self.upper2 = ''
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td><input WIDTH="60%" name="mnemStr2" value="' + self.mnemStr2 + '" size=30></td>'
+        print '\t\t\t\t<td><input WIDTH="20%" name="lower2" value="' + str(self.lower2) + '" size=10></td>'
+        print '\t\t\t\t<td><input WIDTH="20%" name="upper2" value="' + str(self.upper2) + '" size=10></td>'
+        print '\t\t\t</tr>'
+
+    def printSavedFilterTable(self):
+        print '\t\t<td><div align=center><b>...use a saved filter and parameter selection:&nbsp;</b>' + \
+              '</div>'
+        print '\t\t<br>&nbsp;'
+        print '\t\t<table COLS=2 WIDTH="100%">'
+        self.printFilterNameRow()
+        self.printEditRow()
+        self.printButtonRow()
+        print '\t\t</table>'
+
+
+    def printFilterNameRow(self):
+        print '\t\t\t<tr><td width="40%" ALIGN=RIGHT>Saved filters:&nbsp;</td>'
+        print '\t\t\t\t<td><select class="lb" name="filterName">'
+        try:
+            if self.state == self.newFile or self.state == self.edit:
+                # new file
+                print '\t\t\t\t' + self.madWebObj.getOptionFilterTags(self.madUserDataObj,
+                                                                      self.username,
+                                                                      'private')
+            else:
+                # new filter 
+                print '\t\t\t\t' + self.madWebObj.getOptionFilterTags(self.madUserDataObj,
+                                                                      self.username,
+                                                                      'private',
+                                                                      self.madForm.getvalue('filterName'))
+        except:
+            pass
+
+        print '\t\t\t\t</select></td>'
+        print '\t\t\t</tr>'
+        print '\t\t\t<tr><td width="40%" ALIGN=RIGHT>&nbsp;</td>'
+        print '\t\t\t\t<td><input class="lb" type=button name="filterButton" value="Apply filter" onClick=newFilt(this.form)>'
+	
+
+
+    def printButtonRow(self):
+        # print blank row
+        print '\t\t\t<tr><td>&nbsp;</td></tr>'
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td ALIGN=CENTER><input class="lb" type="button" name="SubmitForm" value="Display data" onClick="dataDisplay(this.form)"></td>'
+        print '\t\t\t\t<td ALIGN=CENTER><input class="lb" type="button" name="RestoreDefault" value="Restore default values" onClick="restoreDefault(this.form)"></td>'
+        print '\t\t\t</tr>'
+
+
+    def printEditRow(self):
+        # print blank row
+        print '\t\t\t<tr><td>&nbsp;</td></tr>'
+        print '\t\t\t<tr>'
+        # print edit button
+        print '\t\t\t\t<td></td>'
+        print '\t\t\t\t<td><input class="lb" type="button" name="Edit" value="View or delete filters" onClick="edit(this.form)"></td>'
+        print '\t\t\t</tr>'
+            
+    def printFilterSectionEnd(self):
+        print '\t\t</td></tr></table>'
+
+
+    def printParameterSection(self):
+        self.printIntroTable()
+        self.printParameters()
+
+
+    def printIntroTable(self):
+        print '\t\t<p><hr>'
+        print '\t\t<h3><a href=/' + self.madDBObj.getRelativeTopLevel() + '/wt_dataBrowser.html#parameter>Available Parameters</a> (' + self.webFormat + ')</h3>'
+        print '\t\t<table COLS=2 WIDTH="600">'
+        print '\t\t\t<tr><td><ul>'
+        print '\t\t\t\t<li><a href="javascript:parmOverview(document.form1)">Description of parameters</a></li>'
+        if self.webFormat != 'Comprehensive':
+            print '\t\t\t\t<li><a href="javascript:newFormat(document.form1)">ISPrint(Comprehensive form)</a></li>'
+        else:
+            print '\t\t\t\t<li><a href="javascript:newFormat(document.form1)">ISPrint(Short form)</a></li>'
+        print '\t\t\t</ul></td></tr></table>'
+        print '\t\t<p><i>(parameters with regular typeface are derived)</i>'
+        
+
+    def printParameters(self):
+        
+        # loop through each parameter category
+        keyList = self.categoryDict.keys()
+        keyList.sort()
+        for key in keyList:
+            item = self.categoryDict[key]
+            catName = item[0]
+            parmList = item[1]
+            self.printCategoryTableIntro(catName)
+            # set up count of number printed this column
+            numThisCol = 1
+            # set up parameter index
+            parmIndex = -1
+            # now loop through each parameter
+            for parm in parmList:
+                parmIndex = parmIndex + 1
+                # print the parameter
+                self.printParameterCheckbox(parm, parmIndex)
+                numThisCol = numThisCol + 1
+                # check if category done
+                if parmIndex + 1 == len(item[1]):
+                    # fill up the rest of the cols with blanks
+                    self.fillRowWithBlanks(self.maxParmCols + 1 - numThisCol)
+
+                # check if new row needed
+                if numThisCol > self.maxParmCols:
+                    print '\t\t</tr><tr>'
+                    numThisCol = 1
+
+            print '\t\t</tr></table></ul></ul>'
+
+
+    def printCategoryTableIntro(self, categoryName):
+        print '\t\t<ul><br><b>' + categoryName + '</b>'
+        print '\t\t<ul><table COLS=' + str(self.maxParmCols) + ' WIDTH="80%"><tr>'
+
+
+    def printParameterCheckbox(self, parm, parmIndex):
+        print '\t\t\t<td width="' + str(100.0/self.maxParmCols) + \
+              '%"><input class="lb" type=checkbox name=' + \
+              str(parm)
+        # if not new file, check whether selected
+        if self.state == self.edit:
+            if self.madForm.getvalue(str(parm)) != None:
+                print '\t\t\t\tchecked '
+        elif self.state == self.newFilt:
+            if parm in self.filtParmList:
+                print '\t\t\t\tchecked '
+        # check whether measured parameter - if so, make bold
+        if parm in self.measList:
+            print '\t\t\t\t>&nbsp;<a href=JavaScript:popup("' + \
+                  parm + '")><b>' + parm + '</b></a></td>'
+        else:
+            print '\t\t\t\t>&nbsp;<a href=JavaScript:popup("' + \
+                  parm + '")>' + parm + '</a></td>'
+
+
+    def fillRowWithBlanks(self, num):
+        if num < 0 or num > self.maxParmCols:
+            return
+        while (num):
+            print '\t\t\t<td width="' + str(100.0/self.maxParmCols) + '%">&nbsp;</td>'
+            num = num - 1
+
+
+
+    def printBottomSection(self):
+        print '\t<hr><h3>Output format</h3>'
+        print '\t<ul><li><a href="/' + self.madDBObj.getRelativeTopLevel() + '/wt_dataBrowser.html#output">Explanation of output formatting</a></li></ul>'
+        print '\t<table COLS=3 WIDTH="80%"><tr>'
+        
+        # header
+        print '\t\t<td><input class=lb type=checkbox name="header" value="f"'
+        # if not new file, check whether selected
+        if self.state == self.edit:
+            if self.madForm.getvalue('header') != None:
+                print '\t\t\t checked>Headers off</td> '
+            else:
+                print '\t\t\t>Headers off</td>'
+        elif self.state == self.newFilt:
+            if self.filtObj.header != None:
+                print '\t\t\t checked>Headers off</td> '
+            else:
+                print '\t\t\t>Headers off</td>'
+        else:
+            print '\t\t\t>Headers off</td>'
+
+        # badval
+        print '\t\t<td>Unknown value string:&nbsp;<input name="badval" '
+        # get bad value string for each state
+        # if new file, use default
+        if self.state == self.newFile:
+            print '\t\t\tvalue="missing" size=9></td>'
+        # if edit, use form value
+        elif self.state == self.edit:
+            if self.madForm.has_key('badval'):
+                print '\t\t\tvalue="' + self.madForm.getvalue('badval') + '" size=9></td>'
+            else:
+                print '\t\t\tvalue="missing" size=9></td>'
+        # if new filt, use filter value if any, otherwise use default
+        else:
+            if self.filtObj.badval != None:
+                print '\t\t\tvalue="' + self.filtObj.badval + '" size=9></td>'
+            else:
+                print '\t\t\tvalue="missing" size=9></td>'
+
+        # mxchar
+        print '\t\t<td>Max characters per row (50-9999):&nbsp;<input name="mxchar" '
+                # get mxchar value for each state
+        # if new file, use default
+        if self.state == self.newFile:
+            print '\t\t\tvalue="9999" size=4></td>'
+        # if new dir, use form value
+        elif self.state == self.edit:
+            if self.madForm.has_key('mxchar'):
+                print '\t\t\tvalue="' + self.madForm.getvalue('mxchar') + '" size=4></td>'
+            else:
+                print '\t\t\tvalue="9999" size=4></td>'
+        # if new filt, use filter value if any, otherwise use default
+        else:
+            if self.filtObj.mxchar != None:
+                print '\t\t\tvalue="' + str(self.filtObj.mxchar) + '" size=4></td>'
+            else:
+                print '\t\t\tvalue="9999" size=4></td>'
+
+        # end table
+        print '\t</tr></table>'
+        
+        print '\t<p><input class=lb type=button value="Display data" onClick=dataDisplay(this.form)>&nbsp;&nbsp;&nbsp;&nbsp;'
+        print '\t<input class=lb type=button name="Save" value="Save these filters/parameters" onClick ="save(this.form)">'
+        # print feedback link
+        print '\t<p><hr><i>Please send any comments or suggestions to the <a href="mailto:openmadrigal-users@openmadrigal.org">' + \
+              'Open Madrigal Users Mailing List.</a></i>'
+        print '\t</form>'
+        print '</body>'
+        print '</html>'
+        
+            
+
+if __name__ == '__main__':
+
+    # Script madDataBrowse
+    # This script only calls the init function of the class MadrigalDataBrowse
+    # All work is done by the init function
+    MadrigalDataBrowse()

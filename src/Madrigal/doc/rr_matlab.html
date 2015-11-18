@@ -1,0 +1,558 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Matlab remote API reference</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" --><!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="rr_contents.html" --><!-- InstanceParam name="href_next_top" type="text" value="madpyDoc/remotePythonAPI/index.html" --><!-- InstanceParam name="href_back_top" type="text" value="madpyDoc/scripts/index.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="madpyDoc/scripts/index.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="rr_contents.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="madpyDoc/remotePythonAPI/index.html" --><!-- InstanceParam name="href_prev_top" type="text" value="madpyDoc/scripts/index.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="rr_contents.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="madpyDoc/remotePythonAPI/index.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="madpyDoc/scripts/index.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="rr_contents.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="madpyDoc/remotePythonAPI/index.html" -->
+</head>
+
+<body>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="madpyDoc/scripts/index.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rr_contents.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="madpyDoc/remotePythonAPI/index.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Matlab remote API reference <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="madpyDoc/scripts/index.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Scripts supporting the cgi interface <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="rr_contents.html"><!-- InstanceBeginEditable name="UpTitle" -->Remote data access reference - toc <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="madpyDoc/remotePythonAPI/index.html"><!-- InstanceBeginEditable name="NextTitle" -->Python remote API reference <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1>Matlab remote data access API reference guide</h1>
+<blockquote>
+  <p>	The following are the main methods for accessing Madrigal data remotely:</p>
+</blockquote>
+<ul>
+  <li><a href="#getMadrigalCgiUrl">getMadrigalCgiUrl</a></li>
+  <li><a href="#getInstrumentsWeb">getInstrumentsWeb</a></li>
+  <li><a href="#getExperimentsWeb">getExperimentsWeb</a></li>
+  <li><a href="#getCgiurlForExperiment">getCgiurlForExperiment</a></li>
+  <li><a href="#getExperimentFilesWeb">getExperimentFilesWeb</a></li>
+  <li><a href="#getParametersWeb">getParametersWeb</a></li>
+  <li><a href="#isprintWeb">isprintWeb</a></li>
+  <li><a href="#madCalculatorWeb">madCalculatorWeb</a></li>
+</ul>
+<blockquote>
+  <p> The following are methods specific to atmospheric science. These methods all use the matlab methods above: </p>
+</blockquote>
+<ul>
+  <li> <a href="#getConjagatePoint">getConjugatePoint</a></li>
+  <li> <a href="#getGsmPoint">getGsmPoint</a></li>
+  <li><a href="#getIonosphericTerminator">getIonosphericTerminator</a></li>
+  <li> <a href="#getMagnetopause">getMagnetopause</a></li>
+  <li><a href="#mapGeodeticToGsm">mapGeodeticToGsm</a></li>
+  <li><a href="#mapGsmToAltitude">mapGsmToAltitude</a></li>
+</ul>
+<a name="getMadrigalCgiUrl" id="getMadrigalCgiUrl"></a>
+<pre>
+   ***********************************************************
+       
+    getMadrigalCgiUrl  	parse the main madrigal page to get the cgi url  
+    
+     The calling syntax is:
+   
+   		[cgiurl] = getMadrigalCgiUrl(url)
+		
+     where url is the url of the Madrigal home page.  For example,  
+     getMadrigalCgiUrl('http://www.haystack.mit.edu/madrigal/') would
+     return 'http://www.haystack.mit.edu/cgi-bin/madrigal/'
+</pre>
+<a name="getInstrumentsWeb" id="getInstrumentsWeb"></a>
+<pre>    
+   ***********************************************************   
+ 
+   getInstrumentsWeb  	returns an array of instrument structs of instruments found on remote Madrigal server.
+ 
+   inputs:  cgiurl (string) to Madrigal site cgi directory 
+       (Example: 'http://www.haystack.mit.edu/cgi-bin/madrigal/') 
+       Note that method getMadrigalCgiUrl converts homepage url into cgiurl. 
+ 
+   output:
+      instArray - array of instrument structs found
+ 
+        instrument struct has the fields:
+ 
+      instrument.name (string) Example: 'Millstone Hill Incoherent Scatter Radar'
+      instrument.code (int) Example: 30
+      instrument.mnemonic (3 char string) Example: 'mlh'
+      instrument.latitude (double) Example: 45.0
+      instrument.longitude (double) Example: 110.0
+      instrument.altitude (double)  Example: 0.015 (km) 
+ 
+   Raises error if unable to return instrument array.
+
+   
+   Example: getInstrumentsWeb('http://www.haystack.mit.edu/cgi-bin/madrigal/')
+</pre>
+<a name="getExperimentsWeb" id="getExperimentsWeb"></a>
+<pre>
+   ***********************************************************
+   
+   getExperimentsWeb  	returns an array of experiment structs given input filter arguments from a remote Madrigal server.
+ 
+   Inputs:
+ 
+       1. cgiurl (string) to Madrigal site cgi directory 
+         (Example: 'http://www.haystack.mit.edu/cgi-bin/madrigal/') 
+          Note that method getMadrigalCgiUrl converts homepage url into cgiurl. 
+  
+       2. instCodeArray - a 1 X N array of ints containing selected instrument codes.  Special value of 0 selects all instruments.
+  
+       3. starttime - Matlab datenum double (must be UTC)
+  
+       4. endtime - Matlab datenum double (must be UTC)
+ 
+       5. localFlag - 1 if local experiments only, 0 if all experiments 
+ 
+    Return array of Experiment struct (May be empty):
+    
+    experiment.id (int) Example: 10000111
+    experiment.url (string) Example: 'http://www.haystack.mit.edu/cgi-bin/madtoc/1997/mlh/03dec97'
+    experiment.name (string) Example: 'Wide Latitude Substorm Study'
+    experiment.siteid (int) Example: 1
+    experiment.sitename (string) Example: 'Millstone Hill Observatory'
+    experiment.instcode (int) Code of instrument. Example: 30
+    experiment.instname (string) Instrument name. Example: 'Millstone Hill Incoherent Scatter Radar'
+    experiment.starttime (double) Matlab datenum of experiment start
+    experiment.endtime (double) Matlab datenum of experiment end
+    experiment.isLocal (int) 1 if local, 0 if not
+    experiment.madrigalUrl (string) Main Madrigal url to site where data is located
+ 
+   Raises error if unable to return experiment array
+
+
+   Example: expArray = getExperimentsWeb('http://www.haystack.mit.edu/cgi-bin/madrigal/', ...
+                                          30, datenum('01/01/1998'), datenum('12/31/1998'), 1);
+</pre>
+<a name="getCgiurlForExperiment" id="getCgiurlForExperiment"></a>
+<pre>
+   *********************************************************** 
+   
+   getCgiurlForExperiment  	returns cgiurl of experiment struct as returned by getExperimentsWeb or getExperiments.
+ 
+   inputs:  experiment struct as returned by getExperimentsWeb or getExperiments.
+ 
+ 
+   output:
+      cgiurl of experiment
+ 
+   Simply truncates experiment.url to remove /madtoc/&lt;YYYY&gt;/&lt;inst&gt;/&lt;date&gt;
+
+	 Example: If expArray is the value returned in the getExperimentsWeb example, and
+            expArray(1).url = 'http://madrigal.haystack.mit.edu/cgi-bin/madrigal/madtoc/1998/mlh/07jan98', then
+
+      getCgiurlForExperiment(expArray(1))
+
+      returns: 
+
+           'http://madrigal.haystack.mit.edu/cgi-bin/madrigal/'</pre>
+<a name="getExperimentFilesWeb" id="getExperimentFilesWeb"></a>
+<pre>
+   ***********************************************************
+   
+   getExperimentFilesWeb  	returns an array of experiment file structs given experiment id from a remote Madrigal server.
+ 
+   Note that it is assumed that experiment is local to cgiurl.  If not,
+   empty list will be returned.
+ 
+   Inputs:
+ 
+       1. cgiurl (string) to Madrigal site cgi directory that has that
+       experiment.
+         (Example: 'http://www.haystack.mit.edu/cgi-bin/madrigal/') 
+          Note that method getCgiurlForExperiment returns cgiurl for a given experiment struct. 
+  
+       2. experiment id (int) as returned by getExperiments or
+          getExperimentsWeb
+ 
+    Return array of Experiment File struct (May be empty):
+    
+    file.name (string) Example '/opt/mdarigal/blah/mlh980120g.001'
+    file.kindat (int) Kindat code.  Example: 3001
+    file.kindatdesc (string) Kindat description: Example 'Basic Derived Parameters'
+    file.category (int) (1=default, 2=variant, 3=history, 4=real-time)
+    file.status (string)('preliminary', 'final', or any other description)
+    file.permission (int)  0 for public, 1 for private 
+ 
+   Raises error if unable to return experiment file array
+
+
+   Example: expFileArray = getExperimentFilesWeb('http://www.haystack.mit.edu/cgi-bin/madrigal/', 10001686);
+</pre>
+<a name="getParametersWeb" id="getParametersWeb"></a>
+<pre>
+   ***********************************************************
+   
+   getParametersWeb  	returns an array of parameter structs given filename from a remote Madrigal server.
+ 
+   Note that it is assumed that filename is local to cgiurl.  If not,
+   empty list will be returned.
+ 
+   Inputs:
+ 
+       1. cgiurl (string) to Madrigal site cgi directory that has that
+       filename.
+         (Example: 'http://www.haystack.mit.edu/cgi-bin/madrigal/') 
+          Note that method getMadrigalCgiUrl converts homepage url into cgiurl. 
+  
+       2. filename (string) as returned by getExperimentFiles or
+          getExperimentFilesWeb
+ 
+    Return array of Parameter struct:
+    
+        parameter.mnemonic (string) Example 'dti'
+        parameter.description (string) Example:
+           "F10.7 Multiday average observed (Ott) - Units: W/m2/Hz"
+        parameter.isError (int) 1 if error parameter, 0 if not
+        parameter.units (string) Example "W/m2/Hz"
+        parameter.isMeasured (int) 1 if measured, 0 if derivable
+        parameter.category (string) Example: "Time Related Parameter" 
+        parameter.isSure (int) 1 if can be found for all records, 0 if only
+            for some records (implies not all records have same measured
+            parameters)
+ 
+   Raises error if unable to return parameter array
+
+   Example: parmArray = getParametersWeb('http://www.haystack.mit.edu/cgi-bin/madrigal/', ...
+                                         '/opt/madrigal/experiments/1998/mlh/07jan98/mil980107g.001')
+</pre>
+<a name="isprintWeb" id="isprintWeb"></a>
+<pre>       ***********************************************************
+     
+   isprintWeb  	Create an isprint-like 3D array of doubles via
+                a command similar to the isprint command-line
+                application, but access data via the web.  This is the command
+                that actually gets the measured data from a given Madrigal file.
+                Parameters that can be derived from those in the file are also
+                available via this file.  See http://www.haystack.mit.edu/madrigal/ug_commandLine.html 
+                for details.
+   
+   The calling syntax is:
+   
+   		[records] = isprintWeb(cgiurl, file, parms, user_fullname, user_email, user_affiliation, [filters, [missing, [assumed, [knownbad] ] ] ])
+   
+    where 
+ 
+      cgiurl (string) to Madrigal site cgi directory that has that
+       filename.
+         (Example: 'http://www.haystack.mit.edu/cgi-bin/madrigal/') 
+          Note that method getMadrigalCgiUrl converts homepage url into cgiurl.
+   
+      file is path to file
+          (example = '/home/brideout/data/mlh980120g.001')
+   
+      parms is the desired parameters in the form of a comma-delimited
+          string of Madrigal mnemonics (example = 'gdlat,ti,dti')
+	  
+      user_fullname - is user name (string)
+ 
+      user_email - is user email address (string)
+ 
+      user_affiliation - is user affiliation (string) 
+   
+      filters is the optional filters requested in exactly the form given in isprint
+          command line (example = 'time1=15:00:00 date1=01/20/1998 
+                        time2=15:30:00 date2=01/20/1998 filter=ti,500,1000')
+          See:  http://www.haystack.mit.edu/madrigal/ug_commandLine.html for details
+ 
+      missing is an optional double to represent missing values.  Defaults to NaN
+ 
+      assumed is an optional double to represent assumed values.  Defaults to NaN
+ 
+      knownbad is an optional double to represent knownbad values.  Defaults to NaN
+ 
+      The returned records is a three dimensional array of double with the dimensions:
+ 
+          [Number of rows, number of parameters requested, number of records]
+ 
+      If error or no data returned, will return error explanation string instead.
+
+     
+      Example: data = isprintWeb('http://www.haystack.mit.edu/cgi-bin/madrigal/', ...
+                                 '/opt/madrigal/experiments/1998/mlh/07jan98/mil980107g.001', ...
+                                 'gdlat,ti,dti', ...
+                                 'Bill Rideout', 'wrideout@haystack.mit.edu', 'MIT');
+</pre>
+<a name="madCalculatorWeb" id="madCalculatorWeb"></a>
+<pre>
+   ***********************************************************
+   
+   
+   madCalculatorWeb  	Create a matrix of doubles via a the Madrigal derivation engine for a time and range of lat, long, and alt
+   
+   The calling syntax is:
+   
+   		[record] = madCalculatorWeb(cgiurl, time, startLat, endLat, stepLat, startLong, endLong, stepLong, 
+                                    startAlt, endAlt, stepAlt, parms)
+   
+    where 
+ 
+      cgiurl (string) to Madrigal site cgi directory that has that
+       filename.
+         (Example: 'http://www.haystack.mit.edu/cgi-bin/madrigal/') 
+          Note that method getMadrigalCgiUrl converts homepage url into cgiurl.
+   
+      time - Matlab datenum double (must be UTC)	7. startLat - Starting geodetic latitude, -90 to 90 (required)
+      
+      endLat - Ending geodetic latitude, -90 to 90 (required)
+      
+      stepLat - Latitude step (0.1 to 90) (required)
+      
+      startLong - Starting geodetic longitude, -180 to 180 (required)
+      
+      endLong - Ending geodetic longitude, -180 to 180 (required)
+      
+      stepLong - Longitude step (0.1 to 180) (required)
+      
+      startAlt - Starting geodetic altitude, >= 0 (required)
+      
+      endAlt - Ending geodetic altitude, > 0 (required)
+      
+      stepAlt - Altitude step (>= 0.1) (required)
+   
+      parms is the desired parameters in the form of a comma-delimited
+          string of Madrigal mnemonics (example = 'gdlat,ti,dti')
+   
+ 
+      The returned record is a matrix of doubles with the dimensions:
+ 
+          [(num lat steps * num long steps * num alt steps), 3 + num of parms]
+ 
+      The first three columns will always be lat, long, and alt, so there are three
+      additional columns to the number of parameters requested via the parms argument.
+ 
+      If error or no data returned, will return error explanation string instead.
+ 
+      Example: result = madCalculatorWeb('http://www.haystack.mit.edu/cgi-bin/madrigal', ...
+                                          now,45,55,5,45,55,5,200,300,50,'bmag,bn');
+										  
+</pre>
+<a name="getConjagatePoint" id="getConjagatePoint"></a>
+<pre>
+   ***********************************************************
+   
+   getConjugatePoint returns the magnetic conjugate lat and long for a given
+   gdlat, glon, gdalt, along with the corrected geomagnetic lat and long of
+   the starting point.
+
+      Inputs:
+
+          madrigalUrl: home page of madrigal site to use.  Example:
+        	'http://www.haystack.mit.edu/madrigal' (Not cgi url)
+
+          gdlat, glon, gdalt - specify point in geodetic terms 
+
+          year, month, day, hour, min, sec - specify time
+
+      Returns:
+
+          magconjlat - geodetic latitude of magnetic conjugate point
+
+          magconjlon - geodetic longitude of magnetic conjugate point
+
+          cgm_lat - Corrected geomagnetic latitude of input point
+
+          cgm_long - Corrected geomagnetic longitude of input point
+
+      Uses madCalculatorWeb
+	  
+	  Example: [magconjlat, ...
+	            magconjlon, ...
+				cgm_lat, ...
+				cgm_long] =  getConjugatePoint('http://www.haystack.mit.edu/madrigal', ...
+	                                       42, -70, 1000, ...
+										   1998,1,1,0,0,0);
+      
+</pre>
+<a name="getGsmPoint" id="getGsmPoint"></a>
+<pre>
+   ***********************************************************
+     
+   getGsmPoint returns a single point in the GSM XY plane via Tsyganenko
+      field for given time, gdlat, glon, gdalt
+
+
+      Inputs:
+
+          madrigalUrl: home page of madrigal site to use.  Example:
+        	'http://www.haystack.mit.edu/madrigal' (Not cgi url)
+
+          gdlat, glon, gdalt - specify point in geodetic terms
+
+          year, month, day, hour, min, sec - specify time 
+
+      Returns:
+
+          [xgsm, ygsm] - point in GSM XY plane (magnetic equatorial plane)
+          where Tsyganenko field line crosses.
+
+      Uses madCalculatorWeb
+     
+      Example: [xgsm, ygsm] = getGsmPoint('http://www.haystack.mit.edu/madrigal', ...
+	                                      42, -70, 1000, ...
+										  1998,1,1,0,0,0);
+										  
+</pre>
+<a name="getIonosphericTerminator" id="getIonosphericTerminator"></a>
+<pre>
+   ***********************************************************      
+   
+   getIonosphericTerminator returns an array of lat, lon defining the
+   ionoshperic terminator at the given time and altitude
+
+
+      Inputs:
+
+          madrigalUrl: home page of madrigal site to use.  Example:
+        	'http://www.haystack.mit.edu/madrigal'
+
+          time - in form '15-Oct-2002 12:54:00'
+
+          alt -  altitude in km at which to find the terminator
+
+          gridSize = size of grid in degrees to define the terminator
+
+      Returns:
+
+          [term] - an n by 2 array of lat, longitude pairs defining the terminator.
+
+      Algorithm:  Madrigal will calculate shadowHeight for each point on a global grid 
+      at the given time.  Each latitude will be scanned, and any point where the change in 
+      shadowheight crosses the given alt will be added to term array.
+
+      Uses madCalculatorWeb
+	  
+	  Example:  result = getIonosphericTerminator('http://www.haystack.mit.edu/madrigal', ...
+	                                              '15-Oct-2002 12:54:00', ...
+												  1000, 1);
+      
+</pre>
+<a name="getMagnetopause" id="getMagnetopause"></a>
+<pre>
+   ***********************************************************
+   
+   getMagnetopause returns a matrix of xgsm, ygsm points on the
+   sun-facing side of the magnetopause
+
+   This method will simply call madCalculatorWeb for a series of latitude steps.
+
+      Inputs:
+
+          madrigalUrl: home page of madrigal site to use.  Example:
+        	'http://www.haystack.mit.edu/madrigal'
+
+
+          year, month, day, hour, min, sec - specify time 
+
+      Returns:
+
+          An (n x 2) matrix of (xGsm, yGsm) points on the GSM equatorial plane that
+		    define the magnetopause.
+
+      Uses madCalculatorWeb to calculate tsyg_eq_xgsm and tsyg_eq_ygsm for a
+      grid of lat and long.
+      This method searches for the maximum xgsm in the 14 ygsm bins 
+      (-7< ygsm < -6), (-6< ygsm < -5),...(6< ygsm < 7) 
+	  
+	  Example: magnetopause = getMagnetopause('http://www.haystack.mit.edu/madrigal', ...
+	                                          1998,1,1,0,0,0);
+      
+</pre>
+<a name="mapGeodeticToGsm" id="mapGeodeticToGsm"></a>
+<pre>
+   ***********************************************************      
+ 
+   mapGeodeticToGsm returns a 2 x N array of GSM X and Y where a field
+   line intersects the input points, and is followed to the GSM Z=0 plane.
+
+    Uses Tsyganenko 2001 field model
+
+    Inputs:
+
+    madrigalUrl - url to madrigal site, such as
+     'http://www.haystack.mit.edu/madrigal'
+    year, month, day, hour, min, sec - time of interest
+    latArr - length N array of input latitude values
+    lonArr - length N array of input longitude values (length = latArr)
+    altArr - length N array of input altitude values (length = latArr)
+
+    Returns a 2 X N matrix where column 1 is X GSM, column 2 is Y GSM, and N is
+    the length of the input matrices.  Z GSM is always 0.  If no solution for a 
+    given input point, lat and long will be NaN.
+
+    Example:
+
+      res = mapGeodeticToGsm('http://www.haystack.mit.edu/madrigal', ...
+                             2004,1,1,0,0,0, ...
+                             [30 35 40 45 50],[270 270 270 270 270], ...
+                             [1000 1000 1000 1000 1000]);
+			    
+</pre>
+<a name="mapGsmToAltitude" id="mapGsmToAltitude"></a>
+<pre>
+   *********************************************************** 
+   
+   mapGsmToAltitude returns a 2 x N array of geodetic lat and long where a field
+   line intersects a given stop altitude for arrays of starting points in GSM
+   coordinates.
+
+    Inputs:
+
+    madrigalUrl - url to madrigal site, such as
+     'http://www.haystack.mit.edu/madrigal'
+    model - 0 for Tsyganenko, 1 for IGRF
+    stopAlt - altitude in km to intersect with
+    year, month, day, hour, min, sec - time of interest
+    xgsmArr - array of input xgsm values
+    ygsmArr - array of input ygsm values (length = xgsmArr)
+    zgsmArr - array of input zgsm values (length = xgsmArr)
+    northHemisphereFlag: 1, map into northern hemisphere, 0
+       map into southern hemisphere
+
+    Returns a 2 X N matrix where column 1 is lat, column 2 is long, and N is
+    the length of the input matrices.  The end altitude is always the
+    stopAlt.  If no solution for a given input point, lat and long will be
+    NaN.
+
+    Example:
+
+      res = mapGsmToAltitude('http://www.haystack.mit.edu/madrigal', ...
+                             0,1000,2004,1,1,0,0,0, ...
+                             [0.269 0.3 0.3 0.3 0.3],[0.583 0.6 0.6 0.6 0.6], ...
+                             [-0.95987 -10.0 -1.0 -10.0 -1.0],1);
+    
+     
+   ***********************************************************</pre>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="madpyDoc/scripts/index.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rr_contents.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="madpyDoc/remotePythonAPI/index.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Matlab remote API reference<!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="madpyDoc/scripts/index.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Scripts supporting the cgi interface <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="rr_contents.html"><!-- InstanceBeginEditable name="UpTitle2" -->Remote data access reference - toc <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="madpyDoc/remotePythonAPI/index.html"><!-- InstanceBeginEditable name="NextTitle2" -->Python remote API reference <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

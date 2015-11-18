@@ -1,0 +1,861 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalHeaderRecord</title>
+        </head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalHeaderRecord</font>
+            </th>
+            <th align="right"><font color="#000000">cedar.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <p>MadrigalHeaderRecord holds all the information in a Cedar header record.</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+
+            <table border="0" cellspacing="2" cellpadding="2" width="100%">
+              <tr>
+            <td align="LEFT" valign="TOP">
+<a href="#__init__">__init__</a><br>
+<a href="#__str__">__str__</a><br>
+<a href="#getEndTimeList">getEndTimeList</a><br>
+<a href="#getJpar">getJpar</a><br>
+<a href="#getKindat">getKindat</a><br>
+<a href="#getKinst">getKinst</a><br>
+<a href="#getMpar">getMpar</a><br>
+<a href="#getStartTimeList">getStartTimeList</a><br>
+<a href="#getText">getText</a><br>
+<a href="#getType">getType</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#setJpar">setJpar</a><br>
+<a href="#setKindat">setKindat</a><br>
+<a href="#setKinst">setKinst</a><br>
+<a href="#setMpar">setMpar</a><br>
+<a href="#setText">setText</a><br>
+<a href="#setTimeLists">setTimeLists</a><br>
+<a href="#writeRecord">writeRecord</a><br>
+</td>
+</tr>
+            </table>
+            
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        kinst,
+        kindat,
+        sYear,
+        sMonth,
+        sDay,
+        sHour,
+        sMin,
+        sSec,
+        sCentisec,
+        eYear,
+        eMonth,
+        eDay,
+        eHour,
+        eMin,
+        eSec,
+        eCentisec,
+        jpar,
+        mpar,
+        text,
+        madInstObj=None,
+        )
+
+</pre></font>
+<h3>__init__ creates a MadrigalCatalogRecord.</h3>
+<p>        Inputs:</p>
+<p>            kinst - the kind of instrument code.  A warning will be raised if not in instTab.txt.</p>
+
+<p>            kindat - kind of data code. Must be a non-negative integer.</p>
+
+<p>            sYear,sMonth,sDay,sHour,sMin,sSec,sCentisec - experiment start time. sCentisec must be 0-99</p>
+
+<p>            eYear,eMonth,eDay,eHour,eMin,eSec,eCentisec - experiment end time. eCentisec must be 0-99</p>
+
+<p>            jpar - the number of 1d parameters in the following data records</p>
+
+<p>            mpar - the number of 2d parameters in the following data records</p>
+
+<p>            text - string containing text in catalog record.  Length must be divisible by 80.  No linefeeds
+                   allowed.</p>
+
+<p>            madInstObj - a madrigal.metadata.MadrigalInstrument object.  If None, one will be created.
+                              Used to verify kinst.</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Returns: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__str__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__str__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__str__ ( self )
+
+</pre></font>
+<p>returns a string representation of a MadrigalHeaderRecord</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getEndTimeList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getEndTimeList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getEndTimeList ( self )
+
+</pre></font>
+<h3>getEndTimeList returns a tuple containing eYear, eMonth, eDay, eHour, eMin, eSec, and eCentisec</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: a tuple containing eYear, eMonth, eDay, eHour, eMin, eSec, and eCentisec.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getJpar"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getJpar&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getJpar ( self )
+
+</pre></font>
+<p>returns the number of one-dimensional parameters in the associated data records.</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKindat"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKindat&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKindat ( self )
+
+</pre></font>
+<h3>getKindat returns the kind of data code (int) for a given header record.</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: the kind of data code (int) for a given header record.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKinst"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKinst&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKinst ( self )
+
+</pre></font>
+<h3>getKinst returns the kind of instrument code (int) for a given header record.</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: the kind of instrument code (int) for a given header record.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMpar"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMpar&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMpar ( self )
+
+</pre></font>
+<p>returns the number of two-dimensional parameters in the associated data records.</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getStartTimeList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getStartTimeList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getStartTimeList ( self )
+
+</pre></font>
+<h3>getStartTimeList returns a tuple containing sYear, sMonth, sDay, sHour, sMin, sSec, and sCentisec</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: a tuple containing sYear, sMonth, sDay, sHour, sMin, sSec, and sCentisec.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getText"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getText&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getText ( self )
+
+</pre></font>
+<h3>getText returns the header text.</h3>
+<p>        Inputs: None</p>
+
+<p>        Outputs: the header text.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getType"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getType&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getType ( self )
+
+</pre></font>
+<p>returns the type <code>header</code></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setJpar"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setJpar&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setJpar ( self,  jpar )
+
+</pre></font>
+<h3>set the number of one-dimensional parameters in the associated data records.</h3>
+<p>        Must not be negative.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+TypeError, 'jpar must not be less than 0'<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setKindat"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setKindat&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setKindat ( self,  kindat )
+
+</pre></font>
+<h3>setKindat sets the mode of kind of data code (int) for a given header record.</h3>
+<p>        Inputs: the kind of data code (int)</p>
+
+<p>        Outputs: None</p>
+
+<p>        Affects: sets the kind of data code (int) (self.__kindat)</p>
+
+<p>        Exceptions: Raises ValueError if kindat less than 0</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'kindat must not be less than 0, not %i' %( self.__kindat )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setKinst"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setKinst&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setKinst ( self,  kinst )
+
+</pre></font>
+<h3>setKinst sets the kind of instrument code (int) for a given header record.</h3>
+<p>        Inputs: kind of instrument code (integer)</p>
+
+<p>        Outputs: None</p>
+
+<p>        Affects: sets the kind of instrument code (int) (self.__kinst) for a given header record.
+        Prints warning if kinst not found in instTab.txt</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setMpar"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setMpar&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setMpar ( self,  mpar )
+
+</pre></font>
+<h3>set the number of two-dimensional parameters in the associated data records.</h3>
+<p>        Must not be negative.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+TypeError, 'mpar must not be less than 0'<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setText"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setText&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setText ( self,  text )
+
+</pre></font>
+<h3>setText sets the header text.</h3>
+<p>        Inputs: text: text to be set.  Must be length divisible by 80, and not contain line feeds.
+        For now, must not exceed 2^16 - 80 bytes to be able to be handled by Cedar format.</p>
+
+<p>        Outputs: None.</p>
+
+<p>        Affects: sets self.__text</p>
+
+<p>        Raises TypeError if problem with text</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+TypeError, 'text exceeds ability of Cedar format to store'<br>
+TypeError, 'text length must be divisible by 80: len is %i' %(len( text ) )<br>
+TypeError, 'text must be of type string'<br>
+TypeError, 'text must not contain linefeed character'<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setTimeLists"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setTimeLists&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setTimeLists (
+        self,
+        sYear,
+        sMonth,
+        sDay,
+        sHour,
+        sMin,
+        sSec,
+        sCentisec,
+        eYear,
+        eMonth,
+        eDay,
+        eHour,
+        eMin,
+        eSec,
+        eCentisec,
+        )
+
+</pre></font>
+<h3>setTimeList resets start and end times</h3>
+<p>        Inputs:</p>
+<p>            sYear,sMonth,sDay,sHour,sMin,sSec,sCentisec - experiment start time. sCentisec must be 0-99</p>
+
+<p>            eYear,eMonth,eDay,eHour,eMin,eSec,eCentisec - experiment end time. eCentisec must be 0-99</p>
+
+
+<p>        Outputs: None</p>
+
+<p>        Affects: sets all time attributes (see code).</p>
+
+<p>        Exceptions: Raises ValueError if startTime &gt; endTime</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Starting time cannot be after ending time'<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="writeRecord"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">writeRecord&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+writeRecord (
+        self,
+        cedarFile,
+        format,
+        )
+
+</pre></font>
+<h3>writeRecord writes a MadrigalHeaderRecord to an open cedarFile.</h3>
+<p>           Users should not call this method directly.  Use MadrigalCedarFile.write
+           to persist data.</p>
+
+<p>           Inputs:</p>
+<h4>cedarFile - pointer to madrec as returned by madrigal._Madrec.madrecOpen</h4>
+<p>                format - a format to save the file in.  For now, the allowed values are <code>Madrigal</code>, <code>BlockedBinary</code>,
+                <code>UnblockedBinary</code>, <code>Cbf</code>, and <code>Ascii</code>.  </p>
+
+
+
+<p>           Outputs: None</p>
+
+<p>           Affects: writes MadrigalHeaderRecord to cedar file</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+IOError, 'error in madrecCreateHeaderRecord'<br>
+IOError, 'error in madrecPutNextRec'<br>
+
+</td></tr>
+</table>
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri May 30 14:39:57 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

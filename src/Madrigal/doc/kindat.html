@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<meta name="generator" content="HTML Tidy, see www.w3.org">
+<title>Millstone Data Type (KINDAT) Codes</title>
+</head>
+<body bgcolor="#FFFFFF" link="#008000" vlink="#003366">
+<center>
+<h2>Millstone Data Type (KINDAT) Codes</h2>
+</center>
+
+KINDAT is a mandatory field in the prologue of all CEDAR format
+records. The CEDAR format allows records with different KINDATs to
+be interleaved. MADRIGAL files are required to contain only one
+KINDAT. KINDAT is defined as follows (CEDAR Data Base Format, May,
+1990).
+
+<p><i>The KINDAT (word or field number 4) code has an important
+function, to identify the analysis algorithm used to produce the
+data. The meaning of a particular KINDAT code is documented in the
+accompanying Header Record (which is uniquely identifiable by
+matching the KINDAT and KINST codes for a given
+experiment).</i></p>
+
+<p>Millstone Hill Radar basic parameters have always been assigned
+KINDAT=3001. The following list proposes a more extensive KINDAT
+list which will serve to distinguish the data aquisition system and
+the version of the analysis algorithm used to produce the file.
+Codes are also defined for derived parameters.</p>
+
+<ul>
+<li>Basic Parameters (3001-4000) 
+
+<ul>
+<li>3001-3099 - Filter Bank and earlier data</li>
+
+<li>3100-3199 - Two-pulse Data</li>
+
+<li>3200-3299 - HYCOR Data
+
+<ul>
+<li>3201 - INSCAL 1.x</li>
+</ul>
+</li>
+
+<li>3300-3399 - SCAT Data 
+
+<ul>
+<li>3301 - INSCAL 1.x</li>
+
+<li>3302 - INSCAL 2.x</li>
+
+<li>3303 - INSCAL 3.x</li>
+
+<li>3304 - INSCAL 4.x</li>
+
+<li>3305 - INSCAL 5.x</li>
+
+<li>3321 - OASIS 1.x</li>
+</ul>
+</li>
+
+<li>3400-3499 - MIDAS Data 
+
+<ul>
+<li>3405 - INSCAL 5.x</li>
+
+<li>3408 - INSCAL 8.x</li>
+
+<li>3421 - OASIS 1.x</li>
+</ul>
+</li>
+</ul>
+</li>
+
+<li>Derived Parameters (13001-14000) 
+
+<ul>
+<li>13001-13099 - Electric Fields 
+
+<ul>
+<li>13001 - ebin 1.x</li>
+
+<li>13002 - ebin 2.x</li>
+
+<li>13022 - SATORI 1.x</li>
+
+<li>13022 - SATORI 2.x</li>
+</ul>
+</li>
+
+<li>13100-13199 - Neutral Temperatures 
+
+<ul>
+<li>13101 - NEUTEMP 1.x</li>
+
+<li>13102 - NEUTEMP 2.x</li>
+</ul>
+</li>
+
+<li>13200-13299 - Neutral Winds</li>
+
+<ul>
+<li>13204 - (ebin4) Derived Parameters: F region: winds/electric fields/ion drifts/Ne</li>
+
+<li>13210 - (efwind) Derived Parameters: E+F regions: winds/electric fields/ion drifts</li>
+</ul>
+
+</ul>
+</li>
+</ul>
+
+<hr size="2">
+Revised: August 26, 2002<br>
+ 
+
+<hr size="2">
+</body>
+</html>
+

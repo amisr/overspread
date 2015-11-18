@@ -1,0 +1,1483 @@
+#!/Users/mnicolls/Documents/Work/Madrigal/bin/python
+
+import sys, os, traceback
+import cgi, Cookie
+import time
+import types
+
+
+
+
+class MadrigalSearch:
+    """MadrigalSearch has the following structure:  the entire cgi is contained in one class, with a
+    main function at the end which serves simply to call the __init__  function of the class.  This
+    __init__ function is responsible for calling all other class methods. It is made up of a single
+    try block, with the purpose of reporting all exceptions in well-formatted html to both the user
+    and the administrator. The __init__ function first makes sure the pythonlib can be found.  It
+    then calls setScriptState to determine from any cgi arguments what the script is supposed to do.
+    The script state is always set in self.state.  The particular values allowed for MadrigalSearch
+    are discussed below.
+
+    The __init__ function then calls createObjects to create whatever python api objects are required
+    to complete the script.  If the user has made a request that may succeed or may fail, that request is
+    then processed.  The script thereafter calls outputHead to output the header section and any required
+    javascript.  Finally, __init__ calls a few functions for each of the main sections of the body.
+
+    If any uncaught exception is thrown, its caught by the __init__ try block.  If it's a MadrigalError,
+    additional information is available.  The catch blocks attempt to display the error message on the screen
+    by backing out of of large number of possible tags, which might prevent its display (in any case, the error
+    message will always be available in the page source.  The formatted error message is also sent to the email
+    address given in the siteTab.txt metadata file.
+
+    Every attempt is made to generate easy to read source html, since it is often an easy starting point for
+    analyzing the script.  Table structure is indicated by indentation, as is javascript code structure.
+
+    Allowed values of self.state:
+
+    'default':          Default when page is called.
+
+    'inst_chosen':      Instruments have been chosen and page reloads to get kindats specific to chosen instruments.
+
+    'parm_chosen':      Parameters have been chosen and page relaods to let users continue selecting search criteria.
+
+
+    All the python cgi scripts maintain state through form elements, either visible on the page, or as hidden elements.
+    The names of all form elements used by madSearch are listed below:
+
+    calling page:       gives the name of the file being analyzed, either relative to the experiments directory (in which
+			case it does not begin with a forward slash, or absolute path (in which case is begins with a
+			forward slash.)  Stored as hidden element.  
+
+
+    state:	        gives the state of the script (see above).  Defaults to 'edit' if not passed in. Stored as hidden
+                        element and modified by javascript.
+
+    stationName:        a select input giving the list of instruments available.
+
+    kindatName:         a select input giving the list of kinds of data available. Defaults to 'All kinds of data'.
+
+    sd:                 an input text field giving the start day to select data - integer.
+
+    sm:                 an input text field giving the start month to select data - integer (1-12)
+
+    sy:                 an input text field giving the start year to select data - validated as integer.
+
+    ed:                 an input text field giving the end day to select data - integer.
+
+    em:                 an input text field giving the end month to select data - integer (1-12)
+
+    ey:                 an input text field giving the end year to select data - validated as integer.
+
+    ssd:                an input text field giving the seasonal start day to select data - integer.
+
+    ssm:                an input text field giving the seasonal start month to select data - integer (1-12)
+
+    sed:                an input text field giving the seasonal end day to select data - integer.
+
+    sem:                an input text field giving the seasonal end month to select data - integer (1-12)
+
+    filters:            an input text field giving the paramter filters to enter filters in logical expressions
+        
+    keywordsearch:      an input text field giving the experiment name to enter partial keyword of experiment
+    
+    header:             a check box giving the option show a file names in report
+
+    InstrumentList:     gets the list of all instruments with data
+
+    stationNameStr:     gets instrument list selected in report
+
+    stationNameList:    converts stationNameStr to a list
+
+    stationNameIntList: gets an instrument integer list from the string list
+
+    KindatList:         gets the list of all possible kinds of data
+    
+    kindatNameStr:      gets kindat list selected in report
+    
+    kindatNameList:     converts kindatNameStr to a list
+
+    kindatNameIntList:  gets a kindat integer list from the string list
+
+    kindatCodeList:     gets kindat list for corresponding instrument integer list
+
+    t:                  sets end experiment year to correct year
+
+    tempFiltersList:    temporary variable for list of filters from printHiddenElements()
+
+    tempKeywordSearch:  temporary variable for keyword from printHiddenElements()
+
+    showKindat:         if 1, show kindat selection, if 0, hide kindat selection
+    
+    
+    Change history:
+
+    Written by "Ezinne Uzo-Okoro":mailto:euzookoro@haystack.mit.edu  July 31, 2002
+
+    $Id: madSearch,v 1.23 2009/03/17 13:18:57 brideout Exp $
+    """
+
+    # constants
+    __scriptName = 'madSearch'
+    
+    # states the script can be entered
+
+    def __init__(self):
+        """__init__ run the entire MadrigalSearch script.  All other functions are private and called by __init__.
+
+        Inputs: None.
+        
+        Returns: Void
+
+        Affects: Ouputs cgi script MadrigalSearch.
+
+        Exceptions: None.
+        """
+
+
+        # catch any exception, and write an appropriate message to user and to admin
+        try:
+
+            # check if pythonlibpath env variable exists
+            # written 'PYTHON' + 'LIBPATH' to stop automatic replacement during setup
+            temp = os.environ.get('PYTHON' + 'LIBPATH')
+            if temp != None:
+                    sys.path.append(temp)
+		    
+            # append path madroot/lib (needed only if python not installed by setup)
+            sys.path.append('/Users/mnicolls/Documents/Work/Madrigal/lib/python')
+
+            # prepare to handle MadrigalError
+            import madrigal.admin
+	    
+        except ImportError:
+	    
+	    # Fatal error - madpy library not found
+            print "Content-Type: text/html"
+            print
+            print "Unable to import the madrigal python library - please alert the sys admin!"
+            sys.exit(0)
+	    
+        try:
+
+            # set flag as to whether script headers have been written
+            self.scriptHeaders = 0
+            
+            # determine from form arguments and cookies which script state to use
+            self.setScriptState()
+            
+            # create needed Madrigal objects
+            self.createObjects()
+
+            # process requested login or password change
+            self.success = ''
+            
+            # output html
+
+            #print header
+            self.outputHead('Madrigal Global Search')
+
+            #print body tag
+            print self.madDBObj.getHtmlStyle()
+
+            self.printHeading()
+
+            self.printDescription()
+
+            self.printHiddenElements()
+
+            self.printTable()
+
+            self.printEndPage()
+
+            
+
+        except madrigal.admin.MadrigalError, e:
+            # handle a MadrigalError
+
+            # back out of any tag so error message appears
+            if self.scriptHeaders != 0:
+                print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            errStr = errStr + e.getExceptionHtml()
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            if self.scriptHeaders == 0: # not yet printed
+                print "Content-Type: text/html"
+                print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        except SystemExit:
+            sys.exit(0)
+
+        except:
+            # handle a normal error
+            
+            # back out of any tag so error message appears
+            if self.scriptHeaders != 0:
+                print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            if self.scriptHeaders == 0: # not yet printed
+                print "Content-Type: text/html"
+                print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        # end __init__
+
+
+    def setScriptState(self):
+        
+        #create a form object
+        self.madForm = cgi.FieldStorage()
+
+        if not self.madForm.has_key('callingpage'):
+            self.state = 'default'
+        elif self.madForm.getvalue('callingpage') ==  'madSearch':
+            self.state = 'inst_chosen'
+        else:
+            self.state = 'parm_chosen'
+
+        if not self.madForm.has_key('showKindat'):
+            self.showKindat = 0
+        else:
+            if self.madForm.getvalue('showKindat').lower() == 'on':
+                self.showKindat = 1
+            else:
+                self.showKindat = 0
+
+
+    def createObjects(self):
+
+        # all states require a MadrigalDB object
+        import madrigal.metadata
+        self.madDBObj = madrigal.metadata.MadrigalDB()
+
+        # if madroot not set, set it now
+        if os.environ.get('MAD' + 'ROOT') == None:
+            os.environ['MAD' + 'ROOT'] = self.madDBObj.getMadroot()
+
+        # create object for MadrigalInstrument
+        self.madInstrumentObj = madrigal.metadata.MadrigalInstrument(self.madDBObj)
+
+        # create object for MadrigalSite
+        self.madSiteObj = madrigal.metadata.MadrigalSite(self.madDBObj)
+        self.siteName = self.madSiteObj.getSiteName(self.madDBObj.getSiteID())
+
+        # create object for MadrigalParameters
+        import madrigal.data
+        self.madParametersObj = madrigal.data.MadrigalParameters(self.madDBObj)
+
+        # getting a list of parameters from instrument list
+        parmStr = self.madForm.getvalue("stationName")
+        parmList = []
+        if parmStr == None:
+            parmList = []
+        elif type(parmStr) != types.ListType:
+            parmList = [int(parmStr)]
+        elif type(parmStr) == types.ListType:
+            for parm in parmStr:
+                parmList.append(int(parm))
+                
+        self.parameterList = self.madParametersObj.getParametersForInstruments(parmList)
+ 
+        # get category dict
+        self.categoryDict = self.madParametersObj.getCategoryDict(self.parameterList)
+
+        # get mnemonic list
+        self.mnemonicList = self.madParametersObj.getParmMnemonicList(self.parameterList)
+
+        # get description list
+        self.descList = self.madParametersObj.getParmDescriptionList(self.parameterList)
+
+        # create object for MadrigalKindat
+        self.madKindatObj = madrigal.metadata.MadrigalKindat(self.madDBObj)
+
+        # create object for MadrigalInstrumentKindats
+        self.madInstKindatsObj = madrigal.metadata.MadrigalInstrumentKindats(self.madDBObj)
+
+        # create a MadrigalWeb object
+        import madrigal.ui.web
+        self.madWebObj = madrigal.ui.web.MadrigalWeb(self.madDBObj)
+
+
+    def outputHead(self, title):
+
+        print "Content-Type: text/html"
+        print                               # blank line
+        self.scriptHeaders = 1
+        print '<html>'
+        print '<head>'
+        print '\t<title>' + title + '</title>'
+        print '\t<style type="text/css">.lb {background: #eeeeff}</style>'
+        self.printJavaScript()
+        print '</head>'
+
+
+    def printJavaScript(self):
+        
+        print '<script language = "JavaScript">'
+        # data verification functions
+        self.printPopup()
+        self.printTrim()
+        self.printIsInt()
+        self.printIsInt2()      # used to search for parm names in hidden elements since-> name="310" value="on"
+        self.printIsFloat()
+        self.printIsEmpty()
+        self.printInRange()
+        self.printGetNumTokens()
+        self.printValidateFilter()
+        self.CheckParmList()
+        self.printGetEmail()
+        self.printGetParmOver()
+        self.printGetParmList()
+        self.printReloadPage()
+        self.printPopUp1()
+        self.printPopUp2()
+        self.printPopUp3()
+        self.printPopUp4()
+        self.printGetDesc()
+        self.printMLookup()
+        self.printCParamDiction()
+        print '</script>'
+
+
+    def printPopup(self):
+
+        print '\tfunction popup(acronym)'
+        print '\t{'
+        print '\t\tinfo2 = window.open ("","","WIDTH=600,HEIGHT=400,SCROLLBARS=yes")'
+        print '\t\tinfo2.document.write("<HTML><HEAD><TITLE>" + acronym + "<\/TITLE>")'
+        print '\t\tinfo2.document.write("' + self.madDBObj.getHtmlStyle() + '")'
+        print '\t\tinfo2.document.write("<CENTER><B>")'
+        print '\t\tinfo2.document.write(acronym)'
+        print '\t\tinfo2.document.write("<\/B><\/CENTER><P>")'
+        print '\t\tinfo2.document.write(getDesc(acronym))'
+        print '\t\tinfo2.document.write(\'<p><form><center><input type="button" value="Close Window" onClick="window.close()">\')'
+        print '\t\tinfo2.document.write(\'<\/form><\/center>\')'
+        print '\t\tinfo2.document.write("<\/BODY><\/HTML>")'
+        print '\t\tinfo2.document.close()'
+        print '\t}\n'
+
+
+    def printTrim(self):
+        
+        print '\tfunction trim(strText)'
+        print '\t{'
+        print '\t\t// this will get rid of leading spaces'
+        print '\t\twhile (strText.substring(0,1) == \' \')'
+        print '\t\t\tstrText = strText.substring(1, strText.length);'
+        print '\t\t// this will get rid of trailing spaces'
+        print '\t\twhile (strText.substring(strText.length-1,strText.length) == \' \')'
+        print '\t\t\tstrText = strText.substring(0, strText.length-1);'
+        print '\t\treturn strText;'
+        print '\t}\n'
+
+
+    def printIsInt(self):
+        
+        print '\tfunction isInt(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj.value);'
+        print '\t\tvar newLength = newValue.length;'
+        print '\t\tfor (var i = 0; i != newLength; i++)'
+        print '\t\t{'
+        print '\t\t\taChar = newValue.substring(i,i+1);'
+        print '\t\t\tif(aChar < "0" || aChar > "9")'
+        print '\t\t\t{'
+        print '\t\t\t\treturn false;'
+        print '\t\t\t}'
+        print '\t\t}'
+        print '\t\treturn true;'
+        print '\t}\n'
+
+
+    def printIsInt2(self):
+        
+        print '\tfunction isInt2(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj);'
+        print '\t\tvar newLength = newValue.length;'
+        print '\t\tif (newLength == 0)'
+        print '\t\t{'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tfor (var i = 0; i != newLength; i++)'
+        print '\t\t{'
+        print '\t\t\taChar = newValue.substring(i,i+1);'
+        print '\t\t\tif(aChar < "0" || aChar > "9")'
+        print '\t\t\t{'
+        print '\t\t\t\treturn false;'
+        print '\t\t\t}'
+        print '\t\t}'
+        print '\t\treturn true;'
+        print '\t}\n'
+
+
+    def printIsFloat(self):
+        print '\tfunction isFloat(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj.value);'
+        print '\t\tvar newLength = newValue.length;'
+        print '\t\tfor (var i = 0; i != newLength; i++)'
+        print '\t\t{'
+        print '\t\t\taChar = newValue.substring(i,i+1);'
+        print '\t\t\tif((aChar < "0" || aChar > "9") && (aChar != ".") && (aChar != "-") && (aChar != "e") && (aChar != "E"))'
+        print '\t\t\t{'
+        print '\t\t\t\treturn false;'
+        print '\t\t\t}'
+        print '\t\t}'
+        print '\t\treturn true;'
+        print '\t}\n'
+
+
+    def printInRange(self):
+        
+        print '\tfunction inRange(num, lowerLimit, upperLimit)'
+        print '\t{'
+        print '\t\tif(num >= lowerLimit && num <= upperLimit)'
+        print '\t\t{'
+        print '\t\t\treturn true;'
+        print '\t\t}'
+        print '\t\tif(typeof num != "number")'
+        print '\t\t{'
+        print '\t\t\treturn true;'
+        print '\t\t}'
+        print '\t\treturn false;'
+        print '\t}\n'
+
+
+    def printIsEmpty(self):
+        
+        print '\tfunction isEmpty(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj.value);'
+        print '\t\tvar newLength = newValue.length;'
+        print '\t\tif(newLength == 0)'
+        print '\t\t{'
+        print '\t\t\treturn true;'
+        print '\t\t}'
+        print '\t\treturn false;'
+        print '\t}\n'
+
+
+    def printGetNumTokens(self):
+        print '\tfunction getNumTokens(textObj)'
+        print '\t{'
+        print '\t\tvar newValue = trim(textObj.value);'
+        print '\t\tvar arrayOfStrings = newValue.split(" ");'
+        print '\t\treturn arrayOfStrings.length;'
+        print '\t}\n'
+        
+     
+    def printValidateFilter(self):
+        
+        # check that all filter values are valid via javascript before form is submitted
+        print '\tfunction validateFilter(madForm)'
+        print '\t{'
+      
+        print '\t\tif (!isInt(madForm.sy) || isEmpty(madForm.sy))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start year.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.sm) || isEmpty(madForm.sm))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start month.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.sm.value), 1, 12) && madForm.sm.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start month.  Must be between 1 and 12.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.sd) || isEmpty(madForm.sd))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start day.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.sd.value), 1, 31) && madForm.sd.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start day.  Must be between 1 and 31.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.ey) || isEmpty(madForm.ey))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end year.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.em) || isEmpty(madForm.em))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end month.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.em.value), 1, 12) && madForm.em.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end month.  Must be between 1 and 12.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.ed) || isEmpty(madForm.ed))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end day.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.ed.value), 1, 31) && madForm.ed.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end day.  Must be between 1 and 31.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        
+        #check that dates valid and startDate < endDate
+        print '\t\tvar year = parseInt(madForm.sy.value);'
+        print '\t\tvar month = parseInt(madForm.sm.value);'
+        print '\t\tvar day = parseInt(madForm.sd.value);'
+        print '\t\ttry'
+        print '\t\t{'
+        print '\t\t\tvar thisDate1 = new Date(year, month-1, day);'
+        print '\t\t\tvar thisDate = new Date(thisDate1.getTime());'
+        print '\t\t\tif (thisDate.getDate() != day)'
+        print '\t\t\t{'
+        print '\t\t\t\tthrow "Date error";'
+        print '\t\t\t}'
+        print '\t\t}'
+        print '\t\tcatch (e)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for start date.  Check number of days in month.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print
+        print '\t\tvar year = parseInt(madForm.ey.value);'
+        print '\t\tvar month = parseInt(madForm.em.value);'
+        print '\t\tvar day = parseInt(madForm.ed.value);'
+        print '\t\ttry'
+        print '\t\t{'
+        print '\t\t\tvar thisDate2 = new Date(year, month-1, day);'
+        print '\t\t\tvar thisDate = new Date(thisDate2.getTime());'
+        print '\t\t\tif (thisDate.getDate() != day)'
+        print '\t\t\t{'
+        print '\t\t\t\tthrow "Date error";'
+        print '\t\t\t}'
+        print '\t\t}'
+        print '\t\tcatch (e)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for end date.  Check number of days in month.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print
+        print '\t\tif (thisDate1 > thisDate2)'
+        print '\t\t{'
+        print '\t\t\talert("Starting date must be before ending date.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        
+
+        # seasonal filter
+        print '\t\tif (!isInt(madForm.ssm) || isEmpty(madForm.ssm))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for seasonal start month.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.ssm.value), 1, 12) && madForm.ssm.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for seasonal start month.  Must be between 1 and 12.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.ssd) || isEmpty(madForm.ssd))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for seasonal start day.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.ssd.value), 1, 31) && madForm.ssd.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for seasonal start day.  Must be between 1 and 31.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.sem) || isEmpty(madForm.sem))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for seasonal end month.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.sem.value), 1, 12) && madForm.sem.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for seasonal end month.  Must be between 1 and 12.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!isInt(madForm.sed) || isEmpty(madForm.sed))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for seasonal end day.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!inRange(parseInt(madForm.sed.value), 1, 31) && madForm.sed.value.length != 0)'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for seasonal end day.  Must be between 1 and 31.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        #mnemStr1
+        print '\t\tif (!(getNumTokens(madForm.mnemStr1) < 2 || getNumTokens(madForm.mnemStr1) == 3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for parameter string in optional filter 1.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (getNumTokens(madForm.mnemStr1) > 0 && madForm.mnemStr1.value.length > 0)'
+        print '\t\t{'
+        print '\t\t\tvar mnemStr=trim(madForm.mnemStr1.value)'
+        print '\t\t\tvar mnemList = mnemStr.split(" ")'
+        print '\t\t\tfor(var i=0; i<mnemList.length; i++)'
+        print '\t\t\t{'
+        print '\t\t\t\tif(mnemList[i] == "+" || mnemList[i] == "-" || mnemList[i] == "*" || mnemList[i] == "/")'
+        print '\t\t\t\t\tcontinue;'
+        print '\t\t\t\tif(typeof(getDesc(mnemList[i].toUpperCase())) != "string")'
+        print '\t\t\t\t{'
+        print '\t\t\t\t\talert("Illegal parameter found in optional filter 1: " + mnemList[i])'
+        print '\t\t\t\t\treturn false;'
+        print '\t\t\t\t}'
+        print '\t\t\t}'
+        print '\t\t}'
+        # lower range 1
+        print '\t\tif (!isFloat(madForm.lower1))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for lower limit in optional filter 1.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # upper range 1
+        print '\t\tif (!isFloat(madForm.upper1))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for upper limit in optional filter 1.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        #mnemStr2
+        print '\t\tif (!(getNumTokens(madForm.mnemStr2) < 2 || getNumTokens(madForm.mnemStr2) == 3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for parameter string in optional filter 2.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (getNumTokens(madForm.mnemStr2) > 0 && madForm.mnemStr2.value.length > 0)'
+        print '\t\t{'
+        print '\t\t\tvar mnemStr=trim(madForm.mnemStr2.value)'
+        print '\t\t\tvar mnemList = mnemStr.split(" ")'
+        print '\t\t\tfor(var i=0; i<mnemList.length; i++)'
+        print '\t\t\t{'
+        print '\t\t\t\tif(mnemList[i] == "+" || mnemList[i] == "-" || mnemList[i] == "*" || mnemList[i] == "/")'
+        print '\t\t\t\t\tcontinue;'
+        print '\t\t\t\tif(typeof(getDesc(mnemList[i].toUpperCase())) != "string")'
+        print '\t\t\t\t{'
+        print '\t\t\t\t\talert("Illegal parameter found in optional filter 2: " + mnemList[i])'
+        print '\t\t\t\t\treturn false;'
+        print '\t\t\t\t}'
+        print '\t\t\t}'
+        print '\t\t}'
+        # lower range 2
+        print '\t\tif (!isFloat(madForm.lower2))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for lower limit in optional filter 2.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # upper range 2
+        print '\t\tif (!isFloat(madForm.upper2))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for upper limit in optional filter 2.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        #mnemStr3
+        print '\t\tif (!(getNumTokens(madForm.mnemStr3) < 2 || getNumTokens(madForm.mnemStr3) == 3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for parameter string in optional filter 3.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (getNumTokens(madForm.mnemStr3) > 0 && madForm.mnemStr3.value.length > 0)'
+        print '\t\t{'
+        print '\t\t\tvar mnemStr=trim(madForm.mnemStr3.value)'
+        print '\t\t\tvar mnemList = mnemStr.split(" ")'
+        print '\t\t\tfor(var i=0; i<mnemList.length; i++)'
+        print '\t\t\t{'
+        print '\t\t\t\tif(mnemList[i] == "+" || mnemList[i] == "-" || mnemList[i] == "*" || mnemList[i] == "/")'
+        print '\t\t\t\t\tcontinue;'
+        print '\t\t\t\tif(typeof(getDesc(mnemList[i].toUpperCase())) != "string")'
+        print '\t\t\t\t{'
+        print '\t\t\t\t\talert("Illegal parameter found in optional filter 3: " + mnemList[i])'
+        print '\t\t\t\t\treturn false;'
+        print '\t\t\t\t}'
+        print '\t\t\t}'
+        print '\t\t}'
+        # lower range 3
+        print '\t\tif (!isFloat(madForm.lower3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for lower limit in optional filter 3.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # upper range 3
+        print '\t\tif (!isFloat(madForm.upper3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for upper limit in optional filter 3.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        #mnemStr4
+        print '\t\tif (!(getNumTokens(madForm.mnemStr4) < 2 || getNumTokens(madForm.mnemStr4) == 3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for parameter string in optional filter 4.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (getNumTokens(madForm.mnemStr4) > 0 && madForm.mnemStr4.value.length > 0)'
+        print '\t\t{'
+        print '\t\t\tvar mnemStr=trim(madForm.mnemStr4.value)'
+        print '\t\t\tvar mnemList = mnemStr.split(" ")'
+        print '\t\t\tfor(var i=0; i<mnemList.length; i++)'
+        print '\t\t\t{'
+        print '\t\t\t\tif(mnemList[i] == "+" || mnemList[i] == "-" || mnemList[i] == "*" || mnemList[i] == "/")'
+        print '\t\t\t\t\tcontinue;'
+        print '\t\t\t\tif(typeof(getDesc(mnemList[i].toUpperCase())) != "string")'
+        print '\t\t\t\t{'
+        print '\t\t\t\t\talert("Illegal parameter found in optional filter 4: " + mnemList[i])'
+        print '\t\t\t\t\treturn false;'
+        print '\t\t\t\t}'
+        print '\t\t\t}'
+        print '\t\t}'
+        # lower range 4
+        print '\t\tif (!isFloat(madForm.lower4))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for lower limit in optional filter 4.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # upper range 4
+        print '\t\tif (!isFloat(madForm.upper4))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for upper limit in optional filter 4.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        #mnemStr5
+        print '\t\tif (!(getNumTokens(madForm.mnemStr5) < 2 || getNumTokens(madForm.mnemStr5) == 3))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for parameter string in optional filter 5.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (getNumTokens(madForm.mnemStr5) > 0 && madForm.mnemStr5.value.length > 0)'
+        print '\t\t{'
+        print '\t\t\tvar mnemStr=trim(madForm.mnemStr5.value)'
+        print '\t\t\tvar mnemList = mnemStr.split(" ")'
+        print '\t\t\tfor(var i=0; i<mnemList.length; i++)'
+        print '\t\t\t{'
+        print '\t\t\t\tif(mnemList[i] == "+" || mnemList[i] == "-" || mnemList[i] == "*" || mnemList[i] == "/")'
+        print '\t\t\t\t\tcontinue;'
+        print '\t\t\t\tif(typeof(getDesc(mnemList[i].toUpperCase())) != "string")'
+        print '\t\t\t\t{'
+        print '\t\t\t\t\talert("Illegal parameter found in optional filter 5: " + mnemList[i])'
+        print '\t\t\t\t\treturn false;'
+        print '\t\t\t\t}'
+        print '\t\t\t}'
+        print '\t\t}'
+        # lower range 5
+        print '\t\tif (!isFloat(madForm.lower5))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for lower limit in optional filter 5.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # upper range 5
+        print '\t\tif (!isFloat(madForm.upper5))'
+        print '\t\t{'
+        print '\t\t\talert("Invalid entry for upper limit in optional filter 5.  Please correct and try again.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        # selectedIndex in Netscape, IE, and Mozilla == -1 when nothing is selected in multiple select box
+        print '\t\tif (madForm.stationName.selectedIndex == -1)'
+        print '\t\t{'
+        print '\t\t\talert("Please select at least one instrument.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (madForm.kindatName.selectedIndex == -1)'
+        print '\t\t{'
+        print '\t\t\talert("Please select at least one kind of data.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\treturn true;'
+        print '\t}\n'
+
+
+    def CheckParmList(self):
+        
+        print '\tfunction checkparmlist(madForm)'
+        print '\t{'
+        print '\tvar foundParm = false;'
+        print '\t\tvar num = madForm.elements.length;'
+        print '\t\tfor (var i=0; i<num; i++)'
+        print '\t\t{'
+        print '\t\t\tif (madForm.elements[i].value == "on" && madForm.elements[i].name != "header" && madForm.elements[i].name != "showKindat")'
+        print '\t\t\t{'
+        print '\t\t\t\tfoundParm = true;'
+        print '\t\t\t}'
+        print '\t\t}'
+        print '\t\tif (foundParm == false)'
+        print '\t\t{'
+        print '\t\t\talert("Please select parameters needed for your report with <Select parameter(s) to display> button.");'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\treturn true;'
+        print '\t}\n'
+        
+        
+    def printGetEmail(self):
+    
+        print '\tfunction GetEmail(madForm)'
+        print '\t{'
+        print '\t\tif (!validateFilter(madForm))'
+        print '\t\t{'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tif (!checkparmlist(madForm))'
+        print '\t\t{'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tmadForm.action="GetEmailFromUser"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+    def printGetParmOver(self):
+        print '\tfunction GetParmOver(madForm)'
+        print '\t{'
+        print '\t\tmadForm.action="madSearchParmOverview"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+    
+
+
+    def printGetParmList(self):
+        print '\tfunction GetParmList(madForm)'
+        print '\t{'
+        print '\t\tif (!validateFilter(madForm))'
+        print '\t\t{'
+        print '\t\t\treturn false;'
+        print '\t\t}'
+        print '\t\tmadForm.action="madParmList"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+        
+        
+    def printReloadPage(self):
+
+        print '\tfunction Reload(madForm)'
+        print '\t{'
+        print '\t\tmadForm.action="madSearch"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+        
+    def printPopUp1(self):
+
+        print '\tfunction PopUp1()'
+        print '\t{'
+        print '\t\tinfo2 = window.open ("' + self.madDBObj.getTopLevelUrl() + \
+              '/wt_global.html","","WIDTH=600,HEIGHT=400,RESIZABLE=1,SCROLLBARS=2,MENUBAR=1,TOOLBAR=1,LOCATION=1,DIRECTORIES=1")'
+        print '\t}\n'
+
+        
+    def printPopUp2(self):
+
+        print '\tfunction PopUp2()'
+        print '\t{'
+        print '\t\tinfo2 = window.open ("' + self.madDBObj.getTopLevelUrl() + \
+              '/wt_global.html#season","","WIDTH=600,HEIGHT=400,RESIZABLE=1,SCROLLBARS=2,MENUBAR=1,TOOLBAR=1,LOCATION=1,DIRECTORIES=1")'
+        print '\t}\n'
+
+
+    def printPopUp3(self):
+
+        print '\tfunction PopUp3()'
+        print '\t{'
+        print '\t\tinfo2 = window.open ("' + self.madDBObj.getTopLevelUrl() + \
+              '/wt_global.html#name","","WIDTH=600,HEIGHT=400,RESIZABLE=1,SCROLLBARS=2,MENUBAR=1,TOOLBAR=1,LOCATION=1,DIRECTORIES=1")'
+        print '\t}\n'
+
+        
+    def printPopUp4(self):
+
+        print '\tfunction PopUp4()'
+        print '\t{'
+        print '\t\tinfo2 = window.open ("' + self.madDBObj.getTopLevelUrl() + \
+              '/wt_global.html#parameter","","WIDTH=600,HEIGHT=400,RESIZABLE=1,SCROLLBARS=2,MENUBAR=1,TOOLBAR=1,LOCATION=1,DIRECTORIES=1")'
+        print '\t}\n'
+
+
+    def printGetDesc(self):
+
+        print '\tfunction getDesc(name)'
+        print '\t{'
+        print '\t\tvar o = new cParamDiction()'
+        print '\t\treturn(o.Lookup(name))'
+        print '\t}\n'
+
+
+    def printMLookup(self):
+
+        print '\tfunction mLookup(strKeyName)'
+        print '\t{'
+        print '\t\treturn(this[strKeyName])'
+        print '\t}\n'
+
+
+    def printCParamDiction(self):
+
+        print '\t// A dictionary object of Parameters and Descriptions:'
+        print '\tfunction cParamDiction()'
+        print '\t{'
+        print '\t\tthis.Lookup = mLookup'
+        i = 0
+        for parm in self.mnemonicList:
+                print '\t\tthis["' + parm + \
+                      '"] = "' + self.descList[i].replace('</', '<\/') + '"'
+                i = i + 1
+        print '\t}\n'
+
+    # end javascript
+
+    
+    def printHeading(self):
+
+        print '<center><p>'
+        print '<h2><B>%s Madrigal database global search</B></h2>' % (str(self.siteName))
+        print '<div align=center>'
+        print '<table width="80%%" border="1"><tr><td>Return to <a href="/%s">Madrigal homepage</a></td>' % \
+              self.madDBObj.getRelativeTopLevel()
+        print '<td><a href=Javascript:PopUp1()>Tutorial</a> on this page</td>'
+        print '<td>Return to <a href="accessData.cgi">access data</a> page</td></tr></table></div>'
+        
+        
+       
+    def printDescription(self):
+
+        print '<FORM METHOD="GET" enctype="application/x-www-form-urlencoded" name=form1>'   #begin form
+        print '<br>This page allows you to search the entire local %s Madrigal database at once.' % (str(self.siteName))
+        print 'The amount of data you can request may be limited by server capacity.  Download the script'
+        print '<a href="%s">globalIsprint.py</a> to run an unlimited search from your local computer.<br>' % \
+              (os.path.join(self.madDBObj.getTopLevelUrl(), 'ug_commandLine.html#globalIsprint'))
+
+
+    def printHiddenElements(self):
+
+        # now print all received post elements from madParmList as hidden elements
+        print '<input type=hidden name=callingpage value=madSearch>'
+        self.elementsFromMadParmList = []
+        for key in self.madForm.keys():
+            if key in ("stationName", "kindatName","sd", "sm","sy", "callingpage",
+                       "ed","em", "ey", "ssm", "ssd", "sed", "sem", "header", "filters", "keywordsearch",
+                       "mnemStr1", "lower1", "upper1", "mnemStr2", "lower2", "upper2",
+                       "mnemStr3", "lower3", "upper3", "mnemStr4", "lower4", "upper4",
+                       "mnemStr5", "lower5", "upper5", "showKindat"):
+                continue
+            self.elementsFromMadParmList.append(str(key))
+            if type(self.madForm.getvalue(key)) == types.ListType:
+                for value in self.madForm.getvalue(key):
+                    print '<input type=hidden name=' + key.replace(' ', '+') + \
+                          ' value=' + value + '>'
+            else:
+                print '<input type=hidden name=' + key.replace(' ', '+') + \
+                        ' value="' + cgi.escape(str(self.madForm.getvalue(key))) + '">'
+
+        if not self.showKindat:
+            # set default values
+            print '<input type=hidden name=kindatName value="0">'
+            print '<input type=hidden name=ssd value="1">'
+            print '<input type=hidden name=ssm value="1">'
+            print '<input type=hidden name=sed value="31">'
+            print '<input type=hidden name=sem value="12">'
+            for filterIndex in range(1,6):
+                print '<input type=hidden name=mnemStr%i value="">' % (filterIndex)
+                print '<input type=hidden name=lower%i value="">' % (filterIndex)
+                print '<input type=hidden name=upper%i value="">' % (filterIndex)
+
+
+    def getSelectedParameters(self):
+        selectedParms = []
+        for key in self.madForm.keys():
+            if key in ('showKindat', 'header'):
+                continue
+            value = self.madForm.getvalue(key)
+            if type(value) == types.StringType:
+                if value == 'on':
+                    selectedParms.append(str(key))
+
+        return selectedParms
+                              
+        
+    def printTable(self):
+
+        self.printTableStart()
+        print '<TR VALIGN=TOP>'
+        self.printInstrumentTable()
+        self.printExperimentDatesTable()
+        print '</TR><TR>'
+        if self.showKindat:
+            self.printKindatTable()
+            self.printSeasonalDatesTable()
+            print '</TR><TR>'
+            self.printExperimentName()
+            print '</TR><TR>'
+            self.printFreeFormFilter()
+        print '</TR><TR>'
+        self.printSelectAdvanced()
+        print '</TR><TR>'
+        self.printParameterTable()
+        print '</TR></TABLE>'
+
+
+    def printTableStart(self):
+        print '<TABLE BORDER=0 WIDTH="100%" CELLPADDING=10>'               #begin table
+                        
+        
+    def printInstrumentTable(self):
+  
+        print '<TD ALIGN="CENTER">'
+        print '<H3>Select instrument(s)</H3>'
+        if self.showKindat:
+            scriptStr = 'onChange=Reload(this.form)'
+        else:
+            scriptStr = ''
+        print '<P CLASS="hanging-indent"><SELECT NAME="stationName" SIZE=8 MULTIPLE %s>' % (scriptStr)
+        
+        orderInstList, categoryDict = \
+            self.madInstrumentObj.getOrderedInstrumentListWithData(self.madWebObj.isTrusted(), localOnly=True,
+                                                                   allowArchive=True)
+
+        # while search page is loaded initially, print list of instruments
+        if self.state == 'default':
+            for item in orderInstList:
+                print '<OPTION VALUE="%i">%s %i-%i' % (item[5], item[0], item[1], item[2])
+        else:           # reloading -- while an instrument has been chosen, get the numeric value of that instrument
+            stationNameStr = self.madForm.getvalue("stationName")
+
+            # checking for lists or strings and changing as appropriate
+            if type(stationNameStr) == types.ListType:
+                stationNameList = stationNameStr
+            elif type(stationNameStr) == types.StringType:
+                stationNameList = [stationNameStr]
+            else:
+                stationNameList = []
+                
+            stationNameIntList = self.madWebObj.getIntListFromStrList(stationNameList)
+            
+            # searching for selected instruments
+            for item in orderInstList:         
+                if item[5] in stationNameIntList:       #highlights only selected instruments
+                    print '<OPTION VALUE="%i" SELECTED>%s %i-%i' % (item[5], item[0], item[1], item[2])
+                else:
+                    print '<OPTION VALUE="%i">%s %i-%i' % (item[5], item[0], item[1], item[2]) 
+        
+        print '</OPTION></SELECT></TD>'       
+
+
+    def printKindatTable(self):            
+
+        print '<TD VALIGN=TOP ALIGN="CENTER" >'
+        print '<H3>Select kinds of data</H3>'
+        print '<P CLASS="hanging-indent"><SELECT NAME="kindatName" SIZE=8 MULTIPLE>'
+        
+        KindatList = self.madKindatObj.getKindatList()
+
+        # while search page is loaded initially, print list of all kinds of data
+        if self.state == 'default':
+            print '<OPTION VALUE="0" SELECTED>All Kinds of Data'
+            for item in KindatList:
+                print '<OPTION VALUE="' + str(item[1]) + '">' + item[0]
+        else:           # reloading -- if state = inst_chosen
+            kindatNameStr = self.madForm.getvalue("kindatName")
+            if type(kindatNameStr) == types.StringType:
+                kindatNameList = [kindatNameStr]
+            elif type(kindatNameStr) == types.ListType:
+                kindatNameList = kindatNameStr
+            else:
+                kindatNameList = []
+                
+            if len(kindatNameList) != 0:
+                kindatNameIntList = self.madWebObj.getIntListFromStrList(kindatNameList)
+            else:
+                kindatNameIntList = []
+
+            stationNameStr = self.madForm.getvalue("stationName")
+
+            # checking for lists or strings and changing as appropriate
+            if type(stationNameStr) == types.ListType:
+                stationNameList = stationNameStr
+            elif type(stationNameStr) == types.StringType:
+                stationNameList = [stationNameStr]
+            else:
+                stationNameList = []
+             
+            if len(stationNameList) != 0:
+                stationNameIntList = self.madWebObj.getIntListFromStrList(stationNameList)
+            else:
+                stationNameIntList = []
+
+            if len(kindatNameIntList) == 0:
+                kindatNameIntList.append(0)
+                
+            #checking for selected kindats 
+            if 0 in stationNameIntList:
+                # print every kindat
+                if 0 in kindatNameIntList:
+                    print '<OPTION VALUE="0" SELECTED>All Kinds of data'
+                else:
+                    print '<OPTION VALUE="0">All Kinds of data'
+                
+                for item in KindatList:
+                    if item[1] in kindatNameIntList:
+                        print '<OPTION VALUE="' + str(item[1]) + '" SELECTED>' + item[0]
+                    else:
+                        print '<OPTION VALUE="' + str(item[1]) + '">' + item[0]
+            else:
+                if 0 in kindatNameIntList:
+                    print '<OPTION VALUE="0" SELECTED>All Kinds of data'
+                # print only kindats associated with selected instruments
+                kindatCodeList = self.madInstKindatsObj.getKindatListForInstruments(stationNameIntList)
+                for item in KindatList:
+                    if item[1] in kindatCodeList:
+                        if str(item[1]) in kindatNameList:
+                            # printing kindats corresponding to chosen instruments
+                            print '<OPTION VALUE="' + str(item[1]) + '" SELECTED>' + item[0]
+                        else:
+                            print '<OPTION VALUE="' + str(item[1]) + '">' + item[0]
+
+        print '</OPTION>'
+        print '</SELECT></p>'
+        print '</TD>'
+
+
+    def printSelectAdvanced(self):
+        if self.showKindat:
+            chosenStr = 'CHECKED'
+        else:
+            chosenStr = ''
+        print '<td><INPUT TYPE="checkbox" Name="showKindat" %s onChange=Reload(this.form)>' % \
+              chosenStr
+        print 'Show advanced filters (kind of data, seasonal dates, experiment names, parameter filters)'
+        print '</td>'
+
+        if self.madForm.has_key("header"):
+            print '<td><input type=checkbox name="header" CHECKED>  Show individual filenames in report.</TD>'
+        else:
+            print '<td><input type=checkbox name="header">  Show individual filenames in report.</TD>'
+
+
+    def printExperimentName(self):
+        print '<td colspan=2>'
+        print '<B>Enter complete or partial experiment name:  </B>'
+        print '<i>Leave blank to accept all experiment names.</i> '
+        print '<FONT SIZE=3 STYLE="font-size: 12pt"></FONT>'
+
+        tempKeywordSearch = self.madForm.getvalue("keywordsearch")
+        if tempKeywordSearch == None:
+            tempKeywordSearch = ''
+        print '<P><INPUT TYPE=TEXT NAME="keywordsearch" VALUE="' + cgi.escape(tempKeywordSearch) + '" SIZE=40 MAXLENGTH=40>'
+        print '</TD>'
+  
+    def printExperimentDatesTable(self):
+
+        print '<TD ALIGN="CENTER">'
+        print '<H3>Select date range</H3>'
+        print '<P><FONT STYLE="font-size: 13pt" SIZE=5>Start dd/mm/yyyy '
+        
+        if self.state == 'default':
+            
+            t = time.localtime()
+            
+            print '<INPUT TYPE=TEXT NAME="sd" VALUE="1" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="sm" VALUE="1" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="sy" VALUE="1950" SIZE=4 MAXLENGTH=4></FONT></P>'
+            print '<P><FONT STYLE="font-size: 13pt" SIZE=5>End dd/mm/yyyy '
+            print '<INPUT TYPE=TEXT NAME="ed" VALUE="31" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="em" VALUE="12" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="ey" VALUE="' + str(t[0]) + '" SIZE=4 MAXLENGTH=4></FONT></P>'
+           
+        else:   # reloading -- save previously entered values
+
+            sd = self.madForm.getvalue("sd")
+            if sd == None:
+                sd = ''
+            sm = self.madForm.getvalue("sm")
+            if sm == None:
+                sm = ''
+            sy = self.madForm.getvalue("sy")
+            if sy == None:
+                sy = ''
+            ed = self.madForm.getvalue("ed")
+            if ed == None:
+                ed = ''
+            em = self.madForm.getvalue("em")
+            if em == None:
+                em = ''
+            ey = self.madForm.getvalue("ey")
+            if ey == None:
+                ey = ''
+
+            print '<INPUT TYPE=TEXT NAME="sd" VALUE="' + sd + '" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="sm" VALUE="' + sm + '" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="sy" VALUE="' + sy + '" SIZE=4 MAXLENGTH=4></FONT></P>'
+            print '<P><FONT STYLE="font-size: 13pt" SIZE=5>End dd/mm/yyyy '
+            print '<INPUT TYPE=TEXT NAME="ed" VALUE="' + ed + '" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="em" VALUE="' + em + '" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="ey" VALUE="' + ey + '" SIZE=4 MAXLENGTH=4></FONT></P>'
+
+        print '</TD>'
+
+
+    def printSeasonalDatesTable(self):
+
+        print '<TD VALIGN=TOP ALIGN="CENTER">'
+        print '<H3>Select seasonal filter</H3>'
+        print '<P><FONT STYLE="font-size: 13pt" SIZE=5>Start dd/mm '
+
+        if not self.madForm.has_key("ssd"):
+
+            t = time.localtime()
+            
+            # Input boxes for Seasonal/Monthly Experiment Dates
+            print '<INPUT TYPE=TEXT NAME="ssd" VALUE="1" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="ssm" VALUE="1" SIZE=2 MAXLENGTH=2></FONT></P>'
+            print '<P><FONT STYLE="font-size: 13pt" SIZE=5>End dd/mm '
+            print '<INPUT TYPE=TEXT NAME="sed" VALUE="31" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="sem" VALUE="12" SIZE=2 MAXLENGTH=2></FONT></P>'
+            print '</TD>'
+            
+        else:   # Input boxes for Seasonal/Monthly Experiment Dates
+            print '<INPUT TYPE=TEXT NAME="ssd" VALUE="' + self.madForm.getvalue("ssd") + '" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="ssm" VALUE="' + self.madForm.getvalue("ssm") + '" SIZE=2 MAXLENGTH=2></FONT></P>'
+            print '<P><FONT STYLE="font-size: 13pt" SIZE=5>End dd/mm '
+            print '<INPUT TYPE=TEXT NAME="sed" VALUE="' + self.madForm.getvalue("sed") + '" SIZE=2 MAXLENGTH=2>'
+            print '<INPUT TYPE=TEXT NAME="sem" VALUE="' + self.madForm.getvalue("sem") + '" SIZE=2 MAXLENGTH=2></FONT></P>'
+            print '</TD>'
+                       
+            
+    def printParameterTable(self):      
+
+        print '<TD ALIGN="CENTER">'
+        print '<input class=lb type=button value="Select parameter(s) to display" onClick=GetParmList(this.form)>'
+        print '</TD><TD>'
+
+        selectedParms = self.getSelectedParameters()
+        if len(selectedParms) > 0:
+            print '<b>Parameters you selected so far:</b> '
+            for parm in selectedParms:
+                print '<a href=JavaScript:popup("' + parm + '")>' + parm + '</a>&nbsp;'
+        print '</TD>'
+
+
+    def printFreeFormFilter(self):
+        print '<td colspan=2>'
+        print '<table>'
+        print '\t\t<tr> <td colspan=3><i>Set up filters using ' + \
+              'any <a href="javascript:GetParmOver(document.form1)">Madrigal parameter(s)</a></i></td></tr>'
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td width="50%">Mnemonic (or Mnem1 +,-,*,/ Mnem2)<br>(example: gdalt <i>or</i> gdalt - sdwht)<br>'
+        print '\t\t\t\tLeave spaces between mnemonics and operator</td>'
+        print '\t\t\t\t<td width="25%">Lower limit<br>(leave blank if none)</td>'
+        print '\t\t\t\t<td width="25%">Upper limit<br>(leave blank if none)</td>'
+        print '\t\t\t</tr>'
+        self.printFreeForm1()
+        self.printFreeForm2()
+        self.printFreeForm3()
+        self.printFreeForm4()
+        self.printFreeForm5()
+        print '\t\t</table></td>'
+
+
+    def printFreeForm1(self):
+        if self.state == 'default':
+            self.mnemStr1 = ''
+            self.lower1 = ''
+            self.upper1 = ''
+        else:
+            if self.madForm.has_key('mnemStr1'):
+                self.mnemStr1 = self.madForm.getvalue('mnemStr1')
+            else:
+                self.mnemStr1 = ''
+            if self.madForm.has_key('lower1'):
+                self.lower1 = float(self.madForm.getvalue('lower1'))
+            else:
+                self.lower1 = ''
+            if self.madForm.has_key('upper1'):
+                self.upper1 = float(self.madForm.getvalue('upper1'))
+            else:
+                self.upper1 = ''
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="mnemStr1" value="' + self.mnemStr1 + '" size=30></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="lower1" value="' + str(self.lower1) + '" size=10></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="upper1" value="' + str(self.upper1) + '" size=10></td>'
+        print '\t\t\t</tr>'
+
+
+    def printFreeForm2(self):
+        if self.state == 'default':
+            self.mnemStr2 = ''
+            self.lower2 = ''
+            self.upper2 = ''
+        else:
+            if self.madForm.has_key('mnemStr2'):
+                self.mnemStr2 = self.madForm.getvalue('mnemStr2')
+            else:
+                self.mnemStr2 = ''
+            if self.madForm.has_key('lower2'):
+                self.lower2 = float(self.madForm.getvalue('lower2'))
+            else:
+                self.lower2 = ''
+            if self.madForm.has_key('upper2'):
+                self.upper2 = float(self.madForm.getvalue('upper2'))
+            else:
+                self.upper2 = ''
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="mnemStr2" value="' + self.mnemStr2 + '" size=30></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="lower2" value="' + str(self.lower2) + '" size=10></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="upper2" value="' + str(self.upper2) + '" size=10></td>'
+        print '\t\t\t</tr>'
+
+
+    def printFreeForm3(self):
+        if self.state == 'default':
+            self.mnemStr3 = ''
+            self.lower3 = ''
+            self.upper3 = ''
+        else:
+            if self.madForm.has_key('mnemStr3'):
+                self.mnemStr3 = self.madForm.getvalue('mnemStr3')
+            else:
+                self.mnemStr3 = ''
+            if self.madForm.has_key('lower3'):
+                self.lower3 = float(self.madForm.getvalue('lower3'))
+            else:
+                self.lower3 = ''
+            if self.madForm.has_key('upper3'):
+                self.upper3 = float(self.madForm.getvalue('upper3'))
+            else:
+                self.upper3 = ''
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="mnemStr3" value="' + self.mnemStr3 + '" size=30></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="lower3" value="' + str(self.lower3) + '" size=10></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="upper3" value="' + str(self.upper3) + '" size=10></td>'
+        print '\t\t\t</tr>'
+
+
+    def printFreeForm4(self):
+        if self.state == 'default':
+            self.mnemStr4 = ''
+            self.lower4 = ''
+            self.upper4 = ''
+        else:
+            if self.madForm.has_key('mnemStr4'):
+                self.mnemStr4 = self.madForm.getvalue('mnemStr4')
+            else:
+                self.mnemStr4 = ''
+            if self.madForm.has_key('lower4'):
+                self.lower4 = float(self.madForm.getvalue('lower4'))
+            else:
+                self.lower4 = ''
+            if self.madForm.has_key('upper4'):
+                self.upper4 = float(self.madForm.getvalue('upper4'))
+            else:
+                self.upper4 = ''
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="mnemStr4" value="' + self.mnemStr4 + '" size=30></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="lower4" value="' + str(self.lower4) + '" size=10></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="upper4" value="' + str(self.upper4) + '" size=10></td>'
+        print '\t\t\t</tr>'
+
+
+    def printFreeForm5(self):
+        if self.state == 'default':
+            self.mnemStr5 = ''
+            self.lower5 = ''
+            self.upper5 = ''
+        else:
+            if self.madForm.has_key('mnemStr5'):
+                self.mnemStr5 = self.madForm.getvalue('mnemStr5')
+            else:
+                self.mnemStr5 = ''
+            if self.madForm.has_key('lower5'):
+                self.lower5 = float(self.madForm.getvalue('lower5'))
+            else:
+                self.lower5 = ''
+            if self.madForm.has_key('upper5'):
+                self.upper5 = float(self.madForm.getvalue('upper5'))
+            else:
+                self.upper5 = ''
+        print '\t\t\t<tr>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="mnemStr5" value="' + self.mnemStr5 + '" size=30></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="lower5" value="' + str(self.lower5) + '" size=10></td>'
+        print '\t\t\t\t<td><input TYPE=TEXT name="upper5" value="' + str(self.upper5) + '" size=10></td>'
+        print '\t\t\t</tr>'
+
+        
+    def printEndPage(self):
+
+        self.printButtons()
+	# print feedback link
+        print '\t<p><hr><i>Please send any comments or suggestions to the <a href="mailto:openmadrigal-users@openmadrigal.org">' + \
+	      'Open Madrigal Users Mailing List.</a></i>'
+        print '</form></body></html>'       # end body, form, and html 
+
+    def printButtons(self):
+
+        print '<center><p>'
+        print '<input type="reset" value="Clear">'
+        print '<input class=lb type=button value="Continue" onClick=GetEmail(this.form)>'
+        print '</p></center>'
+
+
+    
+          
+
+if __name__ == '__main__':
+
+    # Script madSearch
+    # This script only calls the init function of the class MadrigalSearch
+    # All work is done by the init function
+    MadrigalSearch()
+
+    

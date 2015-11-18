@@ -1,0 +1,422 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: madPcolorScan</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: madPcolorScan</font>
+            </th>
+            <th align="right"><font color="#000000">ui/madrigalPlot.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>madPcolorScan is the class that produces pcolor scans.</h3>
+<p>    Usage example:</p>
+<PRE>
+        obj = madPcolorScan(isprintText,
+                        'Nel (log(m^-3)) - 26 June 2006 13:49:43-14:07:36',
+                        'Longitude',
+                        'Latitude',
+                        './isprint.png',
+                        size = 'large',
+                        minColormap = 9,
+                        maxColormap = 12)    
+
+</PRE>
+
+<p>    Non-standard Python modules used:
+    matplotlib</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Jul. 20, 2006</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__filter_input">__filter_input</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#__round">__round</a><br>
+<a href="#__truncateIsprint">__truncateIsprint</a><br>
+<a href="#displayToScreen">displayToScreen</a><br>
+<a href="#getAverage">getAverage</a><br>
+<a href="#getFigureHandle">getFigureHandle</a><br>
+<a href="#sortArrayInX">sortArrayInX</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__filter_input"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__filter_input&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__filter_input ( self,  x )
+
+</pre></font>
+<p>__filter_input is called in map to convert missing strings to self.__missing, and to
+        round x and y vales to the nearest xGridSize or yGridSize</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        isprintText,
+        xGridSize,
+        yGridSize,
+        titleStr,
+        xLabelStr,
+        yLabelStr,
+        fullFilename,
+        size='small',
+        xMinimum=None,
+        xMaximum=None,
+        yMinimum=None,
+        yMaximum=None,
+        minColormap=None,
+        maxColormap=None,
+        colorMap=matplotlib.cm.jet,
+        maxNumLines=None,
+        )
+
+</pre></font>
+<h3>__init__ writes a madPcolorScan to a file.</h3>
+<p>        Inputs:</p>
+<p>            isprintText - a string giving isprint output without headers. First parameter
+                          must be the X axis value, and the second must be the Y axis value.
+                          The third column is the value (intensity). Any
+                          missing data should be written as &quot;missing&quot; or other string that
+                          cannot be converted to a float.</p>
+
+<p>            xGridSize - grid size for x data (for example 0.1 for 0.1 degree longitude grid)</p>
+
+<p>            yGridSize - grid size for x data (for example 0.1 for 0.1 degree latitude grid)</p>
+
+<p>            titleStr - plot title (string) - should describe parameter being plotted</p>
+
+<p>            xLabelStr - x label string</p>
+
+<p>            yLabelStr - ylabel string</p>
+
+<p>            fullFilename - full path of file containing pcolor plot to be saved.  Extension must
+                           be jpeg or png, or exception thrown.</p>
+
+<p>            size - size of plot to save. Must be &quot;small&quot;, &quot;wide&quot;, or &quot;large&quot;. Defaults to small.</p>
+
+<p>            xMinimum = minumum x value.  If None (default), uses lowest x value found.</p>
+
+<p>            xMaximum = maximum x value.  If None (default), uses highest x value found.</p>
+
+<p>            yMinimum = minumum y value.  If None (default), uses lowest y value found.</p>
+
+<p>            yMaximum = maximum y value.  If None (default), uses highest y value found.</p>
+
+<p>            minColormap - minimum parameter value (defaults to lowest parameter value)</p>
+
+<p>            maxColormap - maximum parameter value (defaults to highest parameter value).  However, if
+                          both minColormap and maxColormap == None, autoscaling applied.</p>
+
+<p>            colorMap - sets colormap.  It not given, defaults to matplotlib.cm.jet</p>
+
+<p>            maxNumLine - max number of lines in isprintText before truncating.  If None, no truncation</p>
+
+
+<p>        Returns: void</p>
+
+<p>        Affects: None</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'No valid z data found'<br>
+ValueError, 'input text is not parseable'<br>
+ValueError, 'size must be "small", "wide", or "large", not %s' %(str( size ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__round"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__round&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__round (
+        self,
+        value,
+        increment,
+        )
+
+</pre></font>
+<p>__round returns a value to the nearest increment</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__truncateIsprint"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__truncateIsprint&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__truncateIsprint (
+        self,
+        isprintText,
+        maxLines,
+        )
+
+</pre></font>
+<p>__truncateIsprint truncates isprintText to have maxLines at most.</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="displayToScreen"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">displayToScreen&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+displayToScreen ( self )
+
+</pre></font>
+<p>to implement this takes a reworking away from pylab to use the underlying matplotlib code</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getAverage"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getAverage&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getAverage ( self,  X )
+
+</pre></font>
+<p>returns the average of items in a float array.  Does not including missing data.
+        If all data missing, returns self.__missing</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getFigureHandle"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getFigureHandle&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getFigureHandle ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="sortArrayInX"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">sortArrayInX&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+sortArrayInX ( self,  array_data )
+
+</pre></font>
+<h3>sortArrayInX sorts a two-dimensional array so that the first element in each row (x) is in ascending order.</h3>
+<p>        Input: array_data - two-dimensional array to be sorted by rearranging rows so
+               that the first element in each row (x) is in ascending order</p>
+
+<p>        Returns: new_array</p>
+
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri Jul 13 09:36:49 2007 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

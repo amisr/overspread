@@ -1,0 +1,525 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalReport</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalReport</font>
+            </th>
+            <th align="right"><font color="#000000">ui/report.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalReport is the class that produces reports on Madrigal data.</h3>
+<p>    Non-standard Python modules used:
+    None</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  May. 23, 2002</p>
+
+<p>    Modified by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Feb. 6, 2003
+    to use the C Maddata module</p>
+
+<p>    Modified by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Apr. 9, 2003
+    to add looker reports</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__addPid">__addPid</a><br>
+<a href="#__dropLock">__dropLock</a><br>
+<a href="#__getLock">__getLock</a><br>
+<a href="#__getNumQueriesRunning">__getNumQueriesRunning</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#genBackgroundReport">genBackgroundReport</a><br>
+<a href="#looker">looker</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__addPid"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__addPid&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__addPid ( self,  pid )
+
+</pre></font>
+<h3>__addPid is a private helper function that adds a new pid to queryPid.txt.</h3>
+<p>        Inputs: the pid to add.</p>
+
+<p>        Returns: None</p>
+
+<p>        Affects: Locks the global file metadata/userdata/queryPid.txt while being used; adds new pid to that file.</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__dropLock"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__dropLock&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__dropLock ( self,  filename )
+
+</pre></font>
+<h3>__dropLock is a private helper function that drops exclusive access to filename via a locking file.</h3>
+<p>        Inputs: filename = the file that exclusive access is required to.</p>
+
+<p>        Returns: None</p>
+
+<p>        Affects: Removes file filename + .LCK as a lock mechanism</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getLock"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getLock&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getLock ( self,  filename )
+
+</pre></font>
+<h3>__getLock is a private helper function that provides exclusive access to filename via a locking file.</h3>
+<p>        Inputs: filename = the file that exclusive access is required to.</p>
+
+<p>        Returns: None</p>
+
+<p>        Affects: Writes file filename + .LCK as a lock mechanism</p>
+
+<p>        Exceptions: MadrigalError thrown if unable to write lock file</p>
+
+<p>        Notes: Will sleep for 1 second at a time, for a maximum of _MaxSleep seconds (presently 10)
+        if the file is not modified. After each second, it will check for the lock file to be removed
+        or modified. If it was modified, it resets the count to 0 sec and starts counting again. After
+        _MaxSleep counts it then assumes lock file is orphaned and returns.  Orphaned file will be
+        removed when dropLock is called.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( "Unable to open " + filename + ".LCK as locking file ", None )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getNumQueriesRunning"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getNumQueriesRunning&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getNumQueriesRunning ( self )
+
+</pre></font>
+<h3>__getNumQueriesRunning is a private helper function that returns the number of global queries running.</h3>
+<p>        Inputs: None.</p>
+
+<p>        Returns: the number of global queries running</p>
+
+<p>        Affects: Locks the global file metadata/userdata/queryPid.txt while being used; removes any dead process
+        ids from that file.</p>
+
+<p>        Exceptions: None</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError( 'Unable to read from file ' + str( queryFileName ), None )<br>
+madrigal.admin.MadrigalError( 'Unable to write to file ' + str( queryFileName ), None )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ ( self,  madDB=None )
+
+</pre></font>
+<h3>__init__ initializes MadrigalWeb by reading from MadridalDB..</h3>
+<p>        Inputs: Existing MadrigalDB object, by default = None.</p>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes self.__metaDir.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="genBackgroundReport"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">genBackgroundReport&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+genBackgroundReport (
+        self,
+        email,
+        filenameList,
+        parmList,
+        filterList,
+        headerStr='',
+        summaryLevelIndicator=0,
+        )
+
+</pre></font>
+<h3>genBackgroundReport starts a separate process that emails a report.</h3>
+<p>        Inputs:</p>
+<p>            email - the email address to send the complete report to</p>
+
+<p>            filenameList - a list of full file paths to collect data from. (May be generated
+            by MadrigalDB.getFileList).  The order of the filenames will be the order they
+            are listed in the report.</p>
+
+<p>            parmList - list of Mnemonics (may be in the form of integer strings) to be displayed.</p>
+
+<p>            filterList - list of filters to select data.  Each filter is a string of the form
+            &quot;mnem1 [,[+, -, /, *],mnem2],[lower limit 1],[upper limit 1][other limits]</p>
+
+<p>            Examples:</p>
+<PRE>
+                &amp;quot;gdalt,-,sdwht,0,10000&amp;quot;
+
+                &amp;quot;azm,170,180,-180,-170&amp;quot;
+
+</PRE>
+
+<p>            headerStr - a String to insert at the beginning of the report.  (For example,
+            can include iformation on the parameters used to select the data.) Defaults to ''</p>
+
+<p>            summaryLevelIndicator:
+                0 - data level (the default), include data, and file info.
+                1 - same as 0 (data level), but with no file names and parameter labels between data.
+                2 - record level, include only record headers and file info.
+                3 - cycle level (not yet implemented, for now acts just like experiment level)
+                4 - experiment level, include only file info.</p>
+
+
+<p>        Returns: Process id (integer) of background process created.  If too many processes are already
+        running, returns -1 and does not generate a report.</p>
+
+<p>        Affects: Generates a separate process to email a report.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="looker"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">looker&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+looker (
+        self,
+        parmList,
+        start_lat,
+        stop_lat,
+        step_lat,
+        start_lon,
+        stop_lon,
+        step_lon,
+        start_alt,
+        stop_alt,
+        step_alt,
+        year,
+        month,
+        day,
+        hour,
+        min,
+        sec,
+        printHeaderFlag=1,
+        oneDParmList=[],
+        oneDParmValues=[],
+        )
+
+</pre></font>
+<h3>looker prints a Madrecord for a range of lat, lon, and alt.</h3>
+<p>        Inputs:</p>
+<p>            parmList - a list of requested parameter mnemonics.
+            Do not include gdlat, glon, or gdalt - included by default</p>
+
+<p>            start_lat - start latitude in degrees</p>
+
+<p>            stop_lat - end latitude in degrees</p>
+
+<p>            step_lat - number of degrees in lat to step</p>
+
+<p>            start_lon - start longitude in degrees</p>
+
+<p>            stop_lon - end longitude in degrees</p>
+
+<p>            step_lon - number of longitude in lat to step</p>
+
+<p>            start_alt - start altitude in km</p>
+
+<p>            stop_alt - stop altitude in km</p>
+
+<p>            step_alt - number of km in alt to step</p>
+
+<p>            year</p>
+
+<p>            month</p>
+
+<p>            day</p>
+
+<p>            hour</p>
+
+<p>            min</p>
+
+<p>            sec</p>
+
+<p>            printHeaderFlag - if 0, don't print header.  Default will print header.</p>
+
+<p>            oneDParmList - a python list of one-D parameters as mnemonics.  Defaults to [].</p>
+
+<p>            oneDParmValues - a python list of doubles representing values of the one-D
+                             parameters set in oneDParmList.  Length must = len(oneDParmList).
+                             Defaults to [].</p>
+
+
+<p>        Returns: None.</p>
+
+<p>        Affects: Prints a single Madrecord with lat, lon and alt as 2D parameters, along with all
+        requested parameters. If stop_lon &lt; start_lon, goes through 0 long.</p>
+
+<p>        Exceptions: If problems with arguments</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal float %s in oneDParmValues' %(str(oneDParmValues [ i ] ) )<br>
+ValueError, 'Illegal parm %s in oneDParmList' %(str(oneDParmList [ i ] ) )<br>
+ValueError, 'Len of oneDParmList=%i, must equal len of oneDParmValues=%i' %(len( oneDParmList ), ( oneDParmValues ) )<br>
+
+</td></tr>
+</table>
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Tue Mar 17 10:13:25 2009 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

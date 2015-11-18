@@ -1,0 +1,329 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: getExperimentsService</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: getExperimentsService</font>
+            </th>
+            <th align="right"><font color="#000000">getExperimentsService.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>getExperimentsService is the class that allows remote access to the <a href="../scripts/getExperiments.py.html">getExperiments.py</a> script.</h3>
+<p>    Like all my python cgi scripts, getExperimentsService has the following structure:  the entire cgi is
+    contained in one class, with a main function at the end which serves simply to call the __init__
+    function of the class.  This __init__ function is responsible for calling all other class methods.
+    It is made up of a single try block, with the purpose of reporting all exceptions in well-formatted
+    text to both the user and the administrator. The __init__ function first makes sure the pythonlib
+    can be found.  It then calls setScriptState to validate the the cgi arguments, which are simply the
+    arguments for the isprint command.</p>
+
+<p>    If any uncaught exception is thrown, its caught by the __init__ try block.  If its an MadrigalError,
+    additional information is available.  The catch blocks attempt to display the error message on the screen
+    by backing out of of large number of possible tags, which might prevent its display (in any case, the error
+    message will always be available in the page source.  The formatted error message is also sent to the email
+    address given in the siteTab.txt metadata file.</p>
+
+<p>    This script is not meant to be used directly by a user, and thus is named Service.  It is meant to be used by
+    scripting languages such as Matlab that want to call getExperiments via the web</p>
+
+<p>    Input cgi arguments:</p>
+<ol><li><p>code - int representing instrument code.  Special value of 0 selects all instruments. More than one allowed.</p>
+
+</li>
+<li><p>startyear - int</p>
+
+</li>
+<li><p>startmonth - int</p>
+
+</li>
+<li><p>startday - int</p>
+
+</li>
+<li><p>starthour - int</p>
+
+</li>
+<li><p>startmin - int</p>
+
+</li>
+<li><p>startsec - int</p>
+
+</li>
+<li><p>endyear - int</p>
+
+</li>
+<li><p>endmonth - int</p>
+
+</li>
+<li><p>endday - int</p>
+
+</li>
+<li><p>endhour - int</p>
+
+</li>
+<li><p>endmin - int</p>
+
+</li>
+<li><p>endsec - int</p>
+
+</li>
+<li><p>local - 1 if local experiments only, 0 if all experiments</p>
+
+</li></ol>
+
+<p>    Returns comma-delimited data, one line for each experiment, with the following fields:</p>
+<ol><li><p>experiment.id (int) Example: 10000111</p>
+
+</li>
+<li><p>experiment.url (string) Example: <code>http://www.haystack.mit.edu/cgi-bin/madtoc/1997/mlh/03dec97</code></p>
+
+</li>
+<li><p>experiment.name (string) Example: <code>Wide Latitude Substorm Study</code></p>
+
+</li>
+<li><p>experiment.siteid (int) Example: 1</p>
+
+</li>
+<li><p>experiment.sitename (string) Example: <code>Millstone Hill Observatory</code></p>
+
+</li>
+<li><p>experiment.instcode (int) Code of instrument. Example: 30</p>
+
+</li>
+<li><p>experiment.instname (string) Instrument name. Example: <code>Millstone Hill Incoherent Scatter Radar</code></p>
+
+</li>
+<li><p>experiment.start year (int) year of experiment start</p>
+
+</li>
+<li><p>experiment.start month (int) month of experiment start</p>
+
+</li>
+<li><p>experiment.start day (int) day of experiment start</p>
+
+</li>
+<li><p>experiment.start hour (int) hour of experiment start</p>
+
+</li>
+<li><p>experiment.start minute (int) min of experiment start</p>
+
+</li>
+<li><p>experiment.start second (int) sec of experiment start</p>
+
+</li>
+<li><p>experiment.end year (int) year of experiment end</p>
+
+</li>
+<li><p>experiment.end month (int) month of experiment end</p>
+
+</li>
+<li><p>experiment.end day (int) day of experiment end</p>
+
+</li>
+<li><p>experiment.end hour (int) hour of experiment end</p>
+
+</li>
+<li><p>experiment.end minute (int) min of experiment end</p>
+
+</li>
+<li><p>experiment.end second (int) sec of experiment end</p>
+
+</li>
+<li><p>experiment.isLocal (int) 1 if local, 0 if not</p>
+
+</li></ol>
+
+<p>    Call script <a href="../scripts/getExperiments.py.html">getExperiments.py</a>.</p>
+
+<p>    If error, returns error description</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Dec. 11, 2003</p>
+
+<p>    $Id: getExperimentsService_getExperimentsService.py.html,v 1.7 2006/01/19 20:03:59 brideout Exp $</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__init__">__init__</a><br>
+<a href="#createObjects">createObjects</a><br>
+<a href="#getExperiments">getExperiments</a><br>
+<a href="#setScriptState">setScriptState</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ ( self )
+
+</pre></font>
+<h3>__init__ run the entire getExperimentsService script.  All other functions are private and called by __init__.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Ouputs getInstrument data as a service.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="createObjects"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">createObjects&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+createObjects ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getExperiments"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getExperiments&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getExperiments ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setScriptState"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setScriptState&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setScriptState ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Thu Jan 19 13:26:16 2006 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

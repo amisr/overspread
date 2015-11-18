@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Plot data from instruments</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" -->
+
+
+
+
+
+
+
+<!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_next_top" type="text" value="ug_commandLine.html" --><!-- InstanceParam name="href_back_top" type="text" value="wt_global.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="wt_global.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="ug_commandLine.html" --><!-- InstanceParam name="href_prev_top" type="text" value="wt_global.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="ug_commandLine.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="wt_global.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="ug_commandLine.html" -->
+</head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_global.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_accessData.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="ug_commandLine.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Plot data from instruments<!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_global.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Global Madrigal database report <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_accessData.html"><!-- InstanceBeginEditable name="UpTitle" -->Access data through the web <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="ug_commandLine.html"><!-- InstanceBeginEditable name="NextTitle" -->Command line applications <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Plot data from instruments</h1>
+<p> <em>Plot data from instruments</em> allows you to plot data from one or more instruments and/or Madrigal experiments versus time on a single web page.&nbsp; All plots by default will have the same time axis, making it easy to compare data from separate instruments.&nbsp; Plots may be either scatter plots or two-dimensional pcolor plots, where the y axis is altitude.&nbsp; The data can come from more than one Madrigal database, but the source of each plot will be labeled. </p>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="360" valign="top"><h5>Select instrument(s)</h5>
+    <p>This menu allows you to select the instrument you want to plot data from. If you select more than one instrument, you will generate more than one stacked plot, all with the same axes.</p>
+    <h5>Select time period</h5>
+    <p>The part allows you to select what time period you want to plot. If you don't know when data is available for the instruments you suggested, select the <em>Show ALL times data available for these instruments</em> button to see a list. If no data is found for the time period you select, you will automatically be shown the page listing data availability.   </p></td>
+    <td width="506" valign="top"><p><img src="icons/plotData.jpeg" alt="Select instruments to plot page" width="504" height="354" /></p></td>
+  </tr>
+  <tr>
+    <td height="3"></td>
+    <td></td>
+  </tr>
+</table>
+<p>Finally, you choose whether you want a scatter plot or a pcolor plot. In the pcolor plot, the y axis will be altitude, the x axis time, and the value of the parameter you'll select on the next page will be shown on a color scale. When you hit <em>Choose parameter to plot</em>, you'll go to the next page. </p>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="362" valign="top"><p>&nbsp;</p>
+      <p>On this page, you choose a <em><strong>single</strong></em> parameter to plot. Both the scatter plots and the pcolor plots only plot one parameter at a time. If you select a second parameter, you simply deselect the first one. You do not need to select the x and y axes.</p>
+    <p>As before, you can see the definition of any parameter by clicking on it . </p></td>
+    <td width="506" valign="top"><p><img src="icons/plotParm_1.jpeg" alt="Select parameters to plot page" width="503" height="356" /></p></td>
+  </tr>
+  <tr>
+    <td height="3"></td>
+    <td></td>
+  </tr>
+</table>
+<p>At the bottom of the page, you can optionally filter the data and set up plot limits. If defaults are okay, just hit the button at the bottom to plot the data. </p>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="237" valign="top"><p>In the first line, you can set the limits for the parameter you selected. For example, if you selected electron temperature (TE), you might set <em>Lower</em>=500 and <em>Upper</em>=3000. Leaving either end of the range blank means there is no limit at that end.</p>
+      <p>If you are creating a pcolor plot, you can also set an altitude filter. If you are creating a scatter plot, this filter will not be there. </p></td>
+    <td width="506" valign="top"><p><img src="icons/plotParm_2.jpeg" alt="Select filters for plotting" width="503" height="230" /></p></td>
+  </tr>
+  <tr>
+    <td height="3"></td>
+    <td></td>
+  </tr>
+</table>
+<p>You can also filter the data using any other parameter. For example, say you are plotting electron temperature, but only want to see data where the signal-to-noise ratio (SN) is greater than 1. You then set Parm=SN, Lower=1, and Upper=blank in one of the three optional filter lines. </p>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_global.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_accessData.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="ug_commandLine.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Plot data from instruments<!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_global.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Global Madrigal database report <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_accessData.html"><!-- InstanceBeginEditable name="UpTitle2" -->Access data through the web <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="ug_commandLine.html"><!-- InstanceBeginEditable name="NextTitle2" -->Command line applications <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

@@ -1,0 +1,75 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec /Users/mnicolls/Documents/Work/Madrigal/bin/madtclsh "$0" ${1+"$@"}
+
+# $Id: ffw_deprecated,v 1.1 2003/10/21 18:21:28 brideout Exp $
+
+# Usage: ffw -file filename -p parameter ... -f parameter minval maxval ...
+#
+#   e.g.: ffw -file mil991102g.001 -p uth -p range -p ti -p tr -f uth 13.4 13.45 -f range 200 400
+#
+#
+#  yields:
+#
+#   13.412     287.66      984.0     1.4900  
+#   13.412     383.59     1135.0     1.7940  
+#   13.431     230.70      922.0     1.4290  
+#   13.431     278.66     1023.0     1.5240  
+#   13.431     326.63     1053.0     1.8370  
+#   13.431     374.60     1078.0     2.0930  
+#
+# and: ffw -file mil980120g.002 -p range -p gdlat -p glon -p gdalt -p ti -p tr -p uth -f uth 15.03 15.07 -f gdalt 300 400
+#
+#  yields:
+#
+#   503.35      46.09     -71.50     311.73      835.0     1.9400     15.051  
+#   551.32      46.40     -71.50     342.68      629.0     2.6810     15.051  
+#   599.28      46.72     -71.50     373.82     2349.0     0.6520     15.051  
+#   875.10      49.81     -71.51     312.20      922.0     2.1520     15.036  
+#   971.03      50.55     -71.51     352.48     1129.0     1.9670     15.036  
+#  1066.96      51.28     -71.51     393.50     1108.0     2.1590     15.036  
+#  1066.96      51.52     -71.51     329.25      598.0     3.3650     15.057  
+#  1162.90      52.28     -71.52     366.37     1285.0     1.0000     15.057 
+
+source /Users/mnicolls/Documents/Work/Madrigal/bin/ffw_getargs.tcl
+source /Users/mnicolls/Documents/Work/Madrigal/bin/ffw_print.tcl
+
+global mad
+global infile outfile printParmsIn filterParmsIn filterMinsIn filterMaxsIn
+global cedarCode
+
+set debug 0
+set outfile stdout
+    
+# Get arguments
+set stat [ffw_getargs $argc $argv]
+if {$debug == 1} {    
+    puts "stat = $stat"
+    puts "infile = $infile"
+    puts "outfile = $outfile"
+    puts "printParmsIn = $printParmsIn"
+    puts "filterParmsIn = $filterParmsIn"
+    puts "filterMinsIn = $filterMinsIn"
+    puts "filterMaxsIn = $filterMaxsIn"
+}
+    
+# Create madrec object for the input file.
+mad mad
+catch [$mad open 1 $infile]
+if {[$mad get fileType] == -1} {
+    puts "Error: $infile is not a valid Cedar file type"
+    exit
+}
+    
+# Get parameter codes
+cedarCode cedarCode
+    
+# Print specified data
+ffw_print
+
+# Close file and delete madrec object
+$mad close
+$mad destroy
+
+exit

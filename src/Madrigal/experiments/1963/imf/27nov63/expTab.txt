@@ -1,0 +1,1 @@
+330000000,http://www.invalid.edu/cgi-bin/madrigal/madtoc/1963/imf/27nov63,Interplanetary Mag Field and Solar Wind,33,19631127,000000,20100912,235959,120,0

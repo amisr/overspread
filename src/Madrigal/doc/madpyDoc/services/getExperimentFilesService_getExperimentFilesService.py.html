@@ -1,0 +1,250 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: getExperimentFilesService</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: getExperimentFilesService</font>
+            </th>
+            <th align="right"><font color="#000000">getExperimentFilesService.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>getExperimentFilesService is the class that allows remote access to the <a href="../scripts/getExperimentFiles.py.html">getExperimentFiles.py</a> script.</h3>
+<p>    Like all my python cgi scripts, getExperimentFilesService has the following structure:  the entire cgi is
+    contained in one class, with a main function at the end which serves simply to call the __init__
+    function of the class.  This __init__ function is responsible for calling all other class methods.
+    It is made up of a single try block, with the purpose of reporting all exceptions in well-formatted
+    text to both the user and the administrator. The __init__ function first makes sure the pythonlib
+    can be found.  It then calls setScriptState to validate the the cgi arguments, which are simply the
+    arguments for the isprint command.</p>
+
+<p>    If any uncaught exception is thrown, its caught by the __init__ try block.  If its an MadrigalError,
+    additional information is available.  The catch blocks attempt to display the error message on the screen
+    by backing out of of large number of possible tags, which might prevent its display (in any case, the error
+    message will always be available in the page source.  The formatted error message is also sent to the email
+    address given in the siteTab.txt metadata file.</p>
+
+<p>    This script calls madrigal.ui.web.ui.isTrusted() to determine if user is trusted and should see private files.</p>
+
+<p>    This script is not meant to be used directly by a user, and thus is named Service.  It is meant to be used by
+    scripting languages such as Matlab that want to call getExperimentFiles via the web</p>
+
+<p>    Input cgi arguments:</p>
+<ol><li><p>id (int) - experiment id</p>
+
+</li></ol>
+
+<p>    Returns comma-delimited data, one line for each experiment file, with the following fields:</p>
+<ol><li><p>file.name (string) Example <code>/opt/mdarigal/blah/mlh980120g.001</code></p>
+
+</li>
+<li><p>file.kindat (int) Kindat code.  Example: 3001</p>
+
+</li>
+<li><p>file.kindat desc (string) Kindat description: Example <code>Basic Derived Parameters</code></p>
+
+</li>
+<li><p>file.category (int) (1=default, 2=variant, 3=history, 4=real-time)</p>
+
+</li>
+<li><p>file.status (string)(<code>preliminary</code>, <code>final</code>, or any other description)</p>
+
+</li>
+<li><p>file.permission (int)  0 for public, 1 for private.  For now will not return private files.</p>
+
+</li></ol>
+
+<p>    Calls script <a href="../scripts/getExperimentFiles.py.html">getExperimentFiles.py</a>.</p>
+
+<p>    If error, returns error description.</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Dec. 16, 2003</p>
+
+<p>    $Id: getExperimentFilesService_getExperimentFilesService.py.html,v 1.7 2006/01/19 20:03:58 brideout Exp $</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__init__">__init__</a><br>
+<a href="#createObjects">createObjects</a><br>
+<a href="#getExperimentFiles">getExperimentFiles</a><br>
+<a href="#setScriptState">setScriptState</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ ( self )
+
+</pre></font>
+<h3>__init__ run the entire getExperimentFilesService script.  All other functions are private and called by __init__.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Ouputs getInstrument data as a service.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="createObjects"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">createObjects&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+createObjects ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getExperimentFiles"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getExperimentFiles&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getExperimentFiles ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setScriptState"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setScriptState&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setScriptState ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Thu Jan 19 13:26:16 2006 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

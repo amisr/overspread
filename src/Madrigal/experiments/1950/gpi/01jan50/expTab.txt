@@ -1,0 +1,1 @@
+330000001,http://www.invalid.edu/cgi-bin/madrigal/madtoc/1950/gpi/01jan50,Kp; Ap; 10.7 cm flux; sunspot number etc,33,19500101,000000,20100831,235959,210,0

@@ -1,0 +1,112 @@
+C
+      SUBROUTINE GEOGCMIFACE(ICOR,IYEAR,HI,DAT1,DAT2,DAT3,DAT4,PLA,PLO)
+C
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION DAT(11,4),DAT1(11),DAT2(11),DAT3(11),DAT4(11),PLA(4),PLO(4)
+C     ..
+C     .. Local Scalars ..
+      DOUBLE PRECISION HI
+	  INTEGER IYEAR,ICOR
+	  
+	  DAT(1,1)=DAT1(1)
+	  DAT(2,1)=DAT1(2)
+	  DAT(3,1)=DAT1(3)
+	  DAT(4,1)=DAT1(4)
+	  DAT(5,1)=DAT1(5)
+	  DAT(6,1)=DAT1(6)
+	  DAT(7,1)=DAT1(7)
+	  DAT(8,1)=DAT1(8)
+	  DAT(9,1)=DAT1(9)
+	  DAT(10,1)=DAT1(10)
+	  DAT(11,1)=DAT1(11)
+
+	  DAT(1,2)=DAT2(1)
+	  DAT(2,2)=DAT2(2)
+	  DAT(3,2)=DAT2(3)
+	  DAT(4,2)=DAT2(4)
+	  DAT(5,2)=DAT2(5)
+	  DAT(6,2)=DAT2(6)
+	  DAT(7,2)=DAT2(7)
+	  DAT(8,2)=DAT2(8)
+	  DAT(9,2)=DAT2(9)
+	  DAT(10,2)=DAT2(10)
+	  DAT(11,2)=DAT2(11)
+	  
+	  DAT(1,3)=DAT3(1)
+	  DAT(2,3)=DAT3(2)
+	  DAT(3,3)=DAT3(3)
+	  DAT(4,3)=DAT3(4)
+	  DAT(5,3)=DAT3(5)
+	  DAT(6,3)=DAT3(6)
+	  DAT(7,3)=DAT3(7)
+	  DAT(8,3)=DAT3(8)
+	  DAT(9,3)=DAT3(9)
+	  DAT(10,3)=DAT3(10)
+	  DAT(11,3)=DAT3(11)	  
+
+	  DAT(1,4)=DAT4(1)
+	  DAT(2,4)=DAT4(2)
+	  DAT(3,4)=DAT4(3)
+	  DAT(4,4)=DAT4(4)
+	  DAT(5,4)=DAT4(5)
+	  DAT(6,4)=DAT4(6)
+	  DAT(7,4)=DAT4(7)
+	  DAT(8,4)=DAT4(8)
+	  DAT(9,4)=DAT4(9)
+	  DAT(10,4)=DAT4(10)
+	  DAT(11,4)=DAT4(11)	
+
+      CALL GEOCGM01(ICOR,IYEAR,HI,DAT,PLA,PLO)
+
+	  DAT1(1)=DAT(1,1)
+	  DAT1(2)=DAT(2,1)
+	  DAT1(3)=DAT(3,1)
+	  DAT1(4)=DAT(4,1)
+	  DAT1(5)=DAT(5,1)
+	  DAT1(6)=DAT(6,1)
+	  DAT1(7)=DAT(7,1)
+	  DAT1(8)=DAT(8,1)
+	  DAT1(9)=DAT(9,1)
+	  DAT1(10)=DAT(10,1)
+	  DAT1(11)=DAT(11,1)
+
+	  DAT2(1)=DAT(1,2)
+	  DAT2(2)=DAT(2,2)
+	  DAT2(3)=DAT(3,2)
+	  DAT2(4)=DAT(4,2)
+	  DAT2(5)=DAT(5,2)
+	  DAT2(6)=DAT(6,2)
+	  DAT2(7)=DAT(7,2)
+	  DAT2(8)=DAT(8,2)
+	  DAT2(9)=DAT(9,2)
+	  DAT2(10)=DAT(10,2)
+	  DAT2(11)=DAT(11,2)
+	  
+	  DAT3(1)=DAT(1,3)
+	  DAT3(2)=DAT(2,3)
+	  DAT3(3)=DAT(3,3)
+	  DAT3(4)=DAT(4,3)
+	  DAT3(5)=DAT(5,3)
+	  DAT3(6)=DAT(6,3)
+	  DAT3(7)=DAT(7,3)
+	  DAT3(8)=DAT(8,3)
+	  DAT3(9)=DAT(9,3)
+	  DAT3(10)=DAT(10,3)
+	  DAT3(11)=DAT(11,3)	  
+
+	  DAT4(1)=DAT(1,4)
+	  DAT4(2)=DAT(2,4)
+	  DAT4(3)=DAT(3,4)
+	  DAT4(4)=DAT(4,4)
+	  DAT4(5)=DAT(5,4)
+	  DAT4(6)=DAT(6,4)
+	  DAT4(7)=DAT(7,4)
+	  DAT4(8)=DAT(8,4)
+	  DAT4(9)=DAT(9,4)
+	  DAT4(10)=DAT(10,4)
+	  DAT4(11)=DAT(11,4)
+      
+      RETURN
+C
+      END

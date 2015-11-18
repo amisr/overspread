@@ -1,0 +1,3100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Madrigal Fortran API</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" --><!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="dev_contents.html" --><!-- InstanceParam name="href_next_top" type="text" value="dev_tcl.html" --><!-- InstanceParam name="href_back_top" type="text" value="dev_c.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="dev_c.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="dev_contents.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="dev_tcl.html" --><!-- InstanceParam name="href_prev_top" type="text" value="dev_c.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="dev_contents.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="dev_tcl.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="dev_c.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="dev_contents.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="dev_tcl.html" -->
+</head>
+
+<body>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="dev_c.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="dev_contents.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="dev_tcl.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Madrigal Fortran API <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="dev_c.html"><!-- InstanceBeginEditable name="PreviousTitle" -->C API <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="dev_contents.html"><!-- InstanceBeginEditable name="UpTitle" -->Madrigal developer's guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="dev_tcl.html"><!-- InstanceBeginEditable name="NextTitle" -->Tcl API <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Madrigal Fortran API</h1>
+<ul>
+  <li><a href="#maddata_bookmark">Maddata module</a></li>
+  <li><a href="#madrec_bookmark">Madrec module</a></li>
+  <li><a href="#maddata_example">Maddata example</a></li>
+  <li><a href="#madrec_example">Madrec example</a></li>
+  <li><a href="#geolib_bookmark">Geometry and time fortran methods (geolib)</a></li>
+</ul>
+<p>Madrigal contains a comprehensive set of Fortran-language
+  procedures for working with Madrigal Database files.
+  This part of the Fortran API  is simply a very
+  thin wrapper around the C API.  Like the C API, this Fortran API is split into
+  two modules, a high level module <a href=#maddata_bookmark>Maddata</a>, which hides the 
+  difference between derived and measured data from the user, and a low-level module
+  <a href=#madrec_bookmark>Madrec</a>, which allows users to work directly with Cedar files. Examples of using the <a href="#maddata_example">Maddata</a> and <a href="#madrec_example">Madrec</a> modules are also given.
+<p>The Fortran API also includes the <a href="#geolib_bookmark">geolib library</a>, which includes methods dealing with geometry
+and time, which is written completely in Fortran.
+<p> The following are suggested lines to add to your Makefile when using the Madrigal Fortran API:
+<pre>
+
+# Library directory
+LIBDIR = $(MADROOT)/lib
+
+LDLIBS = -L$(LIBDIR) -lmadrec -lgeo -lm -lnsl
+
+    if solaris:
+
+LDFLAGS = -R$(LIBDIR)
+
+    if gnu:
+
+LDFLAGS = -Xlinker -R$(LIBDIR)
+
+
+</pre>
+<h2><a name="maddata_bookmark" id="maddata_bookmark"></a>Maddata module</h2>
+<pre>
+
+/************************************************************************************************
+      
+      Fortran callable C routines for Fortran access to the C-language
+      Madrigal API - Maddata module.
+      
+      These comments show how to call these methods from Fortran.
+ 
+      To build, use -L$MADROOT/lib -lmadrec -lgeo
+       See example program source/madc/testF77/tmaddataF77.f
+      ________________________________________________________________________
+      
+      SUBROUTINE CRMADD(FILEC,
+     *                  PARMS,
+     *                  FLTSTR,
+     *                  RFMADD,
+     *                  NUMREC,
+     *                  STATUS)
+      CHARACTER FILEC*(*)
+      CHARACTER PARMS*(*)
+      CHARACTER FLTSTR*(*) 
+      INTEGER RFMADD, NUMREC, STATUS
+      (for 64 bit machines, use INTEGER*8 RFMADD)
+C
+      CRMADD  Creates Maddata given a file, a list of desired parameters,
+      and filters.   
+      CRMADD is meant to stand for "CReate MADData"
+C            
+      Input parameters: 
+      FILEC - file name 
+      PARMS - comma delimited list of desired parameters
+              (not case-sensitive)  Example PARMS: "gdalt,Azm,F10.7,PH+,Fof2"
+      FLTSTR - The filter string is the same string that is used in the new isprint
+       command line.  Filters are separated by spaces.  The allowed filters
+       are:  
+C
+          date1=mm/dd/yyyy  (starting date to be examined. If time1 not given, defaults to 0 UT.)
+             Example: date1=01/20/1998 
+C
+          time1=hh:mm:ss (starting UT time to be examined. If date1 given, is applied to date1.
+                          If not, applies on the first day of the experiment.)
+             Example: time1=13:30:00
+C
+          date2=mm/dd/yyyy (ending date to be examined.  If time2 not given, defaults to 0 UT.)
+             Example: date2=01/21/1998
+C
+          time2=hh:mm:ss (ending UT time to be examined - If date2 not given, ignored.)
+             Example: time2=15:45:00
+C
+          In the follow arguments ranges are used.  If any range value is not given, it may be used to 
+          indicate no lower or upper limit (but the comma is always required). Ranges are inclusive
+          of the end points:
+C
+          z=lower alt limit1, upper alt limit1 [or lower alt limit2 , upper alt limit2 ...] (km)
+             Example 1: z=100,500  (This would limit the geodetic altitude to 100 to 500 km.)
+             Example 2: z=100,200or300,400  (This would limit the geodetic altitude to 100 to 200 km
+                                             or 300 to 400 km.)
+             Example 3: z=,200or300,400   (Since the lower limit of the first range is missing, this 
+                                           would limit the geodetic altitude to anything below 200 km 
+                                           or from 300 to 400 km.)
+C
+          az=lower az limit1, upper az limit1 [or lower az limit2 , upper az limit2 ...] (from -180 to 180 degrees)
+             Example 1: az=100,120  (This would limit the azimuth to 100 to 120 degrees.)
+             Example 2: az=-180,-90or90,180  (This would limit the azimuth to between -180 and -90 degrees or
+                                             to between 90 and 180 degrees.  Note this allows a filter to go
+                                             through 180 degrees.)
+C
+          el=lower el limit1, upper el limit1 [or lower el limit2 , upper el limit2 ...] (from 0 to 90) 
+             Example 1: el=0,45  (This would limit the elevation from 0 to 45 degrees.) 
+  
+          plen=lower pl limit1, upper pl limit1 [or lower pl limit2 , upper pl limit2 ...] (pulse len in sec)
+             Example 1: el=,5e-4  (This would limit the pulse length to 5e-4 seconds or less.)
+C
+C
+          Free form filters using any mnemonic, or two mnemonics added, subtracted, multiplied, or divided.
+          Any number of filters may be added: 
+C
+          filter=[mnemonic] or [mnemonic1,[+*-/]mnemonic2] , lower limit1 , upper limit1 [or lower limit2 , upper limit2 ...] 
+             Example 1: filter=ti,500,1000or2000,3000   (Limits the data to points where Ti is between 500 and 1000 degrees
+                                                       or between 2000 and 3000 degrees.  Note that the units are always
+                                                       those of the Cedar standard.)
+             Example 2: filter=gdalt,-,sdwht,0,    (This filter implies "gdalt - sdwht" must be greater than 0.0.  Since
+                                                    sdwht is shadow height - the distance above any point on the earth 
+                                                    where the sun is first visible - this filter implies that only data 
+                                                    in direct sunlight will be displayed.)
+             Example 3: filter=ti,/,Dti,100,   (Limits the data to points where the ratio Ti/dTi is more than 100.)
+C
+          So an full FLTSTR argument might be:
+C 
+             "date1=01/20/1998 time1=13:30:00 z=,200or300,400 filter=gdalt,-,sdwht,0, filter=ti,/,Dti,100," 
+C   
+      Output parameters:  
+      RFMADD - a long integer reference to the Maddata created, 
+      used by all other methods.  Will return 0 if error  
+      occurs.  (for 64 bit machines, use INTEGER*8 RFMADD) 
+      NUMREC - number of records in Maddata
+      STATUS - 0 if success, -1 if failure  
+
+      ***************************************************************
+      
+      SUBROUTINE CRNFMD(PARMS,
+     *                  UT,
+     *                  KINST,
+     *                  ONED,
+     *                  TWOD,
+     *                  RFMADD,
+     *                  NROW)
+      CHARACTER PARMS*(*)
+      DOUBLE PRECISION UT
+      CHARACTER ONED*(*) 
+      CHARACTER TWOD*(*)
+      INTEGER KINST, RFMADD, NROW
+C     (for 64 bit machines, use INTEGER*8 RFMADD)
+C
+      CRNFMD  Creates a Maddata record given some input data (no file needed) for a set time.   
+      CRNFMD is meant to stand for "CReate NonFile MadData"
+C            
+      Input parameters: 
+C
+      PARMS - comma delimited list of desired parameters
+              (not case-sensitive)  Example PARMS: "gdalt,Azm,F10.7,PH+,Fof2"
+C
+      UT - seconds since 1/1/1950 to calculate data at
+C
+      KINST - instrument id.  If not important, use 0    
+C
+      ONED - A string that sets one dimension data (That is, one value per parameter).  For example, 
+             "gdalt=100.0 glon=45.0 gdlat=-20.0"   
+C
+      TWOD - A string that sets two dimension data (That is, NROW values per parameter, where every
+             parameter must have the same number of values, if more than one).  For example, the
+             follow TWOD string would produce 8 rows with every combination of gdlat = 45 or 50,
+             glon = 20 or 30, and gdalt = 500 or 600:
+C
+             "gdlat=45,45,45,45,50,50,50,50 glon=20,20,30,30,20,20,30,30 gdalt=500,600,500,600,500,600,500,600"
+C
+      Output parameters:
+C   
+      RFMADD - a long integer reference to the Maddata created, 
+      used by all other methods.  Will return 0 if error  
+      occurs.  (for 64 bit machines, use INTEGER*8 RFMADD)
+C
+      NROW - number of rows in Record returned.  If TWOD string used, should be equal to the number of data points
+             for each parameter.  If no TWOD data, should be 1.  If error, will be 0.
+C
+      ***************************************************************
+ 
+ 
+      SUBROUTINE GTNROW(RFMADD, RECNUM, NROW)
+      INTEGER RFMADD
+      INTEGER RECNUM, NROW
+      (for 64 bit machines, use INTEGER*8 RFMADD)
+C 
+      GTNROW  Gets the number of rows of data in record RECNUM.   
+      GTNROW is meant to stand for "GeT Number of ROWs"
+C              
+      Input parameters: 
+      RFMADD - reference to data created by CRMADD 
+      RECNUM - record number of interest (starts at 1)
+C 
+      Output parameter:
+      NROW - number of rows of data.  If only 1D data requested, will
+      always be 1.
+
+ 
+      ***************************************************************
+ 
+      SUBROUTINE GTMADD(RFMADD, RECNUM, NROW, DATROW, STATUS)
+      INTEGER RFMADD
+      (for 64 bit machines, use INTEGER*8 RFMADD)
+      INTEGER RECNUM
+      INTEGER NROW, STATUS
+      DOUBLE PRECISION DATROW(*)
+C 
+      GTMADD  Gets one row of data via the DATROW array.   
+      GTMADD is meant to stand for "GeT MADData"
+C 
+      Input parameters: 
+      RFMADD - reference to data created by CRMADD 
+      RECNUM - record number of interest (starts at 1)
+      NROW - row number of interest (starts at 1)
+C 
+      Output parameters:
+      DATROW - Array of doubles to be filled with data.  Order of
+      data is the same as the order of parameters in parms string
+      passed into CRMADD.  User must be sure array size is equal to
+      (or larger than) number of parameters requested.
+C
+      STATUS - 0 if success, -1 if failure
+
+ 
+      ***************************************************************
+ 
+ 
+      SUBROUTINE FRMADD(RFMADD)
+      INTEGER RFMADD
+      (for 64 bit machines, use INTEGER*8 RFMADD)
+C 
+      FRMADD  Frees the memory allocated by CRMADD.   
+      FRMADD is meant to stand for "FRee MADData"
+C 
+      Input parameters: 
+      RFMADD - reference to data created by CRMADD 
+C 
+      This method should be called if your program wants to call
+      CRMADD more than once.  Call FRMADD just before CRMADD to
+      avoid a memory leak.  Will set RFMADD = 0. (for 64 bit machines, use INTEGER*8 RFMADD)
+      
+      ***************************************************************
+      
+      
+      SUBROUTINE STALOC(KINST,SLATGD,SLON,SALTGD,SLATGC,SR,ISTAT)
+      INTEGER KINST,ISTAT
+      DOUBLE PRECISION SLATGD,SLON,SALTGD,SLATGC,SR
+      
+C 
+      STALOC  Returns location of a given instrument (kinst)   
+      STALOC is meant to stand for "STAtion LOCation"
+C 
+      Input parameters: 
+      KINST - instrument id 
+C 
+      Output parameters:
+      SLATGD - instrument geodetic latitude
+      SLON - instrument longitude (0 to 360)
+      SALTGD - instrument geodetic altitude (km)
+      SLATGC- instrument geocentric latitude
+      SR - distance from center of earth (km)
+      ISTAT - 0 if successful, -1 if not
+
+*****************************************************************************/
+</pre>
+
+<h2><a name="madrec_bookmark" id="madrec_bookmark"></a>
+  
+  Madrec Module</h2>
+<pre>
+
+/************************************************************************************************
+
+Fortran callable C routines for Fortran access to the C-language
+Madrigal API - madrec module.
+________________________________________________________________________
+
+INTEGER FUNCTION MDOPEN(IOTYPE, FILEC)
+   INTEGER IOTYPE
+   CHARACTER FILEC(128)
+C
+   Opens CEDAR file for sequential reading or writing.
+C
+   IOTYPE -  file type as described below
+       Open Cedar file for sequential reading:
+             1 - Determine file type automatically
+            10 - Madrigal file
+            11 - Blocked Binary file
+            12 - Cbf file
+            13 - Unblocked Binary file
+            14 - Ascii file
+       Create Cedar file for update; discard previous contents
+          if any:
+             2 - Madrigal file
+            20 - Madrigal file
+            21 - Blocked Binary file
+            22 - Cbf file
+            23 - Unblocked Binary file
+            24 - Ascii file
+       Create Cedar file in memory for sequential and random read and write. 
+            30 - Determine file type automatically
+            40 - Madrigal file
+            41 - Blocked Binary file
+            42 - Cbf file
+            43 - Unblocked Binary file
+            44 - Ascii file 
+       Fast create Cedar file in memory for sequential and random read and write.
+          Does not calculate min and and max parameter values 
+            50 - Determine file type automatically
+            60 - Madrigal file
+            61 - Blocked Binary file
+            62 - Cbf file
+            63 - Unblocked Binary file
+            64 - Ascii file
+            
+   FILEC - file name
+C
+   Returns file handle (0-9) or negative value if file cannot be opened.
+   Call MDGERR to get error description. At most 10 files can be open
+   simultaneously.
+________________________________________________________________________
+
+INTEGER FUNCTION MDCLOS(MADFIL)
+  INTEGER MADFIL
+
+     Closes CEDAR file.
+
+  MADFIL - File handle
+
+  Returns: 0 - File closed successfully
+           1 - Error closing file
+           2 - File not open
+           3 - Error flushing file
+________________________________________________________________________
+
+INTEGER FUNCTION MDREAD(MADFIL)
+  INTEGER MADFIL
+
+  Reads next CEDAR record
+
+  MADFIL - File handle
+
+  Returns: 0 - Record read successfully
+           1 - Illegal file type
+          -n - Error
+________________________________________________________________________
+
+INTEGER FUNCTION MDWRIT(MADFIL)
+  INTEGER MADFIL
+
+  Writes next Madrigal record
+
+  MADFIL - File handle
+
+  Returns: 0 - Record written successfully
+           1 - Illegal file type
+          -n - Error
+          
+________________________________________________________________________
+
+INTEGER FUNCTION REWIND(MADFIL)
+  INTEGER MADFIL
+
+  Resets a file in memory to point to first record
+
+  MADFIL - File handle
+
+  Returns: 0 - Success
+           1 - Illegal file type
+          -n - Error
+          
+________________________________________________________________________
+
+INTEGER FUNCTION GRECNO(MADFIL, RECNO)
+  INTEGER MADFIL
+  INTEGER RECNO
+
+  Finds a given record number in a file (GRECNO stands for
+  Get record by record number)
+
+  MADFIL - File handle
+  RECNO  - Record number (1 <= RECNO <= Total number of records)
+
+  Returns: 0 - Success
+          -1 - Specified record not in file
+
+________________________________________________________________________
+
+INTEGER FUNCTION GRCKEY(MADFIL, KEY)
+  INTEGER MADFIL
+  DOUBLE PRECISION KEY
+
+  Finds a given record number in a file using the time key
+  The record is the first data record for which key is
+  greater than or equal to the start key of the
+  record, and less than the start time of the
+  following record. Thus, if the specified key
+  corresponds to a time within a record, the
+  first such record is returned. Header or catalog
+  records are never returned. (GRCKEY stands for
+  Get record by key)
+
+  MADFIL - File handle
+  KEY  - time in seconds since 1/1/1950
+
+  Returns: 0 - Success
+          -1 - Specified record not in file
+
+_________________________________________________________________
+
+INTEGER FUNCTION MDCOPY(MADFL1, MADFL2)
+  INTEGER MADFL1
+  INTEGER MADFL2
+
+  Copies a record from one file to another
+
+  MADFL1 - File handle of source record
+  MADFL2 - File handle of destination record
+
+  Returns: 0 - Success
+           1 - Failure
+________________________________________________________________________
+
+INTEGER FUNCTION MDISDR(MADFIL)
+  INTEGER MADFIL
+
+  Identifies data records
+
+  MADFIL - File handle
+
+  Returns: 0 - Current record is not a data record
+           1 - Current record is a data record
+           
+________________________________________________________________________
+
+DOUBLE PECISION FUNCTION GTPMIN(MADFIL, PARCOD)
+  INTEGER MADFIL
+  INTEGER PARCOD
+
+  Returns minimum value in file of given parcode
+
+  MADFIL - File handle
+  PARCOD - Parameter code
+
+  Returns: Scaled minimum parameter value.  File must
+  be opened in memory (types 30-44).  If not found,
+  returns missing (1E-38).  Data rows with all error
+  parameters invalid are not counted.
+  
+  
+________________________________________________________________________
+
+DOUBLE PECISION FUNCTION GTPMAX(MADFIL, PARCOD)
+  INTEGER MADFIL
+  INTEGER PARCOD
+
+  Returns maximum value in file of given parcode
+
+  MADFIL - File handle
+  PARCOD - Parameter code
+
+  Returns: Scaled maximum parameter value.  File must
+  be opened in memory (types 30-44)  If not found,
+  returns missing (1E-38).  Data rows with all error
+  parameters invalid are not counted.
+
+________________________________________________________________________
+
+SUBROUTINE MDCREA(MADFIL,
+            LPROL, JPAR, MPAR, NROW,
+            KREC, KINST, KINDAT,
+            YEAR1, MONTH1, DAY1,
+            HOUR1, MIN1, SEC1, CSEC1,
+            YEAR2, MONTH2, DAY2,
+            HOUR2, MIN2, SEC2, CSEC2)    
+  MADFIL - File handle
+  INTEGER MADFIL,LPROL, JPAR, MPAR, NROW,KREC, KINST, KINDAT,
+          YEAR1, MONTH1, DAY1, HOUR1, MIN1, SEC1, CSEC1,
+          YEAR2, MONTH2, DAY2, HOUR2, MIN2, SEC2, CSEC2
+
+    Creates a madrigal record with the specified size and prolog. The
+    1d and 2d parameters must be inserted later by calls to
+    MDS1DP and MDS2DP.
+
+       MADFIL - File handle
+       LPROL   - Length of prolog
+       JPAR    - Number of parameters in 1d array
+       MPAR    - Number of parameters in 2d array
+       NROW    - Number of rows in 2d array
+       KREC    - Kind of record
+       KINST   - Instrument code
+       KINDAT  - Kind-of-data code
+       YEAR1-CSEC1 - Start date and time
+       YEAR2-CSEC2 - End date and time
+________________________________________________________________________
+
+
+SUBROUTINE MDG1DP(MADFIL, PARCOD, PARM)
+  INTEGER MADFIL, PARCOD
+  DOUBLE PRECISION PARM
+
+  Gets a 1d parameter from the current record.
+
+  MADFIL - File handle
+  PARCOD - Parameter code
+  PARM    - Parameter value
+________________________________________________________________________
+
+INTEGER FUNCTION MDGNRW(MADFIL) {
+  INTEGER MADFIL
+
+  Gets number of rows in 2d array.
+
+  MADFIL - File handle
+
+  Returns: Number of rows in 2d array.
+________________________________________________________________________
+
+INTEGER FUNCTION MDGKST(MADFIL) {
+  INTEGER MADFIL
+
+  Gets Kind of instrument (Kinst) integer.
+  MDGKST stands for MaDrec Get KinST
+
+  MADFIL - File handle
+
+  Returns: Kind of instrument (Kinst) integer.
+  
+________________________________________________________________________
+
+INTEGER FUNCTION MDGKDT(MADFIL) {
+  INTEGER MADFIL
+
+  Gets Kind of data (Kindat) integer.
+  MDGKDT stands for MaDrec Get Kind of DaTa
+
+  MADFIL - File handle
+
+  Returns: Kind of data (Kindat) integer.
+________________________________________________________________________
+
+INTEGER FUNCTION MDIBYR(MADFIL) {
+  INTEGER MADFIL
+
+  Gets beginning year integer.
+
+  MADFIL - File handle
+
+  Returns: beginning year integer.
+________________________________________________________________________
+
+INTEGER FUNCTION MDIBDT(MADFIL) {
+  INTEGER MADFIL
+
+  Gets beginning date (MMDD) integer.
+
+  MADFIL - File handle
+
+  Returns: beginning date (MMDD) integer.
+________________________________________________________________________
+
+INTEGER FUNCTION MDIBHM(MADFIL) {
+  INTEGER MADFIL
+
+  Gets beginning hour/minute IBHM (HHMM) integer.
+
+  MADFIL - File handle
+
+  Returns: beginning hour/minute (HHMM) integer.
+________________________________________________________________________
+
+
+INTEGER FUNCTION MDIBCS(MADFIL) {
+  INTEGER MADFIL
+
+  Gets beginning second/centisecond IBCS (SSCC) integer.
+
+  MADFIL - File handle
+
+  Returns: beginning second/centisecond (SSCC) integer.
+________________________________________________________________________
+
+
+INTEGER FUNCTION MDIEYR(MADFIL) {
+  INTEGER MADFIL
+
+  Gets ending year integer.
+
+  MADFIL - File handle
+
+  Returns: ending year integer.
+________________________________________________________________________
+
+INTEGER FUNCTION MDIEDT(MADFIL) {
+  INTEGER MADFIL
+
+  Gets ending date (MMDD) integer.
+
+  MADFIL - File handle
+
+  Returns: ending date (MMDD) integer.
+________________________________________________________________________
+
+INTEGER FUNCTION MDIEHM(MADFIL) {
+  INTEGER MADFIL
+
+  Gets ending hour/minute IEHM (HHMM) integer.
+
+  MADFIL - File handle
+
+  Returns: ending hour/minute (HHMM) integer.
+________________________________________________________________________
+
+
+INTEGER FUNCTION MDIECS(MADFIL) {
+  INTEGER MADFIL
+
+  Gets ending second/centisecond IESC (SSCC) integer.
+
+  MADFIL - File handle
+
+  Returns: ending second/centisecond (SSCC) integer.
+________________________________________________________________________
+
+
+SUBROUTINE MDG2DP(MADFIL, PARCOD, PARM)
+  INTEGER MADFIL, PARCOD
+  DOUBLE PRECISION PARM(NRANMX)
+
+  Gets a 2d parameter from the current record.
+
+  MADFIL - File handle
+  PARCOD - Parameter code
+  PARM    - Parameter value array
+________________________________________________________________________
+
+SUBROUTINE MDGFLT(MADFIL, PARCOD, PARM)
+  INTEGER MADFIL, PARCOD
+  DOUBLE PRECISION PARM(NRANMX)
+
+  Gets a flattened parameter from the current record. If its
+  a 1D parameter, its value is copied into the first NROW
+  doubles in PARM array.  If its a 2D parameter, it acts just
+  like MDG2DP.  With this method all parameters act like 2D
+  parameters.
+  
+  Stands for MaDrigal Get FLaTtened parameter
+
+  MADFIL - File handle
+  PARCOD - Parameter code (can be 1D or 2D)
+  PARM    - Parameter value array
+________________________________________________________________________
+
+SUBROUTINE MDS1DP(MADFIL, PARCOD, PARM, INDEX)
+  INTEGER MADFIL, PARCOD, INDEX
+  DOUBLE PRECISION PARM
+
+  Sets 1d parameter
+
+  MADFIL - File handle
+  PARCOD - Parameter code
+  PARM    - Parameter value
+  INDEX   - Position of parameter in 1d array (1<=INDEX<=JPAR)
+  
+  Note: to set special value missing, use PARM=1.e-38.
+      To set special value assumed (for error parms only), use PARM=2.e-38
+      To set special value knownbad (for error parms only), use PARM=3.e-38
+________________________________________________________________________
+
+SUBROUTINE MDS2DP(MADFIL, PARCOD, PARM, INDEX)
+  INTEGER MADFIL
+
+  Sets 2d parameter array
+
+  MADFIL - File handle
+  PARCOD - Parameter code
+  PARM    - Parameter value
+  INDEX   - Position of parameter in 2d array (1<=INDEX<=MPAR)
+  
+    Note: to set special value missing, use PARM=1.e-38.
+      To set special value assumed (for error parms only), use PARM=2.e-38
+      To set special value knownbad (for error parms only), use PARM=3.e-38
+________________________________________________________
+
+DOUBLE PRECISION FUNCTION MDSSFA(PARCOD)
+  INTEGER PARCOD
+
+  Gets parameter scale factor
+
+  PARCOD - Parameter code
+
+  Returns: Parameter scale factor
+________________________________________________________________________
+
+SUBROUTINE MDGERR(ERROR)
+  CHARACTER ERROR(128)
+
+  Gets most recent error message
+
+  ERROR  - Error message
+________________________________________________________________________
+
+DOUBLE PRECISION FUNCTION GETKEY(YEAR,MON,DAY,HOUR,MIN,SEC)
+  INTEGER YEAR,MON,DAY,HOUR,MIN,SEC
+
+  Gets key (number of seconds) since YEAR,MON,DAY,HOUR,MIN,SEC
+  
+  
+________________________________________________________________________
+
+
+SUBROUTINE MDGEOD(MADFIL, ROW, GDLAT, GLON, GDALT)
+  INTEGER MADFIL
+  DOUBLE PRECISION GDLAT(NRANMX)
+  DOUBLE PRECISION GLON(NRANMX)
+  DOUBLE PRECISION GDALT(NRANMX)  
+
+  Gets GDLAT, GLON, GDALT from current record via cedarGetGeodetic.
+
+  MADFIL - File handle, pointing to current record
+  GDLAT - geodetic latitude array
+  GLON - longitude array
+  GDALT - geodetic altitude array
+________________________________________________________________________
+
+SUBROUTINE GTROOT(STROOT,LENGTH)
+  CHARACTER STROOT(128)
+  INTEGER LENGTH
+
+  Gets MADROOT as set either in env variable or in cedar.h
+
+  STROOT  - String holding MADROOT
+  LENGTH - length of string copied
+________________________________________________________________________
+
+
+*****************************************************************************/
+
+</pre>
+<h2><a name="maddata_example" id="maddata_example"></a>Example Fortran programs using maddataF77</h2>
+</center>
+
+<p>
+The basic premise of the MaddataF77 module is to hide the difference between measured and
+derived parameters when working with Madrigal data. There are two ways to 
+input measured data with the MaddataF77 module, with a file and without a file.  In the
+first case, measured data comes from a particular file, and in the second the application
+supplies it directly through input parameters.
+<p> 
+This example page includes simple examples of <a href=#createMaddata_example> using measured data
+from a file</a>, and <a href=#createNonfileMaddata_example>using measured data supplied by the
+application.</a>
+
+<blockquote>
+  <h3><a name="createMaddata_example" id="createMaddata_example"></a>Using the MaddataF77 module with a file</h3>
+</blockquote>
+<p> The following example prints both measured and derived data from a particular file,
+with various filters applied using a string very similar to the isprint command line.
+  The key method is CRMADD.</a>
+<pre>
+C
+C     This sample program prints out all requested parameters
+C     from a madrigal file for given filters.  The requested
+C     parameters can be either measured or derived - the API
+C     hides these details from the user.
+C
+C     Note that RFMADD must be declared INTEGER or INTEGER*8, 
+C     depending on whether 32-bit or 64-bit platform
+
+C     
+      PROGRAM TMADDATA
+C
+C     .. Local Scalars ..
+      INTEGER RFMADD
+C     ..If 64-bit, should be INTEGER*8 RFMADD
+      INTEGER NUMREC
+C     .. External Subroutines ..
+      EXTERNAL CRMADD,GTNROW, GTMADD, FRMADD, STALOC
+C     ..
+C     .. Local Arrays ..
+      CHARACTER*128 FILEC, MDROOT
+      CHARACTER PARMS*100
+      CHARACTER FLTSTR*1000
+C     .. Local variables ..
+      INTEGER STATUS
+      DOUBLE PRECISION DATROW(100)
+      DOUBLE PRECISION SLATGD,SLON,SALTGD,SLATGC,SR
+      INTEGER REC, NROW, ROW, ISTAT, KINST
+C     ..
+C     ..
+      RFMADD = 0
+      NUMREC = 0
+C     the requested madrigal file
+      CALL GTROOT(MDROOT,LEN)
+      FILEC=MDROOT(:LEN)//'/experiments/1998/mlh/20jan98/mil980120g.002'
+C     the requested parms (measured or derived)
+      PARMS = 'gdalt,ti,kp,nel'
+C     the desired filters (exactly like isprint command line)
+      FLTSTR = 'z=1000, filter=range,2500, filter=ti,1000,2000'
+      CALL CRMADD(FILEC,PARMS,FLTSTR,RFMADD,NUMREC,STATUS)
+      IF (STATUS .NE. 0) THEN
+         PRINT*, "Create Maddata failed for ", FILEC
+         STOP
+      END IF
+C     print all records (ignoring formatting)
+      DO 30, REC = 1, NUMREC
+         CALL GTNROW(RFMADD, REC, NROW) 
+         PRINT*,PARMS
+C        loop over all rows
+         DO 20, ROW=1, NROW
+            CALL GTMADD(RFMADD, REC, ROW, DATROW, STATUS)
+C           Note that data is stored in datrow in the order of parms
+            PRINT "(F10.5)",DATROW(1),DATROW(2),DATROW(3),DATROW(4)
+20       CONTINUE
+30    CONTINUE
+C     free all data
+      CALL FRMADD(RFMADD)
+C
+      KINST = 31
+      CALL STALOC(KINST,SLATGD,SLON,SALTGD,SLATGC,SR,ISTAT)
+      if (ISTAT .EQ. 0) THEN
+         print*, 'Kinst 31:', SLATGD,SLON,SALTGD,SLATGC,SR,ISTAT
+      else
+         print *, 'now returned error code ', ISTAT, SLATGD
+      END IF
+      
+      CALL STALOC(3331,SLATGD,SLON,SALTGD,SLATGC,SR,ISTAT)
+      if (ISTAT .EQ. 0) THEN
+         print*, 'Kinst 3331:', SLATGD,SLON,SALTGD,SLATGC,SR,ISTAT
+      else
+         print*, 'Kinst 3331 failed, as it should'
+      END IF
+      
+      END
+      
+</pre>
+<hr SIZE=2>
+
+<blockquote>
+  <h3><a NAME="createNonfileMaddata_example" id="createNonfileMaddata_example"></a>Using the MaddataF77 module without a file</h3>
+</blockquote>
+<p> The following example prints both measured and derived data based on user supplied data alone.
+The key method is CRNFMD.</a>
+<pre>
+
+C     $Id: dev_fortran.html,v 1.4 2008/08/15 13:45:51 brideout Exp $
+C
+C     This sample program prints out all requested parameters
+C     from a madrigal data passed in as arguments - no file needed.  The requested
+C     parameters can be either measured or derived - the API
+C     hides these details from the user.
+C     
+      PROGRAM TMADDATA_NOFILE
+C
+C     .. Local Scalars ..
+      INTEGER RFMADD, KINST
+      DOUBLE PRECISION UT
+C     .. External Subroutines ..
+      EXTERNAL CRNFMD,GTNROW,GTMADD,FRMADD
+C     .. External Functions ..
+      DOUBLE PRECISION GETKEY
+C     ..
+C     .. Local Arrays ..
+      CHARACTER*300 ONED, TWOD
+      CHARACTER PARMS*100
+C     .. Local variables ..
+      INTEGER STATUS
+      DOUBLE PRECISION DROW(100)
+      INTEGER NROW, ROW
+C     ..
+C     ..
+      RFMADD = 0
+      NUMREC = 0
+      KINST=31
+      NROW=0
+      UT = GETKEY(1998,1,20,15,0,0)
+C     the requested parms 
+      PARMS = 'gdlat,glon,gdalt,bmag,kp,sdwht'
+C     the one-D data (not used in this example, but can't hurt)
+      ONED = 'pl=.001 sn=10'   
+C     the two-D data
+      TWOD="gdlat=45,45,50,50 glon=20,30,20,30 gdalt=500,500,500,500"    
+      CALL CRNFMD(PARMS,UT,KINST,ONED,TWOD,RFMADD,NROW)
+      IF (NROW .EQ. 0) THEN
+         PRINT*, "Create non-file Maddata failed"
+         STOP
+      END IF
+C     print the record (only 1 returned, so its always rec 1)
+      PRINT*,PARMS
+      CALL GTNROW(RFMADD, 1, NROW) 
+C     loop over all rows
+      DO 20, ROW=1, NROW
+         CALL GTMADD(RFMADD, 1, ROW, DROW, STATUS)
+C        Note that data is stored in DROW in the order of parms
+         PRINT*,DROW(1),DROW(2),DROW(3),DROW(4),DROW(5),DROW(6)
+20    CONTINUE
+C     free all data
+      CALL FRMADD(RFMADD)
+C
+      END
+      
+</pre>
+<center>
+  <h2 align="left"><a name="madrec_example" id="madrec_example"></a>Example Fortran program using madrecF77</h2>
+</center>
+
+<pre>
+C
+      PROGRAM TMADREC
+C
+C     This program is a simple example illustrating the use of the madrec
+C     module from Fortran - see madrecF77.c. This module is appropriate for
+C     dealing with Madrigal files - writing them or modifying them.  To deal
+C     with Madrigal data at a higher level, where the differences between
+C     derived and measured data can be ignored, use maddataF77.c methods.
+C
+C     This program contain 4 examples:
+C        1. Reading an existing madrigal file in sequentially
+C        2. Writing a new madrigal file sequentially
+C        3. Appending to an existing madrigal file using in mem file
+C        4. Searching and summarizing a file in memory
+C
+C     .. Local Scalars ..
+      INTEGER STATUS,NUMREC,LEN
+      CHARACTER*128 ERROR,FNAME,MDROOT
+      DOUBLE PRECISION PARM, KEY
+      INTEGER LPROL, JPAR, MPAR, NROW, KREC, KINST, KINDAT
+      INTEGER YEAR1, MONTH1, DAY1, HOUR1, MIN1, SEC1, CSEC1
+      INTEGER YEAR2, MONTH2, DAY2, HOUR2, MIN2, SEC2, CSEC2
+      INTEGER MADFIL, MADFL1, MADFL2
+C     ..
+C     .. Local Arrays ..
+      DOUBLE PRECISION PARM2D(500)
+C     ..
+C     .. External Functions ..
+      INTEGER MDOPEN,MDCLOS
+      INTEGER MDREAD,MDISDR
+      INTEGER MDWRIT,REWIND
+      INTEGER MDCOPY,GRCKEY
+      DOUBLE PRECISION GETKEY,GTPMIN,GTPMAX
+C     ..
+C     .. External Subroutines ..
+      EXTERNAL MDGERR,MDG1DP,MDG2DP,MDCREA
+      EXTERNAL MDS1DP,MDS2DP,GTROOT
+C
+      NUMREC = 0      
+      CALL GTROOT(MDROOT,LEN)
+      FNAME=MDROOT(:LEN)//'/experiments/1998/mlh/20jan98/mil980120g.002'
+      ERROR=''
+C
+C
+C     .....Example 1 - read a madrigal file.....
+C
+C
+      PRINT*, "\nExample 1 - read in a madrigal file"
+      MADFIL = MDOPEN(1, FNAME)
+      IF (MADFIL.LT.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+C     loop through all the records
+10    STATUS = MDREAD(MADFIL)
+      IF (STATUS.NE.0) THEN
+          GOTO 100
+      END IF
+C     count data records, ignore header or catalog
+      IF (MDISDR(MADFIL).EQ.1) THEN
+          NUMREC = NUMREC + 1
+      END IF
+C     print some data for record 5
+      IF (NUMREC.EQ.5) THEN
+          PRINT*,"The following is data for the 5th data record:"
+          CALL MDG1DP(MADFIL,402, PARM)
+          PRINT*,"   Pulse length is "
+          PRINT "(F10.5)",PARM
+          CALL MDG2DP(MADFIL, 550, PARM2D)
+          PRINT*,"   The first 4 Ti values are:"
+          PRINT "(F10.5)",PARM2D(1),PARM2D(2),PARM2D(3),PARM2D(4)
+      END IF
+      GOTO 10
+C
+100   PRINT*,"The number of data records found in file:"
+      PRINT"(I6)",NUMREC
+C     ..Close the file..
+      STATUS = MDCLOS(MADFIL)
+C
+C
+C     ....Example 2: create a new madrigal file ....
+C
+C
+      PRINT*,""
+      PRINT*, "Example 2 - create new file tMadrecF77.out"
+      MADFIL = MDOPEN(20, 'tMadrecF77.out')
+      IF (MADFIL.LT.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+C     create a new record
+      LPROL = 16
+      JPAR  = 2
+      MPAR  = 1
+      NROW  = 3
+      KREC  = 1002
+      KINST = 32
+      KINDAT = 3408
+      YEAR1 = 2003
+      MONTH1 = 3
+      DAY1   = 19
+      HOUR1  = 1
+      MIN1   = 0
+      SEC1   = 0
+      CSEC1  = 0
+      YEAR2 = 2003
+      MONTH2 = 3
+      DAY2   = 19
+      HOUR2  = 1
+      MIN2   = 2
+      SEC2   = 59
+      CSEC2  = 99
+      CALL MDCREA(MADFIL,
+     *      LPROL, JPAR, MPAR, NROW,
+     *      KREC, KINST, KINDAT,
+     *      YEAR1, MONTH1, DAY1,
+     *      HOUR1, MIN1, SEC1, CSEC1,
+     *      YEAR2, MONTH2, DAY2,
+     *      HOUR2, MIN2, SEC2, CSEC2)
+C     set the two 1D values (pl and systmp)
+      PARM = 1.28000e-03
+      CALL MDS1DP(MADFIL, 402, PARM, 1)
+      PARM = 151.0
+      CALL MDS1DP(MADFIL, 482, PARM, 2)
+C     set the 1 2D parm (range) with 3 rows
+      PARM2D(1)=100.0
+      PARM2D(2)=150.0
+      PARM2D(3)=200.0
+      CALL MDS2DP(MADFIL, 120, PARM2D, 1)
+C     write the new record to file
+      STATUS = MDWRIT(MADFIL)
+      IF (STATUS.NE.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+C     ..Close the file..
+      STATUS = MDCLOS(MADFIL)
+C
+C
+C     ....Example 3: Append to an existing madrigal file ....
+C
+C      
+      PRINT*,""
+      PRINT*, "Example 3 - append to existing file"
+      PRINT*, "  and save as tMadrecF77_append.out"
+C     read the old file into memory
+      MADFL1 = MDOPEN(50, FNAME)
+      IF (MADFL1.LT.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+C     create a new record to append to it
+      CALL MDCREA(MADFL1,
+     *      LPROL, JPAR, MPAR, NROW,
+     *      KREC, KINST, KINDAT,
+     *      YEAR1, MONTH1, DAY1,
+     *      HOUR1, MIN1, SEC1, CSEC1,
+     *      YEAR2, MONTH2, DAY2,
+     *      HOUR2, MIN2, SEC2, CSEC2)
+C     set the two 1D values (pl and systmp)
+      PARM = 1.28000e-03
+      CALL MDS1DP(MADFL1, 402, PARM, 1)
+      PARM = 151.0
+      CALL MDS1DP(MADFL1, 482, PARM, 2)
+C     set the 1 2D parm (range) with 3 rows
+      PARM2D(1)=100.0
+      PARM2D(2)=150.0
+      PARM2D(3)=200.0
+      CALL MDS2DP(MADFL1, 120, PARM2D, 1)
+C     append the new record to the in-memory file
+      STATUS = MDWRIT(MADFL1)
+      IF (STATUS.NE.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+C     next rewind the in-memory file
+      STATUS = REWIND(MADFL1)    
+      IF (STATUS.NE.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+C     now we open another file to write the appended file to
+      MADFL2 = MDOPEN(20, 'tMadrecF77_append.out')
+      IF (MADFL2.LT.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+C     loop through all the in memory records, copy to MADFL2
+20    STATUS = MDREAD(MADFL1)
+      IF (STATUS.NE.0) THEN
+          GOTO 200
+      END IF
+      STATUS = MDCOPY(MADFL1, MADFL2)
+C     write the copied record to file
+      STATUS = MDWRIT(MADFL2)      
+      GOTO 20  
+C    
+200   STATUS = MDCLOS(MADFL1)     
+      STATUS = MDCLOS(MADFL2)
+C
+C
+C     ....Example 4: Manipulate an in memory file ....
+C
+C      
+      PRINT*,""
+      PRINT*, "Example 4: Manipulate an in memory file"
+C     read the file into memory, this time with summary info
+      MADFIL = MDOPEN(30, FNAME)
+      IF (MADFIL.LT.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+      KEY = GETKEY(1998, 1, 20, 15, 0, 0)
+      STATUS = GRCKEY(MADFIL,KEY)
+      IF (STATUS.NE.0) THEN
+         CALL MDGERR(ERROR)
+         PRINT*,ERROR
+         STOP
+      END IF
+C     print some data from this record
+      PRINT*,"The following are min and max values of Ti in file:"
+      PRINT "(F10.5)",GTPMIN(MADFIL,550),GTPMAX(MADFIL,550)
+      PRINT*,"The following is data for key 1/20/1998 15:00:"
+      CALL MDG1DP(MADFIL,402, PARM)
+      PRINT*,"   Pulse length is "
+      PRINT "(F10.5)",PARM
+      CALL MDG2DP(MADFIL, 550, PARM2D)
+      PRINT*,"   The first 4 Ti values are:"
+      PRINT "(F10.5)",PARM2D(1),PARM2D(2),PARM2D(3),PARM2D(4)
+      STATUS = MDCLOS(MADFIL)
+C
+      PRINT*,"\nTest complete" 
+C
+      END
+
+</pre>
+<CENTER>
+  <h2 align="left"><a name="geolib_bookmark" id="geolib_bookmark"></a>GEOLIB Procedure Synopsis</h2>
+</CENTER>
+The geolib library (geolib.a) contains the following
+procedures focused on time and space.
+<PRE>
+
+<A NAME="CARMEL"></A>
+***********************************************************************
+
+      SUBROUTINE CARMEL(B,XI,VL)
+C
+C     Private/Internal subroutine. Part of Apex coordinate computation
+C     package. See COORD for public API. Computes scaler VL as a
+C     function of B and XI.
+C
+C       Input:
+C           B - Scaler field strength value.
+C          XI - integral invariant (see INTEG).
+C
+C      Output:
+C          VL - McIlwain's L-shell parameter i.e. Invariant Latitude
+C               = ACOS(DSQRT(1.0D0/VL))/DTR
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION B,VL,XI
+C     ..
+
+
+<A NAME="CONVRT"></A>
+***********************************************************************
+
+      SUBROUTINE CONVRT(I,GDLAT,GDALT,GCLAT,RKM)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     Converts between geodetic and geocentric coordinates. the
+C     reference geoid is that adopted by the iau in 1964. a=6378.16,
+C     b=6356.7746, f=1/298.25. the equations for conversion from
+C     geocentric to geodetic are from astron. j., vol 66, 1961, p. 15.
+C
+C       Input:
+C             I - 1 geodetic to geocentric, 2 geocentric to geodetic
+C       Input, Output:
+C         GDLAT - geodetic latitude (degrees)
+C         GDALT - altitude above geoid (km)
+C         GCLAT - geocentric latitude (degrees)
+C           RKM - geocentric radial distance (km)
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION GCLAT,GDALT,GDLAT,RKM
+      INTEGER I
+C     ..
+
+
+<A NAME="COORD"></A>
+***********************************************************************
+
+      SUBROUTINE COORD(SLATGD,SLON,SR,SLATGC,TM,AZ,EL,RANGE,GDLAT,GLON,
+     *                 GDALT,RCOR)
+C
+C     Calculates the listed coordinates of a specified point. the
+C     point may be specified either by slatgd, slon, sr, slatgc, tm,
+C     az, el, range (range .ge. 0.) or by gdlat, glon, gdalt (range
+C     .lt. 0.)
+C
+C     Input:
+C        SLATGD - station geodetic latitude
+C        SLON   - station longitude
+C        SR     - radial distance of station from center of earth
+C        SLATGC - station geocentric latitude
+C        TM     - time in years (e.g. 1975.2)
+C        AZ     - radar azimuth
+C        EL     - radar elevation
+C        RANGE  - range to observation point
+C     Input, output:
+C        GDLAT  - geodetic latitude of observation point
+C        GLON   - longitude of observation point
+C        GDALT  - altitude above spheroid of observation point
+C     Output:
+C        RCOR(7)  - b     - magnitude of geomagnetic field
+C        RCOR(8)  - br    - radial component of geomagnetic field
+C        RCOR(9)  - bt    - southward component of geomagnetic field
+C        RCOR(10) - bp    - eastward component of geomagnetic field
+C        RCOR(11) - rlatm - dip latitude
+C        RCOR(12) - rlati - invariant latitude
+C        RCOR(13) - rl    - magnetic l parameter
+C        RCOR(14) - alat  - apex latitude
+C        RCOR(15) - alon  - apex longitude
+C
+C        RCOR(16) - g(1,1) magnetic coordinate system metric tensor,
+C                          upper half stored row-wise
+C        RCOR(17) - g(2,1) "                                       "
+C        RCOR(18) - g(2,1) "                                       "
+C        RCOR(19) - g(2,1) "                                       "
+C
+C        RCOR(20) - south-direction cosine w/respect to geodetic coords.
+C        RCOR(21) - east-direction cosine "                            "
+C        RCOR(22) - upward-direction cosine "                          "
+C
+C        RCOR(23) - perpendicular to b in magnetic n - s plane
+C                   (magnetic south)
+C        RCOR(24) - perpendicular to b in horizontal plane
+C                   (magnetic east)
+C        RCOR(25) - upward along magnetic field
+C
+C        RCOR(26) - x-direction cosine of a vector perpendicular to
+C                   l.o.s. w/respect to apex coords.
+C        RCOR(27) - y-direction cosine "                          "
+C        RCOR(28) - z-direction cosine "                          "
+C
+C        RCOR(29) - inclination of geomagnetic field
+C        RCOR(30) - declination of geomagnetic field
+C        RCOR(31) - gclat - geocentric latitude
+C        RCOR(32) - aspct - aspect angle
+C        RCOR(33) - conjugate geocentric latitude
+C        RCOR(34) - conjugate geodetic latitude
+C        RCOR(35) - conjugate longitude
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION AZ,EL,GDALT,GDLAT,GLON,RANGE,SLATGC,SLATGD,SLON,
+     *                 SR,TM
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION RCOR(38)
+C     ..
+
+
+<A NAME="CSCONV"></A>
+***********************************************************************
+
+      SUBROUTINE CSCONV(X,Y,Z,R,THETA,PHI,IMODE)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     Converts between cartesian coordinates x,y,z and spherical
+C     coordinates r,theta,phi.  theta and phi are in degrees.
+C
+C       Input:
+C         IMODE - 1 (x,y,z) -> (r,theta,phi)
+C                 2 (r,theta,phi) -> (x,y,z)
+C
+C       Input, Output:
+C              X, Y, Z - cartesian coordinates
+C        R, THETA, PHI - spherical coordinates (degrees)
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION PHI,R,THETA,X,Y,Z
+      INTEGER IMODE
+C     ..
+
+
+<A NAME="DIPLAT"></A>
+***********************************************************************
+
+      SUBROUTINE DIPLAT(TM,GDLAT,GLON,GDALT,AINC,DEC,RLATM)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION AINC,DEC,GDALT,GDLAT,GLON,RLATM,TM
+C     ..
+
+
+<A NAME="DSF"></A>
+***********************************************************************
+
+      SUBROUTINE DSF(GCLAT,GLON,RKM,ALT,HALT,ISTOP,DS)
+C
+C     Calculates an optimum integration step size for geomagnetic
+C     field line tracing routine LINTRA, as an empirical function of
+C     the geomagnetic dipole coordinates of the starting point. when
+C     start and end points are in the same hemisphere and
+C     abs(halt-alt)<10000, the empirical formula is modified so that
+C     ds is no greater than 1/100 of the altitude difference between
+C     start and end points.
+C
+C     input:
+C         GCLAT - start point geocentric latitude (deg)
+C          GLON - start point geocentric longitude (deg)
+C           RKM - start point radial distance (km)
+C           ALT - starting point geodetic altitude
+C          HALT - tuning parameter for altitude test. 
+C         ISTOP - set to -1 to enable abs(halt-alt)<10000 test
+C     output:
+C            DS - step size
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ALT,DS,GCLAT,GLON,HALT,RKM
+      INTEGER ISTOP
+C     ..
+
+
+<A NAME="GASPCT"></A>
+***********************************************************************
+
+      SUBROUTINE GASPCT(SLATGD,SLON,SR,SLATGC,TM,AZ,EL,RANGE,GDLAT,GLON,
+     *                  GDALT,B,CASPCT,ASPCT)
+C
+C     jmh - 3/88
+C
+C     *** warning *** this routing used to be called aspect. the name
+C                     was changed on 3/2/88 to avoid conflict with a
+C                     new routine of the same name in the geophysics
+C                     library
+C
+C     Calculates the aspect angle between a radar beam and the
+C     geomagnetic field at a specified point. the point may be
+C     specified either by slatgd, slon, sr, slatgc, tm, az, el, range
+C     (range .ge. 0.) or by gdlat, glon, gdalt (range .lt. 0.)
+C
+C     Input:
+C        SLATGD - station geodetic latitude
+C        SLON   - station longitude
+C        SR     - radial distance of station from center of earth
+C        SLATGC - station geocentric latitude
+C        TM     - time in years (e.g. 1975.2)
+C        AZ     - radar azimuth
+C        EL     - radar elevation
+C        RANGE  - range to observation point
+C     Input, output:
+C         GDLAT - geodetic latitude of observation point
+C         GLON  - longitude of observation point
+C         GDALT - altitude above spheroid of observation point
+C     Output:
+C        B      - geomagnetic field magnitude
+C        CASPCT - cosine of aspect angle
+C        ASPCT  - aspect angle (degrees)
+C
+C
+C
+C     .....subroutine parameter specifications.....
+C
+C     .....local specifications.....
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ASPCT,AZ,B,CASPCT,EL,GDALT,GDLAT,GLON,RANGE,
+     *                 SLATGC,SLATGD,SLON,SR,TM
+C     ..
+
+
+<A NAME="GDMAG"></A>
+***********************************************************************
+
+      SUBROUTINE GDMAG(TM,GDLAT,GLON,GDALT,X,Y,Z,F,H,DEC,AINC)
+C
+C     jmh - 1/80  ans fortran 66
+C
+C     Evaluates the geomagnetic field at a point specified by its
+C     geodetic coordinates. the reference geoid is that adopted by the
+C     iau in 1964.
+C
+C     input:
+C           TM - time in years for desired field (e.g. 1971.25)
+C        GDLAT - geodetic latitude (degrees)
+C         GLON - east longitude (degrees)
+C        GDALT - altitude above geoid (km)
+C
+C     output:
+C        X,Y,Z - geodetic field components (gauss)
+C            F - magnitude of field (gauss)
+C            H - horizontal intensity (gauss)
+C          DEC - declination (degrees)
+C         AINC - inclination (degrees)
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION AINC,DEC,F,GDALT,GDLAT,GLON,H,TM,X,Y,Z
+C     ..
+
+
+<A NAME="GDRAN"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION GDRAN(SR,SLATGC,SLON,AZ,EL,ALT)
+C
+C     GDRAN uses a half-interval (binary) search technique to determine
+C     the geodetic range to a point of observation given in terms of
+C     azimuth, elevation, and geodetic altitude.
+C
+C       Input:
+C            SR - radial distance of station from center of earth
+C        SLATGC - station geocentric latitude
+C          SLON - station longitude
+C            AZ - radar azimuth
+C            EL - radar elevation
+C           ALT - geodetic altitude
+C
+C     harris fortran 77
+C     rgm - 8/85
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ALT,AZ,EL,SLATGC,SLON,SR
+C     ..
+
+
+<A NAME="GDV"></A>
+***********************************************************************
+
+      SUBROUTINE GDV(GDLAT,GCLAT,FR,FT,FP,FX,FY,FZ)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     GDV converts a vector field f at geodetic latitude GDLAT and
+C     geocentric latitude GCLAT from a geocentric based representation
+C     to a geodetic based representation. the geocentric components
+C     are FR (radial outward), FT (increasing geocentric colatitude,
+C     e.g. southward) and FP (increasing east longitude). the
+C     geodetic components are FX (northward, parallel to surface of
+C     earth), FY (eastward, parallel to surface of earth) and FZ
+C     (downward, perpendicular to surface of earth). FR,FT,FP thus
+C     correspond to spherical coordinates r,theta,phi, with their
+C     origin at the center of the earth. x,y,z are the coordinates
+C     customarily used to describe the three components of the
+C     geomagnetic field. FP and FY are the same.
+C
+C       Input:
+C         GDLAT - geodetic latitude (degrees)
+C         GCLAT - geocentric latitude (degrees)
+C            FR - radial outward (geocentric).
+C            FT - increasing geocentric colatitude (southward).
+C            FP - increasing east longitude.
+C
+C      Output:
+C            FX - northward, parallel to surface of earth (geodetic).
+C            FY - eastward, parallel to surface of earth.
+C            FZ - downward, perpendicular to surface of earth.
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION FP,FR,FT,FX,FY,FZ,GCLAT,GDLAT
+C     ..
+
+
+<A NAME="GMET"></A>
+***********************************************************************
+
+      SUBROUTINE GMET(DXDQ,G)
+C
+C     jmh - 10/79  ans fortran 66
+C
+C     GMET calculates the metric tensor G of a coordinate system q
+C     for which dx(i)/dq(j)=dxdq(i,j).
+C
+C       Input:
+C         DXDQ - coordinate system array.
+C
+C      Output:
+C            G - metric tensor.
+C
+C     .. Array Arguments ..
+      DOUBLE PRECISION DXDQ(3,3),G(3,3)
+C     ..
+
+
+<A NAME="GTS5"></A>
+***********************************************************************
+
+      SUBROUTINE GTS5(IYD,SEC,ALT,GLAT,GLONG,STL,F107A,F107,AP,MASS,D,T)
+C        MSIS-86/CIRA 1986 Neutral Thermosphere Model
+C         A.E.Hedin 3/15/85;2/26/87 (Variable Names Shortened)
+C         9/21/87 M.E. Hagan (Non-Standard Statements Changed)
+C     INPUT:
+C        IYD - YEAR AND DAY AS YYDDD
+C        SEC - UT(SEC)
+C        ALT - ALTITUDE(KM) (GREATER THAN 85 KM)
+C        GLAT - GEODETIC LATITUDE(DEG)
+C        GLONG - GEODETIC LONGITUDE(DEG)
+C        STL - LOCAL APPARENT SOLAR TIME(HRS)
+C        F107A - 3 MONTH AVERAGE OF F10.7 FLUX
+C        F107 - DAILY F10.7 FLUX FOR PREVIOUS DAY
+C             UNITS:1.0e-22W/m2/Hz
+C        AP - MAGNETIC INDEX(DAILY) OR WHEN SW(9)=-1. :
+C           - ARRAY CONTAINING:
+C             (1) DAILY AP
+C             (2) 3 HR AP INDEX FOR CURRENT TIME
+C             (3) 3 HR AP INDEX FOR 3 HRS BEFORE CURRENT TIME
+C             (4) 3 HR AP INDEX FOR 6 HRS BEFORE CURRENT TIME
+C             (5) 3 HR AP INDEX FOR 9 HRS BEFORE CURRENT TIME
+C             (6) AVERAGE OF EIGHT 3 HR AP INDICIES FROM 12 TO 33 HRS
+C                    PRIOR TO CURRENT TIME
+C             (7) AVERAGE OF EIGHT 3 HR AP INDICIES FROM 36 TO 59 HRS
+C                    PRIOR TO CURRENT TIME
+C        MASS - MASS NUMBER (ONLY DENSITY FOR SELECTED GAS IS
+C                 CALCULATED. MASS 0 IS TEMPERATURE. MASS 48 FOR ALL.
+C
+C     OUTPUT:
+C        D(1) - HE NUMBER DENSITY(CM-3)
+C        D(2) - O NUMBER DENSITY(CM-3)
+C        D(3) - N2 NUMBER DENSITY(CM-3)
+C        D(4) - O2 NUMBER DENSITY(CM-3)
+C        D(5) - AR NUMBER DENSITY(CM-3)
+C        D(6) - TOTAL MASS DENSITY(GM/CM3)
+C        D(7) - H NUMBER DENSITY(CM-3)
+C        D(8) - N NUMBER DENSITY(CM-3)
+C        T(1) - EXOSPHERIC TEMPERATURE
+C        T(2) - TEMPERATURE AT ALT
+C
+C      TO GET OUTPUT IN M-3 and KG/M3:   CALL METERS(.TRUE.)
+C
+C          ADDITIONAL COMMENTS
+C           (1) LOWER BOUND QUANTITIES IN COMMON/GTS3C/
+C           (2) TO TURN ON AND OFF PARTICULAR VARIATIONS CALL TSELEC(SW)
+C               WHERE SW IS A 25 ELEMENT ARRAY CONTAINING 0. FOR OFF, 1.
+C               FOR ON, OR 2. FOR MAIN EFFECTS OFF BUT CROSS TERMS ON
+C               FOR THE FOLLOWING VARIATIONS
+C               1 - F10.7 EFFECT ON MEAN  2 - TIME INDEPENDENT
+C               3 - SYMMETRICAL ANNUAL    4 - SYMMETRICAL SEMIANNUAL
+C               5 - ASYMMETRICAL ANNUAL   6 - ASYMMETRICAL SEMIANNUAL
+C               7 - DIURNAL               8 - SEMIDIURNAL
+C               9 - DAILY AP             10 - ALL UT/LONG EFFECTS
+C              11 - LONGITUDINAL         12 - UT AND MIXED UT/LONG
+C              13 - MIXED AP/UT/LONG     14 - TERDIURNAL
+C              15 - DEPARTURES FROM DIFFUSIVE EQUILIBRIUM
+C              16 - ALL TINF VAR         17 - ALL TLB VAR
+C              18 - ALL T0 VAR           19 - ALL S VAR
+C              20 - ALL Z0 VAR           21 - ALL NLB VAR
+C              22 - ALL TR12 VAR         23 - TURBO SCALE HEIGHT VAR
+C
+C              To get current values of SW: CALL TRETRV(SW)
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ALT,F107,F107A,GLAT,GLONG,SEC,STL
+      INTEGER IYD,MASS
+      LOGICAL METER
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION AP(*),D(8),T(2)
+C     ..
+C     .. Scalars in Common ..
+C     ..
+C     .. Arrays in Common ..
+C     ..
+
+
+<A NAME="DENSS"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION DENSS(ALT,DLB,TINF,TLB,XM,ALPHA,TZ,ZLB,
+     *                                S2,T0,ZA,Z0,TR12)
+C       Calculate Temperature and Density Profiles for MSIS models
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ALPHA,ALT,DLB,S2,T0,TINF,TLB,TR12,TZ,XM,Z0,ZA,ZLB
+C     ..
+C     .. Scalars in Common ..
+C     ..
+
+
+<A NAME="GLOBE5"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION GLOBE5(YRD,SEC,LAT,LONG,TLOC,F107A,F107,
+     *                 AP,P)
+C       CALCULATE G(L) FUNCTION FOR MSIS-86/CIRA 1986
+C       Upper Thermosphere Parameters
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION F107,F107A,LAT,LONG,SEC,TLOC,YRD
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION AP(*),P(*)
+C     ..
+C     .. Scalars in Common ..
+C     ..
+C     .. Arrays in Common ..
+C     ..
+
+
+<A NAME="TSELEC"></A>
+***********************************************************************
+
+      SUBROUTINE TSELEC(SV)
+C        SET SWITCHES
+C     .. Array Arguments ..
+      DOUBLE PRECISION SV(*)
+C     ..
+C     .. Scalars in Common ..
+C     ..
+C     .. Arrays in Common ..
+C     ..
+
+
+<A NAME="GLOB5L"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION GLOB5L(P)
+C      LIMITED PARAMETER VERSION OF GLOBE 9/2/82
+C       CALCULATE G(L) FUNCTION FOR MSIS-86/CIRA 1986
+C       Lower Thermosphere Parameters
+C     .. Array Arguments ..
+      DOUBLE PRECISION P(*)
+C     ..
+C     .. Scalars in Common ..
+C     ..
+C     .. Arrays in Common ..
+C     ..
+
+
+<A NAME="DNET"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION DNET(DD,DM,ZHM,XMM,XM)
+C       8/20/80
+C       TURBOPAUSE CORRECTION FOR MSIS MODELS
+C       Eq. A12b
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION DD,DM,XM,XMM,ZHM
+C     ..
+
+
+<A NAME="CCOR"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION CCOR(ALT,R,H1,ZH)
+C        CHEMISTRY/DISSOCIATION CORRECTION FOR MSIS MODELS
+C     Eq. A20a or Eq. A21
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ALT,H1,R,ZH
+C     ..
+
+
+<A NAME=""></A>
+***********************************************************************
+
+      SUBROUTINE PRMSG5
+C          CIRA     11-FEB-86
+C     .. Arrays in Common ..
+C     ..
+
+
+<A NAME="HFUN"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION HFUN(SR,EL,RANGE)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     HFUN computes the height above a sphere (radius SR) of an
+C     observation point at a specified elevation (EL) and range
+C     (RANGE). SR and RANGE should be positive and EL should be in the
+C     range 0.0 to 90.0.
+C
+C       Input:
+C           SR - radial distance of station from center of earth
+C           EL - radar elevation
+C        RANGE - range to observation point
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION EL,RANGE,SR
+C     ..
+C     .. Scalars in Common ..
+C     ..
+
+
+<A NAME="INTEG"></A>
+***********************************************************************
+
+      SUBROUTINE INTEG(ARC,BEG,BEND,B,JEP,ECO,FI)
+C
+C     Private/Internal subroutine. Part of Apex coordinate computation
+C     package. See COORD for public API. INTEG determines the value of
+C     the integral invariant FI by numerically integrating along the
+C     field line from the specified point of interest to its conjugate
+C     point.
+C
+C       Input:
+C         ARC - Altitudes in earth radii (array).
+C         BEG - floating point array.
+C        BEND - floating point array.
+C           B - Magnitude of field (array)
+C         ECO - floating point array.
+C         JEP - floating point scaler.
+C
+C      Output:
+C          FI - floating point scaler.
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION FI
+      INTEGER JEP
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION ARC(200),B(200),BEG(200),BEND(200),ECO(200)
+C     ..
+
+
+<A NAME="INVAR"></A>
+***********************************************************************
+
+      SUBROUTINE INVAR(TM,FLAT,FLONG,ALT,ERR,BB,FL)
+C
+C     Private/Internal subroutine. Part of Apex coordinate computation
+C     package. See COORD for public API. INVAR converts coordinates
+C     TM, FLAT, FLON and ALT to L-shell coordinates FL and BB. The
+C     uncertainty in FL is typically less than 10.*ERR*FL (percent)
+C
+C       Input:
+C           TM - time in years for desired field (e.g. 1971.25)
+C         FLAT - geocentric latitude (degrees)
+C        FLONG - east longitude
+C          ALT - altitude (km)
+C          ERR - tolerance factor
+C
+C      Output:
+C           BB - Magnetic Field strength at point.
+C           FL - McIlwain's L-shell parameter i.e. 
+C                Invariant Latitude = ACOS(DSQRT(1.0D0/FL))/DTR
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ALT,BB,ERR,FL,FLAT,FLONG,TM
+C     ..
+
+
+<A NAME="INVLAT"></A>
+***********************************************************************
+
+      SUBROUTINE INVLAT(TM,GDLAT,GLON,GDALT,RL,RLATI)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION GDALT,GDLAT,GLON,RL,RLATI,TM
+C     ..
+
+
+<A NAME=""></A>
+***********************************************************************
+
+      SUBROUTINE ITERAT
+C
+C     Private/Internal subroutine. Part of Apex coordinate computation
+C     package. See COORD for public API. ITERAT integrates magnetic
+C     field line using a 4-point adams formula after initialization.
+C     First 7 iterations advance point by 3*DS.
+C
+C       Input (via common block ITER):
+C               L - step count. set l=1 first time thru,
+C                   set l=l+1 thereafter.
+C      B,BR,BT,BP - field + components at point y
+C              ST - sine of geocentric colatitude
+C             SGN - sgn=+1  traces in direction of field
+C                   sgn=-1  traces in negative field direction
+C              DS - integration stepsize (arc increment) in km
+C
+C      Input, Output (via common block ITER):
+C               Y - R,DLAT,DLON: geocentric tracing point coordinates 
+C                   (km,deg)
+C
+C      Output (via common block ITER):
+C            YOLD - Y at iteration L-1
+C
+C     .. Scalars in Common ..
+C     ..
+C     .. Arrays in Common ..
+C     ..
+
+
+<A NAME="LINES"></A>
+***********************************************************************
+
+      SUBROUTINE LINES(R1,R2,R3,B,ARC,ERR,J,VP,VN,TM)
+C
+C     Private/Internal subroutine. Part of Apex coordinate computation
+C     package. See COORD for public API. Makes repeated calls to the
+C     IGRF, tracing magnetic field line to minimum B.
+C
+C       Input:
+C          ERR - tolerance factor (see INVAR)
+C           TM - Time in floating point years (e.g. 1995.7)
+C
+C       Input, Output:
+C     R1,R2,R3 - field strength in geocentric directions.
+C            B - Magnitude of field (array)
+C          ARC - Altitudes in earth radii (array)
+C           VP - Geocentric latitude (array)
+C           VN - Geocentric longitude (array)
+C
+C      Output:
+C            J - Number of points in trace.
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ERR,TM
+      INTEGER J
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION ARC(200),B(200),R1(3),R2(3),R3(3),VN(3),VP(3)
+C     ..
+
+
+<A NAME="LINTRA"></A>
+***********************************************************************
+
+      SUBROUTINE LINTRA(TM,GCLAT,GLON,RKM,ALT,HALT,PLAT,PLON,PRKM,ARC,
+     *                  ARAD,ALAT,ALON,ISTOP,NPR,INIT,IER)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     LINTRA traces the geomagnetic field line from a specified
+C     starting point to either a specified altitude in either hemisphere
+C     or to the apex of the field line. in either case, if the apex
+C     is passed, the apex coordinates of the field line are calculated.
+C     when points are found on either side of the end point or apex,
+C     the final result is calculated by quadratic interpolation.
+C
+C       Input:
+C            TM - time for desired field (years)
+C         GCLAT - start point geocentric latitude (deg)
+C         GCLON - start point geocentric longitude (deg)
+C           RKM - start point radial distance (km)
+C           ALT - start point geodetic altitude (km)
+C         ISTOP = -1 - trace to altitude halt in same hemisphere
+C         ISTOP = 0 - trace to apex of field line
+C         ISTOP = +1 - trace to altitude halt in opposite hemisphere....
+C         NPR=1 - return to calling program after each step
+C
+C       Input, Output:
+C          HALT - end point geodetic altitude (km)
+C        INIT=1 - set by calling program when returning to lintra after
+C                 receiving intermediate results
+C             2 - set by lintra when trace is complete
+C
+C      Output:
+C          PLAT - end point geocentric latitude (deg)
+C          PLON - end point geocentric longitude (deg)
+C          PRKM - end point radial distance (km)
+C           ARC - arc length of field line traced (km)
+C          ARAD - apex radius of field line (earth radii)
+C          ALAT - apex latitude of field line (deg)
+C          ALON - apex longitude of field line (deg)
+C           IER = 1 - error, number of steps exceeds maxs
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ALAT,ALON,ALT,ARAD,ARC,GCLAT,GLON,HALT,PLAT,PLON,
+     *                 PRKM,RKM,TM
+      INTEGER IER,INIT,ISTOP,NPR
+C     ..
+C     .. Scalars in Common ..
+C     ..
+
+
+<A NAME="LOOK"></A>
+***********************************************************************
+
+      SUBROUTINE LOOK(SR,SLAT,SLON,PR,GLAT,GLON,AZ,EL,RANGE)
+C
+C     jmh - 1/80  ans fortran 66
+C
+C     LOOK calculates the azimuth, elevation and range from a radar
+C     of a specified point.
+C
+C       Input:
+C        SR    - distance of station from center of earth (km)
+C        SLAT  - geocentric latitude of station (deg)
+C        SLON  - longitude of station (deg)
+C        PR    - distance from center of earth of observation point (km)
+C        GLAT  - observation point geocentric latitude (deg)
+C        GLON  - observation point longitude (deg)
+C
+C      Output:
+C        AZ    - radar azimuth (deg)
+C        EL    - radar elevation (deg)
+C        RANGE - radar range (km)
+C
+C     ...calculate "observation-point" earth centered cartesian coords..
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION AZ,EL,GLAT,GLON,PR,RANGE,SLAT,SLON,SR
+C     ..
+
+
+<A NAME="MILMAG"></A>
+***********************************************************************
+
+      SUBROUTINE MILMAG(TM,RKM,ST,CT,SPH,CPH,BR,BT,BP,B)
+C
+C     MILMAG evaluates the geomagnetic field at a point specified by
+C     its geocentric coordinates. 
+C
+C     Modified by B. Rideout - Dec. 26, 2002
+C     This method is now simply a thin wrapper around geo-cgm code,
+C     method igrf.  See geo-cgm.f for details
+
+C
+C       Input:
+C              TM - time in years for desired field (e.g. 1971.25)
+C             RKM - geocentric distance (km)
+C           ST,CT - sin and cos of geocentric colatitude
+C         SPH,CPH - sin and cos of east longitude
+C
+C      Output:
+C        BR,BT,BP - geocentric field components (gauss)
+C               B - magnitude of field (gauss)
+C     ..
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION B,BP,BR,BT,CPH,CT,RKM,SPH,ST,TM
+C     ..
+
+
+<A NAME="MINV"></A>
+***********************************************************************
+
+      SUBROUTINE MINV(A,N,D,L,M)
+C
+C     Inverts general matrix A (overwrites A) using standard
+C     gauss-jordan method. The determinant is also calculated. a
+C     determinant of zero indicates that the matrix is singular.
+C
+C      Input:
+C        n - order of matrix a
+C        l - work vector of length n
+C        m - work vector of length n
+C
+C      Input, Output:
+C        a - input matrix, destroyed in computation and replaced by
+C            resultant inverse.
+C
+C      Output:
+C        d - resultant determinant
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION D
+      INTEGER N
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION A(*)
+      INTEGER L(*),M(*)
+C     ..
+
+
+<A NAME="MTRAN3"></A>
+***********************************************************************
+
+      SUBROUTINE MTRAN3(A)
+C
+C     jmh - 1/29/80  ans fortran 66
+C
+C     MTRAN3 calculates the transpose of a 3 x 3 matrix a
+C
+C       Input, Output:
+C           A - input matrix, replaced with transpose.
+C
+C     .. Array Arguments ..
+      DOUBLE PRECISION A(3,3)
+C     ..
+
+
+
+<A NAME="POINT"></A>
+***********************************************************************
+
+      SUBROUTINE POINT(SR,SLAT,SLON,AZ,EL,RANGE,PR,GLAT,GLON)
+C
+C     jmh - 1/80  ans fortran 66
+C
+C     POINT calculates the position of a point defined by the radar
+C     line-of sight vector to that point.
+C
+C     Input:
+C       SR    - distance of station from center of earth (km)
+C       SLAT  - geocentric latitude of station (deg)
+C       SLON  - longitude of station (deg)
+C       AZ    - radar azimuth (deg)
+C       EL    - radar elevation (deg)
+C       RANGE - radar range (km)
+C
+C     Output:
+C       PR    - distance from center of earth of observation point (km)
+C       GLAT  - observation point geocentric latitude (deg)
+C       GLON  - observation point longitude (deg)
+C
+C     ...calculate "line-of-sight" station centered cartesian coords...
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION AZ,EL,GLAT,GLON,PR,RANGE,SLAT,SLON,SR
+C     ..
+
+
+<A NAME="RFUN"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION RFUN(SR,EL,H)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     RFUN computes the range to an observation point at a specified
+C     elevation (EL) and distance (H) above a sphere of radius SR.
+C     SR and H should be positive and EL should be in the range
+C     0.0 to 90.0.
+C
+C       Input:
+C         SR - radius of sphere (km)
+C         EL - elevation (deg)
+C          H - distance above sphere (km)
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION EL,H,SR
+C     ..
+
+
+<A NAME="RPCART"></A>
+***********************************************************************
+
+      SUBROUTINE RPCART(SR,SLAT,SLON,AZ,EL,RANGE,RFX,RFY,RFZ,PFX,PFY,
+     *                  PFZ)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     RPCART computes the components (RFX,RFY,RFZ) relative to an earth
+C     centered cartesian coordinate system of the radar line of sight
+C     vector from a radar with coordinates SR (distance from center
+C     of earth), SLAT (geocentric latitude) and SLON (longitude). the
+C     observation point is specified by AZ (azimuth), EL (elevation) and
+C     RANGE (range). the cartesian coordinates of the observation
+C     point are returned in (PFX,PFY,PFZ).
+C
+C
+C     Input:
+C       SR    - distance of station from center of earth (km)
+C       SLAT  - geocentric latitude of station (deg)
+C       SLON  - longitude of station (deg)
+C       AZ    - radar azimuth (deg)
+C       EL    - radar elevation (deg)
+C       RANGE - radar range (km)
+C
+C     Output:
+C       RFX,RFY,RFZ - earth centered cartesian coordinate components
+C                     of radar line of sight.
+C       PFX,PFY,PFZ - earth centered cartesian coordinate components
+C                     of observation point.
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION AZ,EL,PFX,PFY,PFZ,RANGE,RFX,RFY,RFZ,SLAT,SLON,SR
+C     ..
+
+
+<A NAME="SPROD"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION SPROD(A,B)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     SPROD calculates the scalar product of two vectors A and B.
+C
+C     Input:
+C        A - floating point vector of dimension 3
+C        B - floating point vector of dimension 3
+C
+C     .. Array Arguments ..
+      DOUBLE PRECISION A(3),B(3)
+C     ..
+      SPROD = A(1)*B(1) + A(2)*B(2) + A(3)*B(3)
+      RETURN
+C
+      END
+
+<A NAME="STARTR"></A>
+***********************************************************************
+
+      SUBROUTINE STARTR(R1,R2,R3,B,ARC,V,TM)
+C
+C     Private/Internal subroutine. Part of Apex coordinate computation
+C     package. See COORD for public API.
+C
+C       Input:
+C           TM - time in years for desired field (e.g. 1971.25)
+C
+C       Input, Output:
+C          ARC - Altitudes in earth radii (array).
+C            V - floating point array.
+C
+C      Output:
+C     R1,R2,R3 - field strength in geocentric directions.
+C            B - Magnitude of field (array)
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION TM
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION ARC(200),B(200),R1(3),R2(3),R3(3),V(3,3)
+C     ..
+
+
+<A NAME="UTHM"></A>
+***********************************************************************
+
+      SUBROUTINE UTHM(UTM,IUH,IUM)
+C     Converts UTM from the hour and fraction to HH:MM
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION UTM
+      INTEGER IUH,IUM
+C     ..
+C     .. Intrinsic Functions ..
+      INTRINSIC INT,NINT
+C     ..
+      IUH = INT(UTM)
+      IF (IUH.EQ.99) THEN
+         IUM = 99
+      ELSE
+         IUM = NINT((UTM-IUH)*60)
+      END IF
+      RETURN
+      END
+C  *********************************************************************
+C  =====================================================================
+      SUBROUTINE GEOCGM01(ICOR,IYEAR,HI,DAT,PLA,PLO)
+C   Version 2001 for GEO-CGM.FOR                              April 2001
+C     Apr 11, 2001  GEOLOW is modified to account for interpolation of
+C                CGM meridians near equator across the 360/0 boundary
+C     AUTHORS:
+C     Natalia E. Papitashvili (WDC-B2, Moscow, Russia, now at NSSDC,
+C     NASA/Goddard Space Flight Center, Greenbelt, Maryland)
+C     Vladimir O. Papitashvili (IZMIRAN, Moscow, Russia, now at SPRL,
+C     The University of Michigan, Ann Arbor)
+C     Conributions from Boris A. Belov and Vladimir A. Popov (both at
+C     IZMIRAN), as well as from Therese Moretto (DMI, DSRI, now at
+C     NASA/GSFC).
+C     The original version of this code is described in the brochure by
+C   N.A. Tsyganenko, A.V. Usmanov, V.O. Papitashvili, N.E. Papitashvili,
+C     and V.A. Popov, Software for computations of geomagnetic field and
+C  related coordinate systems, Soviet Geophys. Committ., Moscow, 58 pp.,
+C     1987. A number of subroutines from the revised GEOPACK-96 software
+C     package developed by Nikolai A. Tsyganenko and Mauricio Peredo are
+C     utilized in this code with some modifications (see full version of
+C    GEOPACK-96 on http://www-spof.gsfc.nasa.gov/Modeling/geopack.html).
+C     This code consists of the main subroutine GEOCGM99, five functions
+C  (OVL_ANG, CGMGLA, CGMGLO, DFRIDR, and AZM_ANG), eigth new and revised
+C     subroutines from the above-mentioned brochure (MLTUT, MFC, FTPRNT,
+C     GEOLOW, CORGEO, GEOCOR, SHAG, and RIGHT), and 9 subroutines from
+C   GEOPACK-96 (IGRF, SPHCAR, BSPCAR, GEOMAG, MAGSM, SMGSM, RECALC, SUN)
+C  =====================================================================
+C     Input parameters:
+C     icor = +1    geo to cgm
+C            -1    cgm to geo
+C     iyr  = year
+C     hi   = altitude
+C     slar = geocentric latitude
+C     slor = geocentric longitude (east +)
+C     These two pairs can be either input or output parameters
+C     clar = cgm latitude
+C     clor = cgm longitude (east +)
+C     Output parameters:
+C     Array DAT(11,4) consists of 11 parameters (slar, slor, clar, clor,
+C     rbm, btr, bfr, brr, ovl, azm, utm) organized for the start point
+C     (*,1), its conjugate point (*,2), then for the footprints at 1-Re
+C     of the start (*,3) and conjugate (*,4) points
+C     Description of parameters used in the subroutine:
+C     slac = conjugate geocentric latitude
+C     sloc = conjugate geocentric longitude
+C     slaf = footprint geocentric latitude
+C     slof = footprint geocentric longitude
+C     rbm  = apex of the magnetic field line in Re (Re=6371.2 km)
+C            (this parameter approximately equals the McIlwain L-value)
+C     btr  = IGRF Magnetic field H (nT)
+C     bfr  = IGRF Magnetic field D (deg)
+C     brr  = IGRF Magnetic field Z (nT)
+C     ovl  = oval_angle as the azimuth to "magnetic north":
+C                + east in Northern Hemisphere
+C                + west in Southern Hemisphere
+C     azm  = meridian_angle as the azimuth to the CGM pole:
+C                + east in Northern Hemisphere
+C                + west in Southern Hemisphere
+C     utm  = magnetic local time (MLT) midnight in UT hours
+C     pla  = array of geocentric latitude and
+
+C     plo  = array of geocentric longitudes for the CGM poles
+C            in the Northern and Southern hemispheres at a given
+C            altitude (indices 1 and 2) and then at the Earth's
+C            surface - 1-Re or zero altitude - (indices 3 and 4)
+C     dla  = dipole latitude
+C     dlo  = dipole longitude
+C  =====================================================================
+C     Year (for example, as for Epoch 1995.0 - no fraction of the year)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION HI
+      INTEGER ICOR,IYEAR
+C     ..
+C     .. Array Arguments ..
+      DOUBLE PRECISION DAT(11,4),PLA(4),PLO(4)
+C     ..
+
+
+<A NAME="OVL_ANG"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION OVL_ANG(SLA,SLO,CLA,CLO,RR)
+C   This function returns an estimate at the given location of the angle
+C     (oval_angle) between the directions (tangents) along the constant
+C     CGM and geographic latitudes by utilizing the function DFRIDR from
+C     Numerical Recipes for FORTRAN.
+C   This angle can be taken as the azimuth to the local "magnetic" north
+C   (south) if the eastward (westward) tangent to the local CGM latitude
+C     points south (north) from the local geographic latitude.
+C  Written by Therese Moretto in August 1994 (revised by V. Papitashvili
+C     in January 1999).
+C   Ignore points which nearly coincide with the geographic or CGM poles
+C    within 0.01 degree in latitudes; this also takes care if SLA or CLA
+C     are dummy values (e.g., 999.99)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION CLA,CLO,RR,SLA,SLO
+C     ..
+
+
+<A NAME="CGMGLA"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION CGMGLA(CLON)
+C     This function returns the geocentric latitude as a function of CGM
+C     longitude with the CGM latitude held in common block CGMGEO.
+C     Essentially this function just calls the subroutine CORGEO.
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION CLON
+C     ..
+
+
+<A NAME="CGMGLO"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION CGMGLO(CLON)
+C     Same as the function CGMGLA but this returns the geocentric
+C    longitude. If cr360 is true, geolon+360 deg is returned when geolon
+C     is less than 90 deg. If cr0 is true, geolon-360 deg is returned
+C     when geolon is larger than 270 degrees.
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION CLON
+C     ..
+
+
+<A NAME="AZM_ANG"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION AZM_ANG(SLA,SLO,CLA,PLA,PLO)
+C     Computation of an angle between the north geographic meridian and
+C     direction to the North (South) CGM pole: positive azimuth is
+C     measured East (West) from geographic meridian, i.e., the angle is
+C     measured between the great-circle arc directions to the geographic
+C     and CGM poles. In this case the geomagnetic field components in
+C     XYZ (NEV) system can be converted into the CGM system in both
+C     hemispheres as:
+C                           XM = X COS(alf) + Y SIN(alf)
+C                           YM =-X SIN(alf) + Y COS(alf)
+C   Written by V. O. Papitashvili in mid-1980s; revised in February 1999
+C   Ignore points which nearly coincide with the geographic or CGM poles
+C    within 0.01 degree in latitudes; this also takes care if SLA or CLA
+C     are dummy values (e.g., 999.99)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION CLA,PLA,PLO,SLA,SLO
+C     ..
+
+
+<A NAME="MLTUT"></A>
+***********************************************************************
+
+      SUBROUTINE MLTUT(SLA,SLO,CLA,PLA,PLO,UT)
+C     Calculates the MLT midnight in UT hours
+C     Definition of the MLT midnight (MLTMN) here is different from the
+C     approach described elsewhere. This definition does not take into
+C    account the geomagnetic meridian of the subsolar point which causes
+C    seasonal variations of the MLTMN in UT time. The latter approach is
+C     perfectly applicable to the dipole or eccentric dipole magnetic
+C    coordinates but it fails with the CGM coordinates because there are
+C     forbidden areas near the geomagnetic equator where CGM coordinates
+C     cannot be calculated by definition [e.g., Gustafsson et al., JATP,
+C     54, 1609, 1992].
+C  In this code the MLT midnight is defined as location of a given point
+C    on (or above) the Earth's surface strictly behind the North (South)
+C     CGM pole in such the Sun, the pole, and the point are lined up.
+C     This approach was originally proposed and coded by Boris Belov
+C     sometime in the beginning of 1980s; here it is slightly edited by
+C     Vladimir Papitashvili in February 1999.
+C   Ignore points which nearly coincide with the geographic or CGM poles
+C    within 0.01 degree in latitudes; this also takes care if SLA or CLA
+C     are dummy values (e.g., 999.99)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION CLA,PLA,PLO,SLA,SLO,UT
+C     ..
+
+
+<A NAME="MFC"></A>
+***********************************************************************
+
+      SUBROUTINE MFC(SLA,SLO,R,H,D,Z)
+C     Computation of the IGRF magnetic field components
+C     Extracted as a subroutine from the earlier version of GEO-CGM.FOR
+C     V. Papitashvili, February 1999
+C     This takes care if SLA or CLA are dummy values (e.g., 999.99)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION D,H,R,SLA,SLO,Z
+C     ..
+
+
+<A NAME="FTPRNT"></A>
+***********************************************************************
+
+      SUBROUTINE FTPRNT(RH,SLA,SLO,CLA,CLO,ACLA,ACLO,SLAF,SLOF,RF)
+C     Calculation of the magnetic field line footprint at the Earth's
+C     (or any higher) surface.
+C   Extracted as a subroutine from the earlier version of GEO-CGM.FOR by
+C   V. Papitashvili in February 1999 but then the subroutine was revised
+C    to obtain the Altitude Adjusted CGM coordinates. The AACGM approach
+C     is proposed by Kile Baker of the JHU/APL, see their World Wide Web
+C     site http://sd-www.jhuapl.edu/RADAR/AACGM/ for details.
+C     If RF = 1-Re (i.e., at the Earth's surface), then the footprint
+C     location is defined as the Altitude Adjusted (AA) CGM coordinates
+C     for a given point (ACLA, ACLO).
+C     If RF = 1.xx Re (i.e., at any altitude above or below the starting
+C     point), then the conjunction between these two points can be found
+C     along the field line.
+C     This takes care if SLA or CLA are dummy values (e.g., 999.99)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION ACLA,ACLO,CLA,CLO,RF,RH,SLA,SLAF,SLO,SLOF
+C     ..
+
+
+<A NAME="GEOLOW"></A>
+***********************************************************************
+
+      SUBROUTINE GEOLOW(SLAR,SLOR,RH,CLAR,CLOR,RBM,SLAC,SLOC)
+C     Calculates CGM coordinates from geocentric ones at low latitudes
+C    where the DGRF/IGRF magnetic field lines may never cross the dipole
+C     equatorial plane and, therefore, the definition of CGM coordinates
+C     becomes invalid.
+C     The code is written by Natalia and Vladimir Papitashvili as a part
+C   of the earlier versions of GEO-CGM.FOR; extracted as a subroutine by
+C     V. Papitashvili in February 1999.
+C     Apr 11, 2001  GEOLOW is modified to account for interpolation of
+C                CGM meridians near equator across the 360/0 boundary
+C     See the paper by  Gustafsson, G., N. E. Papitashvili, and V. O.
+C    Papitashvili, A revised corrected geomagnetic coordinate system for
+C     Epochs 1985 and 1990 [J. Atmos. Terr. Phys., 54, 1609-1631, 1992]
+C     for detailed description of the B-min approach utilized here.
+C     This takes care if SLA is a dummy value (e.g., 999.99)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION CLAR,CLOR,RBM,RH,SLAC,SLAR,SLOC,SLOR
+C     ..
+
+
+<A NAME="CORGEO"></A>
+***********************************************************************
+
+      SUBROUTINE CORGEO(SLA,SLO,RH,DLA,DLO,CLA,CLO,PMI)
+C     Calculates geocentric coordinates from corrected geomagnetic ones.
+C     The code is written by Vladimir Popov and Vladimir Papitashvili
+C     in mid-1980s; revised by V. Papitashvili in February 1999
+C     This takes care if CLA is a dummy value (e.g., 999.99)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION CLA,CLO,DLA,DLO,PMI,RH,SLA,SLO
+C     ..
+
+
+<A NAME="GEOCOR"></A>
+***********************************************************************
+
+      SUBROUTINE GEOCOR(SLA,SLO,RH,DLA,DLO,CLA,CLO,PMI)
+C     Calculates corrected geomagnetic coordinates from geocentric ones
+C     The code is written by Vladimir Popov and Vladimir Papitashvili
+C     in mid-1980s; revised by V. Papitashvili in February 1999
+C     This takes care if SLA is a dummy value (e.g., 999.99)
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION CLA,CLO,DLA,DLO,PMI,RH,SLA,SLO
+C     ..
+
+
+<A NAME="SHAG"></A>
+***********************************************************************
+
+      SUBROUTINE SHAG(X,Y,Z,DS)
+C     Similar to SUBR STEP from GEOPACK-1996 but SHAG takes into account
+C     only internal sources
+C     The code is re-written from Tsyganenko's subroutine STEP by
+C     Natalia and Vladimir Papitashvili in mid-1980s
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION DS,X,Y,Z
+C     ..
+
+
+<A NAME="RIGHT"></A>
+***********************************************************************
+
+      SUBROUTINE RIGHT(X,Y,Z,R1,R2,R3)
+C   Similar to SUBR RHAND from GEOPACK-1996 but RIGHT takes into account
+C     only internal sources
+C     The code is re-written from Tsyganenko's subroutine RHAND
+C     by Natalia and Vladimir Papitashvili in mid-1980s
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION R1,R2,R3,X,Y,Z
+C     ..
+
+
+<A NAME="IGRF"></A>
+***********************************************************************
+
+      SUBROUTINE IGRF(IY,NM,R,T,F,BR,BT,BF)
+c     Jan 20, 2001: Subroutine IGRF is modified by V. Papitashvili - SHA
+c     coefficients for IGRF-2000, and SV 2000-2005 are added (note that
+c     IGRF-1995 has not been changed to DGRF-1995 this time
+c     (see http://www.ngdc.noaa.gov/IAGA/wg8/igrf2000.html)
+c     Aug 26, 1997: Subroutine IGRF is modified by V. Papitashvili - SHA
+c     coefficients for DGRF-1990, IGRF-1995, and SV 1995-2000 are added
+c     (EOS, v.77, No.16, p.153, April 16, 1996)
+c   Feb 03, 1995: Modified by Vladimir Papitashvili (SPRL, University of
+c     Michigan) to accept dates between 1945 and 2000
+C  MODIFIED TO ACCEPT DATES BETWEEN 1965 AND 2000; COEFFICIENTS FOR IGRF
+C     1985 HAVE BEEN REPLACED WITH DGRF1985 COEFFICIENTS [EOS TRANS. AGU
+C     APRIL 21, 1992, C  P. 182]. ALSO, THE CODE IS MODIFIED TO ACCEPT
+C    DATES BEYOND 1990, AND TO USE LINEAR EXTRAPOLATION BETWEEN 1990 AND
+C     2000 BASED ON THE IGRF COEFFICIENTS FROM THE SAME EOS ARTICLE
+C   Modified by Mauricio Peredo, Hughes STX at NASA/GSFC, September 1992
+C     CALCULATES COMPONENTS OF MAIN GEOMAGNETIC FIELD IN SPHERICAL
+C     GEOCENTRIC COORDINATE SYSTEM BY USING THIRD GENERATION IGRF MODEL
+C     (J. GEOMAG. GEOELECTR. V.34, P.313-315, 1982; GEOMAGNETISM AND
+C     AERONOMY V.26, P.523-525, 1986).
+C     UPDATING OF COEFFICIENTS TO A GIVEN EPOCH IS MADE DURING THE FIRST
+C     CALL AND AFTER EVERY CHANGE OF PARAMETER IY
+C     ---INPUT PARAMETERS:
+C     IY - YEAR NUMBER (FROM 1945 UP TO 1990)
+C  NM - MAXIMAL ORDER OF HARMONICS TAKEN INTO ACCOUNT (NOT MORE THAN 10)
+C   R,T,F - SPHERICAL COORDINATES OF THE POINT (R IN UNITS RE=6371.2 KM,
+C     COLATITUDE T AND LONGITUDE F IN RADIANS)
+C     ---OUTPUT PARAMETERS:
+C     BR,BT,BF - SPHERICAL COMPONENTS OF MAIN GEOMAGNETIC FIELD (in nT)
+C    AUTHOR: NIKOLAI A. TSYGANENKO, INSTITUTE OF PHYSICS, ST.-PETERSBURG
+C      STATE UNIVERSITY, STARY PETERGOF 198904, ST.-PETERSBURG, RUSSIA
+C      (now the NASA Goddard Space Fligth Center, Greenbelt, Maryland)
+      IMPLICIT NONE
+C     G0, G1, and H1 are used in SUBROUTINE DIP to calculate geodipole's
+C     moment for a given year
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION BF,BR,BT,F,R,T
+      INTEGER IY,NM
+C     ..
+
+
+<A NAME="RECALC"></A>
+***********************************************************************
+
+      SUBROUTINE RECALC(IYR,IDAY,IHOUR,MIN,ISEC)
+C     THIS IS A MODIFIED VERSION OF THE SUBROUTINE RECOMP WRITTEN BY
+C     N. A. TSYGANENKO. SINCE I WANT TO USE IT IN PLACE OF SUBROUTINE
+C     RECALC, I HAVE RENAMED THIS ROUTINE RECALC AND ELIMINATED THE
+C     ORIGINAL RECALC FROM THIS VERSION OF THE <GEOPACK.FOR> PACKAGE.
+C    THIS WAY ALL ORIGINAL CALLS TO RECALC WILL CONTINUE TO WORK WITHOUT
+C     HAVING TO CHANGE THEM TO CALLS TO RECOMP.
+C     AN ALTERNATIVE VERSION OF THE SUBROUTINE RECALC FROM THE GEOPACK
+C     PACKAGE BASED ON A DIFFERENT APPROACH TO DERIVATION OF ROTATION
+C     MATRIX ELEMENTS
+C     THIS SUBROUTINE WORKS BY 20% FASTER THAN RECALC AND IS EASIER TO
+C     UNDERSTAND
+C     #####################################################
+C     #  WRITTEN BY  N.A. TSYGANENKO ON DECEMBER 1, 1991  #
+C     #####################################################
+C     Modified by Mauricio Peredo, Hughes STX at NASA/GSFC Code 695,
+C     September 1992
+c    Modified to accept years up to 2005 (V. Papitashvili, January 2001)
+c  Modified to accept dates up to year 2000 and updated IGRF coeficients
+c     from 1945 (updated by V. Papitashvili, February 1995)
+C     OTHER SUBROUTINES CALLED BY THIS ONE: SUN
+C     IYR = YEAR NUMBER (FOUR DIGITS)
+C     IDAY = DAY OF YEAR (DAY 1 = JAN 1)
+C     IHOUR = HOUR OF DAY (00 TO 23)
+C     MIN = MINUTE OF HOUR (00 TO 59)
+C     ISEC = SECONDS OF DAY(00 TO 59)
+      IMPLICIT NONE
+C     .. Scalar Arguments ..
+      INTEGER IDAY,IHOUR,ISEC,IYR,MIN
+C     ..
+
+
+<A NAME="SUN"></A>
+***********************************************************************
+
+      SUBROUTINE SUN(IYR,IDAY,IHOUR,MIN,ISEC,GST,SLONG,SRASN,SDEC)
+C    CALCULATES FOUR QUANTITIES NECESSARY FOR COORDINATE TRANSFORMATIONS
+C     WHICH DEPEND ON SUN POSITION (AND, HENCE, ON UNIVERSAL TIME AND
+C     SEASON)
+C     ---INPUT PARAMETERS:
+C     IYR,IDAY,IHOUR,MIN,ISEC - YEAR, DAY, AND UNIVERSAL TIME IN HOURS,
+C     MINUTES, AND SECONDS  (IDAY=1 CORRESPONDS TO JANUARY 1).
+C     ---OUTPUT PARAMETERS:
+C   GST - GREENWICH MEAN SIDEREAL TIME, SLONG - LONGITUDE ALONG ECLIPTIC
+C     SRASN - RIGHT ASCENSION,  SDEC - DECLINATION  OF THE SUN (RADIANS)
+C     THIS SUBROUTINE HAS BEEN COMPILED FROM:
+C     RUSSELL C.T., COSM.ELECTRODYN., 1971, V.2,PP.184-196.
+C     AUTHOR: Gilbert D. Mead
+      IMPLICIT NONE
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION GST,SDEC,SLONG,SRASN
+      INTEGER IDAY,IHOUR,ISEC,IYR,MIN
+C     ..
+
+
+<A NAME="SPHCAR"></A>
+***********************************************************************
+
+      SUBROUTINE SPHCAR(R,TETA,PHI,X,Y,Z,J)
+C     CONVERTS SPHERICAL COORDS INTO CARTESIAN ONES AND VICA VERSA
+C     (TETA AND PHI IN RADIANS).
+C                  J>0            J<0
+C     -----INPUT:   J,R,TETA,PHI     J,X,Y,Z
+C     ----OUTPUT:      X,Y,Z        R,TETA,PHI
+C    AUTHOR: NIKOLAI A. TSYGANENKO, INSTITUTE OF PHYSICS, ST.-PETERSBURG
+C      STATE UNIVERSITY, STARY PETERGOF 198904, ST.-PETERSBURG, RUSSIA
+C      (now the NASA Goddard Space Fligth Center, Greenbelt, Maryland)
+      IMPLICIT NONE
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION PHI,R,TETA,X,Y,Z
+      INTEGER J
+C     ..
+
+
+<A NAME="BSPCAR"></A>
+***********************************************************************
+
+      SUBROUTINE BSPCAR(TETA,PHI,BR,BTET,BPHI,BX,BY,BZ)
+C     CALCULATES CARTESIAN FIELD COMPONENTS FROM SPHERICAL ONES
+C     -----INPUT:   TETA,PHI - SPHERICAL ANGLES OF THE POINT IN RADIANS
+C              BR,BTET,BPHI -  SPHERICAL COMPONENTS OF THE FIELD
+C     -----OUTPUT:  BX,BY,BZ - CARTESIAN COMPONENTS OF THE FIELD
+C    AUTHOR: NIKOLAI A. TSYGANENKO, INSTITUTE OF PHYSICS, ST.-PETERSBURG
+C      STATE UNIVERSITY, STARY PETERGOF 198904, ST.-PETERSBURG, RUSSIA
+C      (now the NASA Goddard Space Fligth Center, Greenbelt, Maryland)
+      IMPLICIT NONE
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION BPHI,BR,BTET,BX,BY,BZ,PHI,TETA
+C     ..
+
+
+<A NAME="GEOMAG"></A>
+***********************************************************************
+
+      SUBROUTINE GEOMAG(XGEO,YGEO,ZGEO,XMAG,YMAG,ZMAG,J,IYR)
+C   CONVERTS GEOCENTRIC (GEO) TO DIPOLE (MAG) COORDINATES OR VICA VERSA.
+C     IYR IS YEAR NUMBER (FOUR DIGITS).
+C                           J>0                J<0
+C     -----INPUT:  J,XGEO,YGEO,ZGEO,IYR   J,XMAG,YMAG,ZMAG,IYR
+C     -----OUTPUT:    XMAG,YMAG,ZMAG        XGEO,YGEO,ZGEO
+C    AUTHOR: NIKOLAI A. TSYGANENKO, INSTITUTE OF PHYSICS, ST.-PETERSBURG
+C      STATE UNIVERSITY, STARY PETERGOF 198904, ST.-PETERSBURG, RUSSIA
+C      (now the NASA Goddard Space Fligth Center, Greenbelt, Maryland)
+      IMPLICIT NONE
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION XGEO,XMAG,YGEO,YMAG,ZGEO,ZMAG
+      INTEGER IYR,J
+C     ..
+
+
+<A NAME="MAGSM"></A>
+***********************************************************************
+
+      SUBROUTINE MAGSM(XMAG,YMAG,ZMAG,XSM,YSM,ZSM,J)
+C CONVERTS DIPOLE (MAG) TO SOLAR MAGNETIC (SM) COORDINATES OR VICA VERSA
+C                    J>0              J<0
+C     -----INPUT: J,XMAG,YMAG,ZMAG     J,XSM,YSM,ZSM
+C     ----OUTPUT:    XSM,YSM,ZSM       XMAG,YMAG,ZMAG
+C  ATTENTION: SUBROUTINE RECALC MUST BE CALLED BEFORE MAGSM IN TWO CASES
+C     /A/  BEFORE THE FIRST USE OF MAGSM
+C     /B/  IF THE CURRENT VALUES OF IYEAR,IDAY,IHOUR,MIN,ISEC ARE
+C          DIFFERENT FROM THOSE IN THE PRECEDING CALL OF  MAGSM
+C    AUTHOR: NIKOLAI A. TSYGANENKO, INSTITUTE OF PHYSICS, ST.-PETERSBURG
+C      STATE UNIVERSITY, STARY PETERGOF 198904, ST.-PETERSBURG, RUSSIA
+C      (now the NASA Goddard Space Fligth Center, Greenbelt, Maryland)
+      IMPLICIT NONE
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION XMAG,XSM,YMAG,YSM,ZMAG,ZSM
+      INTEGER J
+C     ..
+
+
+<A NAME="SMGSM"></A>
+***********************************************************************
+
+      SUBROUTINE SMGSM(XSM,YSM,ZSM,XGSM,YGSM,ZGSM,J)
+C CONVERTS SOLAR MAGNETIC (SM) TO SOLAR MAGNETOSPHERIC (GSM) COORDINATES
+C     OR VICA VERSA.
+C                  J>0                 J<0
+C     -----INPUT: J,XSM,YSM,ZSM        J,XGSM,YGSM,ZGSM
+C     ----OUTPUT:  XGSM,YGSM,ZGSM       XSM,YSM,ZSM
+C  ATTENTION: SUBROUTINE RECALC MUST BE CALLED BEFORE SMGSM IN TWO CASES
+C     /A/  BEFORE THE FIRST USE OF SMGSM
+C     /B/  IF THE CURRENT VALUES OF IYEAR,IDAY,IHOUR,MIN,ISEC ARE
+C          DIFFERENT FROM THOSE IN THE PRECEDING CALL OF SMGSM
+C    AUTHOR: NIKOLAI A. TSYGANENKO, INSTITUTE OF PHYSICS, ST.-PETERSBURG
+C      STATE UNIVERSITY, STARY PETERGOF 198904, ST.-PETERSBURG, RUSSIA
+C      (now the NASA Goddard Space Fligth Center, Greenbelt, Maryland)
+      IMPLICIT NONE
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION XGSM,XSM,YGSM,YSM,ZGSM,ZSM
+      INTEGER J
+C     ..
+
+
+<A NAME="TNF"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION TNF(TI,TE,NE,NHP,NO,NH,NN2,NO2,NHE,IER)
+C
+C     TNF calculates the ion temperature (tn) given the electron and
+C     neutral temperatures (TE, TN) and the electron, o+, h+, o, h,
+C     n2, o2 and he concentrations (NE, NOP, NHP, NO, NH, NN2, NO2,
+C     NHE). o+ and h+ ions are assumed to be the only ions present.
+C     only coulomb collisions and ion-neutral polarization and
+C     charge-exchange interactions are considered in balancing
+C     the ion gas energy source and sink terms.  the solution for
+C     tn is an iterative procedure in which TI is the initial value
+C     of tn for the first iteration. all concentrations are in
+C     units of cm**-3.
+C
+C       Input:
+C          TI - Ion Temperature (K)
+C          TE - Electron Temperature
+C          NE - Electron concentration (cm**-3)
+C         NHP - H Ion concentration
+C          NO - O Ion concentration
+C         NN2 - N2 concentration
+C         NO2 - O2 concentration
+C         NHE - HE concentration
+C
+C      Output:
+C         IER - If (IER.NE.0) an error has occurred.
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION NE,NH,NHE,NHP,NN2,NO,NO2,TE,TI
+      INTEGER IER
+C     ..
+
+
+<A NAME="VADD"></A>
+***********************************************************************
+
+      SUBROUTINE VADD(A,B,C)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     VADD calculates the sum of two vectors A and B, C = A + B.
+C
+C       Input:
+C          A - floating point vector of dimension 3.
+C          B - floating point vector of dimension 3.
+C
+C      Output:
+C          C - floating point vector of dimension 3.
+C
+C     .. Array Arguments ..
+      DOUBLE PRECISION A(3),B(3),C(3)
+C     ..
+      C(1) = A(1) + B(1)
+      C(2) = A(2) + B(2)
+      C(3) = A(3) + B(3)
+      RETURN
+C
+      END
+
+<A NAME="VCTCNV"></A>
+***********************************************************************
+
+      SUBROUTINE VCTCNV(FX,FY,FZ,X,Y,Z,FR,FT,FP,R,THETA,PHI,IMODE)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     VCTCNV converts between the cartesian and spherical coordinate
+C     representations of a vector field f. (FX,FY,FZ) are the
+C     components of the field at (X,Y,Z). (FR,FT,FP) are the
+C     components of the field at (R,THETA,PHI) in the directions of
+C     increasing R, increasing THETA and increasing PHI. if IMODE=1,
+C     (FX,FY,FZ,X,Y,Z) -> (FR,FT,FP,R,THETA,PHI). if IMODE=2,
+C     (FR,FT,FP,R,THETA,PHI) -> (FX,FY,FZ,X,Y,Z). THETA and PHI are
+C     in degrees.
+C
+C       Input:
+C         IMODE - 1 cartesian to spherical
+C                 2 spherical to cartesian
+C
+C     Input, output:
+C      FX,FY,FZ - cartesian vector field components
+C         X,Y,Z - cartesian vector field coordinates
+C      FR,FT,FP - spherical vector field components
+C   R,THETA,PHI - spherical vector field coordinates
+C
+C     .. Scalar Arguments ..
+      DOUBLE PRECISION FP,FR,FT,FX,FY,FZ,PHI,R,THETA,X,Y,Z
+      INTEGER IMODE
+C     ..
+
+
+<A NAME="VMAG"></A>
+***********************************************************************
+
+      DOUBLE PRECISION FUNCTION VMAG(A)
+C
+C     jmh - 1/80  ans fortran 66
+C
+C     VMAG calculates the magnitude of a vector A
+C
+C     Input:
+C        A - floating point vector of dimension 3
+C
+C     .. Array Arguments ..
+      DOUBLE PRECISION A(3)
+C     ..
+C     .. Intrinsic Functions ..
+      INTRINSIC DSQRT
+C     ..
+      VMAG = DSQRT(A(1)*A(1)+A(2)*A(2)+A(3)*A(3))
+      RETURN
+C
+      END
+
+<A NAME="VSUB"></A>
+***********************************************************************
+
+      SUBROUTINE VSUB(A,B,C)
+C
+C     jmh - 11/79  ans fortran 66
+C
+C     VSUB calculates the difference of two vectors A and B, C = A - B.
+C
+C     Input:
+C        A - floating point vector of dimension 3
+C        B - floating point vector of dimension 3
+C
+C     Output:
+C        C - floating point vector of dimension 3
+C
+C     .. Array Arguments ..
+      DOUBLE PRECISION A(3),B(3),C(3)
+C     ..
+      C(1) = A(1) - B(1)
+      C(2) = A(2) - B(2)
+      C(3) = A(3) - B(3)
+      RETURN
+C
+      END
+
+<A NAME="CALNDR"></A>
+***********************************************************************
+
+      SUBROUTINE CALNDR(YEAR,DAYNO,DAY,MONTH,IER)
+C
+C     CALNDR returns DAY, MONTH and IER. THE FOLLOWING VARIABLES APPEAR
+C     IN THE CALLING SEQUENCE (all INTEGERS).
+C
+C          YEAR - YEAR (1977)
+C         DAYNO - DAY OF THE YEAR (60)
+C           DAY - DAY OF THE MONTH (1)
+C         MONTH - MONTH NUMBER (3)
+C           IER - ERROR INDICATOR. IER IS RETURNED BY ALL ROUTINES IN
+C                 THE PACKAGE. IER=0 IF NO ERRORS ARE DETECTED. IER=1
+C                 IF AN ERROR IS DETECTED.
+C
+C     .. Scalar Arguments ..
+      INTEGER DAY,DAYNO,IER,MONTH,YEAR
+C     ..
+
+
+<A NAME="DATER"></A>
+***********************************************************************
+
+      SUBROUTINE DATER(DATE,NCHAR,DAY,MONTH,YEAR,IER)
+C
+C     SUBROUTINES DATER, MONAME, MONUM, WKNAME, IDAY, CALNDR, JDAY,
+C     JDATER, IZLR, IDMYCK AND DATES COMPRISE A COMPREHENSIVE DATE 
+C     MANIPULATION
+C     PACKAGE. THE FOLLOWING VARIABLES APPEAR IN THE CALLING SEQUENCE
+C     OF ONE OR MORE SUBROUTINES. ALL ARE TYPED INTEGER. THE VALUE
+C     CORRESPONDING TO MARCH 1, 1977 IS SHOWN IN PARENTHESES.
+C
+C           DAY - DAY OF THE MONTH (1)
+C         MONTH - MONTH NUMBER (3)
+C          YEAR - YEAR (1977)
+C         DAYNO - DAY OF THE YEAR (60)
+C        JDAYNO - JULIAN DAY NUMBER (2443204)
+C          WDAY - WEEKDAY NUMBER (3)
+C          DATE - DATE AS A STRING OF ALPHANUMERIC CHARS, 3 CHARS/WORD.
+C                 WHEN AN INPUT VARIABLE, DATE MAY BE IN ANY REASONABLE
+C                 FORMAT, E.G. MARCH 1 1977, 3/1/77, ETC. IF EXPRESSED
+C                 AS THREE NUMERIC FIELDS, ORDER IS PRESUMED TO BE
+C                 MONTH, DAY, YEAR. WHEN AN OUTPUT VARIABLE, THE FORMAT
+C                 IS DETERMINED BY IOPT, AND SIX WORDS SHOULD BE
+C                 RESERVED IN THE CALLING PROGRAM.
+C
+C          MSTR - MONTH, AS A STRING OF UPPER CASE ALPHABETIC
+C                 CHARACTERS, 3 CHARACTERS/WORD. THREE WORDS SHOULD BE
+C                 RESERVED IN THE CALLING PROGRAM. (MARCH)
+C          WSTR - DAY OF THE WEEK, AS A STRING OF UPPER CASE ALPHABETIC
+C                 CHARACTERS, 3 CHARACTERS/WORD. THREE WORDS SHOULD BE
+C                 RESERVED IN THE CALLING PROGRAM. (TUESDAY)
+C          IOPT - FORMAT INDICATOR WHEN DATE IS AN OUTPUT VARIABLE
+C                  1 - 03/01/77
+C                  3 - 01,MAR,1977
+C                  4 - 1 MARCH, 1977
+C                  5 - MARCH 1, 1977
+C         NCHAR - NUMBER OF CHARACTERS TO BE SCANNED IN AN INPUT STRING.
+C           IER - ERROR INDICATOR. IER IS RETURNED BY ALL ROUTINES IN
+C                 THE PACKAGE. IER=0 IF NO ERRORS ARE DETECTED. IER=1
+C                 IF AN ERROR IS DETECTED.
+C
+C     .. Scalar Arguments ..
+      INTEGER DAY,IER,MONTH,NCHAR,YEAR
+      CHARACTER*(*) DATE
+C     ..
+
+
+<A NAME="DATES"></A>
+***********************************************************************
+
+      SUBROUTINE DATES(DAY,MONTH,YEAR,IOPT,IER,DATE)
+C
+C     Returns DATE String in various formats given DAY, MONTH, YEAR
+C     and IOPT (which specifies the desired format).
+C
+C     The following variables appear in the calling sequence
+C
+C       Input:
+C           DAY - DAY OF THE MONTH (1)
+C         MONTH - MONTH NUMBER (3)
+C          YEAR - YEAR (1977)
+C          IOPT - FORMAT INDICATOR WHEN DATE IS AN OUTPUT VARIABLE
+C                  1 - 01/01/97
+C                  2 - 01,JAN,1997
+C                  3 - 1 JANUARY, 1997
+C                  4 - JANUARY 1 1997
+C                  5 - 01JAN97
+C
+C       Output:
+C           IER - ERROR INDICATOR. IER IS RETURNED BY ALL ROUTINES IN
+C                 THE PACKAGE. IER=0 IF NO ERRORS ARE DETECTED. IER=1
+C                 IF AN ERROR IS DETECTED.
+C          DATE - DATE AS A STRING OF ALPHANUMERIC CHARACTERS, 3
+C                 CHARACTERS/WORD. WHEN AN INPUT VARIABLE, DATE MAY BE
+C                 IN ANY REASONABLE FORMAT, E.G. MARCH 1 1977, 3/1/77,
+C                 ETC. IF EXPRESSED AS THREE NUMERIC FIELDS, ORDER IS
+C                 PRESUMED TO BE MONTH, DAY, YEAR. WHEN AN OUTPUT
+C                 VARIABLE, THE FORMAT IS DETERMINED BY IOPT, AND SIX
+C                 WORDS SHOULD BE RESERVED IN THE CALLING PROGRAM.
+C
+C     .. Scalar Arguments ..
+      INTEGER DAY,IER,IOPT,MONTH,YEAR
+      CHARACTER*(*) DATE
+C     ..
+
+
+<A NAME="IDAY"></A>
+***********************************************************************
+
+      SUBROUTINE IDAY(DAY,MONTH,YEAR,DAYNO,IER)
+C
+C     Returns Day-of-year from DAY, MONTH, YEAR.
+C
+C      Input:
+C        IDBFIL - Madrigal file number (see EXDCON)
+C           DAY - Day of month (1-31)
+C         MONTH - Month of year (1-12)
+C          YEAR - Year (e.g. 1977)
+C
+C      Output:
+C         DAYNO - Day-of-year (1-356)
+C           IER - If (IER.NE.0) an error has occurred.
+C
+C     .. Scalar Arguments ..
+      INTEGER DAY,DAYNO,IER,MONTH,YEAR
+C     ..
+
+
+<A NAME="IDMYCK"></A>
+***********************************************************************
+
+      INTEGER FUNCTION IDMYCK(DAY,MONTH,YEAR)
+C
+C     Returns 1 if DAY, MONTH and YEAR are legal values, 0 otherwise.
+C
+C      Input:
+C           DAY - Day of month (1-31)
+C         MONTH - Month of year (1-12)
+C          YEAR - Year (e.g. 1977)
+C
+C     .. Scalar Arguments ..
+      INTEGER DAY,MONTH,YEAR
+C     ..
+
+
+<A NAME="IZLR"></A>
+***********************************************************************
+
+      SUBROUTINE IZLR(DAY,MONTH,YEAR,WDAY,IER)
+C
+C     Returns day-of-the-week value from DAY, MONTH and YEAR.
+C
+C      Input:
+C           DAY - Day of month (1-31)
+C         MONTH - Month of year (1-12)
+C          YEAR - Year (e.g. 1977)
+C
+C      Output:
+C          WDAY - Day of week (1-7)
+C           IER - If (IER.NE.0) an error has occurred.
+C
+C     .. Scalar Arguments ..
+      INTEGER DAY,IER,MONTH,WDAY,YEAR
+C     ..
+
+
+<A NAME="JDATER"></A>
+***********************************************************************
+
+      SUBROUTINE JDATER(JDAYNO,DAY,MONTH,YEAR,IER)
+C
+C     Returns DAY, MONTH, YEAR from Julian day (See JDAY for inverse).
+C
+C      Input:
+C        JDAYNO - Julian day (e.g. 2447892)
+C
+C      Output:
+C           DAY - Day of month (1-31)
+C         MONTH - Month of year (1-12)
+C          YEAR - Year (e.g. 1977)
+C           IER - If (IER.NE.0) an error has occurred.
+C
+C     .. Scalar Arguments ..
+      INTEGER DAY,IER,JDAYNO,MONTH,YEAR
+C     ..
+
+
+<A NAME="JDAY"></A>
+***********************************************************************
+
+      SUBROUTINE JDAY(DAY,MONTH,YEAR,JDAYNO,IER)
+C
+C     Returns Julian day from DAY, MONTH, YEAR (See JDATER for
+C     inverse).
+C
+C      Input:
+C           DAY - Day of month (1-31)
+C         MONTH - Month of year (1-12)
+C          YEAR - Year (e.g. 1977)
+C
+C      Output:
+C        JDAYNO - Julian day (e.g. 2447892)
+C           IER - If (IER.NE.0) an error has occurred.
+C
+C     .. Scalar Arguments ..
+      INTEGER DAY,IER,JDAYNO,MONTH,YEAR
+C     ..
+
+
+<A NAME="MONAME"></A>
+***********************************************************************
+
+      SUBROUTINE MONAME(MONTH,MSTR,IER)
+C
+C     Returns Month string from Month integer.
+C
+C      Input:
+C        MONTH - Month of year (1-12)
+C
+C      Output:
+C         MSTR - Month string (e.g. 'JANUARY')
+C          IER - If (IER.NE.0) an error has occurred.
+C
+C     .. Scalar Arguments ..
+      INTEGER IER,MONTH
+      CHARACTER*(*) MSTR
+C     ..
+
+
+<A NAME="MONUM"></A>
+***********************************************************************
+
+      SUBROUTINE MONUM(MSTR,MONTH,IER)
+C
+C     Returns Month integer from Month string (case insignificant).
+C
+C      Input:
+C         MSTR - Month string (e.g. 'January')
+C
+C      Output:
+C        MONTH - Month of year (1-12)
+C          IER - If (IER.NE.0) an error has occurred.
+C
+C     .. Scalar Arguments ..
+      INTEGER IER,MONTH
+      CHARACTER*(*) MSTR
+C     ..
+
+
+<A NAME="WKNAME"></A>
+***********************************************************************
+
+      SUBROUTINE WKNAME(WDAY,IER,WSTR)
+C
+C     Returns day of the week string from day of the week number.
+C
+C       Input:
+C         WDAY - week day number (1-7)
+C
+C      Output:
+C         IER  - If (IER.NE.0) an error has occurred.
+C         WSTR - day of the week string (e.g. 'SUNDAY').
+C
+C     .. Scalar Arguments ..
+      INTEGER IER,WDAY
+      CHARACTER*(*) WSTR
+C     ..
+
+</PRE>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="dev_c.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="dev_contents.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="dev_tcl.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Madrigal Fortran API <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="dev_c.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->C API <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="dev_contents.html"><!-- InstanceBeginEditable name="UpTitle2" -->Madrigal developer's guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="dev_tcl.html"><!-- InstanceBeginEditable name="NextTitle2" -->Tcl API <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

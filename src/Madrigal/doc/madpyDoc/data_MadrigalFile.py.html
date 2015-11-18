@@ -1,0 +1,1163 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalFile</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalFile</font>
+            </th>
+            <th align="right"><font color="#000000">data.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalFile is an object that provides access to information in a single Madrigal File.</h3>
+<p>    This object provides access to a single Madrigal file.  </p>
+
+<p>    Usage example:</p>
+<PRE>
+        import os, madrigal.data
+
+        filepath = os.environ.get('MAD' + 'ROOT') + '/experiments/1998/mlh/20jan98/mil980120g.003'
+
+        test = madrigal.data.MadrigalFile(filepath)
+
+        print test.toString()
+
+        print test.getMaxValidAltitude()
+
+</PRE>
+
+<p>    Non-standard Python modules used:</p>
+
+<p>    None</p>
+
+<p>    MadrigalError exception thrown if:</p>
+<ol><li><p>No data records found in file</p>
+
+</li></ol>
+
+<p>    Notes:  This class depends on the python extension class madrigal._Madrec, which in turn depends on the madrigal
+    C API as implemented in libmadrec.so.  When Madrigal is installed, this file is put in $madroot/lib.  If madroot
+    is changed, this file can still be located by python by setting the LD_LIBRARY_PATH to the new location of
+    libmadrec.so.</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Nov. 26, 2001</p>
+
+<p>    Modified by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a> June 4, 2002 to use summary information in header records
+    if available.</p>
+
+<p>    Modified by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a> Jan 24, 2003 to use the high level maddata module.</p>
+
+<p>    Modified by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a> Jan 24, 2003 to use overview/[filename].summary file
+    if available.</p>
+
+<p>    Modified by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a> Feb 15, 2005 to add more summary data.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+
+            <table border="0" cellspacing="2" cellpadding="2" width="100%">
+              <tr>
+            <td align="LEFT" valign="TOP">
+<a href="#__getExistingSummary">__getExistingSummary</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#__parseSummary">__parseSummary</a><br>
+<a href="#__setToOne">__setToOne</a><br>
+<a href="#__str__">__str__</a><br>
+<a href="#__writeSummary">__writeSummary</a><br>
+<a href="#getCatalogHeaderStr">getCatalogHeaderStr</a><br>
+<a href="#getEarliestTime">getEarliestTime</a><br>
+<a href="#getKindatList">getKindatList</a><br>
+<a href="#getKinstList">getKinstList</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#getKinstListStr">getKinstListStr</a><br>
+<a href="#getLatestTime">getLatestTime</a><br>
+<a href="#getMaxLatitude">getMaxLatitude</a><br>
+<a href="#getMaxLongitude">getMaxLongitude</a><br>
+<a href="#getMaxPulseLength">getMaxPulseLength</a><br>
+<a href="#getMaxValidAltitude">getMaxValidAltitude</a><br>
+<a href="#getMeasDervBothParmLists">getMeasDervBothParmLists</a><br>
+<a href="#getMeasured1dParmList">getMeasured1dParmList</a><br>
+<a href="#getMeasured2dParmList">getMeasured2dParmList</a><br>
+<a href="#getMeasuredParmList">getMeasuredParmList</a><br>
+</td>
+<td align="LEFT" valign="TOP">
+<a href="#getMinLatitude">getMinLatitude</a><br>
+<a href="#getMinLongitude">getMinLongitude</a><br>
+<a href="#getMinPulseLength">getMinPulseLength</a><br>
+<a href="#getMinValidAltitude">getMinValidAltitude</a><br>
+<a href="#getMissingParmList">getMissingParmList</a><br>
+<a href="#toString">toString</a><br>
+</td>
+</tr>
+            </table>
+            
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__getExistingSummary"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__getExistingSummary&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__getExistingSummary ( self )
+
+</pre></font>
+<h3>__getExistingSummary returns a list of strings summarizing a file via header/cat records or overview file if possible.</h3>
+<p>        If all the required information is not found in the first two records of the file, the file
+        overview/[filename].summary is used.  If that fails, returns None.</p>
+
+<p>        Inputs: None</p>
+
+<p>        Returns: A list of strings summarizing the MadrigalFile.  These strings are:
+                    kinstList: a string of comma separated integers
+                    kindatList: a string of comma separated integers
+                    parameterList: a string of comma separated integers
+                    missingList: a string of comma separated integers
+                    maxPulseLen: a single integer string
+                    minPulseLen: a single integer string
+                    maxValidAltitude: a single integer string
+                    minValidAltitude: a single integer string
+                    maxLatitude: a single integer string
+                    minLatitude: a single integer string
+                    maxLongitude: a single integer string
+                    minLongitude: a single integer string
+                    earliestTime: a string of six comma sepatated integers:
+                        [year, month, day, hour, min, sec]
+                    latestTime: a string of six comma sepatated integers:
+                        [year, month, day, hour, min, sec]
+                    param1dList: a string of comma separated integers
+                    param2dList: a string of comma separated integers</p>
+<p>                If all required information not found in either source, returns None.  The following
+                items are not required, and default to missingVal or empty: minPulseLen, minValidAltitude,
+                maxLatitude, minLatitude, maxLongitude, minLongitude, param1dList, param2dList</p>
+
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        initFile,
+        madDB=None,
+        )
+
+</pre></font>
+<h3>__init__ initializes MadrigalFile by finding all summary data.</h3>
+<h4>Inputs: self, String representing the full path to the madrigal file.</h4>
+<p>            Existing MadrigalDB object, by default = None.</p>
+
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes self.__summary, which is a list of summary data about the file.  The
+        information is first searched for in the header records, and if not found, then the file
+        overview/[filename].summary is used.  If that also fails, the file is analyzed using
+        _Madrec.getSummary, which will write its results to overview/[filename].summary.  All
+        public functions simply return this summarized data.</p>
+
+<p>        Exceptions: MadrigalError thrown if no data record in file.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__parseSummary"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__parseSummary&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__parseSummary ( self,  summaryStr )
+
+</pre></font>
+<h3>__parseSummary returns a list of strings summarizing a string if possible.</h3>
+<p>        If all the required information is not found in the string, returns None. </p>
+
+<p>        Inputs: summaryStr read from header records or summary file.</p>
+
+<p>        Returns: A list of strings summarizing the MadrigalFile.  These strings are:
+                    kinstList: a string of comma separated integers
+                    kindatList: a string of comma separated integers
+                    parameterList: a string of comma separated integers
+                    missingList: a string of comma separated integers
+                    maxPulseLen: a single integer string
+                    minPulseLen: a single integer string
+                    maxValidAltitude: a single integer string
+                    minValidAltitude: a single integer string
+                    maxLatitude: a single integer string
+                    minLatitude: a single integer string
+                    maxLongitude: a single integer string
+                    minLongitude: a single integer string
+                    earliestTime: a string of six comma sepatated integers:
+                        [year, month, day, hour, min, sec]
+                    latestTime: a string of six comma sepatated integers:
+                        [year, month, day, hour, min, sec]
+                    param1dList: a string of comma separated integers
+                    param2dList: a string of comma separated integers</p>
+<p>                If all required information not found in either source, returns None.  The following
+                items are not required, and default to missingVal or empty list: minPulseLen, minValidAltitude,
+                maxLatitude, minLatitude, maxLongitude, minLongitude, param1dList, param2dList</p>
+
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__setToOne"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__setToOne&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__setToOne ( self,  x )
+
+</pre></font>
+<p>Private function used to initialize a list to ones</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__str__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__str__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__str__ ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__writeSummary"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__writeSummary&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__writeSummary ( self )
+
+</pre></font>
+<h3>__writeSummary writes a summary file to overview/[filename].summary.</h3>
+<p>        Uses data from self.__summary. </p>
+
+<p>        Inputs: None.</p>
+
+<p>        Returns: None</p>
+
+<p>        Affects: writes a summary file to overview/[filename].summary</p>
+
+<p>        Exceptions: If file cannot be written</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getCatalogHeaderStr"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getCatalogHeaderStr&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getCatalogHeaderStr ( self )
+
+</pre></font>
+<h3>getCatalogHeaderStr returns a string formatted for printing containing all catalog and header records.</h3>
+<p>        Input: None</p>
+
+<p>        Returns: a string formatted for printing containing all catalog and header records. Returns '' if no
+        catalog or header records.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getEarliestTime"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getEarliestTime&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getEarliestTime ( self )
+
+</pre></font>
+<h3>getEarliestTime returns a list of 6 numbers representing the earliest time in the file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a list of 6 numbers representing the earliest time in the file.  The format is
+                [Year, Month, Day, Hour, Minute, Second]</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKindatList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKindatList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKindatList ( self )
+
+</pre></font>
+<h3>getKindatList returns a list of integers of all kindat values in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a list of integers of all kindat values in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKinstList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKinstList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKinstList ( self )
+
+</pre></font>
+<h3>getKinstList returns a list of integers of all kinst values in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a list of integers of all kinst values in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKinstListStr"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKinstListStr&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKinstListStr ( self )
+
+</pre></font>
+<h3>getKinstListStr returns a comma-separated string with the names of kinst values in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a comma-separated string with the names of kinst values in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getLatestTime"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getLatestTime&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getLatestTime ( self )
+
+</pre></font>
+<h3>getLatestTime returns a list of 6 numbers representing the latest time in the file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a list of 6 numbers representing the latest time in the file.  The format is
+                [Year, Month, Day, Hour, Minute, Second]</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMaxLatitude"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMaxLatitude&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMaxLatitude ( self )
+
+</pre></font>
+<h3>getMaxLatitude returns a double representing maximum latitude in degrees in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a double representing maximum latitude in degrees in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMaxLongitude"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMaxLongitude&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMaxLongitude ( self )
+
+</pre></font>
+<h3>getMaxLongitude returns a double representing maximum longitude in degrees in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a double representing maximum longitude in degrees in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMaxPulseLength"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMaxPulseLength&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMaxPulseLength ( self )
+
+</pre></font>
+<h3>getMaxPulseLength returns a double representing maximum pulse length in microseconds in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a double representing maximum pulse length in seconds in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMaxValidAltitude"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMaxValidAltitude&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMaxValidAltitude ( self )
+
+</pre></font>
+<h3>getMaxValidAltitude returns a double representing maximum valid altitude in km in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a double representing maximum valid altitude in km in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMeasDervBothParmLists"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMeasDervBothParmLists&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMeasDervBothParmLists (
+        self,
+        parmList,
+        measParmList,
+        derivedParmList,
+        allParmList,
+        sureParmList,
+        )
+
+</pre></font>
+<h3>getMeasDervBothParmLists sets up four lists: measured parms, derived parms, both, and sure parms given a parm list to verify.</h3>
+<h4>Inputs: parmList: A list of parameters (integers or mnemonics to be considered)</h4>
+<p>            measParmList: an empty python list.  Will be filled with an list of all measured parameters (mnemonics)
+            found in file when function returns.</p>
+
+<p>            derivedParmList: an empty python list.  Will be filled with an list of all parameters (mnemonics) in parmList
+            that can be derived from file when function returns.</p>
+
+<p>            allParmList: an empty python list.  Will be filled with an list of all parameters in
+            measParmList or derivedParmList when function returns.</p>
+
+<p>            sureParmList: an empty python list.  Will be filled with an list of all parameters from the measured list
+            that are never missing, and parameters that can be derived from those.  These parameters can then be derived
+            for every record (excluding the fact that the value of the parameter in the record may be &quot;missing&quot;).</p>
+
+
+<p>        Returns: void (see Affects below)</p>
+
+<p>        Affects: adds items to measParmList, derivedParmList, and allParmList.  All items will be mnemonics.</p>
+
+<p>        Exceptions: None</p>
+
+<p>        Usage example:</p>
+<PRE>
+            import os, madrigal.data
+
+            filepath = os.environ.get('MAD' + 'ROOT') + '/experiments/1998/mlh/20jan98/mil980120g.003'
+
+            test = madrigal.data.MadrigalFile(filepath)
+
+            measParmList = []
+
+            derivedParmList = []
+
+            allParmList = []
+
+            sureParmList = []
+
+            test.getMeasDervBothParmLists(madrigal.ui.web.MadrigalWebFormat().getFormat('Short'),
+                                          measParmList,
+                                          derivedParmList,
+                                          allParmList,
+                                          sureParmList)
+
+            #print lists
+
+            print 'Measured parms are: ' + str(measParmList)
+
+            print 'Derived parms are: ' + str(derivedParmList)
+
+            print 'All good parms are: ' + str(allParmList)
+
+            print 'Parameters sure to exist are: ' + str(sureParmList)
+
+</PRE>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMeasured1dParmList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMeasured1dParmList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMeasured1dParmList ( self )
+
+</pre></font>
+<h3>getMeasured1dParmList returns a list of integers of all 1d parameters stored in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a list of integers of all 1d parameters found in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMeasured2dParmList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMeasured2dParmList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMeasured2dParmList ( self )
+
+</pre></font>
+<h3>getMeasured2dParmList returns a list of integers of all 2d parameters stored in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a list of integers of all 2d parameters found in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMeasuredParmList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMeasuredParmList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMeasuredParmList ( self )
+
+</pre></font>
+<h3>getMeasuredParmList returns a list of integers of all parameters stored in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a list of integers of all parameters found in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMinLatitude"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMinLatitude&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMinLatitude ( self )
+
+</pre></font>
+<h3>getMinLatitude returns a double representing minimum latitude in degrees in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a double representing minimum latitude in degrees in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMinLongitude"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMinLongitude&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMinLongitude ( self )
+
+</pre></font>
+<h3>getMinLongitude returns a double representing minimum longitude in degrees in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a double representing minimum longitude in degrees in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMinPulseLength"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMinPulseLength&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMinPulseLength ( self )
+
+</pre></font>
+<h3>getMinPulseLength returns a double representing minimum pulse length in microseconds in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a double representing minimum pulse length in seconds in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMinValidAltitude"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMinValidAltitude&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMinValidAltitude ( self )
+
+</pre></font>
+<h3>getMinValidAltitude returns a double representing minimum valid altitude in km in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a double representing minimum valid altitude in km in file.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getMissingParmList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getMissingParmList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getMissingParmList ( self )
+
+</pre></font>
+<h3>getMissingParmList returns a list of integers, one for each parameters stored in file.</h3>
+<p>        Inputs: self</p>
+
+<p>        Returns: a list of integers, one for each parameters stored in file. If 1, that parameter
+        was found to missing from at least one record in the file.  If -1, not missing in any
+        data record.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="toString"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">toString&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+toString ( self )
+
+</pre></font>
+<h3>toString returns a simple string representation of a MadrigalFile object.</h3>
+<p>        Inputs: None</p>
+
+<p>        Returns: String describing a simple representation of a MadrigalFile object.</p>
+
+<p>        Affects: Nothing</p>
+
+<p>        Exceptions: None</p>
+
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri May 30 14:39:57 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

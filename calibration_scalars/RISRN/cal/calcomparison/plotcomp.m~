@@ -1,0 +1,28 @@
+clear all; close all;
+n1='20110430.001';
+outname=[n1 '.png'];
+
+kb=1.3806e-23;
+
+d1=load([n1 '.mat']); 
+syst = 
+
+figure;
+
+subplot(311);
+plot(d1.AllTime,d1.AllCal*kb*d1.Tsys);
+axis tight; datetick('x','keeplimits');
+title(n1);
+ylabel('Cal Power');
+
+subplot(312);
+plot(d1.AllTime,d1.AllNoise*kb*d1.Tsys);
+axis tight; datetick('x','keeplimits');
+title(n2);
+
+subplot(313);
+plot(d1.AllTime,d1.AllCal./d1.AllNoise);
+axis tight; datetick('x','keeplimits');
+ylabel('Noise Power');
+
+print(gcf,'-dpng',outname);

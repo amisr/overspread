@@ -1,0 +1,45 @@
+clear all; close all;
+
+N=10; Ninc=1;
+
+theta=linspace(0,2*pi,100);
+PP=zeros(size(theta));
+
+for bb=1:Ninc
+
+    x=(rand(N,1)-0.5)*2;
+    y=(rand(N,1)-0.5)*2;
+
+    for aa=1:length(theta)
+        ox=cos(theta(aa)); oy=sin(theta(aa));
+
+        d=sqrt((x-ox).^2+(y-oy).^2);
+
+        E=exp(j*2*pi*d);
+
+        P(aa)=abs(sum(E)).^2;
+    end
+    
+    PP=PP+P;
+end
+PP=PP/Ninc;
+
+fontname='Helvetica';
+axsize=12;
+labsize=12;
+
+figure; 
+subplot(221);
+plot(x,y,'k.');
+axis([-1 1 -1 1]);
+set(gca,'fontname',fontname,'fontsize',axsize);
+title('Electron Positions','fontname',fontname,'fontsize',labsize);
+
+subplot(222);
+l=polar(theta,P,'k'); set(l,'linewidth',1.5);
+l=get(gca,'Position');
+set(gca,'fontname',fontname,'fontsize',axsize);
+
+figure
+l=polar(theta,PP,'k'); set(l,'linewidth',1.5);
+set(gca,'fontname',fontname,'fontsize',axsize);

@@ -1,0 +1,66 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec /export/home/madrigal2000/bin/madtclsh "$0" ${1+"$@"}
+
+catch [exec rm remake_file.out]
+puts $argc
+puts $argv
+set linelast ""
+set f [lindex $argv 0]
+puts "processing $f"
+set ffil [open ffil w+]
+puts $ffil $f
+close $ffil
+exec cat ffil >> remake_file.out
+catch [exec nag_apt -double -decs -group_common -po /export/home/madrigal2000/source/madf/polish.opt $f >> remake_file.out]
+set fin [open $f r]
+set fout [open temp1.f w]
+puts $fout "C     $Id: remake_file,v 1.1 2000/12/06 17:26:03 jmh Exp $"
+while {[gets $fin line] >= 0} {
+    if { [string length $line] > 0 && \
+	![string match "C*SPECIFICATIONS*" $line] && \
+	![string match "C*DECLARATIONS*" $line] && \
+	![string match "*%I*%" $line] && \
+	![string match "*%W%*" $line] && \
+	![string match "*%G%*" $line] && \
+	![string match "*PT*WARNING*" $line] && \
+	 [string range $line 0 8] != "status,fd" && \
+	 [string range $line 0 9] != "Processing" && \
+	 [string range $line 0 5] != "\[ISTDT" } {
+	if {$line != $linelast || [string range $line 4 4] != "\*"} {
+	    puts $fout $line
+	    set linelast $line
+	}
+    }
+}
+close $fin
+close $fout
+
+# Extract include files and replace included declarations by
+# INCLUDE statement
+set fin [open temp1.f r]
+set fout [open temp2.f w]
+while {[gets $fin line] >= 0} {
+    set end 0
+    if { [string range $line 0 15] == {*     $in$ begin} } {
+	set finclude [string range $line 17 [string length $line]]
+	puts "    Extracting $finclude"
+	# set fout [open $finclude w]
+	# puts $fout "C     $Id: remake_file,v 1.1 2000/12/06 17:26:03 jmh Exp $"
+	while {[gets $fin line] != 0} {
+	    if { [string range $line 0 13] == {*     $in$ end} } {
+		# close $fout
+		set end 1
+		break
+	    }
+	    # puts $fout $line
+	}
+	puts $fout "      INCLUDE '$finclude'"
+    }
+    if {$end == 0} {puts $fout $line}
+}
+close $fin
+close $fout
+catch [exec cp temp2.f $f]
+

@@ -1,0 +1,220 @@
+# Checks entire madrec library for memory problems using valgrind
+#
+# $Id: runMadrecDiagnostics.valgrind,v 1.1 2005/10/13 14:14:08 brideout Exp $
+
+# Executes a series of madrec test programs. 
+
+# Get the name of the madrigal file
+if {$argc != 1} {
+    # Get the name of the madrigal file from the environment
+    set madfile $env(MADROOT)/experiments/1998/mlh/20jan98/mil980120g.002
+} else {
+    # The madrigal file is the first argument of testMadrec
+    set madfile [lindex $argv 0]
+}
+
+set madin1 "madin1"
+exec translateCedarFile $madfile $madin1 0
+set madin "madin"
+set madout "madout"
+
+set fmaddataF77 "../testF77/tmaddataF77"
+set fmaddataF77out "../testF77/tmaddataF77.out"
+set fmaddataF77rock "../testF77/tmaddataF77.out.rock"
+
+set fmadrecF77 "../testF77/tmadrecF77"
+set fmadrecF77out "../testF77/tmadrecF77.out"
+set fmadrecF77rock "../testF77/tmadrecF77.out.rock"
+
+puts "Many of these tests make a series of transformations on an input"
+puts "file, producing two files, separated by a series of"
+puts "transformations, which should be identical. compareFiles is"
+puts "called to verify this.  If any problems occur, the tests should"
+puts "be run individually to get additional information on the"
+puts "problem."
+
+###
+
+puts "Running testMadrec"
+exec echo "Running testMadrec" > results.txt
+exec valgrind --tool=memcheck testMadrec > testMadrec.out 2>> results.txt
+
+puts "    testing Madrigal format"
+exec echo "    testing Madrigal format" >> results.txt
+exec echo "    testing Madrigal format" >> results.txt
+exec valgrind --tool=memcheck testMadrec $madin1 > testMadrec.out.sav 2>> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 0 2>> results.txt
+exec valgrind --tool=memcheck testMadrec $madin > testMadrec.out 2>> results.txt
+
+puts "    testing blocked binary format"
+exec echo "    testing blocked binary format" >> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 1 2>> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 1 2>> results.txt
+exec valgrind --tool=memcheck testMadrec $madin > testMadrec.out 2>> results.txt
+
+puts "    testing Cbf format"
+exec echo "    testing Cbf format" >> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 2 2>> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 1 2>> results.txt
+exec valgrind --tool=memcheck testMadrec $madin > testMadrec.out 2>> results.txt
+
+puts "    testing unblocked binary format"
+exec echo "    testing unblocked binary format" >> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 3 2>> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 1 2>> results.txt
+exec valgrind --tool=memcheck testMadrec $madin > testMadrec.out 2>> results.txt
+
+puts "    testing ascii format"
+exec echo "    testing ascii format" >> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 4 2>> results.txt
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 1 2>> results.txt
+exec valgrind --tool=memcheck testMadrec $madin > testMadrec.out 2>> results.txt
+
+puts "Running testCedarIO"
+exec echo "Running testCedarIO" >> results.txt
+exec rm -f file1
+exec rm -f file11
+exec valgrind --tool=memcheck testCedarIO $madin1 2>> results.txt
+
+###
+
+puts "Running testCedarIOBoundaries"
+exec echo "Running testCedarIOBoundaries" >> results.txt
+puts [exec valgrind --tool=memcheck testCedarIOBoundaries $madin1 5 5 2>> results.txt]
+
+###
+
+puts "Running testCedarMemIO"
+exec echo "Running testCedarMemIO" >> results.txt
+exec rm -f file1
+exec rm -f file2
+exec valgrind --tool=memcheck testCedarMemIO 2>> results.txt
+
+###
+
+puts "Running testGeometry"
+exec echo "Running testGeometry" >> results.txt
+
+exec rm -f testGeometry.out
+exec valgrind --tool=memcheck testGeometry > testGeometry.out 2>> results.txt
+
+###
+
+puts "Running testMetadata - "
+exec echo "Running testMetadata - " >> results.txt
+puts "   will possibly fail since prints out madroot at one point; may "
+puts "   also possibly fail if new derivable parameters are added.  Do  "
+puts "   a manual diff to see if failure is due to any other reason  "
+
+exec rm -f testMetadata.out
+exec valgrind --tool=memcheck testMetadata > testMetadata.out 2>> results.txt
+
+###
+
+puts "Running testMaddata"
+exec echo "Running testMaddata" >> results.txt
+
+exec rm -f testMaddata.out
+exec valgrind --tool=memcheck testMaddata > testMaddata.out 2>> results.txt
+
+###
+
+puts "Running testParmArray"
+exec echo "Running testParmArray" >> results.txt
+
+exec rm -f testParmArray.out
+exec valgrind --tool=memcheck testParmArray > testParmArray.out 2>> results.txt
+
+###
+
+puts "Running testMadrecSequentialFileIO"
+exec echo "Running testMadrecSequentialFileIO" >> results.txt
+
+puts "    testing Madrigal format"
+exec echo "   testing Madrigal format" >> results.txt
+exec rm -f $madin
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madin1 $madin 0 2>> results.txt
+
+puts "    testing blocked binary format"
+exec echo "    testing blocked binary format" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madin $madout 1 2>> results.txt
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madout $madin 0 2>> results.txt
+
+puts "    testing Cbf format"
+exec echo "    testing Cbf format" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madin $madout 2 2>> results.txt
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madout $madin 0 2>> results.txt
+
+puts "    testing unblocked binary format"
+exec echo "    testing unblocked binary format" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madin $madout 3 2>> results.txt
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madout $madin 0 2>> results.txt
+
+puts "    testing ascii format"
+exec echo "    testing ascii format" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madin $madout 4 2>> results.txt
+exec valgrind --tool=memcheck testMadrecSequentialFileIO $madout $madin 0 2>> results.txt
+
+###
+
+puts "Running testMadrecRandomFileIO"
+exec echo "Running testMadrecRandomFileIO" >> results.txt
+
+puts "    testing Madrigal format"
+exec echo "    testing Madrigal format" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 0 2>> results.txt
+puts [exec valgrind --tool=memcheck testMadrecRandomFileIO $madin $madout 0 0 2>> results.txt]
+
+puts "    testing blocked binary format"
+exec echo "    testing blocked binary format" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 1 2>> results.txt
+puts [exec valgrind --tool=memcheck testMadrecRandomFileIO $madin $madout 0 0 2>> results.txt]
+
+puts "    testing Cbf format (slow - this is emulated)"
+exec echo "    testing Cbf format (slow - this is emulated)" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 2 2>> results.txt
+puts [exec valgrind --tool=memcheck testMadrecRandomFileIO $madin $madout 0 0 2>> results.txt]
+
+puts "    testing unblocked binary format"
+exec echo "    testing unblocked binary format" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 3 2>> results.txt
+puts [exec valgrind --tool=memcheck testMadrecRandomFileIO $madin $madout 0 0 2>> results.txt]
+
+puts "    testing ascii format"
+exec echo "    testing ascii format" >> results.txt
+exec rm -f $madout
+exec valgrind --tool=memcheck translateCedarFile $madin1 $madin 4 2>> results.txt
+puts [exec valgrind --tool=memcheck testMadrecRandomFileIO $madin $madout 0 0 2>> results.txt]
+
+puts "Running test of all derivable parameters"
+exec echo "Running test of all derivable parameters" >> results.txt
+exec valgrind --tool=memcheck testDerived > testDerived.out 2>> results.txt
+
+###
+
+
+puts "Running test of Fortran interface to C API"
+exec echo "Running test of Fortran interface to C API" >> results.txt
+
+puts "    testing Fortran interface to Maddata module"
+exec echo "    testing Fortran interface to Maddata module" >> results.txt
+exec valgrind --tool=memcheck $fmaddataF77 > $fmaddataF77out 2>> results.txt
+
+puts "    testing Fortran interface to Madrec module"
+exec echo "    testing Fortran interface to Madrec module" >> results.txt
+exec valgrind --tool=memcheck $fmadrecF77 > $fmadrecF77out 2>> results.txt
+
+
+
+
+exit
+
+

@@ -1,0 +1,106 @@
+#!/Users/mnicolls/Documents/Work/Madrigal/bin/python
+
+import sys
+import os
+import traceback
+
+# catch any exception, and write an appropriate message admin
+try:
+
+    # check if pythonlibpath env variable exists
+    # written 'PYTHON' + 'LIBPATH' to stop automatic replacement during setup
+    temp = os.environ.get('PYTHON' + 'LIBPATH')
+    if temp != None:
+            sys.path.append(temp)
+            
+    # append path madroot/lib (needed only if python not installed by setup)
+    sys.path.append('/Users/mnicolls/Documents/Work/Madrigal/lib/python')
+
+    # prepare to handle MadrigalError
+    import madrigal.admin
+    
+except ImportError:
+    
+    # Fatal error - madpy library not found
+    print "Unable to import the madrigal python library - please alert the sys admin!"
+    sys.exit(0)
+
+# try to run script, and report all errors to Madrigal sys admin
+
+try:
+
+    import madrigal.metadata
+
+    # create MadrigalDB obj
+    madDBObj = madrigal.metadata.MadrigalDB()
+
+    # if madroot not set, set it now
+    if os.environ.get('MAD' + 'ROOT') == None:
+        os.environ['MAD' + 'ROOT'] = madDBObj.getMadroot()
+
+    # check number, type of arguments
+    if len(sys.argv) != 3:
+        print 'usage: setAccess <full experiment directory path> [public || private]'
+        sys.exit(0)
+
+    if not sys.argv[2].lower() in ('public', 'private'):
+        print 'usage: setAccess <full experiment directory path> [public || private]'
+        sys.exit(0)
+
+    # convert second argument to 0 (public) or 1 (private)
+    if sys.argv[2].lower()  == 'public':
+        accessMode = 0
+    else:
+        accessMode = 1
+
+    print 'Setting all fileTab.txt files in ' + str(sys.argv[1]) + ' to ' + str(sys.argv[2])
+    madDBObj.setFileAccess(sys.argv[1], accessMode)
+
+    print 'Access set - run updateMaster to propagate update.'
+    
+    
+
+except madrigal.admin.MadrigalError, e:
+    # handle a MadrigalError
+
+        
+    errStr = 'Error occurred in setAccess\n'
+
+    errStr = errStr + e.getExceptionHtml()
+    
+    err = traceback.format_exception(sys.exc_info()[0],
+                                     sys.exc_info()[1],
+                                     sys.exc_info()[2])
+
+    for errItem in err:
+        errStr = errStr + '\n' + str(errItem)
+
+        
+    print errStr
+
+
+except:
+    # handle a normal error
+
+    # if a normal SystemExit, simply terminate
+    if str(sys.exc_info()[0]) == 'exceptions.SystemExit':
+        sys.exit(0)
+    
+        
+    errStr = 'Error occurred in running setAccess.\n'
+
+    
+    err = traceback.format_exception(sys.exc_info()[0],
+                                     sys.exc_info()[1],
+                                     sys.exc_info()[2])
+
+    for errItem in err:
+        errStr = errStr + '\n' + str(errItem)
+
+
+    print errStr
+
+
+# end script
+
+

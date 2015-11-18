@@ -1,0 +1,115 @@
+#!PYTHONEXE
+
+"""This script replaces the tcl version of ffw.  It simply calls isprint after converting the ffw command line
+to isprint.
+"""
+
+import sys
+import os
+import traceback
+
+
+usageStr = """ffw -file filename [-l] -p parameter ... -f parameter minval maxval ...
+
+-l will list parameters in first line; default is no list
+
+Note that ffw is now simply calls isprint with a different command line format.  For
+more complete features, use isprint."""
+
+
+
+# parse arguments
+if len(sys.argv) == 1:
+    print usageStr
+    sys.exit(0)
+
+
+parmList = []
+filterList = []
+argIndex = 1
+filename = ''
+list = 0
+
+
+while argIndex < len(sys.argv):
+
+    presentArg = sys.argv[argIndex]
+    
+    # check if its a filename
+    if presentArg in ('-file', '-File'):
+        # verify there's a filename next
+        if argIndex + 1 == len(sys.argv):
+            print 'You need a filename after the -file flag\n'
+            print usageStr
+            sys.exit(-1)
+        filename = sys.argv[argIndex+1]
+        argIndex += 2
+        continue
+
+    # check if its a -l to list headings
+    if presentArg in ('-l', '-L'):
+        list = 1
+        argIndex += 1
+        continue
+    
+    # check if its a parameter
+    if presentArg in ('-p', '-P'):
+        # verify there's a parameter next
+        if argIndex + 1 == len(sys.argv):
+            print 'You need a parameter after the -p flag\n'
+            print usageStr
+            sys.exit(-1)
+        parmList.append(sys.argv[argIndex+1])
+        argIndex += 2
+        continue
+
+    # check if its a filter
+    if presentArg in ('-f', '-F'):
+        # verify there's a parameter and two numbers next
+        if argIndex + 3 >= len(sys.argv):
+            print 'You need a parameter and two numbers after the -f flag\n'
+            print usageStr
+            sys.exit(-1)
+        try:
+            lower = float(sys.argv[argIndex+2])
+            upper = float(sys.argv[argIndex+3])
+        except:
+            print 'You need a parameter and two numbers after the -f flag\n'
+            print usageStr
+            sys.exit(-1)
+        filterList.append((sys.argv[argIndex+1],lower,upper))
+        argIndex += 4
+        continue
+
+
+    # unknown argument
+    print 'Argument %s is unknown - see usage' % argv[argIndex]
+    print
+    print usageStr
+    sys.exit(-1)
+
+    
+# create isprint command line
+cmd = sys.argv[0].replace('ffw', 'isprint')
+cmd += ' file=' + filename
+
+# append parameters
+for parm in parmList:
+    cmd += ' ' + parm
+
+# append filters
+for filter in filterList:
+    cmd += ' filter=' + filter[0] + ',' + str(lower) + ',' + str(upper)
+
+# set heading
+if list == 0:
+    cmd += ' header=f summary=f'
+else:
+    cmd += ' header=f'
+
+# run isprint
+os.system(cmd)
+
+# end script
+
+

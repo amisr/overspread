@@ -1,0 +1,20 @@
+0,Time Related Parameter,1,99
+1,Geographic Coordinate,100,199
+2,Magnetic Coordinate,200,299
+3,Geophysical Index,300,399
+4,Interplanetary Magnetic Field,2200,2299
+5,Data Quality Parameter,400,499
+6,I. S. Radar Basic Parameter,500,799
+7,IRI Model,-1,-1
+8,Neutral Atmosphere Parameter,800,920
+9,Harmonic Analysis Parameter,921,999
+10,Unit Vector Definition,1000,1199
+11,Vector Quantity,1200,1999
+12,Conductivity,2000,2099
+13,Energy Parameter,2100,2199
+14,Miscellaneous Scalar Quantity,2300,2399
+15,Spectral Parameter,2400,3099
+16,I. S. Radar Operation Parameter,3100,3799
+17,Autocorrelation Function,3800,3999
+18,Radar Instrument Operation Parameter,4000,4999
+19,Prolog Parameters,-1,-1

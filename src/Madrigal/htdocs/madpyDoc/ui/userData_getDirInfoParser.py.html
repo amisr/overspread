@@ -1,0 +1,260 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: getDirInfoParser</title>
+        </head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: getDirInfoParser</font>
+            </th>
+            <th align="right"><font color="#000000">ui/userData.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>getDirInfoParser is a private Sax Parser designed to rapidly parse a &lt;username&gt;.xml file for directory/filter names.</h3>
+<p>    This Sax parser is designed to return a list of MadrigalDirectory classes found in a given file. This list
+    is presently used to support the isprint selection web page, which needs to know about all user directories
+    and filters.</p>
+
+<p>    For usage information for any Python Sax parser, see <a href="http://py-howto.sourceforge.net/xml-howto/SAX.html">Python Sax tutorial</a></p>
+
+<p>    This parser assumes the username.xml is of the form of the following format:</p>
+<p>        &lt;?xml version='1.0'?&gt;</p>
+
+<h4>&lt;userInfo&gt;</h4>
+<h5>&lt;directory&gt;</h5>
+<p>                &lt;dirname&gt;jmh_public&lt;/dirname&gt;</p>
+
+<p>                &lt;dirtype&gt;public&lt;/dirtype&gt;</p>
+
+<dl><dt><p><strong>&lt;filter&gt;</strong><p>
+</dt><dd><p>                    &lt;filtername&gt;jmh_pub1&lt;/filtername&gt;</p>
+
+<p>                    more filter elements ...</p>
+
+
+</dd></dl>
+<p>                &lt;/filter&gt;</p>
+
+<p>                possibly more filters...</p>
+
+
+<p>            &lt;/directory&gt;</p>
+
+<p>            possibly more directories...</p>
+
+
+<p>        &lt;/userInfor&gt;</p>
+
+
+<p>    Non-standard Python modules used:</p>
+
+<p>    PyXML</p>
+
+<p>    Exceptions thrown:</p>
+<p>        Exception possibly thrown by sax module</p>
+
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Dec. 11, 2001</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Base Classes">Base Classes</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+saxutils.DefaultHandler<br>
+
+</td></tr>
+</table>
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__init__">__init__</a><br>
+<a href="#characters">characters</a><br>
+<a href="#endElement">endElement</a><br>
+<a href="#startElement">startElement</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ ( self )
+
+</pre></font>
+<p>Override of saxutils.DefaultHandler __init__ function to support parsing &lt;username&gt;.xml.</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="characters"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">characters&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+characters ( self,  ch )
+
+</pre></font>
+<p>Override of saxutils.DefaultHandler characters function to support parsing &lt;username&gt;.xml.</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="endElement"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">endElement&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+endElement ( self,  name )
+
+</pre></font>
+<p>Override of saxutils.DefaultHandler endElement function to support parsing &lt;username&gt;.xml.</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="startElement"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">startElement&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+startElement (
+        self,
+        name,
+        attrs,
+        )
+
+</pre></font>
+<p>Override of saxutils.DefaultHandler startElement function to support parsing &lt;username&gt;.xml.</p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri Dec 30 09:02:26 2005 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

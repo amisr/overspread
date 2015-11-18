@@ -1,0 +1,103 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec /export/home/madrigal2000/bin/madtclsh "$0" ${1+"$@"}
+
+set fout [open "madrecProcs.html" w]
+
+set fin [open "madrecProcs.intro" r]
+
+puts $fout "<HEAD>"
+puts $fout "<TITLE>Madrigal Database - madrec procedures</TITLE>"
+puts $fout "</HEAD>"
+puts $fout "<BODY>"
+puts $fout "<CENTER><H1>MADREC Procedure Synopsis</H1></CENTER>"
+puts $fout ""
+
+while {[gets $fin line] >= 0} {
+    puts $fout $line
+}
+
+puts $fout "<PRE>"
+
+# get madroot env variable
+set madrootEnv [lindex [array get env MADROOT] 1]
+
+
+set CFiles [list "$madrootEnv/source/madc/madrec/madrec.c" \
+            "$madrootEnv/source/madc/madrec/cedar.c" \
+            "$madrootEnv/source/madc/madrec/date.c" \
+            "$madrootEnv/source/madc/madrec/geometry.c" \
+            "$madrootEnv/source/madc/madrec/select.c" \
+            "$madrootEnv/source/madc/madrec/cedarIO.c"]
+foreach f $CFiles {
+
+    set lines {}
+    set linelist {}
+    puts "Processing $f"
+    set fin [open $f r]
+    while {[gets $fin line] >= 0} {
+        set lines [concat $lines $linelist]
+        set linelist {}
+        if { [string range $line 0 15] == {/***************} } {
+	    set endCommentFound 0
+	    set wordsSinceComment 0
+	    set lastLine 0
+            set linelist [list $line]
+            while {[gets $fin line] >= 0} {
+	        # check if lastLine found last time
+		if { $lastLine == 1 } {
+		    break
+		}
+	        # check if done
+		if { [string first "\{" $line ] == 0 } {
+		    break
+		}
+	        # check if parsing function declaration
+		if { $endCommentFound == 1 && $wordsSinceComment < 2 } {
+		    # break this line into words
+		    set wordList1 [split $line " (*"]
+		    # create new wordList with non-empty strings
+		    set wordList [list]
+		    foreach word $wordList1 {
+		        if { [string length $word] > 0 } {
+			    lappend wordList $word
+			}
+		    }
+		    if { [llength $wordList] + $wordsSinceComment > 1 } {
+		        # function name found
+			set name [lindex $wordList [expr 1 - $wordsSinceComment]]
+			set name "<A NAME=\"$name\"></A>"
+			set wordsSinceComment 2
+		    } else {
+		        # name not yet found
+		        set wordsSinceComment [expr $wordsSinceComment + [llength $wordList]]
+		    }
+		}
+		# check if this is last line 
+		if { [string first "\{" $line ] != -1 && $wordsSinceComment > 1 } {
+		    set lastLine 1
+		}
+	        # check if end of comment found
+		if { [string first "*/" $line] != -1 } {
+		    set endCommentFound 1
+		}
+                set linelist [lappend linelist $line] 
+            }
+            set linelist [lappend linelist " "]
+            set linelist [lappend linelist " "]
+            set linelist [linsert $linelist 0 $name]
+        }
+    }
+    close $fin
+
+    for {set i 0} {$i < [llength $lines]} {incr i} {
+        puts $fout [lindex $lines $i]
+    }
+}
+
+puts $fout "</PRE>"
+puts $fout "</BODY>"
+puts $fout "</HTML>"
+
+exit

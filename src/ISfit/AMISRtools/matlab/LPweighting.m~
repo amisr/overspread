@@ -1,0 +1,10 @@
+clear all; close all;
+
+n=16; % number of lags
+v=3; % volume index
+
+k=0:n-1; % lag number
+
+W=-1/n/v*k.^2+(n-v)/(n*v)*k+1;
+
+fi

@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>How Madrigal data is organized</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" --><!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="admin.html" --><!-- InstanceParam name="href_next_top" type="text" value="ad_createFiles.html" --><!-- InstanceParam name="href_back_top" type="text" value="ad_metadata.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="ad_metadata.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="admin.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="ad_createFiles.html" --><!-- InstanceParam name="href_prev_top" type="text" value="ad_metadata.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="admin.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="ad_createFiles.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="ad_metadata.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="admin.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="ad_createFiles.html" -->
+</head>
+
+<body>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="ad_metadata.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="admin.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="ad_createFiles.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->How Madrigal data is organized <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="ad_metadata.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Madrigal data model <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="admin.html"><!-- InstanceBeginEditable name="UpTitle" -->Madrigal admin guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="ad_createFiles.html"><!-- InstanceBeginEditable name="NextTitle" -->Creating Madrigal data files <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" --> 
+<h1 align="center">How Madrigal data is organized </h1>
+<p>In the Madrigal database, the data are organized by experiment. An experiment consists of data from a single instrument, and, as a rule, is meant to address a particular scientific goal. Most often an experiment will correspond to a particular set of operating modes run for a contiguous interval of time. For example, the data collected by an incoherent scatter radar during a world day would constitute an experiment. More complicated situations exist, and judgment may have to be exercised in determining what constitutes an experiment. For example, an experiment might be interrupted temporarily in order to use a different set of operating modes in support of a satellite overpass. In this case there would be two experiments which overlap in time.</p>
+<p>To each experiment there corresponds a directory. These directories are of the form <em>madroot</em>/experiments/&lt;year&gt;/&lt;instrument&gt;/&lt;<em>directory</em>&gt;, where year is the four-digit year, instrument is the 3-letter mnemonic for the instrument (set in the instTab.txt file), and &lt;<em>directory</em>&gt; is an arbitrary directory name. An example might be /opt/madrigal/experiments/1997/son/06jan1997_001, which would contain a 1997 Sondrestrom (son) experiment. The use of the starting date in the experiment directory name is not required. </p>
+<p>Prior to Madrigal 2.5, the final directory name was required to be in the form DDmmmYY*, where the date was  the start date of the experiment  and * is an optional character to distinguish different experiments with the same start date. For example, /opt/madrigal/experiments/1997/son/06jan97 contained Sondrestrom data for an experiment beginning on 6 January, 1997, where year =1997, instrument =son, start_date =06jan97, and there was no optional character because there was only one Sondrestrom experiment starting on that date. This convention has been dropped. </p>
+<p>Previously, experiments that did not follow the above naming convention were effectively &quot;hidden&quot;. With Madrigal 2.5, the security field in the metadata file expTab.txt can be used to hide (or restrict access to) an experiment. (See the <a href="ad_createExp.html#changeExpStatus">change experiment status</a> tool). </p>
+<p>Each experiment directory must contain: </p>
+<ul>
+  <li>The Experiment Table entry (expTab.txt) for this experiment. This file is created automatically if you use the tools described in the <a href="ad_createExp.html">creating experiments</a> section. </li>
+</ul>
+Each experiment directory may contain:
+<ul>
+  <li>The metadata file fileTab.txt for this experiment. This table must have one entry for each Madrigal format file in the experiment. This file is created automatically if you use the tools described in the <a href="ad_createExp.html">creating experiments</a> section. </li>
+  <li>One or more datasets in Madrigal (or any valid Cedar) format. </li>
+  <li>Subdirectories containing an html file named index.html . Links to these files will show up the experiment page. </li>
+  <li>Html pages in the main directory, and again links to these files will show up the experiment page. </li>
+  <li>Plots or other files related to individual records in the dataset. Links to these files appear next to the appropriate record in the summarizeCedarFile.cgi page. These files must be located in the subdirectory "plots/[file name]/records" under the experiment directory. In order for the script to determine which file goes with which record, the files must include a five digit number somewhere in its name. For example, plot00027.gif would appear as a link next to record 27 in summarizeCedarFile.cgi. More than one file can be associated with a given record. </li>
+</ul>
+<p>An essential role for a Madrigal administrator is to run the script <em>madroot</em>/bin/updateMaster on a regular basis. This script performs a number of functions:</p>
+<ul>
+  <li>It gathers all the separate metadata files in the individual experiment directories into the central directory <em>madroot</em>/metadata. </li>
+  <li>It gathers metadata files from other Madrigal sites into the central directory <em>madroot</em>/metadata. </li>
+  <li>It updates geophysical files from the OpenMadrigal site.</li>
+</ul>
+<p>It is recommended that this script be set as a cron job to run once a day. </p>
+<p>For Madrigal sites with limited bandwidth, updateMaster can occasionally be run with the -s flag. This will skip any possible download of the latest geophysical files, and so maybe run faster.  However, it is still important to run updateMaster without the -s flag on a regular basis.</p>
+<p>A complete description of the various ways to add and modify experiments in a Madrigal database is given <a href="ad_createExp.html">in the next section.</a> The updateMaster script must be run after each change described in that section for the changes to take effect. </p>
+<p>Note that an experiment need not contain any Madrigal files. </p>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="ad_metadata.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="admin.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="ad_createFiles.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->How Madrigal data is organized<!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="ad_metadata.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Madrigal data model <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="admin.html"><!-- InstanceBeginEditable name="UpTitle2" -->Madrigal admin guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="ad_createFiles.html"><!-- InstanceBeginEditable name="NextTitle2" -->Creating Madrigal data files <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

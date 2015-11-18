@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Madrigal experiment page</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" --><!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_next_top" type="text" value="wt_fileSummary.html" --><!-- InstanceParam name="href_back_top" type="text" value="wt_browseExp.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="wt_browseExp.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="wt_fileSummary.html" --><!-- InstanceParam name="href_prev_top" type="text" value="wt_browseExp.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="wt_fileSummary.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="wt_browseExp.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="wt_fileSummary.html" -->
+</head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_browseExp.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_accessData.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_dataBrowser.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->The Madrigal experiment page <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_browseExp.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Browse for experiments <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_accessData.html"><!-- InstanceBeginEditable name="UpTitle" -->Access data through the web <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="wt_dataBrowser.html"><!-- InstanceBeginEditable name="NextTitle" -->Print file as ascii  <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">The Madrigal experiment page</h1>
+<p>The Madrigal experiment page is the central page that describes a particular Madrigal experiment. It exposes information about the individual Madrigal files contained in an experiment, and also any additional links to auxiliary pages or plots describing the experiment.</p>
+<p>For any given Cedar file in the Madrigal experiment, there are a number of ways of viewing the data in the file:</p>
+<ul>
+  <li>If the file has any catalog or header records, they'll be a link to view them.</li>
+  <li><a href="wt_dataBrowser.html">Print file as ascii (isprint)</a> - the standard, full-featured method to access Madrigal data</li>
+  <li>One-step file print - a quick way to print just the data using just the parameters in the file itself without filtering.</li>
+  <li><a href="wt_FileSummary.html">Print individual records</a></li>
+  <li><a href="wt_download.html">Download file</a></li>
+</ul>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="494" valign="top"><p>The top of the experiment page shows the instrument name and the experiment name, along with the start and end times of the experiment.</p>
+    <p>Next the individual Cedar-format files are listed. These will normally be the default files unless you selected <em>Show All Files</em> while browsing for Madrigal experiments - in that case you may also see historical or alternative files. On the same line as the name of the file is listed the type of data analysis and a status description. For the first file, the type of data analysis is <em>MIDAS Basic Derived Parameters</em> and the status description is <em>Single pulse data</em>. </p>
+    <p>The Cedar file format allows for text records called catalog and header records that give an overview of the file. If the particular file has such text records, you can view them by clicking on <em>View description from the catalog and/or header records</em>. </p>
+    <p>&nbsp;</p></td>
+    <td width="506" valign="top"><img src="icons/expPage.jpeg" alt="Madrigal experiment page" width="502" height="492" /></td>
+  </tr>
+  <tr>
+    <td height="3"><p>If the file has any catalog or header records, they'll be a link View file description from the catalog and/or header records to view them.</p>
+    <p>Next, each Cedar file will have two links,<a href="wt_dataBrowser.html">Print file to ascii (isprint)</a>and <em>One-step file print</em>. <a href="wt_dataBrowser.html">Print file to ascii (isprint) </a> is the most fully-featured way to get ascii listings of the data in any given Cedar file. It will allow you to view both measured and derivable parameters. The data can be filtered in any number of ways. If you will be selecting the same parameters and applying the same filters to more than one file, you can save those settings as a filter. See the <a href="wt_dataBrowser.html">Print file to ascii (isprint) </a> on the next page of this tutorial for more information. The One-step file print link does exactly that - it immediately prints out all the data in the file, using only the parameters in the file, and without any data filtering. </p></td>
+    <td><p>&nbsp;</p>
+      <p align="center"><em>Experiment page with multiple files shown. </em></p>
+    <p><img src="icons/expPage2.jpeg" alt="Experiment selector page" width="500" height="464" /></p></td>
+  </tr>
+</table>
+<p>Next, each Cedar file will have its own <a href="wt_fileSummary.html">Print individual records </a> link. This interface is meant for a &quot;quick look&quot; at the data in the file or for quickly looking at one individual measurement. It consists of a series of links, one for each record in the file. When clicked, each individual record link will dump that record's data in a standard format. This interface will not show derived parameters; see <a href="wt_dataBrowser.html">Print file to ascii (isprint) </a> for that more fully-featured way to view the file. If the site has provided plots for each individual record, you will see links next to each record in the File Summary page. On the Madrigal experiment page, you will see the phrase &quot;<em>individual record plots available</em>&quot;  if those plots are available. (Madrigal administrators - see the <a href="admin.html">administrator's guide</a> for how to set this up). See the <a href="wt_fileSummary.html">Print individual records </a> page for more information on this interface. </p>
+<p>Finally, each Cedar file will have its own <a href="wt_download.html">Download file</a> link. This will allow you to download the Cedar file itself in any of the standard Cedar formats. This feature is meant for advanced users only; you will generally not be able to read these files  unless you have written some software that directly reads the Cedar format.</p>
+<p>Each Madrigal site can add additional information about any given experiment in any web-accessible format. Links to these additional resources will be found under the <em>Additional information</em> heading. In the example shown above, there is a link to <em>Analysis of ISR Long Duration Experiments</em>. (Madrigal administrators - see the <a href="admin.html">administrator's guide</a> for how to set this up). </p>
+<p>Finally, anyone who wishes to add notes about this experiment can do so by clicking <em>Add to these notes</em>. If, for example, you as a user of the data noted some interesting or questionable data, you can add a note about it. Your note would then show up under the <em>Notes</em> heading the next time anyone visited this experiment page. </p>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_browseExp.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_accessData.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_dataBrowser.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->The Madrigal experiment page<!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_browseExp.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Browse for experiments <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_accessData.html"><!-- InstanceBeginEditable name="UpTitle2" -->Access data through the web <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="wt_dataBrowser.html"><!-- InstanceBeginEditable name="NextTitle2" -->Print file as ascii  <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

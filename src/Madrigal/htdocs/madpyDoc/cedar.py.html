@@ -1,0 +1,281 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Module: cedar</title>
+        </head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Module: cedar</font>
+            </th>
+            <th align="right"><font color="#000000">cedar.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <p>cedar is the module that allows the creation and editting of Cedar (and possible future format) files.</p>
+
+<p>This module abstracts away many of the details of the Cedar file format, which may change in the future,
+and instead simply follows the Cedar data model (Prolog-1d parms-2d parms).  For example, all values are accessed and set via doubles, so
+users do not need to deal with scale factors, &quot;additional increment&quot; parameters, etc.  The Cedar file format has
+limited dynamic range, so for now an exception is raised if any value would voilate this limited range.  Furthermore,
+the Cedar data model defines time in the prolog.  Unfortunately, time may also be set in the data itself, leading
+to the possibility of inconsistent data.  This module will issue warnings in that case.</p>
+
+<p>This module  is built on top of the Madrigal C API as found in libmadrec.so through the python
+extension class __Madrec</p>
+
+<p>$Id: cedar.py.html,v 1.6 2009/04/16 21:25:50 brideout Exp $
+</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Functions">Functions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#compareParms">compareParms</a><br>
+<a href="#floatEquals">floatEquals</a><br>
+<a href="#floatIn">floatIn</a><br>
+<a href="#isNan">isNan</a><br>
+<a href="#setToMissing">setToMissing</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="compareParms"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">compareParms&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+compareParms ( firstParm,  secondParm )
+
+</pre></font>
+<h3>compareParms is used internally by getHeaderKodLines to order the parameters</h3>
+<p>        Inputs:</p>
+<p>            firstParm - tuple of (code, parameter description, scaleFactor, units) for
+                        the first parameter</p>
+
+<p>            secondParm - tuple of (code, parameter description, scaleFactor, units) for
+                         the second parameter</p>
+
+
+<p>        Returns - -1 if first&lt;second, 0 if first=second, 1 if first&gt;second.  First compare
+                  abs(code).  If equal, positive smaller than negative to make error follow
+                  main parm.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="floatEquals"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">floatEquals&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+floatEquals ( first,  second )
+
+</pre></font>
+<p>floatEquals is a method to replace == for comparing two floats.  Two floats are equal if
+    they are equal to one part in 10^5</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="floatIn"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">floatIn&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+floatIn ( testFloat,  floatList )
+
+</pre></font>
+<p>floatIn returns True if thisFloat in floatList, where equals defined by floatEquals</p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="isNan"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">isNan&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+isNan ( num )
+
+</pre></font>
+<p>isNan is my attempt to detect IEEE special values such as nan.  Returns True if not a float with a
+    real value.  Works with both python 2.3 and python 2.4</p>
+<p>    Algorithm:  if both (num &lt; 10.0) and (num &gt; -10.0) are False, return true.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="setToMissing"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">setToMissing&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+setToMissing ( x )
+
+</pre></font>
+<p>a private method to generate default data</p>
+
+</td></tr>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Classes">Classes</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <table border="0" cellpadding="5">
+<tr><td valign="top" align="left"><a href="cedar_CatalogHeaderCreator.py.html">CatalogHeaderCreator</a></td><td valign="top" align="left"><p>CatalogHeaderCreator is a class that automates the creation of catalog and header records</p>
+
+</td></tr>
+<tr><td valign="top" align="left"><a href="cedar_CedarParameter.py.html">CedarParameter</a></td><td valign="top" align="left"><p>CedarParameter is a class with attributes code, mnemonic, and description</p>
+
+</td></tr>
+<tr><td valign="top" align="left"><a href="cedar_MadrigalCatalogRecord.py.html">MadrigalCatalogRecord</a></td><td valign="top" align="left"><p>MadrigalCatalogRecord holds all the information in a Cedar catalog record.</p>
+
+</td></tr>
+<tr><td valign="top" align="left"><a href="cedar_MadrigalCedarFile.py.html">MadrigalCedarFile</a></td><td valign="top" align="left"><p>MadrigalCedarFile is an object that allows the creation and editting of Cedar files.</p>
+
+</td></tr>
+<tr><td valign="top" align="left"><a href="cedar_MadrigalDataRecord.py.html">MadrigalDataRecord</a></td><td valign="top" align="left"><p>MadrigalDataRecord holds all the information in a Cedar data record.</p>
+
+</td></tr>
+<tr><td valign="top" align="left"><a href="cedar_MadrigalHeaderRecord.py.html">MadrigalHeaderRecord</a></td><td valign="top" align="left"><p>MadrigalHeaderRecord holds all the information in a Cedar header record.</p>
+
+</td></tr>
+</table>
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Thu Apr 16 16:45:18 2009 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

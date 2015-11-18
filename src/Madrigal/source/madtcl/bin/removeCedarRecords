@@ -1,0 +1,234 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec MADROOT/bin/madtclsh "$0" ${1+"$@"}
+
+# $Id: removeCedarRecords,v 1.2 2005/04/27 16:16:28 brideout Exp $
+
+# removeCedarRecords is used to create a new cedar file from an existing
+# one, with certain records removed. 
+# Usage: removeCedarRecords [options]
+#   Options:
+#       -i infile                      Input file
+#
+#       -o outFile                     Output file.  
+#
+#       -r rec1 rec2                   A range of records to remove (inclusive).  More than
+#                                      one range can be given.
+#
+#       -t fileType                    set type of outFile to fileType
+#           filetype = 1                   Madrigal     
+#           filetype = 2                   Blocked Binary 
+#           filetype = 3                   Cbf
+#           filetype = 4                   Unblocked binary
+#           filetype = 5                   Ascii
+#
+#      Example: removeCedarRecords -i mil991102g.001 -o mil991102g.002 -r 10 12 -r 100 100
+#
+#          In this example mil991102g.002 would be a subset of the original file mil991102g.001, with records
+#          10 through 12 removed, and record 100 removed.
+#
+
+proc printUsage {} {
+
+puts "Usage: removeCedarRecords \[options\]"
+puts "  Options:"
+puts "      -i infile                      Input file"
+puts ""
+puts "      -o outFile                     Output file."
+puts ""
+puts "      -r rec1 rec2                   A range of records to remove (inclusive).  More than"
+puts "                                     one range can be given."
+puts ""
+puts "      -t fileType                    set type of outFile to fileType"
+puts "          filetype = 1                   Madrigal"
+puts "          filetype = 2                   Blocked Binary "
+puts "          filetype = 3                   Cbf"
+puts "          filetype = 4                   Unblocked binary"
+puts "          filetype = 5                   Ascii"
+puts ""
+puts "     Example: removeCedarRecords -i mil991102g.001 -o mil991102g.002 -r 10 12 -r 100 100"
+puts ""
+puts "         In this example mil991102g.002 would be a subset of the original file mil991102g.001,"
+puts "         with records 10 through 12 removed, and record 100 removed."
+puts ""
+
+    return 0 
+}
+
+# Get parameter codes
+cedarCode cedarCode
+
+# Get number of parameters
+set nargs $argc
+if {$nargs <4 } {
+    printUsage
+    exit
+}
+
+set i 0
+set outfile ""
+set infiles {}
+set rec1s {}
+set rec2s {}
+set filetype 20
+while {$i < $nargs} {
+
+    set option [lindex $argv $i]
+
+    if {$option == "-i"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        set infiles [lappend infiles [lindex $argv $i]]
+	if {[llength infiles] > 1} {
+	    puts "Only one input file allowed"
+	    printUsage
+	    return -1
+	}
+        incr i
+        
+
+    } elseif {$option == "-o"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        set outfile [lindex $argv $i]
+        incr i
+
+    } elseif {$option == "-r"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        if {[regexp {^[0-9]+$} [lindex $argv $i]] == 0} {
+            puts "Error: bad input file record range"
+            printUsage
+            return -1
+        }
+
+        if {[lindex $argv $i] == 0} {
+            puts "Error: first record must be 1 or greater"
+            return -1
+        }
+
+        set rec1s [lappend rec1s [lindex $argv $i]]
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        if {[regexp {^[0-9]+$} [lindex $argv $i]] == 0} {
+            puts "Error: bad input file record range"
+            printUsage
+            return -1
+        }
+        set rec2s [lappend rec2s [lindex $argv $i]]
+        incr i
+
+    } elseif {$option == "-t"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires more arguments"
+            return -1
+        }
+        set filetype [expr 19 + [lindex $argv $i]]
+        incr i
+
+    } else {
+        puts "Error: Unknown option $option"
+        return -1
+    }
+
+}
+
+
+# check that input file given
+if {[llength $infiles] != 1} {
+    puts "Error: exactly 1 input file must be specified"
+    printUsage
+    return -1
+}
+
+# check that output file given
+if {[string compare $outfile ""] == 0} {
+    puts "Error: exactly 1 output file must be specified"
+    printUsage
+    return -1
+}
+
+
+# Create madrec object for the output file.
+mad madout
+set status [catch {$madout open $filetype $outfile}]
+if {$status != 0} {
+    puts "mad open Error: [$madout get error]"
+    exit
+}
+
+
+# Create madrec object for the input file. Specify file type 1 for
+# automatic determination of the CEDAR file type
+mad madin
+set infile [lindex $infiles 0]
+
+
+if {[file exists $infile]} {
+    catch [$madin open 1 $infile]
+    if {$status != 0} {
+        puts "mad open Error: [$madin get error]"
+        exit
+    }
+} else {
+    puts "Input file $infile does not exist"
+    exit
+}
+
+set recCount 1
+set numExcluded 0
+set numKept     0
+
+while {1} {
+
+    if {[set status [$madin getNextRecord]] != 0} {
+        # puts EOF
+        break
+    }
+
+    # check if recCount in an excluded range
+    set excluded 0
+    
+    for {set j 0} {$j <= [llength $rec1s]} {incr j} {
+        if {$recCount >= [lindex $rec1s $j] && $recCount <= [lindex $rec2s $j]} {
+            set excluded 1
+            incr numExcluded
+            puts "just excluded record $recCount"
+        }
+    }
+
+    # if not excluded, write to output
+    if {$excluded == 0} {
+        $madin copy $madout
+        $madout putNextRecord
+        incr numKept
+    }
+    
+    incr recCount
+}
+
+# output totals
+puts "Number of records excluded: $numExcluded"
+puts "Number of records kept : $numKept"
+
+# Close input file and destroy madrec object
+$madin close
+$madin destroy
+
+# Close output file and destroy madrec object
+$madout close
+$madout destroy

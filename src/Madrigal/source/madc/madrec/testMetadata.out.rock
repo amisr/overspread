@@ -1,0 +1,234 @@
+This code is 110
+Its mnenomic is 'GDALT'
+Type via cedar: Geographic Coordinate
+Type via mad: Geographic Coordinate
+Desc via cedar: Altitude (height)                      
+Desc via mad: Altitude (height)                      
+Int16Desc via cedar:  Altitude  
+Int16Desc via mad:  Altitude  
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar:       km
+Units via mad:       km
+Mnemonic via cedar: GDALT
+Code via cedar mnem: 110
+Format via cedar: %9.2f   
+Format via mad: %9.2f   
+Width via cedar: 11
+Width via mad: 11
+
+This code is -110
+Its mnenomic is 'DGDALT'
+Type via cedar: Geographic Coordinate
+Type via mad: Geographic Coordinate
+Desc via cedar: Error in Altitude (height)                      
+Desc via mad: Error in Altitude (height)                      
+Int16Desc via cedar:  Altitude  
+Int16Desc via mad:  Altitude  
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar:       km
+Units via mad:       km
+Mnemonic via cedar: DGDALT
+Code via cedar mnem: -110
+Format via cedar: %9.2f   
+Format via mad: %9.2f   
+Width via cedar: 11
+Width via mad: 11
+
+This code is 191
+Its mnenomic is '191'
+Type via cedar: Geographic Coordinate
+Type via mad: Geographic Coordinate
+Desc via cedar: Unknown Parameter Code
+Desc via mad: Unknown Parameter Code
+Int16Desc via cedar: Unknown
+Int16Desc via mad: Unknown
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar: Unknown
+Units via mad: Unknown
+Mnemonic via cedar: 191
+Code via cedar mnem: 191
+Format via cedar: 
+Format via mad: 
+Width via cedar: 11
+Width via mad: 11
+
+This code is -191
+Its mnenomic is '-191'
+Type via cedar: Geographic Coordinate
+Type via mad: Geographic Coordinate
+Desc via cedar: Unknown Parameter Code
+Desc via mad: Unknown Parameter Code
+Int16Desc via cedar: Unknown
+Int16Desc via mad: Unknown
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar: Unknown
+Units via mad: Unknown
+Mnemonic via cedar: -191
+Code via cedar mnem: -191
+Format via cedar: 
+Format via mad: 
+Width via cedar: 11
+Width via mad: 11
+
+This code is 111
+Its mnenomic is 'GDALTI'
+Type via cedar: Geographic Coordinate
+Type via mad: Geographic Coordinate
+Desc via cedar: Additional increment to altitude       
+Desc via mad: Additional increment to altitude       
+Int16Desc via cedar: Additnl ht 
+Int16Desc via mad: Additnl ht 
+Scale factor via cedar: 0.000100
+Scale factor via mad: 0.000100
+Units via cedar:       km
+Units via mad:       km
+Mnemonic via cedar: GDALTI
+Code via cedar mnem: 111
+Format via cedar: %12.5e  
+Format via mad: %12.5e  
+Width via cedar: 14
+Width via mad: 14
+
+This code is 5501
+Its mnenomic is '5501'
+Type via cedar: Unknown Parameter Type
+Type via mad: Unknown Parameter Type
+Desc via cedar: Unknown Parameter Code
+Desc via mad: Unknown Parameter Code
+Int16Desc via cedar: Unknown
+Int16Desc via mad: Unknown
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar: Unknown
+Units via mad: Unknown
+Mnemonic via cedar: 5501
+Code via cedar mnem: 5501
+Format via cedar: 
+Format via mad: 
+Width via cedar: 11
+Width via mad: 11
+
+
+
+Now test Madrigal methods
+
+This code is 110 =   gdAlt 
+Type via cedar: Geographic Coordinate
+Type via mad: Geographic Coordinate
+Desc via cedar: Altitude (height)                      
+Desc via mad: Altitude (height)                      
+Int16Desc via cedar:  Altitude  
+Int16Desc via mad:  Altitude  
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar:       km
+Units via mad:       km
+Mnemonic via cedar: GDALT
+Code via cedar mnem: 110
+Format via cedar: %9.2f   
+Format via mad: %9.2f   
+Width via cedar: 11
+Width via mad: 11
+
+This code is -110 = DgdaLT    
+Type via cedar: Geographic Coordinate
+Type via mad: Geographic Coordinate
+Desc via cedar: Error in Altitude (height)                      
+Desc via mad: Error in Altitude (height)                      
+Int16Desc via cedar:  Altitude  
+Int16Desc via mad:  Altitude  
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar:       km
+Units via mad:       km
+Mnemonic via cedar: DGDALT
+Code via cedar mnem: -110
+Format via cedar: %9.2f   
+Format via mad: %9.2f   
+Width via cedar: 11
+Width via mad: 11
+
+This code is 0 =    MpaR
+Type via cedar: Unknown Parameter Type
+Type via mad: Prolog Parameters
+Desc via cedar: Unknown Parameter Code
+Desc via mad: Number of multiple-valued parameters   
+Int16Desc via cedar: Unknown
+Int16Desc via mad:    MPAR    
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar: Unknown
+Units via mad:      N/A
+Mnemonic via cedar: 0
+Code via cedar mnem: 0
+Format via cedar: 
+Format via mad: %9.0f   
+Width via cedar: 11
+Width via mad: 11
+
+This code is 462 =  mhdqc2
+Type via cedar: Data Quality Parameter
+Type via mad: Data Quality Parameter
+Desc via cedar: Millstone Hill data quality code 2     
+Desc via mad: Millstone Hill data quality code 2     
+Int16Desc via cedar: MLH dat QC2
+Int16Desc via mad: MLH dat QC2
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar:      N/A
+Units via mad:      N/A
+Mnemonic via cedar: MHDQC2
+Code via cedar mnem: 462
+Format via cedar: %12.5e  
+Format via mad: %12.5e  
+Width via cedar: 14
+Width via mad: 14
+
+This code is 9 = byear
+Type via cedar: Time Related Parameter
+Type via mad: Time Related Parameter
+Desc via cedar: Beginning year (universal time)        
+Desc via mad: Error in Beginning year (universal time)        
+Int16Desc via cedar: Begin Year 
+Int16Desc via mad: Begin Year 
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar:       yr
+Units via mad:       yr
+Mnemonic via cedar: BYEAR
+Code via cedar mnem: 9
+Format via cedar: %9.1f   
+Format via mad: %9.1f   
+Width via cedar: 11
+Width via mad: 11
+
+This code is -32767 = nonsuch   
+Type via cedar: Unknown Parameter Type
+Type via mad: Unknown Parameter Type
+Desc via cedar: Unknown Parameter Code
+Desc via mad: Unknown Parameter Code
+Int16Desc via cedar: Unknown
+Int16Desc via mad: Unknown
+Scale factor via cedar: 1.000000
+Scale factor via mad: 1.000000
+Units via cedar: Unknown
+Units via mad: Unknown
+Mnemonic via cedar: -32767
+Code via cedar mnem: -32767
+Format via cedar: 
+Format via mad: 
+Width via cedar: 11
+Width via mad: 11
+
+About to call searchFilesByDate
+fileList is 1998/mlh/20jan98/mil980120g.002,1998/mlh/20jan98/mil980120g.003,1997/aro/06jan97/are970106g.001,1997/lyr/08apr97/lyr970408g.001,1997/son/06jan97/son970106g.001,1995/jro/01feb95/jic950201g.001 and file num is 6
+Start = 1516456363.000000, end = 1516552645.000000
+Start = 1516456363.000000, end = 1516552645.000000
+Start = 1483723186.000000, end = 1484046044.000000
+Start = 1491649400.000000, end = 1491839940.000000
+Start = 1483716962.000000, end = 1484063824.000000
+Start = 1422808106.000000, end = 1423060435.000000

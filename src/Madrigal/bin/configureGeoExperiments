@@ -1,0 +1,153 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec /Users/mnicolls/Documents/Work/Madrigal/bin/madtclsh "$0" ${1+"$@"}
+
+# usage: configureGeoExperiments
+
+# Loops over all three geo experiments in the Madrigal database, sets
+# the Site ID in expTab.txt to the value specified in madrigal.cfg
+# and sets the Experiment ID in expTab.txt and fileTab.txt
+# to 10000000*siteID+localExpID. Also sets the experiment URL.
+
+
+proc setExpTabSiteID {experiment} {
+    # Assigns each element of the experiment table to a variable. These
+    # variables could be used to determine whether to process this
+    # experiment (return 1) or not (return 0)
+    global madserver madservercgi siteID
+    set expTab expTab.txt
+    if {![file exists $experiment$expTab]} {
+        return 0
+    }
+    set fin [open $experiment$expTab r]
+    gets $fin line
+    set fout [open temp w]
+    set expTabEntries [split $line ,]
+    set ExperimentID [lindex $expTabEntries 0]
+    set ExperimentURL [lindex $expTabEntries 1]
+    set ExperimentName [lindex $expTabEntries 2]
+    set SiteID [lindex $expTabEntries 3]
+    set StartDate [lindex $expTabEntries 4]
+    set StartTime [lindex $expTabEntries 5]
+    set EndDate [lindex $expTabEntries 6]
+    set EndTime [lindex $expTabEntries 7]
+    set InstrumentCode [lindex $expTabEntries 8]
+    set SecurityCode [lindex $expTabEntries 9]
+    set SiteID $siteID
+    set localExpID [expr $ExperimentID-10000000*($ExperimentID/10000000)]
+    set ExperimentID [expr 10000000*$SiteID + $localExpID]
+    set i1 [regexp -indices madtoc $ExperimentURL m]
+    set s2 [string range $ExperimentURL [lindex $m 0] end]
+    set ExperimentURL http://$madserver/$madservercgi/$s2
+    puts $fout "$ExperimentID,$ExperimentURL,$ExperimentName,$SiteID,$StartDate,$StartTime,$EndDate,$EndTime,$InstrumentCode,$SecurityCode"
+    close $fin
+    close $fout
+    file copy -force temp $experiment$expTab
+    file delete -force temp
+    return 1
+}
+
+
+proc setFileTabSiteID {experiment} {
+    global siteID
+    set fileTab fileTab.txt
+    if {![file exists $experiment$fileTab]} {
+        return 0
+    }
+    set fin [open $experiment$fileTab r]
+    set fout [open temp w]
+    while {[gets $fin line] >= 0} {
+        set fileTabEntries [split $line ,]
+        set FileName [lindex $fileTabEntries 0]
+        set ExperimentID [lindex $fileTabEntries 1]
+        set DataType [lindex $fileTabEntries 2]
+        set Category [lindex $fileTabEntries 3]
+        set FileSize [lindex $fileTabEntries 4]
+        set FileSizeCR [lindex $fileTabEntries 5]
+        set FileSizeHR [lindex $fileTabEntries 6]
+        set AnalysisDate [lindex $fileTabEntries 7]
+        set AnalysisTime [lindex $fileTabEntries 8]
+        set Spare1 [lindex $fileTabEntries 9]
+        set Spare2 [lindex $fileTabEntries 10]
+        set SiteID $siteID
+        set localExpID [expr $ExperimentID-10000000*($ExperimentID/10000000)]
+        set ExperimentID [expr 10000000*$SiteID + $localExpID]
+        puts $fout "$FileName,$ExperimentID,$DataType,$Category,$FileSize,$FileSizeCR,$FileSizeHR,$AnalysisDate,$AnalysisTime,$Spare1,$Spare2"
+    }
+    close $fin
+    close $fout
+    file copy -force temp $experiment$fileTab
+    file delete -force temp
+    return 1
+}
+
+proc processError {message} {
+    # Process errors. In this example, the error message is simply
+    # printed.
+    puts $message
+}
+
+
+########################
+# Start Execution Here #
+########################
+
+# Parse madrigal.cfg
+set fc [open madrigal.cfg r]
+while {[gets $fc line] >= 0} {
+    # tricks to avoid text substitution
+    set mad1 MAD
+    set mad2 ROOT
+    set mad3 SERVER
+    set mad4 SERVERCGI
+    set site1 SITE
+    set site2 ID
+    if {[regexp -- ^# $line] || [string length $line] == 0} {continue}
+    scan $line "%s %s %s" name equals value
+    if {$name == "$mad1$mad2"} {
+        set madroot [string range $line [string first $value $line] end]
+    } elseif {$name == "$mad1$mad3"} {
+        set madserver [string range $line [string first $value $line] end]
+    } elseif {$name == "$mad1$mad4"} {
+        set madservercgi [string range $line [string first $value $line] end]
+    } elseif {$name == "$site1$site2"} {
+        set siteID [string range $line [string first $value $line] end]
+    }
+}
+close $fc
+
+
+# Get list of experiments and sort by date
+set experiments [lappend experiments $madroot/experiments/1950/gpi/01jan50/]
+set experiments [lappend experiments $madroot/experiments/1957/dst/01jan57/]
+set experiments [lappend experiments $madroot/experiments/1963/imf/27nov63/]
+
+set expTab "expTab.txt"
+set fileTab "fileTab.txt"
+
+foreach experiment $experiments {
+
+    # Check for existence of experiment and file tables
+    if {![file exists $experiment$expTab]} {
+        processError "Malformed experiment: $experiment$expTab does not exist"
+        continue
+    }
+
+
+    puts "Changing Site ID of $experiment to $siteID"
+
+    # Set the Site ID in the experiment table
+    if {![setExpTabSiteID $experiment]} {
+        puts "Warning: No expTab.txt"
+    }
+    # Set the Site ID in the file table
+    if {![setFileTabSiteID $experiment]} {
+        puts "Warning: No fileTab.txt"
+    }
+
+}
+
+exit
+
+

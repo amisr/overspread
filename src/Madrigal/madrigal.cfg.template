@@ -1,0 +1,55 @@
+# Template file for madrigal.cfg file
+# Copy this file to madrigal.cfg and then edit as appropriate
+# before running installMadrigal.
+#
+#  $Id: madrigal.cfg.template,v 1.17 2009/01/13 14:55:28 brideout Exp $
+
+
+# This must be changed to point to the madrigal root directory.
+MADROOT = /CHANGEME/madrigal
+
+# Top level url of Madrigal site
+MADSERVER = www.invalid.edu
+
+# Top-level Madrigal document and cgi virtual directories,
+# relative to MADSERVER.  Note the MADSERVERROOT should be configured
+# to be never execute, and the MADSERVERCGI should be execute only
+MADSERVERROOT = madrigal
+MADSERVERCGI = cgi-bin/madrigal
+
+# top-level Madrigal documents and scripts are copied
+# to the following absolute directories
+MADSERVERDOCABS = /CHANGEME/htdocs/madrigal
+MADSERVERCGIABS = /CHANGEME/cgi-bin/madrigal
+
+# Set the Site ID - Must be unique.  Contact Bill Rideout
+# at brideout@haystack.mit.edu for an offical siteid.
+# Siteid 99999 is invalid.
+SITEID = 99999
+
+# Set the body style of html pages via the BODY tag
+HTMLSTYLE = <BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+
+# Set the Heading in the top-level Madrigal page (index.html)
+# CHANGEME is typically set to the name of your site
+INDEXHEAD = Welcome to the Madrigal Database <BR> at CHANGEME
+
+# Set the contact person for this madrigal installation 
+# set CHANGEME@invalid.edu to be your email
+CONTACT = <A HREF="MAILTO:CHANGEME@invalid.edu">Madrigal administator</A><BR>
+
+# Set the name of the mailserver sendmail is running on (if not localhost) 
+MAILSERVER = localhost
+
+# Set the email address to send notification to when notes are added
+# Leave commented out when no notification is to be sent
+#NOTESMANAGER = name@yourcompany.com
+
+# Set the maximum number of global queries to allow to run at once
+# The normal default is 2 queries
+MAXGLOBALQUERIES = 2
+
+# Set the maximum size of the tempReports directory in GB
+# These are reports users generate when they create background
+# jobs.  These reports are deleted after 10 days.
+MAXTEMPREPORTS = 2

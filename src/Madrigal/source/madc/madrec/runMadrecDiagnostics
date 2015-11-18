@@ -1,0 +1,207 @@
+#!/export/home/mad2000/source/madc/madtcl/madtclsh
+
+# Executes a series of madrec test programs. 
+
+# Get the name of the madrigal file
+if {$argc != 1} {
+    # Get the name of the madrigal file from the environment
+    set madfile $env(MADROOT)/experiments/1998/mlh/20jan98/mil980120g.002
+} else {
+    # The madrigal file is the first argument of testMadrec
+    set madfile [lindex $argv 0]
+}
+
+set madin1 "madin1"
+exec translateCedarFile $madfile $madin1 0
+set madin "madin"
+set madout "madout"
+
+set fmaddataF77 "../testF77/tmaddataF77"
+set fmaddataF77out "../testF77/tmaddataF77.out"
+set fmaddataF77rock "../testF77/tmaddataF77.out.rock"
+
+set fmadrecF77 "../testF77/tmadrecF77"
+set fmadrecF77out "../testF77/tmadrecF77.out"
+set fmadrecF77rock "../testF77/tmadrecF77.out.rock"
+
+puts "Many of these tests make a series of transformations on an input"
+puts "file, producing two files, separated by a series of"
+puts "transformations, which should be identical. compareFiles is"
+puts "called to verify this.  If any problems occur, the tests should"
+puts "be run individually to get additional information on the"
+puts "problem."
+
+###
+
+puts "Running testMadrec"
+exec testMadrec > testMadrec.out
+puts [exec compareFiles testMadrec.out testMadrec.out.rock]
+
+puts "    testing Madrigal format"
+exec testMadrec $madin1 > testMadrec.out.sav
+exec translateCedarFile $madin1 $madin 0
+exec testMadrec $madin > testMadrec.out
+puts [exec compareFiles testMadrec.out testMadrec.out.sav]
+
+puts "    testing blocked binary format"
+exec translateCedarFile $madin1 $madin 1
+exec translateCedarFile $madin1 $madin 1
+exec testMadrec $madin > testMadrec.out
+puts [exec compareFiles testMadrec.out testMadrec.out.sav]
+
+puts "    testing Cbf format"
+exec translateCedarFile $madin1 $madin 2
+exec translateCedarFile $madin1 $madin 1
+exec testMadrec $madin > testMadrec.out
+puts [exec compareFiles testMadrec.out testMadrec.out.sav]
+
+puts "    testing unblocked binary format"
+exec translateCedarFile $madin1 $madin 3
+exec translateCedarFile $madin1 $madin 1
+exec testMadrec $madin > testMadrec.out
+puts [exec compareFiles testMadrec.out testMadrec.out.sav]
+
+puts "    testing ascii format"
+exec translateCedarFile $madin1 $madin 4
+exec translateCedarFile $madin1 $madin 1
+exec testMadrec $madin > testMadrec.out
+puts [exec compareFiles testMadrec.out testMadrec.out.sav]
+
+puts "Running testCedarIO"
+exec rm -f file1
+exec rm -f file11
+exec testCedarIO $madin1
+puts [exec compareFiles file1 file11]
+
+###
+
+puts "Running testCedarIOBoundaries"
+puts [exec testCedarIOBoundaries $madin1 5 5]
+
+###
+
+puts "Running testCedarMemIO"
+exec rm -f file1
+exec rm -f file2
+exec testCedarMemIO
+puts [exec compareFiles file1 file2]
+
+###
+
+puts "Running testGeometry"
+
+exec rm -f testGeometry.out
+exec testGeometry > testGeometry.out
+puts [exec compareFiles testGeometry.out testGeometry.rock]
+
+###
+
+puts "Running testMetadata - "
+puts "   will possibly fail since prints out madroot at one point; may "
+puts "   also possibly fail if new derivable parameters are added.  Do  "
+puts "   a manual diff to see if failure is due to any other reason  "
+
+exec rm -f testMetadata.out
+exec testMetadata > testMetadata.out
+puts [exec compareFiles testMetadata.out testMetadata.out.rock]
+
+###
+
+puts "Running testMaddata"
+
+exec rm -f testMaddata.out
+exec testMaddata > testMaddata.out
+puts [exec compareFiles testMaddata.out testMaddata.out.rock]
+
+###
+
+puts "Running testParmArray"
+
+exec rm -f testParmArray.out
+exec testParmArray > testParmArray.out
+puts [exec compareFiles testParmArray.out testParmArray.out.rock]
+
+###
+
+puts "Running testMadrecSequentialFileIO"
+
+puts "    testing Madrigal format"
+exec rm -f $madin
+exec testMadrecSequentialFileIO $madin1 $madin 0
+puts [exec compareFiles $madin $madin1]
+
+puts "    testing blocked binary format"
+exec rm -f $madout
+exec testMadrecSequentialFileIO $madin $madout 1
+exec testMadrecSequentialFileIO $madout $madin 0
+puts [exec compareFiles $madin $madin1]
+
+puts "    testing Cbf format"
+exec rm -f $madout
+exec testMadrecSequentialFileIO $madin $madout 2
+exec testMadrecSequentialFileIO $madout $madin 0
+puts [exec compareFiles $madin $madin1]
+
+puts "    testing unblocked binary format"
+exec rm -f $madout
+exec testMadrecSequentialFileIO $madin $madout 3
+exec testMadrecSequentialFileIO $madout $madin 0
+puts [exec compareFiles $madin $madin1]
+
+puts "    testing ascii format"
+exec rm -f $madout
+exec testMadrecSequentialFileIO $madin $madout 4
+exec testMadrecSequentialFileIO $madout $madin 0
+puts [exec compareFiles $madin $madin1]
+
+###
+
+puts "Running testMadrecRandomFileIO"
+
+puts "    testing Madrigal format"
+exec rm -f $madout
+exec translateCedarFile $madin1 $madin 0
+puts [exec testMadrecRandomFileIO $madin $madout 0 0]
+
+puts "    testing blocked binary format"
+exec rm -f $madout
+exec translateCedarFile $madin1 $madin 1
+puts [exec testMadrecRandomFileIO $madin $madout 0 0]
+
+puts "    testing Cbf format (slow - this is emulated)"
+exec rm -f $madout
+exec translateCedarFile $madin1 $madin 2
+puts [exec testMadrecRandomFileIO $madin $madout 0 0]
+
+puts "    testing unblocked binary format"
+exec rm -f $madout
+exec translateCedarFile $madin1 $madin 3
+puts [exec testMadrecRandomFileIO $madin $madout 0 0]
+
+puts "    testing ascii format"
+exec rm -f $madout
+exec translateCedarFile $madin1 $madin 4
+puts [exec testMadrecRandomFileIO $madin $madout 0 0]
+
+puts "Running test of all derivable parameters"
+exec testDerived > testDerived.out
+
+###
+
+
+puts "Running test of Fortran interface to C API"
+
+puts "    testing Fortran interface to Maddata module"
+exec $fmaddataF77 > $fmaddataF77out
+puts [exec compareFiles $fmaddataF77out $fmaddataF77rock]
+
+puts "    testing Fortran interface to Madrec module"
+exec $fmadrecF77 > $fmadrecF77out
+puts [exec compareFiles $fmadrecF77out $fmadrecF77rock]
+
+
+
+
+exit
+
+

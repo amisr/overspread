@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Data browser</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" -->
+
+
+
+
+
+
+<!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_next_top" type="text" value="wt_download.html" --><!-- InstanceParam name="href_back_top" type="text" value="wt_fileSummary.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="wt_fileSummary.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="wt_download.html" --><!-- InstanceParam name="href_prev_top" type="text" value="wt_fileSummary.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="wt_download.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="wt_fileSummary.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="wt_accessData.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="wt_download.html" -->
+</head>
+
+<body>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_expPage.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_accessData.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_fileSummary.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Print file as ascii  <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_expPage.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Experiment page  <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_accessData.html"><!-- InstanceBeginEditable name="UpTitle" -->Access data through the web <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="wt_fileSummary.html"><!-- InstanceBeginEditable name="NextTitle" -->Print individual records  <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Print file as ascii (isprint) </h1>
+<p>The Madrigal print file page is the main web interface for accessing data from individual Cedar files. It will allow you to view in ascii format both measured and derivable parameters. The data can be filtered in any number of ways. If you will be selecting the same parameters and applying the same filters to more than one file, you can save those settings as a filter.</p>
+<p>This page was originally called isprint (for <strong><u>i</u></strong>ncoherent <strong><u>s</u></strong>catter <strong><u>print</u></strong>). Madrigal is now written for any ground-based observation of the upper atmosphere, so this name is simply a historical artifact. </p>
+<p>In the data organization section of this tutorial, we discussed that Madrigal stored data as a series of records, with each record representing a single period of time. Within each record were stored scalar measurements (such as a radar azimuth) and vector measurements (such as radar range or electron temperature). The Madrigal print file treats all data as vector data, so if you request both azimuth and range, the identical azimuth data will be repeated for each individual range in a record. </p>
+<p>Filters also act on each vector measurement individually. If your filter specifies a limited   altitude coverage, some ranges from a given record may appear and others may be removed. 
+
+
+Almost all the filters use the idea of a range:&nbsp; if a given parameter is outside of the set range, it is excluded.&nbsp; To use only a minimum or maximum value, simply set the other end of the range to be blank.&nbsp; For example, to see all data with an elevation over 20 degrees, set the minimum to 20 and leave the maximum blank. </p>
+<p>The print file page has three sections:</p>
+<ul>
+  <li><a href="#filter">The filter selection</a></li>
+  <li><a href="#parameter">The parameter selection</a></li>
+  <li><a href="#output">The output format selection</a></li>
+</ul>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="480" valign="top"><h3><a name="filter" id="filter"></a>Filter selection</h3>
+    <p>In this section of the print file, you can set up filters to remove data you do not to appear in the output. When the page is first loaded, all the filter parameters are set to include all the data.</p>
+    <p>The time filter always appears. The following filters appear only if they make sense for the given file:</p>
+    <ul>
+      <li>Altitude</li>
+      <li>Azimuth</li>
+      <li>Elevation</li>
+      <li>Pulse length</li>
+      </ul>
+    <p>If data from more than one instrument appears in the file, you can also filter by instrument (this is only the case for instruments made up of combinations of other instruments, such as <em>Millstone Hill IS Radar</em>). </p>
+    <p>&nbsp;</p></td>
+    <td width="506" valign="top"><img src="icons/isprint1.jpeg" alt="Filter selection section" width="503" height="410" /></td>
+  </tr>
+  <tr>
+    <td height="3"></td>
+    <td></td>
+  </tr>
+</table>
+<p>Also available is a way for you to filter data based on any parameter or parameters listed on in the parameters section of this page. Here's an example: </p>
+<table>
+  <tr>
+    <td width="60%">Mnemonic (or Mnem1 +,-,*,/ Mnem2) (example: gdalt <em>or </em> gdalt - sdwht) Leave spaces between mnemonics and operator </td>
+    <td width="20%">Lower limit (leave blank if none) </td>
+    <td width="20%">Upper limit (leave blank if none) </td>
+  </tr>
+  <tr>
+    <td><input WIDTH="60%" name="mnemStr1" value="gdalt - sdwht" size=30></td>
+    <td><input WIDTH="20%" name="lower1" value="0.0" size=10></td>
+    <td><input WIDTH="20%" name="upper1" value="" size=10></td>
+  </tr>
+  <tr>
+    <td><input WIDTH="60%" name="mnemStr2" value="bmag" size=30></td>
+    <td><input WIDTH="20%" name="lower2" value="0.0" size=10></td>
+    <td><input WIDTH="20%" name="upper2" value="3e-5" size=10></td>
+  </tr>
+</table>
+<p>The first filter implies "gdalt - sdwht" must be greater than 0.0. Since sdwht is shadow height (the distance above any point on the earth where the sun is first visible), this filter implies that only data in direct sunlight will be displayed. The second filter says that BMAG (the magnitude of the magnetic field) must be between 0 and 3e-5 Tesla. Note that the meaning and units of any parameter are available by clicking on them. </p>
+<p>Note that the filter can be based on any single parameter (such as BMAG above), or any two parameters either added, subtracted, multiplied, or divided (as in the "gdalt - sdwht" example above).  Note that if the parameter you enter is missing or cannot be calculated, it will be rejected no matter what the range is, since missing data is never in any range. </p>
+<p>In general, all these separate filters are and'ed together, so if data is excluded from any filter it is excluded.&nbsp; There are  two exceptions: additional azimuth range, and additional elevation range.&nbsp; The purpose of these two new filters is to provide a little more flexibility in filtering azimuth or elevation than can be provided by a simple range.&nbsp; For example, if you wanted to select azimuth values between 270 and 30 degrees, the simple range approach would not work, since the range does not go through zero.&nbsp; The additional azimuth range added in this release allows this now to be done.&nbsp; The two azimuth  ranges are or'ed together: a record is selected if its azimuth is in either range.&nbsp; Elevation works the same way.&nbsp; By default, the additional azimuth and elevation ranges are set to 0 to 0 degrees, so they have no effect on the filter and can be ignored if not needed. </p>
+<p>On the right hand side of the filter section are buttons to allow you to apply existing filters, or to save the ones you've created. If you want to reuse the filters and parameters you selected for a different Madrigal experiment, click on the Login button to create a username and password. This username and password will be saved as a cookie on your browser, so you will not need to login each time you use this Madrigal site. You can then use the buttons on the right side of the filter section to save your filter settings and give it a name. When you save the settings, you will decide whether you want your filter to be public (everyone can use it, but not change or delete it) or private (only you can see it or change it). The filter you save will include both your filter settings and the parameters you selected. Only the date filters are not applied when you apply an existing filter, since two different experiments rarely have the same dates. </p>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="488" valign="top"><h3><a name="parameter" id="parameter"></a>Parameter selection </h3>
+    <p>In this section of the print file, you choose which parameters you want to display. Parameters are grouped into categories. Bold-faced parameters are the measured ones, while the plain text parameters are derived.</p>
+    <p>Click on any parameter to see its definition, and the units it will be displayed in.</p>
+    <p>For some parameters, the definition will include a link to even more information about the parameter.   </p></td>
+    <td width="506" valign="top"><p><img src="icons/isprint2.jpeg" alt="Data browser parameter selection" width="502" height="481" /></p></td>
+  </tr>
+  <tr>
+    <td height="3"></td>
+    <td></td>
+  </tr>
+</table>
+<table width="781" border="0" cellpadding="2" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="275" height="240" valign="top"><h3><a name="output" id="output"></a>Output format</h3>
+    <p>Finally, in the Output format section, you can:</p>
+    <ul>
+      <li>Turn headers on or off. Headers are placed at the top of each record by default.</li>
+      <li>Change the string that indicates missing values. </li>
+      <li>Set the number of characters per row.  </li>
+    </ul></td>
+    <td width="506" valign="top"><p><img src="icons/isprint3.jpeg" alt="Output format section" width="504" height="212" /></p></td>
+  </tr>
+  <tr>
+    <td height="3"></td>
+    <td></td>
+  </tr>
+</table>
+<p>Hitting <em>Display Data</em> will print the data.</p>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="wt_expPage.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_accessData.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="wt_fileSummary.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Print file as ascii  <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="wt_expPage.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Experiment page  <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="wt_accessData.html"><!-- InstanceBeginEditable name="UpTitle2" -->Access data through the web <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="wt_fileSummary.html"><!-- InstanceBeginEditable name="NextTitle2" -->Print individual records  <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

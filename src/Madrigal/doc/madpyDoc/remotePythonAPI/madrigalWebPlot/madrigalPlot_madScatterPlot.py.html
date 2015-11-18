@@ -1,0 +1,240 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: madScatterPlot</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: madScatterPlot</font>
+            </th>
+            <th align="right"><font color="#000000">madrigalWebPlot/madrigalPlot.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <p>madScatterPlot is the class the produces two dimensional scatter plots of x versus y.</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__filter_missing">__filter_missing</a><br>
+<a href="#__init__">__init__</a><br>
+<a href="#__truncateIsprint">__truncateIsprint</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__filter_missing"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__filter_missing&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__filter_missing ( self,  x )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        isprintText,
+        titleStr,
+        xLabelStr,
+        yLabelStr,
+        fullFilename,
+        useAbsoluteTime=False,
+        startTime=None,
+        endTime=None,
+        maxNumPoints=None,
+        yMin=None,
+        yMax=None,
+        )
+
+</pre></font>
+<h3>__init__ writes a madScatter plot to a file.</h3>
+<p>        Inputs:</p>
+<p>            isprintText - a string giving isprint output without headers. First parameter
+                          must be UTH or UT1, depending on whether time scale should be relative
+                                  to the experiment beginning (UTH) or absolute (UT1).
+                                  The second must be the parameter to be plotted. Any
+                          missing data should be written as &quot;missing&quot; or other string that
+                          cannot be converted to a float. </p>
+
+<p>            titleStr - plot title (string) - should describe parameter being plotted</p>
+
+<h4>xLabelStr - x label string</h4>
+<p>                yLabelStr - ylabel string</p>
+
+
+<p>            fullFilename - full path of file containing pcolor plot to be saved.  Extension must
+                           be jpeg or png, or exception thrown.</p>
+<p>                useAbsoluteTime - if true, print time as YYYY-MM-DD HH:MM:SS.  If false (default), print time as hour
+                              since beginning of experiment (UTH).  If useAbsoluteTime is true, first
+                                      parameter in isprintText must be UT1, if false, it must be UTH.</p>
+
+
+<p>            startTime - start plot at given time.  If useAbsoluteTime == True, then startTime must be
+                        in units of seconds since 1/1/1950.  If useAbsoluteTime == False, then
+                        startTime must be in units of UTH (hours since midnight UT of first day of
+                        experiment). Default is None, which means start at lowest time found.</p>
+
+<p>            endTime - end plot at given time.  If useAbsoluteTime == True, then endTime must be
+                      in units of seconds since 1/1/1950.  If useAbsoluteTime == False, then
+                      endTime must be in units of UTH (hours since midnight UT of first day of
+                      experiment). Default is None, which means end at largest time found.</p>
+
+<p>            maxNumPoints - maximum number of points to plot.  If not None, truncate isprintText if
+                           needed to have at most maxNumPoints lines.</p>
+
+
+<p>        Returns: void</p>
+
+<p>        Affects: None</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'No valid y data found'<br>
+ValueError, 'input text is not parseable'<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__truncateIsprint"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__truncateIsprint&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__truncateIsprint (
+        self,
+        isprintText,
+        maxLines,
+        )
+
+</pre></font>
+<p>__truncateIsprint truncates isprintText to have maxLines at most.</p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri May  1 09:51:15 2009 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

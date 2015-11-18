@@ -1,0 +1,14 @@
+clear all; close all;
+
+BM=load('/Users/mnicolls/Documents/Work/ISfit/AMISR_fitter_py/dat/bcotable7.txt');
+A=1.87; B=2.53;
+Aold = Bold = ;_2.79
+
+for ibm = 1:length(BM)
+    
+    az=BM(1,2)*pi/180;
+    el=BM(1,3)*pi/180;
+    
+    alphBS=get_BS_angle(az,el); %angle off boresight
+    
+    ksys = 

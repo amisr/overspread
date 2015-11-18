@@ -1,0 +1,549 @@
+#!/Users/mnicolls/Documents/Work/Madrigal/bin/python
+
+import sys, os, traceback
+import cgi, Cookie
+
+# $Id: madDataDisplay,v 1.23 2008/09/16 18:41:38 brideout Exp $
+
+
+
+
+class MadrigalDataDisplay:
+    """MadrigalDataDisplay is the class that produces the Madrigal data display page.
+
+    Like all my python cgi scripts, MadrigalDataDisplay has the following structure:  the entire cgi is
+    contained in one class, with a main function at the end which serves simply to call the __init__
+    function of the class.  This __init__ function is responsible for calling all other class methods.
+    It is made up of a single try block, with the purpose of reporting all exceptions in well-formatted
+    html to both the user and the administrator. The __init__ function first makes sure the pythonlib
+    can be found.  It then calls setScriptState to determine from any cgi arguments and cookies what the
+    script is supposed to do.  The script state is always set in self.state.  The particular values
+    allowed for MadrigalDataDisplay are discussed below.
+
+    The __init__ function then calls createObjects to create whatever python api objects are required
+    to complete the script.  It then calls outputHead to output the header section and any required
+    javascript.  Finally, __init__ calls a few functions for each of the main sections of the body.
+
+    If any uncaught exception is thrown, its caught by the __init__ try block.  If its an MadrigalError,
+    additional information is available.  The catch blocks attempt to display the error message on the screen
+    by backing out of of large number of possible tags, which might prevent its display (in any case, the error
+    message will always be available in the page source.  The formatted error message is also sent to the email
+    address given in the siteTab.txt metadata file.
+
+    Every attempt is made to generate easy to read source html, since it is often an easy starting point for analyzing
+    the script.  Table structure is indicated by indentation, as is javascript code structure.
+
+    Allowed values of self.state:
+    
+    'header':	        Standard data display.
+
+    'text':	        Display text only without html.
+
+    'file':	        Save text only to a file
+
+
+    All the python cgi scripts maintain state through form elements, either visible on the page, or as hidden elements.
+    The names of all form elements used by madDataDisplay are listed below:
+
+    fileName:		gives the name of the file being analyzed, either relative to the experiments directory (in which
+			case it does not begin with a forward slash, or absolute path (in which case is begins with a
+			forward slash.)  Stored as hidden element.
+
+    state:	        gives the state of the script (see above).  Defaults to 'header' if not passed in. Stored as hidden
+                        element and modified by javascript.
+
+    bothList:          	passed in by madDataBrowse, listing all the parameters in either measList or derivList, listed as integers
+			separated by '%20'.  Used to determine which parameters to display.  Restored in hidden element parmlist
+
+    parmlist:           hidden element storing parmeters passed in through bothList (above)
+
+    startDay:		passed in from madDataBrowse and stored as hidden element.
+
+    startMonth:		passed in from madDataBrowse and stored as hidden element.
+
+    startYear:		passed in from madDataBrowse and stored as hidden element.
+
+    endDay:		passed in from madDataBrowse and stored as hidden element.
+
+    endMonth:		passed in from madDataBrowse and stored as hidden element.
+
+    endYear:		passed in from madDataBrowse and stored as hidden element.
+
+    startHour:		passed in from madDataBrowse and stored as hidden element.
+
+    startMin:		passed in from madDataBrowse and stored as hidden element.
+
+    startSec:		passed in from madDataBrowse and stored as hidden element.
+
+    endHour:		passed in from madDataBrowse and stored as hidden element.
+
+    endMin:		passed in from madDataBrowse and stored as hidden element.
+
+    endSec:		passed in from madDataBrowse and stored as hidden element.
+
+    minValidAlt:	passed in from madDataBrowse and stored as hidden element.
+
+    maxValidAlt:	passed in from madDataBrowse and stored as hidden element.
+
+    minAz1:		passed in from madDataBrowse and stored as hidden element.
+
+    maxAz1:		passed in from madDataBrowse and stored as hidden element.
+
+    minEl1:		passed in from madDataBrowse and stored as hidden element.
+
+    maxEl1:		passed in from madDataBrowse and stored as hidden element.
+
+    minAz2:		passed in from madDataBrowse and stored as hidden element.
+
+    maxAz2:		passed in from madDataBrowse and stored as hidden element.
+
+    minEl2:		passed in from madDataBrowse and stored as hidden element.
+
+    maxEl2:		passed in from madDataBrowse and stored as hidden element.
+
+    minPLen:		passed in from madDataBrowse and stored as hidden element.
+
+    maxPLen:		passed in from madDataBrowse and stored as hidden element.
+
+    kinstList:          passed in from madDataBrowse and stored as hidden element.
+
+    kindatList:         passed in from madDataBrowse and stored as hidden element.
+
+    header:             passed in from madDataBrowse and stored as hidden element.
+
+    badval:             passed in from madDataBrowse and stored as hidden element.
+
+    mxchar              passed in from madDataBrowse and stored as hidden element.
+
+
+    Written by "Bill Rideout":mailto:wrideout@haystack.mit.edu  Jan. 7, 2002
+    """
+
+    # constants
+    __scriptName = 'madDataDisplay'
+
+    # states the script can be entered: header, text, file
+
+    def __init__(self):
+        """__init__ runs the entire MadrigalDataDisplay script.  All other functions are private and called by __init__.
+
+        Inputs: None
+        
+        Returns: void
+
+        Affects: Ouputs cgi script MadrigalDataDisplay.
+
+        Exceptions: None.
+        """
+        
+        # catch any exception, and write an appropriate message to user and to admin
+        try:
+
+            # check if pythonlibpath env variable exists
+            # written 'PYTHON' + 'LIBPATH' to stop automatic replacement during setup
+            temp = os.environ.get('PYTHON' + 'LIBPATH')
+            if temp != None:
+                    sys.path.append(temp)
+		    
+            # append path madroot/lib (needed only if python not installed by setup)
+            sys.path.append('/Users/mnicolls/Documents/Work/Madrigal/lib/python')
+
+            # prepare to handle MadrigalError
+            import madrigal.admin
+	    
+        except ImportError:
+	    
+	    # Fatal error - madpy library not found
+            print "Content-Type: text/html"
+            print
+            print "Unable to import the madrigal python library - please alert the sys admin!"
+            sys.exit(0)
+	    
+        try:
+
+            # set flag as to whether script headers have been written
+            self.scriptHeaders = 0
+            
+            # determine from form arguments and cookies which script state to use
+            self.setScriptState()
+            
+            # create needed Madrigal objects
+            self.createObjects()
+
+
+            # output html
+
+            #print header
+            self.outputHead('Display  Madrigal Data')
+
+            #print body tag
+            if self.state == 'header':
+                print self.madDBObj.getHtmlStyle()
+
+            if self.state == 'header':
+                self.printHeading()
+
+
+            self.printDisplay()
+
+
+            if self.state == 'header':
+                self.printEndPage()
+
+            
+
+        except madrigal.admin.MadrigalError, e:
+            # handle a MadrigalError
+
+            # back out of any tag so error message appears
+            if self.scriptHeaders != 0:
+                print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            errStr = errStr + e.getExceptionHtml()
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            if self.scriptHeaders == 0: # not yet printed
+                print "Content-Type: text/html"
+                print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        except SystemExit:
+            sys.exit(0)
+
+        except:
+            # handle a normal error
+            
+             # back out of any tag so error message appears
+            if self.scriptHeaders != 0:
+                print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            if self.scriptHeaders == 0: # not yet printed
+                print "Content-Type: text/html"
+                print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        # end __init__
+
+
+    def setScriptState(self):
+        
+        #create a form object
+        self.madForm = cgi.FieldStorage()
+
+	# get log in information from cookie
+        self.cookie = Cookie.SimpleCookie()
+        if os.environ.has_key('HTTP_COOKIE'):
+            self.cookie.load(os.environ['HTTP_COOKIE'])
+            try:
+                self.username = self.cookie["username"].value
+            except:
+                self.username = None
+            if self.username == None:
+                self.cookie = None
+            if self.username == '':
+                self.cookie = None
+        else:
+	    # not logged in
+            self.cookie = None
+
+        if not self.madForm.has_key('fileName'):
+            if  self.scriptHeaders == 0:
+                print "Content-Type: text/html\n"
+
+            print '<h3> This cgi script was called without the proper arguments.</h3>' + \
+                  'Since this script uses post, you cannot bookmark this page. ' + \
+                  'Please contact your site administrator with any questions.'
+
+            sys.exit(0)
+            
+        else:
+            self.fileName = self.madForm.getvalue('fileName')
+
+        if not self.madForm.has_key('state'):
+            self.state = 'header'
+        else:
+            self.state = self.madForm.getvalue('state')
+
+        # check if its a valid argument
+        if self.state != 'header' and self.state != 'text' and self.state != 'file':
+            raise 'Script madDataDisplay called with state element invalid type: ' + str(self.state)
+
+
+    def createObjects(self):
+
+        # all states require a MadrigalDB object
+        import madrigal.metadata
+        self.madDBObj = madrigal.metadata.MadrigalDB()
+
+        # if madroot not set, set it now
+        if os.environ.get('MAD' + 'ROOT') == None:
+            os.environ['MAD' + 'ROOT'] = self.madDBObj.getMadroot()
+
+        # create a MadrigalWeb object
+        import madrigal.ui.web
+        self.madWebObj = madrigal.ui.web.MadrigalWeb(self.madDBObj)
+
+	# log data access
+        self.madWebObj.logDataAccess(self.fileName)
+
+	# create a Madrigal User Data object
+        import madrigal.ui.userData
+        self.madUserDataObj = madrigal.ui.userData.MadrigalUserData(self.madDBObj)
+
+	# create a Madrigal parameter object
+        import madrigal.data
+        self.madParmObj = madrigal.data.MadrigalParameters(self.madDBObj)
+
+	# create a Filter object from form elements
+        self.madFilter = madrigal.ui.userData.MadrigalFilter()
+
+        self.populateFilterFromForm()
+
+            
+    def populateFilterFromForm(self):
+
+        # get the name of the new filter
+        if self.madForm.has_key('startHour'):
+            self.madFilter.starthour = int(self.madForm.getvalue('startHour'))
+        if self.madForm.has_key('startMin'):
+            self.madFilter.startmin = int(self.madForm.getvalue('startMin'))
+        if self.madForm.has_key('startSec'):
+            self.madFilter.startsec = int(self.madForm.getvalue('startSec'))
+        if self.madForm.has_key('endHour'):
+            self.madFilter.endhour = int(self.madForm.getvalue('endHour'))
+        if self.madForm.has_key('endMin'):
+            self.madFilter.endmin = int(self.madForm.getvalue('endMin'))
+        if self.madForm.has_key('endSec'):
+            self.madFilter.endsec = int(self.madForm.getvalue('endSec'))
+        if self.madForm.has_key('minValidAlt'):
+            self.madFilter.minalt = float(self.madForm.getvalue('minValidAlt'))
+        if self.madForm.has_key('maxValidAlt'):
+            self.madFilter.maxalt = float(self.madForm.getvalue('maxValidAlt'))
+        if self.madForm.has_key('minAz1'):
+            self.madFilter.minaz = float(self.madForm.getvalue('minAz1'))
+        if self.madForm.has_key('maxAz1'):
+            self.madFilter.maxaz = float(self.madForm.getvalue('maxAz1'))
+        if self.madForm.has_key('minEl1'):
+            self.madFilter.minel = float(self.madForm.getvalue('minEl1'))
+        if self.madForm.has_key('maxEl1'):
+            self.madFilter.maxel = float(self.madForm.getvalue('maxEl1'))
+        if self.madForm.has_key('minAz2'):
+            self.madFilter.minaz2 = float(self.madForm.getvalue('minAz2'))
+        if self.madForm.has_key('maxAz2'):
+            self.madFilter.maxaz2 = float(self.madForm.getvalue('maxAz2'))
+        if self.madForm.has_key('minEl2'):
+            self.madFilter.minel2 = float(self.madForm.getvalue('minEl2'))
+        if self.madForm.has_key('maxEl2'):
+            self.madFilter.maxel2 = float(self.madForm.getvalue('maxEl2'))
+        if self.madForm.has_key('minPLen'):
+            self.madFilter.minpl = float(self.madForm.getvalue('minPLen'))
+        if self.madForm.has_key('maxPLen'):
+            self.madFilter.maxpl = float(self.madForm.getvalue('maxPLen'))
+        if self.madForm.has_key('kinstList'):
+            if self.madForm.getvalue('kinstList') != '0':
+                self.madFilter.flkinst = self.madForm.getvalue('kinstList')
+        if self.madForm.has_key('kindatList'):
+            if self.madForm.getvalue('kindatList') != '0':
+                self.madFilter.flkdat = self.madForm.getvalue('kindatList')
+        if self.madForm.has_key('mnemStr1'):
+            self.madFilter.mnemStr1 = self.madForm.getvalue('mnemStr1')
+        if self.madForm.has_key('lower1'):
+            self.madFilter.lower1 = float(self.madForm.getvalue('lower1'))
+        if self.madForm.has_key('upper1'):
+            self.madFilter.upper1 = float(self.madForm.getvalue('upper1'))
+        if self.madForm.has_key('mnemStr2'):
+            self.madFilter.mnemStr2 = self.madForm.getvalue('mnemStr2')
+        if self.madForm.has_key('lower2'):
+            self.madFilter.lower2 = float(self.madForm.getvalue('lower2'))
+        if self.madForm.has_key('upper2'):
+            self.madFilter.upper2 = float(self.madForm.getvalue('upper2'))
+        self.populateParmlist()
+        if self.madForm.has_key('header'):
+            self.madFilter.header = self.madForm.getvalue('header')
+        if self.madForm.has_key('badval'):
+            self.madFilter.badval = self.madForm.getvalue('badval')
+        if self.madForm.has_key('mxchar'):
+            self.madFilter.mxchar = self.madForm.getvalue('mxchar')
+        if self.madForm.has_key('assumed'):
+            self.madFilter.assumed = self.madForm.getvalue('assumed')
+        if self.madForm.has_key('knownbad'):
+            self.madFilter.knownBad = self.madForm.getvalue('knownbad')
+
+    def populateParmlist(self):
+
+        if self.state == 'header':
+            # get all possible parameters from hidden form element bothList
+            self.bothList = self.madForm.getvalue('bothList').split('%20')
+
+            # create a new list with only selected parameters
+            self.selectedStrParmList = []
+
+            for parm in self.bothList:
+                if self.madForm.has_key(str(parm)):
+                    self.selectedStrParmList.append(str(parm))
+
+            # store this list of selected parms as a single string of mnemonics in self.madFilter.parmlist
+            delimiter = ' '
+            self.madFilter.parmlist = delimiter.join(self.selectedStrParmList)
+            
+        else:
+            # parmlist is stored in hidden form element parmlist
+            if self.madForm.has_key('parmlist'):
+                self.madFilter.parmlist = self.madWebObj.getSpaceString(self.madForm.getvalue('parmlist'))
+            else:
+                self.madFilter.parmlist = ''
+        
+
+    def outputHead(self, title):
+
+        if self.state == 'header':
+            print "Content-Type: text/html"
+        elif self.state == 'text':
+            print "Content-Type: text/plain"
+        elif self.state == 'file':
+            print "Content-Type: application/octet-stream"
+        print                               # blank line, end of headers
+        self.scriptHeaders = 1
+        if self.state == 'header':
+            print '<html>'
+            print '<head>'
+            print '\t<title>' + title + '</title>'
+            print '\t<style type="text/css">.lb {background: #ADD8E6}</style>'
+            self.printJavaScript()
+            print '</head>'
+
+
+
+    def printJavaScript(self):
+        print '<script language = "JavaScript">'
+        self.printReturnIsprint()
+        self.printTextOnly()
+        self.printSaveText()
+        #self.madWebObj.printBrowsersJS()
+        #self.madWebObj.printDownloadFileJS()
+        print '</script>'
+
+    def printReturnIsprint(self):
+        print '\tfunction returnIsprint(madForm)'
+        print '\t{'
+        print '\t\tmadForm.action="madDataBrowse"'
+        print '\t\tmadForm.target=""'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+        
+    def printTextOnly(self):
+        print '\tfunction textOnly(madForm)'
+        print '\t{'
+        print '\t\tmadForm.state.value = "text"'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printSaveText(self):
+        print '\tfunction saveText(madForm)'
+        print '\t{'
+        print '\t\tmadForm.state.value = "file"'
+        print '\t\tmadForm.submit()'
+        print '\t}'
+
+    def printHeading(self):
+        print '<h1>Isprint output</h1>'
+        print self.madWebObj.getRulesOfTheRoad()
+        print '<form action=madDataDisplay method=post name=form1>'
+        self.printHiddenElements()
+        print '<input class=lb type=button name="ReturnIsprint" value="Return to Isprint" onClick="' + \
+              'returnIsprint(this.form)">'
+        print '<input class=lb type=button name="ListTextOnly" value="List text only" onClick="' + \
+              'textOnly(this.form)">'
+        print '<input class=lb type=button name="SaveText" value="Save text to file" onClick="' + \
+              'saveText(this.form)">'
+
+    def printHiddenElements(self):
+        
+        # field state must be set by javascript
+        print '<input type=hidden name=state value=invalid>'
+        print '<input type=hidden name=updateType value=edit>'
+        for key in self.madForm.keys():
+            if key in ('updateType',):
+                continue
+            print '<input type=hidden name=' + str(key) + \
+                  ' value=' + self.madForm.getvalue(key).replace(' ', '&nbsp;') + '>'
+        try:
+            print '<input type=hidden name=parmlist value=' + self.madWebObj.getCgiString(self.madFilter.parmlist) + '>'
+        except:
+            pass
+
+
+    def printDisplay(self):
+        if self.state == 'header':
+                print '<hr><pre>'
+        self.madWebObj.outputIsprintReport(self.madFilter, self.madForm, self.fileName)
+        if self.state == 'header':
+                print '<hr></pre>'
+
+
+    def printEndPage(self):
+        print '</form></body></html>'
+
+
+   
+   
+        
+            
+
+if __name__ == '__main__':
+
+    # Script madLogin
+    # This script only calls the init function of the class MadrigalLogin
+    # All work is done by the init function
+    MadrigalDataDisplay()

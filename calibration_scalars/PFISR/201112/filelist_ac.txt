@@ -1,0 +1,7 @@
+/Volumes/ISR_DATA_02/processed_data/PFISR/2011/12/
+PLCal30/20111220.007/cal-0/PLCal30-64016-plline-000_ac_5min_.txt
+PLCal30/20111220.007/cal-0/PLCal30-64016-plline-001_ac_5min_.txt
+PLCal30/20111220.007/cal-0/PLCal30-64112-plline-000_ac_5min_.txt
+PLCal30/20111220.007/cal-0/PLCal30-64124-plline-000_ac_5min_.txt
+PLCal30/20111220.007/cal-0/PLCal30-64982-plline-000_ac_5min_.txt
+PLCal30/20111220.007/cal-0/PLCal30-65162-plline-000_ac_5min_.txt

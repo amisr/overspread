@@ -1,0 +1,275 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalKindat</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalKindat</font>
+            </th>
+            <th align="right"><font color="#000000">metadata.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalKindat is an object that provides access to Madrigal kind of data info from the metadata.</h3>
+<p>    This object provides access to all Madrigal kind of data information in the metadata file typeTab.txt.</p>
+
+<p>    Usage example:</p>
+<PRE>
+        import madrigal.metadata
+        import madrigal.admin
+
+        try:
+
+            test = madrigal.metadata.MadrigalKindat()
+
+            print test.getKindatDescription(3001)
+
+        except madrigal.admin.MadrigalError, e:
+
+            print e.getExceptionStr()
+
+</PRE>
+
+<p>    Non-standard Python modules used:
+    None</p>
+
+<p>    MadrigalError exception thrown if:</p>
+<ol><li><p>MadrigalMetadata fails to open or parse metadata file</p>
+
+</li>
+<li><p>Columns expected to be ints or floats cannot be converted</p>
+
+</li></ol>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Nov. 9, 2001</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__init__">__init__</a><br>
+<a href="#getKindatDescription">getKindatDescription</a><br>
+<a href="#getKindatList">getKindatList</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        madDB=None,
+        initFile=None,
+        )
+
+</pre></font>
+<h3>__init__ initializes MadrigalKindat by reading from typeTab.txt (or initFile).</h3>
+<h4>Inputs: Existing MadrigalDB object, by default = None.</h4>
+<p>            String representing the full path to the metadata file. Default is None, in
+            which case file read is MadrigalDB.getMetadataDir()/typeTab.txt.</p>
+
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes all the class member variables.</p>
+
+<p>        Exceptions: MadrigalError thrown  by MadrigalMetadata if file not opened or parsed successfully.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKindatDescription"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKindatDescription&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKindatDescription ( self,  code )
+
+</pre></font>
+<h3>getKindatDescription returns the kindat description that matches code argument, or None if not found.</h3>
+<p>        Inputs: code integer to get kindat description.</p>
+
+<p>        Returns: the kindat description that matches code argument, or None if not found.</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: MadrigalError if any item in row cannot be cast to correct format</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in typeTab.txt parsing metadata row: ' + str( type ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getKindatList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getKindatList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getKindatList ( self )
+
+</pre></font>
+<h3>getKindatList returns a list of all kindat descriptions and codes.</h3>
+<p>        Inputs: None.</p>
+
+<p>        Returns: a list of all kindat descriptions and codes.  Each item in the list
+        is a tuple of the form (Kindat description (string), kindat code (integer)).  Example item:
+        (<code>INSCAL Basic Derived Parameters</code>, 3001)</p>
+
+<p>        Affects: None</p>
+
+<p>        Exceptions: MadrigalError if any item in row cannot be cast to correct format</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+madrigal.admin.MadrigalError('Error in typeTab.txt parsing metadata row: ' + str( kindat ), traceback.format_exception(sys.exc_info() [ 0 ], sys.exc_info() [ 1 ], sys.exc_info() [ 2 ] ) )<br>
+
+</td></tr>
+</table>
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri Dec 30 08:58:50 2005 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

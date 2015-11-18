@@ -1,0 +1,3 @@
+320 us long pulse with true filter impulse response corresponding to 7 us sampling out to lag 32 (224 us)
+
+compute_lamb(0,'../exps/filterfiles/blackman_7usec_100507.fco',[10,5],46,[7],'../exps/lp320_7_lag32/',lags=range(32))

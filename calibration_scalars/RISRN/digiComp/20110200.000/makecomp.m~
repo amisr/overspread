@@ -1,0 +1,29 @@
+clear all; close all;
+
+% load cadi
+cadiDir = '/Users/mnicolls/Documents/Work/AMISR/RISR_CADI/unb/';
+thisdir=pwd; cd(cadiDir); cadiStruct=read_unbcadi('rescOutputFile-Feb2011.txt'); cd(thisdir);
+cadiStruct=setfield(cadiStruct,'NmF2', (cadiStruct.fof2*1e6/8980).^2*1e6);
+cadiStruct=setfield(cadiStruct,'dNmF2', cadiStruct.NmF2.*cadiStruct.dfof2./cadiStruct.fof2);
+
+% load isr
+load out.mat;
+
+cinterp = interp1(cadiStruct.dnum,cadiStruct.NmF2,AllTime,'linear');
+doff = cinterp-AllNmax).
+    
+    
+
+fpos=[0 0 0.8 0.8];
+f1=figure('Units','normalized','Position',fpos); set(gcf,'paperpositionmode','auto');
+set(gcf,'visible','on');
+
+subplot(211);
+l=plot(AllTime,AllNmax,'k');
+hold on;
+l=plot(AllTime,AllNmax+smooth(AllStdNmax,5)','k--');
+l=plot(AllTime,AllNmax-smooth(AllStdNmax,5)','k--');
+hold on;
+l=plot(cadiStruct.dnum,cadiStruct.NmF2,'r'); set(l,'linewidth',1.5);
+l=plot(cadiStruct.dnum,cadiStruct.NmF2+cadiStruct.dNmF2,'r--'); 
+l=plot(cadiStruct.dnum,cadiStruct.NmF2-cadiStruct.dNmF2,'r--'); 

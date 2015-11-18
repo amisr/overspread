@@ -1,0 +1,464 @@
+#!/Users/mnicolls/Documents/Work/Madrigal/bin/python
+
+import sys, os, traceback
+import cgi, Cookie
+
+
+class MadrigalEditFilter:
+    """MadrigalEditFilter is the class that produces the Madrigal edit filter page.
+    
+    Like all my python cgi scripts, MadrigalEditFilter has the following structure:  the entire cgi is
+    contained in one class, with a main function at the end which serves simply to call the __init__
+    function of the class.  This __init__ function is responsible for calling all other class methods.
+    It is made up of a single try block, with the purpose of reporting all exceptions in well-formatted
+    html to both the user and the administrator. The __init__ function first makes sure the pythonlib
+    can be found.  It then calls setScriptState to determine from any cgi arguments and cookies what the
+    script is supposed to do.  The script state is always set in self.state.  The particular values
+    allowed for MadrigalEditFilter are discussed below.
+
+    The __init__ function then calls createObjects to create whatever python api objects are required
+    to complete the script.  If the user has made a request that may succeed or may fail, that request is
+    then processed, and self.success is set to either 'true' or 'false', and self.result is set to either
+    1 (if success) or to the error message from the madpy library if failure.  The output html will then
+    be determined by self.success.  The script then calls outputHead to output the header section and any required
+    javascript.  Finally, __init__ calls a few functions for each of the main sections of the body.
+
+    If any uncaught exception is thrown, its caught by the __init__ try block.  If its an MadrigalError,
+    additional information is available.  The catch blocks attempt to display the error message on the screen
+    by backing out of of large number of possible tags, which might prevent its display (in any case, the error
+    message will always be available in the page source.  The formatted error message is also sent to the email
+    address given in the siteTab.txt metadata file.
+
+    Every attempt is made to generate easy to read source html, since it is often an easy starting point for analyzing
+    the script.  Table structure is indicated by indentation, as is javascript code structure.
+
+    Allowed values of self.state:
+    
+    'edit':	        Default when page called.
+
+    'delFilterAck':	User has requested a filter be deleted
+
+    'displayFilter':    User has request a filter's details be displayed
+
+
+    All the python cgi scripts maintain state through form elements, either visible on the page, or as hidden elements.
+    If the user is logged in self.username is set by a cookie. The names of all form elements used by madEditFilter are
+    listed below:
+
+    state:	        gives the state of the script (see above).  Defaults to 'edit' if not passed in. Stored as hidden
+                        element and modified by javascript.
+
+    editFilterName:	a select input giving the name of the filter.
+
+    All form elements passed in from madDataBrowse are automatically saved as hidden elements.
+    
+
+    Change history:
+
+    Written by "Bill Rideout":mailto:wrideout@haystack.mit.edu  Jan. 15, 2002
+
+    $Id: madEditFilter,v 1.16 2008/07/25 18:55:30 brideout Exp $
+    """
+
+    # constants
+    __scriptName = 'madEditFilter'
+
+    # states the script can be in: edit, delFilterAck, displayFilt
+    
+
+    def __init__(self):
+        """__init__ runs the entire MadrigalEditFilter script.  All other functions are private and called by __init__.
+
+        Inputs: None
+        
+        Returns: void
+
+        Affects: Ouputs cgi script MadrigalEditFilter.
+
+        Exceptions: None.
+        """
+        
+        # catch any exception, and write an appropriate message to user and to admin
+        try:
+
+            # check if pythonlibpath env variable exists
+            # written 'PYTHON' + 'LIBPATH' to stop automatic replacement during setup
+            temp = os.environ.get('PYTHON' + 'LIBPATH')
+            if temp != None:
+                    sys.path.append(temp)
+		    
+            # append path madroot/lib (needed only if python not installed by setup)
+            sys.path.append('/Users/mnicolls/Documents/Work/Madrigal/lib/python')
+
+            # prepare to handle MadrigalError
+            import madrigal.admin
+	    
+        except ImportError:
+	    
+            # Fatal error - madpy library not found
+            print "Content-Type: text/html"
+            print
+            print "Unable to import the madrigal python library - please alert the sys admin!"
+            sys.exit(0)
+	    
+        try:
+
+            # set flag as to whether script headers have been written
+            self.scriptHeaders = 0
+            
+            # determine from form arguments and cookies which script state to use
+            self.setScriptState()
+            
+            # create needed Madrigal objects
+            self.createObjects()
+
+            # process requested login or password change
+            self.success = ''
+            
+            if self.state == 'delFilterAck':
+                self.tryDelFilt()
+
+            # output html
+
+            #print header
+            self.outputHead('Edit Madrigal filters/directories')
+
+            #print body tag
+            print self.madDBObj.getHtmlStyle()
+
+            self.printHeading()
+
+            self.printHiddenElements()
+
+            self.printDescription()
+
+            self.printInputTable()
+
+            if self.state == 'displayFilt':
+                self.printFilterSummary()
+
+            self.printButtons()
+
+            self.printEndPage()
+
+            
+
+        except madrigal.admin.MadrigalError, e:
+            # handle a MadrigalError
+
+            # back out of any tag so error message appears
+            if self.scriptHeaders != 0:
+                print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            errStr = errStr + e.getExceptionHtml()
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            if self.scriptHeaders == 0: # not yet printed
+                print "Content-Type: text/html"
+                print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+
+        except SystemExit:
+            sys.exit(0)
+
+        except:
+            # handle a normal error
+            
+            # back out of any tag so error message appears
+            if self.scriptHeaders != 0:
+                print '</script></select></td></tr></table></td></tr></table>'
+                
+            errStr = '<h1> Error occurred in script ' + self.__scriptName + '.</h1>'
+
+            
+            err = traceback.format_exception(sys.exc_info()[0],
+                                             sys.exc_info()[1],
+                                             sys.exc_info()[2])
+
+            for errItem in err:
+                errStr = errStr + '<br>\n' + str(errItem)
+
+        
+            # add info about called form:
+            if self.madForm != None:
+                errStr = errStr + '<h3>Form elements</h3>\n'
+                for key in self.madForm.keys():
+                    errStr = errStr + '<br>\n' + str(key)
+                    errStr = errStr + ' = ' + str(self.madForm.getvalue(key))
+
+            if self.scriptHeaders == 0: # not yet printed
+                print "Content-Type: text/html"
+                print
+                
+            print errStr + '<BR>'
+
+            self.admin = madrigal.admin.MadrigalNotify()
+            self.admin.sendAlert('<html>\n' + errStr + '</html>',
+                                 'Error running ' + self.__scriptName)
+
+
+            print '<br><b>Your system administrator has been notified.<b>'
+            
+
+        # end __init__
+
+
+    def setScriptState(self):
+        
+        #create a form object
+        self.madForm = cgi.FieldStorage()
+
+        # get log in information from cookie
+        self.cookie = Cookie.SimpleCookie()
+        if os.environ.has_key('HTTP_COOKIE'):
+                self.cookie.load(os.environ['HTTP_COOKIE'])
+                try:
+                    self.username = self.cookie["user_email"].value
+                except:
+                    self.username = None
+                if self.username == None:
+                    self.cookie = None
+                if self.username == '':
+                    self.cookie = None
+        else:
+            # not logged in
+            self.cookie = None
+
+        if not self.madForm.has_key('fileName'):
+            if  self.scriptHeaders == 0:
+                print "Content-Type: text/html\n"
+
+            print '<h3> This cgi script was called without the proper arguments.</h3>' + \
+                  'Since this script uses post, you cannot bookmark this page. ' + \
+                  'Please contact your site administrator with any questions.'
+
+            sys.exit(0)
+        else:
+            self.fileName = self.madForm.getvalue('fileName')
+
+        if not self.madForm.has_key('state'):
+            self.state = 'edit'
+        else:
+            self.state = self.madForm.getvalue('state')
+
+        # check if its a valid argument
+        if self.state != 'edit' and self.state != 'delFilterAck':
+            if self.state != 'displayFilt':
+                raise 'Script madEditFilter called with state element invalid type: ' + str(self.state)
+
+
+
+    def createObjects(self):
+
+        # all states require a MadrigalDB object
+        import madrigal.metadata
+        self.madDBObj = madrigal.metadata.MadrigalDB()
+
+        # if madroot not set, set it now
+        if os.environ.get('MAD' + 'ROOT') == None:
+            os.environ['MAD' + 'ROOT'] = self.madDBObj.getMadroot()
+
+        # create a MadrigalWeb object
+        import madrigal.ui.web
+        self.madWebObj = madrigal.ui.web.MadrigalWeb(self.madDBObj)
+
+        # create a Madrigal User Data object
+        import madrigal.ui.userData
+        self.madUserDataObj = madrigal.ui.userData.MadrigalUserData(self.madDBObj)
+
+        # create a Madrigal parameter object
+        import madrigal.data
+        self.madParmObj = madrigal.data.MadrigalParameters(self.madDBObj)
+
+        # create a filter object if in state displayFilt
+        if self.state == 'displayFilt':
+            self.filtObj = self.madUserDataObj.getFilter(self.username,
+                                                         'private',
+                                                         self.madForm.getvalue("editFilterName"))
+
+
+
+    def tryDelFilt(self):
+
+        # self.result is 1 if success, error message if failure
+        self.result = self.madUserDataObj.removeFilter(self.username,
+                                                       'private',
+                                                       self.madForm.getvalue("editFilterName"))
+
+        if self.result == 1:
+            self.success = 'true'
+        else:
+            self.success = 'false'
+        
+
+    def outputHead(self, title):
+
+        print "Content-Type: text/html"
+        print                               # blank line, end of headers
+        self.scriptHeaders = 1
+        print '<html>'
+        print '<head>'
+        print '\t<title>' + title + '</title>'
+        print '\t<style type="text/css">.lb {background: #ADD8E6}</style>'
+        self.printJavaScript()
+        print '</head>'
+
+
+
+    def printJavaScript(self):
+        print '<script language = "JavaScript">'
+        self.printDisplayFilter()
+        self.printDeleteFilter()
+        self.printReturnMadDataBrowse()
+        print '</script>'
+
+
+
+    def printDisplayFilter(self):
+        print '\tfunction displayFilter(madForm)'
+        print '\t{'
+        print '\t\tmadForm.state.value = "displayFilt"'
+        print '\t\tmadForm.submit()'
+        print '\t}\n'
+
+
+    def printDeleteFilter(self):
+        print '\tfunction deleteFilter(madForm)'
+        print '\t{'
+        print '\t\tvar dirName = "private"'
+        print '\t\tvar filtName = madForm.editFilterName.options[madForm.editFilterName.selectedIndex].value'
+        print '\t\tretValue = confirm("Are you sure you want to delete filter "' + \
+              ' + filtName + "?")'
+        print '\t\tif(retValue)'
+        print '\t\t{'
+        print '\t\t\tmadForm.state.value = "delFilterAck"'
+        print '\t\t\tmadForm.submit()'
+        print '\t\t}'
+        print '\t}\n'
+
+
+    def printReturnMadDataBrowse(self):
+        print '\tfunction returnMadDataBrowse(madForm)'
+        print '\t{'
+        print '\t\tmadForm.action = "madDataBrowse"'
+        print '\t\tmadForm.updateType.value = "edit"'
+        print '\t\tmadForm.submit()'
+        print '\t\treturn true'
+        print '\t}\n'
+        
+        
+
+    def printHeading(self):
+        print '<h1>Display or delete filters</h1>'
+        print '<form action=madEditFilter method=post name=form1>'
+
+
+    def printHiddenElements(self):
+        # field state must be set by javascript
+        print '<input type=hidden name=state value=invalid>'
+
+        # now print all received post elements from madDataBrowse as hidden elements
+        # if form just loaded
+        if self.state == 'edit':
+            self.elementsFromMadDataBrowseList = []
+            for key in self.madForm.keys():
+                self.elementsFromMadDataBrowseList.append(str(key))
+                print '<input type=hidden name=' + str(key) + \
+                      ' value=' + self.madForm.getvalue(key).replace(' ', '&nbsp;') + '>'
+            # print hidden elements from madDataBrowse list
+            print '<input type=hidden name=elementsFromMadDataBrowse value="' + \
+                  self.madWebObj.getCgiStringFromList(self.elementsFromMadDataBrowseList) + '">'
+            
+        # form is reloaded, only print form elements in elementsFromMadDataBrowse
+        else:
+            for key in self.madForm.getvalue('elementsFromMadDataBrowse').split('%20'):
+                print '<input type=hidden name=' + str(key) + \
+                      ' value=' + self.madForm.getvalue(key) + '>'
+            # print hidden elements from madDataBrowse list
+            print '<input type=hidden name=elementsFromMadDataBrowse value="' + \
+                  self.madForm.getvalue('elementsFromMadDataBrowse') + '">'
+
+
+    def printDescription(self):
+        print '<ul>'
+        
+        if self.state == 'delFilterAck':
+            if self.success == 'true':
+                print '\t<li>Filter has been deleted successfully. </li>'
+            else:
+                print '\t<li>Filter was not deleted successfully. </li>'
+                print '\t<li>Reason: ' + self.result + '</li>'
+                
+        print '</ul>'
+            
+
+    def printInputTable(self):
+        print '<p>Choose filter: '
+        self.selectedDirName = 'private'
+        if self.state == 'edit' or self.state == 'delFilterAck':
+            print '<select name="editFilterName">' + \
+                  self.madWebObj.getOptionFilterTags(self.madUserDataObj, self.username, self.selectedDirName) + \
+                  '</select>'
+        else:
+            print '<select name="editFilterName">' + \
+                  self.madWebObj.getOptionFilterTags(self.madUserDataObj,
+                                                     self.username,
+                                                     self.selectedDirName,
+                                                     self.madForm.getvalue('editFilterName')) + \
+                  '</select>'
+        print '</p>'
+        print '<p><input class=lb type=button value="Delete filter" name=delFilt onClick =deleteFilter(this.form)>&nbsp;&nbsp;'
+        print '<input class=lb type=button value="Display filter" name=displayFilt onClick =displayFilter(this.form)>'
+        print '</p>'
+
+    def printFilterSummary(self):
+        print '<h2>Filter summary:</h2>'
+        print self.madWebObj.filterHtmlFormat(self.filtObj)
+
+
+    def printButtons(self):
+        print '<center><p>'
+        print '<input class=lb type=button value=Return name=Return onClick = "returnMadDataBrowse(this.form)"></center>'
+
+
+
+
+    def printEndPage(self):
+        print '</form></body></html>'
+
+
+   
+   
+        
+            
+
+if __name__ == '__main__':
+
+    # Script madLogin
+    # This script only calls the init function of the class MadrigalEditFilter
+    # All work is done by the init function
+    MadrigalEditFilter()

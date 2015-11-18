@@ -1,0 +1,15 @@
+1,Incoherent Scatter Radars
+2,Geophysical Indices
+3,Modelled data
+4,HF Radars
+5,MST Radars
+6,MF Radars
+7,Meteor Radars
+8,Ionosondes
+9,Satellite Instruments
+10,Fabry-Perots
+11,Michelson Interferometers
+12,Lidars
+13,Imagers
+14,Magnetometers
+15,Coherent Scatter Radars

@@ -1,0 +1,10 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec /export/home/madrigal2000/bin/madtclsh "$0" ${1+"$@"}
+
+set fortranFiles [glob *.f]
+foreach f $fortranFiles {
+    puts "Processing $f"
+    exec /export/home/madrigal2000/source/madf/remake_file $f
+}

@@ -1,0 +1,721 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Creating and editing Madrigal data files </title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" -->
+
+<style type="text/css">
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+pre { line-height: 125%; }
+body .hll { background-color: #ffffcc }
+body  { background: #f8f8f8; }
+body .c { color: #408080; font-style: italic } /* Comment */
+body .err { border: 1px solid #FF0000 } /* Error */
+body .k { color: #008000; font-weight: bold } /* Keyword */
+body .o { color: #666666 } /* Operator */
+body .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+body .cp { color: #BC7A00 } /* Comment.Preproc */
+body .c1 { color: #408080; font-style: italic } /* Comment.Single */
+body .cs { color: #408080; font-style: italic } /* Comment.Special */
+body .gd { color: #A00000 } /* Generic.Deleted */
+body .ge { font-style: italic } /* Generic.Emph */
+body .gr { color: #FF0000 } /* Generic.Error */
+body .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+body .gi { color: #00A000 } /* Generic.Inserted */
+body .go { color: #808080 } /* Generic.Output */
+body .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+body .gs { font-weight: bold } /* Generic.Strong */
+body .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+body .gt { color: #0040D0 } /* Generic.Traceback */
+body .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+body .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+body .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+body .kp { color: #008000 } /* Keyword.Pseudo */
+body .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+body .kt { color: #B00040 } /* Keyword.Type */
+body .m { color: #666666 } /* Literal.Number */
+body .s { color: #BA2121 } /* Literal.String */
+body .na { color: #7D9029 } /* Name.Attribute */
+body .nb { color: #008000 } /* Name.Builtin */
+body .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+body .no { color: #880000 } /* Name.Constant */
+body .nd { color: #AA22FF } /* Name.Decorator */
+body .ni { color: #999999; font-weight: bold } /* Name.Entity */
+body .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+body .nf { color: #0000FF } /* Name.Function */
+body .nl { color: #A0A000 } /* Name.Label */
+body .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+body .nt { color: #008000; font-weight: bold } /* Name.Tag */
+body .nv { color: #19177C } /* Name.Variable */
+body .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+body .w { color: #bbbbbb } /* Text.Whitespace */
+body .mf { color: #666666 } /* Literal.Number.Float */
+body .mh { color: #666666 } /* Literal.Number.Hex */
+body .mi { color: #666666 } /* Literal.Number.Integer */
+body .mo { color: #666666 } /* Literal.Number.Oct */
+body .sb { color: #BA2121 } /* Literal.String.Backtick */
+body .sc { color: #BA2121 } /* Literal.String.Char */
+body .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+body .s2 { color: #BA2121 } /* Literal.String.Double */
+body .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+body .sh { color: #BA2121 } /* Literal.String.Heredoc */
+body .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+body .sx { color: #008000 } /* Literal.String.Other */
+body .sr { color: #BB6688 } /* Literal.String.Regex */
+body .s1 { color: #BA2121 } /* Literal.String.Single */
+body .ss { color: #19177C } /* Literal.String.Symbol */
+body .bp { color: #008000 } /* Name.Builtin.Pseudo */
+body .vc { color: #19177C } /* Name.Variable.Class */
+body .vg { color: #19177C } /* Name.Variable.Global */
+body .vi { color: #19177C } /* Name.Variable.Instance */
+body .il { color: #666666 } /* Literal.Number.Integer.Long */
+
+  </style>
+
+<!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="admin.html" --><!-- InstanceParam name="href_next_top" type="text" value="ad_createExp.html" --><!-- InstanceParam name="href_back_top" type="text" value="ad_experiments.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="ad_experiments.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="admin.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="ad_createExp.html" --><!-- InstanceParam name="href_prev_top" type="text" value="ad_experiments.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="admin.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="ad_createExp.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="ad_experiments.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="admin.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="ad_createExp.html" -->
+</head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="ad_experiments.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="admin.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="ad_createExp.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Creating and editing Madrigal data files <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="ad_experiments.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Madrigal data organization <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="admin.html"><!-- InstanceBeginEditable name="UpTitle" -->Madrigal admin guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="ad_createExp.html"><!-- InstanceBeginEditable name="NextTitle" -->Creating Madrigal experiments <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Creating and editing Madrigal data files</h1>
+<p>A key element in administering the Madrigal database is the ability to create and edit Madrigal data files. An ambitious Madrigal administrator could theoretically read the <a href="cedarFormat.pdf">Cedar database format</a> and write their own code from scratch. However, Madrigal provides API's and examples in three languages, Python, C, and Tcl, to make this chore easier. This section describes how to create Madrigal files using each of those three languages.</p>
+<ul>
+  <li><a href="#python">Python</a></li>
+    <ul>
+      <li><a href="#catHeadRec">Using Python to create catalog and header records</a></li>
+    </ul>
+  <li><a href="#c">C</a></li>
+  <li><a href="#tcl">Tcl</a></li>
+  <li><a href="#scripts">Scripts to modify existing Cedar files</a>
+    <ul>
+      <li><a href="#mergeCedarFiles">mergeCedarFiles</a></li>
+      <li><a href="#mergeCedarFilesInTime">mergeCedarFilesInTime</a></li>
+      <li><a href="#removeCedarRecords">removeCedarRecords</a></li>
+    </ul>
+  </li>
+</ul>
+<h2><a name="python" id="python"></a>Python</h2>
+<p>This section gives an introduction to using the madrigal python API to create new Cedar files, and to edit existing Cedar files. Examples are given of of both <a href="#create"> creating new files</a> and <a href="#edit">editing existing files.</a> Complete <a href="madpyDoc/cedar.py.html">documentation</a> is available as part of the Madrigal Python API documentation.</p>
+<p>The python cedar module was written to simplify the task of creating Cedar-formatted files as much as possible. The user of this module only needs to know the following about the Cedar format: </p>
+<ul>
+  <li>Cedar files are made up of a series of metadata and data records. Each data record consists of a measurement made with a single instrument over a single interval of time.</li>
+  <li>A Cedar data record has three parts: a prolog, one-dimensional data, and two-dimensional data. The prolog defines the integration period start and end time, along with the instrument and a kind-of data code that indicates a particular data analysis algorithm. One-dimensional data describes measurements of parameters that do not vary over any spatial dimension. Two-dimensional data describes measurements that do vary over some number of spatial dimensions. Two-dimensional data must have at least one parameter that indicates a spatial dimension.</li>
+  <li>A list of Cedar parameters and their units can be found <a href="cedarFormat.pdf">here.</a> A complete description of each parameter can also be seen by clicking on any parameter name in Madrigal. Parameters can be referred to in the python API either by case-insensitive mnemonics (e.g., "Gdalt") or by integer id. Parameters are set either to float values, or to the special values 'missing', 'assumed', or 'knownbad'. The values 'assumed' and 'knownbad' can only be applied to error parameters.</li>
+  <li>In addition to data records, the Cedar format also allows two types of records that contain human-readable descriptions of the data: a catalog record which summarizes the entire file, and a header record that summarizes a subset of the file. The text in these records must be padded to a multiple of 80 characters, and should not contain line-feeds. See <a href="cedarFormat.pdf"> the Cedar format</a> for the suggested layout of these catalog and header records.</li>
+</ul>
+<p></p>
+<p>The python cedar module hides the following details from the user: </p>
+<ul>
+  <li>The details of the Cedar layout.</li>
+  <li>The various 'flavors' of the Cedar format. The use can specify saving a file in one particular 'flavor', if desired</li>
+  <li>The limited dynamic range of data fields, given that data is stored as 16 bit integers. An exception is raised if the user tries to set a parameter outside its dynamic range.</li>
+  <li>The use of 'additional increment' parameters to increase of precision of a given parameter.</li>
+</ul>
+<blockquote>
+  <h3>MadrigalCedarFile</h3>
+</blockquote>
+<p>The high level object in the cedar module is <a href="madpyDoc/cedar_MadrigalCedarFile.py.html"> MadrigalCedarFile</a>. This class emulates a python list, and so users may treat it just like a python list. The restriction enforced is that all items in the list must be either <a href="madpyDoc/cedar_MadrigalCatalogRecord.py.html">MadrigalCatalogRecords</a>, <a href="madpyDoc/cedar_MadrigalHeaderRecord.py.html">MadrigalHeaderRecords</a>, or <a href="madpyDoc/cedar_MadrigalDataRecord.py.html">MadrigalDataRecords</a>. Each of these three classes supports the method getType(), which returns 'catalog', 'header', and 'data', respectively.</p>
+<blockquote>
+  <a name="catHeadRec" id="catHeadRec"></a><h3>Using Python to add catalog and header records.</h3>
+</blockquote>
+<p>Cedar catalog and header records can be difficult to create.  With the cedar module
+    <a href="madpyDoc/cedar_CatalogHeaderCreator.py.html"> CatalogHeaderCreator</a>, creating
+    these records should now be much easier.  Catalog and header records contain a lot of information 
+    that can be deduced from the data - this includes which parameters are present, minimum and maximums 
+    of certain parameters, and start and stop times.  The only parts of the catalog or header record that 
+    can't be determined automatically are some optional descriptive text fields.  With this new module,
+    you simply pass in strings of any length if you want to fill in one of those optional descriptive
+    text fields - the module will handle all formating for you.</p>
+<p>Here's a list of the optional descriptive text fields for a <i>catalog</i> record:</p>
+<ul>
+  <li><b>principleInvestigator: </b>names of responsible Principal Investigator(s) or others knowledgeable 
+                                  about the experiment</li>
+  <li><b>expPurpose: </b>brief description of the experiment purpose</li>
+  <li><b>expMode: </b>further elaboration of meaning of experiment mode; e.g. antenna patterns and 
+                      pulse sequences</li>
+  <li><b>cycleTime: </b>minutes for one full measurement cycle (this needs to be a number)</li>
+  <li><b>correlativeExp: </b>any correlative experiments (experiments with related data)</li>
+  <li><b>sciRemarks: </b>scientific remarks</li>
+  <li><b>instRemarks: </b>instrument remarks</li>
+</ul>
+<p>Here's a list of the optional descriptive text fields for a <i>header</i> record:</p>
+<ul>
+  <li><b>kindatDesc: </b>description of how this data was analyzed (the kind of data)</li>
+  <li><b>analyst: </b>name of person(s) who analyzed this data</li>
+  <li><b>comments: </b>additional comments about data (describe any instrument-specific parameters)</li>
+  <li><b>history: </b>a description of the history of the processing of this file</li>
+</ul>
+<p><a name="create" id="create"></a> </p>
+<blockquote>
+  <h3>Creating a new file example</h3>
+</blockquote>
+<div class="highlight"><pre><span class="sd">&quot;&quot;&quot;createSample.py shows am example of creating an entirely new Madrigal</span>
+<span class="sd">file using the Python cedar module.  In particular, it creates a file with</span>
+<span class="sd">a catalog record, a header record, and two data records.  The data records</span>
+<span class="sd">contain two 1D parameters (System temperature - SYSTMP and Transmitter</span>
+<span class="sd">Frequency TFREQ) and five 2D parameters (GDALT, GDLAT, GLON, and TR, and DTR).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">import</span> <span class="nn">madrigal.metadata</span>
+<span class="kn">import</span> <span class="nn">madrigal.cedar</span>
+
+<span class="c">################# sample data #################</span>
+
+<span class="n">kinst</span> <span class="o">=</span> <span class="mf">30</span> <span class="c"># instrument identifier of Millstone Hill ISR</span>
+<span class="n">modexp</span> <span class="o">=</span> <span class="mf">230</span> <span class="c"># id of mode of experiment</span>
+<span class="n">kindat</span> <span class="o">=</span> <span class="mf">3408</span> <span class="c"># id of kind of data processing</span>
+<span class="n">nrow</span> <span class="o">=</span> <span class="mf">5</span> <span class="c"># all data records have 5 2D rows</span>
+
+<span class="n">SYSTMP</span> <span class="o">=</span> <span class="p">(</span><span class="mf">120.0</span><span class="p">,</span> <span class="mf">122.0</span><span class="p">)</span>
+<span class="n">TFREQ</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.4E8</span><span class="p">,</span> <span class="mf">4.4E8</span><span class="p">)</span>
+
+<span class="n">GDALT</span> <span class="o">=</span> <span class="p">((</span><span class="mf">70.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">),</span>
+         <span class="p">(</span><span class="mf">70.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">))</span>
+
+<span class="n">GDLAT</span> <span class="o">=</span> <span class="p">((</span><span class="mf">42.0</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">),</span>
+         <span class="p">(</span><span class="mf">42.0</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">))</span>
+
+<span class="n">GLON</span>  <span class="o">=</span> <span class="p">((</span><span class="mf">270.0</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">),</span>
+         <span class="p">(</span><span class="mf">270.0</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">))</span>
+
+<span class="n">TR</span>    <span class="o">=</span> <span class="p">((</span><span class="s">&#39;missing&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.3</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span>
+         <span class="p">(</span><span class="s">&#39;missing&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">,</span> <span class="mf">3.1</span><span class="p">))</span>
+
+
+<span class="n">DTR</span>   <span class="o">=</span> <span class="p">((</span><span class="s">&#39;missing&#39;</span><span class="p">,</span> <span class="s">&#39;assumed&#39;</span><span class="p">,</span> <span class="s">&#39;assumed&#39;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>
+         <span class="p">(</span><span class="s">&#39;missing&#39;</span><span class="p">,</span> <span class="s">&#39;assumed&#39;</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+
+<span class="c">################# end sample data #################</span>
+
+<span class="n">newFile</span> <span class="o">=</span> <span class="s">&#39;/tmp/testCedar.dat&#39;</span>
+
+<span class="c"># create a new Madrigal file </span>
+<span class="n">cedarObj</span> <span class="o">=</span> <span class="n">madrigal</span><span class="o">.</span><span class="n">cedar</span><span class="o">.</span><span class="n">MadrigalCedarFile</span><span class="p">(</span><span class="n">newFile</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<span class="c"># create all data records -  each record lasts one minute</span>
+<span class="n">startTime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mf">2005</span><span class="p">,</span> <span class="mf">3</span><span class="p">,</span> <span class="mf">19</span><span class="p">,</span> <span class="mf">12</span><span class="p">,</span> <span class="mf">30</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="mf">0</span><span class="p">)</span>
+<span class="n">recTime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="mf">60</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">recno</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mf">2</span><span class="p">):</span>
+    <span class="n">endTime</span> <span class="o">=</span> <span class="n">startTime</span> <span class="o">+</span> <span class="n">recTime</span>
+    <span class="n">dataRec</span> <span class="o">=</span> <span class="n">madrigal</span><span class="o">.</span><span class="n">cedar</span><span class="o">.</span><span class="n">MadrigalDataRecord</span><span class="p">(</span><span class="n">kinst</span><span class="p">,</span>
+                                                <span class="n">kindat</span><span class="p">,</span>
+                                                <span class="n">startTime</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                                                <span class="n">startTime</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+                                                <span class="n">startTime</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+                                                <span class="n">startTime</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span>
+                                                <span class="n">startTime</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span>
+                                                <span class="n">startTime</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
+                                                <span class="n">startTime</span><span class="o">.</span><span class="n">microsecond</span><span class="o">/</span><span class="mf">10000</span><span class="p">,</span>
+                                                <span class="n">endTime</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                                                <span class="n">endTime</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+                                                <span class="n">endTime</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+                                                <span class="n">endTime</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span>
+                                                <span class="n">endTime</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span>
+                                                <span class="n">endTime</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
+                                                <span class="n">endTime</span><span class="o">.</span><span class="n">microsecond</span><span class="o">/</span><span class="mf">10000</span><span class="p">,</span>
+                                                <span class="p">(</span><span class="s">&#39;systmp&#39;</span><span class="p">,</span> <span class="s">&#39;tfreq&#39;</span><span class="p">),</span>
+                                                <span class="p">(</span><span class="s">&#39;gdalt&#39;</span><span class="p">,</span> <span class="s">&#39;gdlat&#39;</span><span class="p">,</span> <span class="s">&#39;glon&#39;</span><span class="p">,</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="s">&#39;dtr&#39;</span><span class="p">),</span>
+                                                <span class="n">nrow</span><span class="p">)</span>
+
+    <span class="c"># set 1d values</span>
+    <span class="n">dataRec</span><span class="o">.</span><span class="n">set1D</span><span class="p">(</span><span class="s">&#39;systmp&#39;</span><span class="p">,</span> <span class="n">SYSTMP</span><span class="p">[</span><span class="n">recno</span><span class="p">])</span>
+    <span class="n">dataRec</span><span class="o">.</span><span class="n">set1D</span><span class="p">(</span><span class="s">&#39;tfreq&#39;</span><span class="p">,</span> <span class="n">TFREQ</span><span class="p">[</span><span class="n">recno</span><span class="p">])</span>
+
+    <span class="c"># set 2d values</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrow</span><span class="p">):</span>
+        <span class="n">dataRec</span><span class="o">.</span><span class="n">set2D</span><span class="p">(</span><span class="s">&#39;gdalt&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">GDALT</span><span class="p">[</span><span class="n">recno</span><span class="p">][</span><span class="n">n</span><span class="p">])</span>
+        <span class="n">dataRec</span><span class="o">.</span><span class="n">set2D</span><span class="p">(</span><span class="s">&#39;gdlat&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">GDLAT</span><span class="p">[</span><span class="n">recno</span><span class="p">][</span><span class="n">n</span><span class="p">])</span>
+        <span class="n">dataRec</span><span class="o">.</span><span class="n">set2D</span><span class="p">(</span><span class="s">&#39;glon&#39;</span><span class="p">,</span>  <span class="n">n</span><span class="p">,</span> <span class="n">GLON</span><span class="p">[</span><span class="n">recno</span><span class="p">][</span><span class="n">n</span><span class="p">])</span>
+        <span class="n">dataRec</span><span class="o">.</span><span class="n">set2D</span><span class="p">(</span><span class="s">&#39;tr&#39;</span><span class="p">,</span>    <span class="n">n</span><span class="p">,</span> <span class="n">TR</span><span class="p">[</span><span class="n">recno</span><span class="p">][</span><span class="n">n</span><span class="p">])</span>
+        <span class="n">dataRec</span><span class="o">.</span><span class="n">set2D</span><span class="p">(</span><span class="s">&#39;dtr&#39;</span><span class="p">,</span>   <span class="n">n</span><span class="p">,</span> <span class="n">DTR</span><span class="p">[</span><span class="n">recno</span><span class="p">][</span><span class="n">n</span><span class="p">])</span>
+
+    <span class="c"># append new data record</span>
+    <span class="n">cedarObj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataRec</span><span class="p">)</span>
+
+    <span class="n">startTime</span> <span class="o">+=</span> <span class="n">recTime</span>                                 
+
+<span class="c"># write new file</span>
+<span class="n">cedarObj</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+<span class="c"># next, use the cedar.CatalogHeaderCreator class to add catalog and header </span>
+<span class="n">catHeadObj</span> <span class="o">=</span> <span class="n">madrigal</span><span class="o">.</span><span class="n">cedar</span><span class="o">.</span><span class="n">CatalogHeaderCreator</span><span class="p">(</span><span class="n">newFile</span><span class="p">)</span>
+<span class="n">catHeadObj</span><span class="o">.</span><span class="n">createCatalog</span><span class="p">(</span><span class="n">principleInvestigator</span><span class="o">=</span><span class="s">&quot;John Holt&quot;</span><span class="p">,</span> <span class="n">sciRemarks</span><span class="o">=</span><span class="s">&quot;Test data only - do not use&quot;</span><span class="p">)</span>
+<span class="n">catHeadObj</span><span class="o">.</span><span class="n">createHeader</span><span class="p">(</span><span class="n">analyst</span><span class="o">=</span><span class="s">&quot;Bill Rideout&quot;</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s">&quot;Do not use this data&quot;</span><span class="p">)</span>
+<span class="n">catHeadObj</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+        
+        
+</pre></div>
+
+
+<a name="edit" id="edit"></a>
+<h2>Editing an existing file example</h2>
+<div class="highlight"><pre><span class="sd">&quot;&quot;&quot;editSample.py shows am example of editing existing data in a Madrigal</span>
+<span class="sd">file using the Python cedar module.  In particular, it edits the sample file</span>
+<span class="sd">mil980120g.001 to increase all Ti values by a factor of 1.2</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">types</span>
+
+<span class="kn">import</span> <span class="nn">madrigal.metadata</span>
+<span class="kn">import</span> <span class="nn">madrigal.cedar</span>
+
+<span class="n">metaObj</span> <span class="o">=</span> <span class="n">madrigal</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">MadrigalDB</span><span class="p">()</span>
+
+<span class="n">orgFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">metaObj</span><span class="o">.</span><span class="n">getMadroot</span><span class="p">(),</span> <span class="s">&#39;experiments/1998/mlh/20jan98/mil980120g.003&#39;</span><span class="p">)</span>
+<span class="n">newFile</span> <span class="o">=</span> <span class="s">&#39;/tmp/mil980120g.003&#39;</span>
+
+<span class="c"># read the Madrigal file into memory</span>
+<span class="n">cedarObj</span> <span class="o">=</span> <span class="n">madrigal</span><span class="o">.</span><span class="n">cedar</span><span class="o">.</span><span class="n">MadrigalCedarFile</span><span class="p">(</span><span class="n">orgFile</span><span class="p">)</span>
+
+<span class="c"># loop through each record, increasing all Ti values by a factor of 1.2</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">cedarObj</span><span class="p">:</span>
+    <span class="c"># skip header and catalog records</span>
+    <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;data&#39;</span><span class="p">:</span>
+        <span class="c"># loop through each 2D roow</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">getNrow</span><span class="p">()):</span>
+            <span class="n">presentTi</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get2D</span><span class="p">(</span><span class="s">&#39;Ti&#39;</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+            <span class="c"># make sure its not a special string value, eg &#39;missing&#39;</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">presentTi</span><span class="p">)</span> <span class="o">!=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringType</span><span class="p">:</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">set2D</span><span class="p">(</span><span class="s">&#39;Ti&#39;</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">presentTi</span><span class="o">*</span><span class="mf">1.2</span><span class="p">)</span>
+
+<span class="c"># write edited file</span>
+<span class="n">cedarObj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;Madrigal&#39;</span><span class="p">,</span> <span class="n">newFile</span><span class="p">)</span>
+
+        
+        
+</pre></div>
+<h2><a name="c" id="c"></a>C</h2>
+<p>The C API to create Madrigal data files is more complex than the Python API. The best way to learn how to use it is to follow the example below. All the C methods are documented in the <a href="dev_c.html">Madrigal C API documention</a> in the Madrigal developer's section. </p>
+<pre>
+<i><font color="#B22222">/* 
+*    Usage: testCreateRecord
+*    This program creates a Madrigal file with a catalog, header, and data record
+*        
+*/</font></i>
+
+#<b><font color="#5F9EA0">include</font></b> <b><font color="#BC8F8F">&lt;stdlib.h&gt;</font></b>
+#<b><font color="#5F9EA0">include</font></b> <b><font color="#BC8F8F">&lt;string.h&gt;</font></b>
+#<b><font color="#5F9EA0">include</font></b> <b><font color="#BC8F8F">&lt;stdio.h&gt;</font></b>
+#<b><font color="#5F9EA0">include</font></b> <b><font color="#BC8F8F">&lt;madrec.h&gt;</font></b>
+#<b><font color="#5F9EA0">include</font></b> <b><font color="#BC8F8F">&lt;cedar.h&gt;</font></b>
+
+<b><font color="#228B22">int</font></b>
+<b><font color="#0000FF">main</font></b> (argc, argv)
+     <b><font color="#228B22">int</font></b>     argc;
+     <b><font color="#228B22">char</font></b>    *argv[];
+{
+    Madrec *madrecp;    <i><font color="#B22222">/* Output File - type 0-4 */</font></i>
+    <b><font color="#228B22">int</font></b> iotype=0, stat=0, record=0, i=0;
+    <b><font color="#228B22">int</font></b> lprol=0, jpar=0, mpar=0, nrow=0, krec=0, kinst=0, kindat=0, ibyr=0, 
+        ibmo=0, ibdy=0, ibh=0, ibm=0, ibs=0, ibcs=0, ieyr=0, iemo=0, iedy=0, 
+        ieh=0, iem=0, ies=0, iecs=0;
+    <b><font color="#228B22">double</font></b> kp[8] = {2.0, 3.3, 4.0, 3.0, 8.0, 7.7, 6.3, 5.0};
+    <b><font color="#228B22">double</font></b> ap[8] = {10.0, 15.0, 16.0, 15.0, 24.0, 21.0, 18.0, 15.0};
+    <b><font color="#228B22">char</font></b> text[161] = <b><font color="#BC8F8F">&quot;&quot;</font></b>;
+  
+
+    <i><font color="#B22222">/* Create a madrec object for the output file */</font></i>
+    <b><font color="#A020F0">if</font></b> ((madrecp = madrecCreate()) == (Madrec *) NULL) {
+        fprintf(stderr, <b><font color="#BC8F8F">&quot;create madrecw: %s\n&quot;</font></b>, madrecGetError(madrecp));
+        <b><font color="#A020F0">return</font></b>(1);
+    }
+
+    <i><font color="#B22222">/* Connect the output madrec object to a madrigal file */</font></i>
+    iotype = 20;
+    <i><font color="#B22222">/* iotype will set which of the Cedar format variations we will create */</font></i>
+    <i><font color="#B22222">/* See cedarFromat.pdf for details */</font></i>
+    <i><font color="#B22222">/* 20 - Madrigal file          */</font></i>
+    <i><font color="#B22222">/* 21 - Blocked Binary file    */</font></i> 
+    <i><font color="#B22222">/* 22 - Cbf file               */</font></i>
+    <i><font color="#B22222">/* 23 - Unblocked Binary file  */</font></i>
+    <i><font color="#B22222">/* 24 - Ascii file             */</font></i>
+
+    stat = madrecOpen(madrecp, iotype, <b><font color="#BC8F8F">&quot;madout&quot;</font></b>);
+    fprintf(stderr, <b><font color="#BC8F8F">&quot;open madrecw: %s\n&quot;</font></b>, madrecGetError(madrecp));
+    
+    <i><font color="#B22222">/* first, add a catalog record - lenght must be 80*n */</font></i>
+    <i><font color="#B22222">/* create some text */</font></i>
+    text[160] = <b><font color="#BC8F8F">'\0'</font></b>;
+    <b><font color="#A020F0">for</font></b> (i=0; i&lt;160; i++)
+        text[i] = <b><font color="#BC8F8F">' '</font></b>;
+    strcpy(text, <b><font color="#BC8F8F">&quot;This is a catalog record line 0&quot;</font></b>);
+    text[strlen(<b><font color="#BC8F8F">&quot;This is a catalog record line 0&quot;</font></b>)] = <b><font color="#BC8F8F">' '</font></b>;
+    strcpy(text + 80, <b><font color="#BC8F8F">&quot;This is a catalog record line 1&quot;</font></b>);
+    text[80 + strlen(<b><font color="#BC8F8F">&quot;This is a catalog record line 1&quot;</font></b>)] = <b><font color="#BC8F8F">' '</font></b>;
+    madrecp-&gt;recordp = cedarCreateCatalogRecord(31, 30007,
+                                2001, 8, 20,
+                                0, 0, 0, 0,
+                                2001, 8, 21,
+                                23, 59, 59, 99,
+				text);
+				
+    <i><font color="#B22222">/* append some more text to the catalog record */</font></i>
+    <b><font color="#A020F0">for</font></b> (i=0; i&lt;160; i++)
+        text[i] = <b><font color="#BC8F8F">' '</font></b>;
+    strcpy(text, <b><font color="#BC8F8F">&quot;This is a catalog record line 2&quot;</font></b>);
+    text[strlen(<b><font color="#BC8F8F">&quot;This is a catalog record line 2&quot;</font></b>)] = <b><font color="#BC8F8F">' '</font></b>;
+    strcpy(text + 80, <b><font color="#BC8F8F">&quot;This is a catalog record line 3&quot;</font></b>);
+    text[80 + strlen(<b><font color="#BC8F8F">&quot;This is a catalog record line 3&quot;</font></b>)] = <b><font color="#BC8F8F">' '</font></b>;
+    stat = cedarAppendCatalogRecord(&amp;(madrecp-&gt;recordp), text);
+				
+    stat = madrecPutNextRec(madrecp);
+    fprintf(stderr, <b><font color="#BC8F8F">&quot;putNextRec madrecw: %s\n&quot;</font></b>, madrecGetError(madrecp));
+    free(madrecp-&gt;recordp);
+    
+    <i><font color="#B22222">/* next, add a header record - lenght must be 80*n */</font></i>
+    <i><font color="#B22222">/* create some text */</font></i>
+    <b><font color="#A020F0">for</font></b> (i=0; i&lt;160; i++)
+        text[i] = <b><font color="#BC8F8F">' '</font></b>;
+    strcpy(text, <b><font color="#BC8F8F">&quot;This is a header record line 0&quot;</font></b>);
+    text[strlen(<b><font color="#BC8F8F">&quot;This is a header record line 0&quot;</font></b>)] = <b><font color="#BC8F8F">' '</font></b>;
+    strcpy(text + 80, <b><font color="#BC8F8F">&quot;This is a header record line 1&quot;</font></b>);
+    text[80 + strlen(<b><font color="#BC8F8F">&quot;This is a header record line 1&quot;</font></b>)] = <b><font color="#BC8F8F">' '</font></b>;
+    madrecp-&gt;recordp = cedarCreateHeaderRecord(31, 30007,
+                                2001, 8, 20,
+                                0, 0, 0, 0,
+                                2001, 8, 21,
+                                23, 59, 59, 99,
+				2,2,
+				text);
+				
+    <i><font color="#B22222">/* append some more text to the header record */</font></i>
+    <b><font color="#A020F0">for</font></b> (i=0; i&lt;160; i++)
+        text[i] = <b><font color="#BC8F8F">' '</font></b>;
+    strcpy(text, <b><font color="#BC8F8F">&quot;This is a header record line 2&quot;</font></b>);
+    text[strlen(<b><font color="#BC8F8F">&quot;This is a header record line 2&quot;</font></b>)] = <b><font color="#BC8F8F">' '</font></b>;
+    strcpy(text + 80, <b><font color="#BC8F8F">&quot;This is a header record line 3&quot;</font></b>);
+    text[80 + strlen(<b><font color="#BC8F8F">&quot;This is a header record line 3&quot;</font></b>)] = <b><font color="#BC8F8F">' '</font></b>;
+    stat = cedarAppendHeaderRecord(&amp;(madrecp-&gt;recordp), text);
+				
+    stat = madrecPutNextRec(madrecp);
+    fprintf(stderr, <b><font color="#BC8F8F">&quot;putNextRec madrecw: %s\n&quot;</font></b>, madrecGetError(madrecp));
+	
+    lprol = 16;
+    jpar = 3;
+    mpar = 2;
+    nrow = 8;
+    krec = 1002;
+    kinst = 210;
+    kindat = 30007;
+    ibyr = 2001;
+    ibmo = 8;
+    ibdy = 20;
+    ibh = 0;
+    ibm = 0;
+    ibs = 0;
+    ibcs = 0;
+    ieyr = 2001;
+    iemo = 8;
+    iedy = 20;
+    ieh = 23;
+    iem = 59;
+    ies = 59;
+    iecs = 59;
+    <b><font color="#A020F0">for</font></b> (record=0; record&lt;5; record++) {
+
+        ibdy++;
+        iedy++;
+
+	<i><font color="#B22222">/* Create a Cedar record in the madrec object */</font></i>
+        <b><font color="#A020F0">if</font></b> (madrecp-&gt;recordp != (Int16 *)NULL) {
+            free(madrecp-&gt;recordp);
+        }
+	madrecp-&gt;recordp = cedarCreateRecord(lprol, jpar, mpar, nrow, krec,
+					     kinst, kindat, ibyr, ibmo, ibdy, 
+					     ibh, ibm, ibs, ibcs, ieyr,
+					     iemo, iedy, ieh, iem, ies,
+					     iecs);
+    
+	<i><font color="#B22222">/* Set 1d parameters */</font></i>
+	stat = cedarSet1dParm(madrecp-&gt;recordp, 340, 12.0, 0);
+	stat = cedarSet1dParm(madrecp-&gt;recordp, 354, 1.5e-20, 1);
+	stat = cedarSet1dParm(madrecp-&gt;recordp, 356, 1.2e-20, 2);
+    
+	<i><font color="#B22222">/* Set 2d parms */</font></i>
+	stat = cedarSet2dParm(madrecp-&gt;recordp, 310, kp, 0);
+	stat = cedarSet2dParm(madrecp-&gt;recordp, 335, ap, 1);
+    
+	<i><font color="#B22222">/* cedarPrintRecord(madrecp-&gt;recordp); */</font></i>
+    
+	stat = madrecPutNextRec(madrecp);
+	fprintf(stderr, <b><font color="#BC8F8F">&quot;putNextRec madrecw: %s\n&quot;</font></b>, madrecGetError(madrecp));
+
+    }
+
+    stat = madrecClose(madrecp);      
+    fprintf(stderr, <b><font color="#BC8F8F">&quot;close madrecw: %s\n&quot;</font></b>, madrecGetError(madrecp));
+
+    madrecDestroy(madrecp);
+
+    <b><font color="#A020F0">return</font></b>(0);
+}
+</pre>
+<h2><a name="tcl" id="tcl"></a>Tcl</h2>
+<p>The Tcl API is not documented the way the Python and C API's are; users who wish to use it are referred to the source code available from the CVS repository at the <a href="http://www.openmadrigal.org/">OpenMadrigal</a> site.The following example shows the creation of a Madrigal file with tcl:</p>
+<pre>
+<i><font color="#B22222"># testWrite
+</font></i>
+<i><font color="#B22222"># usage: testWrite
+</font></i>
+<b><font color="#A020F0">set</font></b> madfile <b><font color="#BC8F8F">&quot;madout&quot;</font></b>
+
+<i><font color="#B22222"># Create a madrec object
+</font></i><b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> mad mad1]
+<b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+    <b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;mad: [$mad1 get error]&quot;</font></b>
+} else {
+    <b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;mad Error: [$mad1 get error]&quot;</font></b>
+}
+
+<b><font color="#A020F0">set</font></b> status [$<font color="#B8860B">mad1</font> <b><font color="#A020F0">open</font></b> 20 $<font color="#B8860B">madfile</font>]
+<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;open: [$mad1 get error]&quot;</font></b>
+
+<i><font color="#B22222"># Get parameter codes
+</font></i>cedarCode cedarCode
+
+<i><font color="#B22222"># Create a record
+</font></i><b><font color="#A020F0">set</font></b> lprol 16
+<b><font color="#A020F0">set</font></b> jpar 3
+<b><font color="#A020F0">set</font></b> mpar 2
+<b><font color="#A020F0">set</font></b> nrow 8
+<b><font color="#A020F0">set</font></b> krec 1002
+<b><font color="#A020F0">set</font></b> kinst 210
+<b><font color="#A020F0">set</font></b> kindat 30007
+<b><font color="#A020F0">set</font></b> ibyr 2001
+<b><font color="#A020F0">set</font></b> ibmo 8
+<b><font color="#A020F0">set</font></b> ibdy 31
+<b><font color="#A020F0">set</font></b> ibh 0
+<b><font color="#A020F0">set</font></b> ibm 0
+<b><font color="#A020F0">set</font></b> ibs 0
+<b><font color="#A020F0">set</font></b> ibcs 0
+<b><font color="#A020F0">set</font></b> ieyr 2001
+<b><font color="#A020F0">set</font></b> iemo 8
+<b><font color="#A020F0">set</font></b> iedy 31
+<b><font color="#A020F0">set</font></b> ieh 23
+<b><font color="#A020F0">set</font></b> iem 59
+<b><font color="#A020F0">set</font></b> ies 59
+<b><font color="#A020F0">set</font></b> iecs 59
+
+<b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {<b><font color="#A020F0">set</font></b> jdayno [jday 1 11 2001]} result]
+<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;status = $status&quot;</font></b>
+<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;result = $result&quot;</font></b>
+<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;jdayno = $jdayno&quot;</font></b>
+<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;date = 1 11 2001&quot;</font></b>
+<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;jdayno = $jdayno&quot;</font></b>
+<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;date = [jdater $jdayno]&quot;</font></b>
+
+<b><font color="#A020F0">for</font></b> {<b><font color="#A020F0">set</font></b> i 0} {$<font color="#B8860B">i</font>&lt;5} {<b><font color="#A020F0">incr</font></b> i} {
+    
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> createRecord $<font color="#B8860B">lprol</font> $<font color="#B8860B">jpar</font> $<font color="#B8860B">mpar</font> $<font color="#B8860B">nrow</font> $<font color="#B8860B">krec</font> \
+			     $<font color="#B8860B">kinst</font> $<font color="#B8860B">kindat</font> \
+			     $<font color="#B8860B">ibyr</font> $<font color="#B8860B">ibmo</font> $<font color="#B8860B">ibdy</font> $<font color="#B8860B">ibh</font> $<font color="#B8860B">ibm</font> $<font color="#B8860B">ibs</font> $<font color="#B8860B">ibcs</font> \
+			     $<font color="#B8860B">ieyr</font> $<font color="#B8860B">iemo</font> $<font color="#B8860B">iedy</font> $<font color="#B8860B">ieh</font> $<font color="#B8860B">iem</font> $<font color="#B8860B">ies</font> $<font color="#B8860B">iecs</font>} result]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> != 0} {
+        <b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;createRecord Error: $result&quot;</font></b>
+        <b><font color="#A020F0">exit</font></b>
+    }
+
+    
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> krec 1002}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set krec: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set krec Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> kinst 2222}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set kinst: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set kinst Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> kindat 3333}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set kindat: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set kindat Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> startTime 2002 9 32 1 1 1 1}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set startTime: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set startTime Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> endTime 2003 10 33 2 2 2 2}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set endTime: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set endTime Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> 1dParm 340 12.0 0}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 1dParm: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 1dParm Error: [$mad1 get error]&quot;</font></b>
+    }
+	
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> 1dParm 354 1.5e-20 1}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 1dParm: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 1dParm Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> 1dParm 356 1.2e-20 2}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 1dParm: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 1dParm Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <b><font color="#A020F0">set</font></b> parmvals [<b><font color="#A020F0">list</font></b> 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> 2dParm 310 $<font color="#B8860B">parmvals</font> 0}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 2dParm: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 2dParm Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <b><font color="#A020F0">set</font></b> parmvals [<b><font color="#A020F0">list</font></b> 10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0]
+    <b><font color="#A020F0">set</font></b> status [<b><font color="#A020F0">catch</font></b> {$<font color="#B8860B">mad1</font> <b><font color="#A020F0">set</font></b> 2dParm 335 $<font color="#B8860B">parmvals</font> 1}]
+    <b><font color="#A020F0">if</font></b> {$<font color="#B8860B">status</font> == 0} {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 2dParm: [$mad1 get error]&quot;</font></b>
+    } else {
+	<b><font color="#A020F0">puts</font></b> <b><font color="#BC8F8F">&quot;set 2dParm Error: [$mad1 get error]&quot;</font></b>
+    }
+    
+    <i><font color="#B22222"># $mad1 printProlog
+</font></i>
+
+    $<font color="#B8860B">mad1</font> putNextRecord
+    
+    <i><font color="#B22222">#$mad1 printRecord
+</font></i>
+}
+
+$<font color="#B8860B">mad1</font> close
+
+$<font color="#B8860B">mad1</font> <b><font color="#A020F0">destroy</font></b>
+
+<b><font color="#A020F0">exit</font></b>
+
+</pre>
+
+<h2><a name="scripts" id="scripts"></a>Scripts to modify existing Cedar files </h2>
+<p>The following scripts all modify existing Cedar files. All these scripts are installed in <em>madroot</em>/bin. </p>
+<h3><a name="mergeCedarFiles" id="mergeCedarFiles"></a>mergeCedarFiles</h3>
+mergeCedarFiles merges specified records of a set of CEDAR files into a single file. The input file may be any of the 5 supported CEDAR formats (Madrigal, Blocked Binary, Cbf, Unblocked Binary or ASCII), and may include any mixture of prologue, header and data records. The format of the input file is determined automatically.
+<p>Usage: mergeCedarFiles [options] Options:<br />
+</p>
+<ul type="none">
+  <li>-i file rec1 rec2 - Add records rec1 to rec2 of file to outFile</li>
+  <li>-o outFile</li>
+  <li>-t filetype - set type of outFile to fileType
+      <ol type="1">
+        <li>Madrigal</li>
+        <li>Blocked Binary</li>
+        <li>Cbf</li>
+        <li>Unblocked binary</li>
+        <li>Ascii</li>
+      </ol>
+  </li>
+</ul>
+If more than one input file is present, the specified records are added in the order in which they are encountered. If output filetype is not specified, filetype = 1 (Madrigal).
+<p></p>
+<h3><a name="mergeCedarFilesInTime" id="mergeCedarFilesInTime"></a>mergeCedarFilesInTime</h3>
+mergeCedarFilesInTime merges specified records from two CEDAR files into a single file. Unlike mergeCedarFiles, the records are inserted according to their start times, and not file by file. The input file may be any of the 5 supported CEDAR formats (Madrigal, Blocked Binary, Cbf, Unblocked Binary or ASCII), and may include any mixture of prologue, header and data records. The format of the input file is determined automatically.
+<p>Usage: mergeCedarFilesInTime [options] Options:<br />
+</p>
+<ul type="none">
+  <li>-i file rec1 rec2 - Add records rec1 to rec2 of file to outFile. Two input files must be specified.</li>
+  <li>-o outFile</li>
+  <li>-t filetype - set type of outFile to fileType
+      <ol type="1">
+        <li>Madrigal</li>
+        <li>Blocked Binary</li>
+        <li>Cbf</li>
+        <li>Unblocked binary</li>
+        <li>Ascii</li>
+      </ol>
+  </li>
+</ul>
+The specified records from the two files are added in order of ascending start times. If output filetype is not specified, filetype = 1 (Madrigal).
+<p></p>
+<h3><a name="removeCedarRecords" id="removeCedarRecords"></a>removeCedarRecords</h3>
+removeCedarRecords is used to create a new cedar file from an existing one, with certain records removed. The input file may be any of the 5 supported CEDAR formats (Madrigal, Blocked Binary, Cbf, Unblocked Binary or ASCII), and may include any mixture of prologue, header and data records. The format of the input file is determined automatically.
+<p>Usage: removeCedarRecords [options] Options:<br />
+</p>
+<ul type="none">
+  <li>-i infile - Only one input file must be specified.</li>
+  <li>-o outFile - Only one output file must be specified.</li>
+  <li>-r rec1 rec2 - A range of records to remove (inclusive). More than one range can be given.</li>
+  <li>-t filetype - set type of outFile to fileType
+      <ol type="1">
+        <li>Madrigal</li>
+        <li>Blocked Binary</li>
+        <li>Cbf</li>
+        <li>Unblocked binary</li>
+        <li>Ascii</li>
+      </ol>
+  </li>
+</ul>
+<br />
+Example:
+<pre>removeCedarRecords -i mil991102g.001 -o mil991102g.002 -r 10 12 -r 100 100</pre>
+In this example mil991102g.002 would be a subset of the original file mil991102g.001, with records 10 through 12 removed, and record 100 removed. If output filetype is not specified, filetype = 1 (Madrigal).
+<p>&nbsp; </p>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="ad_experiments.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="admin.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="ad_createExp.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Creating and editing Madrigal data files <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="ad_experiments.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Madrigal data organization <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="admin.html"><!-- InstanceBeginEditable name="UpTitle2" -->Madrigal admin guide <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="ad_createExp.html"><!-- InstanceBeginEditable name="NextTitle2" -->Creating Madrigal experiments <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

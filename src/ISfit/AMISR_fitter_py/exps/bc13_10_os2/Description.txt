@@ -1,0 +1,3 @@
+13 baud, 10 us baud Barker Code with true filter impulse response corresponding to 5 us sampling (oversampled by a factor of 2)
+
+compute_lamb(3,'../exps/filterfiles/blackman_05.00usec_020525.fco',[2,5],13,[10,2],'../exps/bc13_10_os2/')

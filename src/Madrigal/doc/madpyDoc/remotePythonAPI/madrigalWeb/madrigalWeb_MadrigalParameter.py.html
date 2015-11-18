@@ -1,0 +1,220 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalParameter</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalParameter</font>
+            </th>
+            <th align="right"><font color="#000000">madrigalWeb/madrigalWeb.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalParameter is a class that encapsulates information about a Madrigal Parameter.</h3>
+<p>    Attributes:</p>
+<PRE>
+        mnemonic (string) Example 'dti'
+
+        description (string) Example: &amp;quot;F10.7 Multiday average observed (Ott)&amp;quot;
+
+        isError (int) 1 if error parameter, 0 if not
+
+        units (string) Example &amp;quot;W/m2/Hz&amp;quot;
+
+        isMeasured (int) 1 if measured, 0 if derivable
+
+        category (string) Example: &amp;quot;Time Related Parameter&amp;quot;
+
+        isSure (int) - 1 if parameter can be found for every record, 0 if can only be found for some
+
+        isAddIncrement - 1 if additional increment, 0 if normal, -1 if unknown (this capability
+                         only added with Madrigal 2.5)
+
+</PRE>
+
+<p>    Non-standard Python modules used: None</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Aug. 8, 2005</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__init__">__init__</a><br>
+<a href="#__str__">__str__</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        mnemonic,
+        description,
+        isError,
+        units,
+        isMeasured,
+        category,
+        isSure,
+        isAddIncrement,
+        )
+
+</pre></font>
+<h3>__init__ initializes a MadrigalParameter.</h3>
+<p>        Inputs:</p>
+<PRE>
+            mnemonic (string) Example 'dti'
+
+            description (string) Example: &amp;quot;F10.7 Multiday average observed (Ott)&amp;quot;
+
+            isError (int) 1 if error parameter, 0 if not
+
+            units (string) Example &amp;quot;W/m2/Hz&amp;quot;
+
+            isMeasured (int) 1 if measured, 0 if derivable
+
+            category (string) Example: &amp;quot;Time Related Parameter&amp;quot;
+
+            isSure (int) - 1 if parameter can be found for every record, 0 if can only be found for some
+
+            isAddIncrement - 1 if additional increment, 0 if normal, -1 if unknown (this capability
+                             only added with Madrigal 2.5)
+
+</PRE>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes all the class member variables.</p>
+
+<p>        Exceptions: If illegal argument passed in.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'In MadrigalParameter, category not string type: %s' %(str( category ) )<br>
+ValueError, 'In MadrigalParameter, description not string type: %s' %(str( description ) )<br>
+ValueError, 'In MadrigalParameter, mnemonic not string type: %s' %(str( mnemonic ) )<br>
+ValueError, 'In MadrigalParameter, units not string type: %s' %(str( units ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__str__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__str__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__str__ ( self )
+
+</pre></font>
+<p>return a readible form of this object</p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Thu Jul 24 12:42:56 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

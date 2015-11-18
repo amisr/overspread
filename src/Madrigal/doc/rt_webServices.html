@@ -1,0 +1,412 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Madrigal web services</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" -->
+
+<!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_next_top" type="text" value="rt_matlab.html" --><!-- InstanceParam name="href_back_top" type="text" value="rt_introduction.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="rt_introduction.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="rt_matlab.html" --><!-- InstanceParam name="href_prev_top" type="text" value="rt_introduction.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="rt_matlab.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="rt_introduction.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="rt_matlab.html" -->
+</head>
+
+<body>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="rt_introduction.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rt_contents.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rt_matlab.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Madrigal web services <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="rt_introduction.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Remote access - introduction <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="rt_contents.html"><!-- InstanceBeginEditable name="UpTitle" -->Remote access programming tutorial toc <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="rt_matlab.html"><!-- InstanceBeginEditable name="NextTitle" -->Matlab remote access <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Madrigal web services tutorial </h1>
+<p>The following section gives a tutorial on the various Madrigal web services in the context of the Madrigal data model. This section is intended to help someone writing their own API to interface with Madrigal. If you simply want to use the existing Matlab or python API's, you can skip ahead to the next sections.</p>
+<p>The web services are organized in the same way as the <a href="wt_dataOrg.html">Madrigal data model</a>, from Instrument at the highest level, down to the level of data values. See the <a href="rr_contents.html">Remote data access programming reference manual</a> for complete descriptions of all the Madrigal web services. </p>
+<p>Madrigal web services are built using the following cgi scripts:</p>
+<ul>
+  <li><a href="#instrument">getInstrumentsService.py</a></li>
+  <li><a href="#experiment">getExperimentsService.py</a></li>
+  <li><a href="#experimentfiles">getExperimentFilesService.py</a></li>
+  <li><a href="#parameters">getParametersService.py</a></li>
+  <li><a href="#data">isprintService.py</a></li>
+  <li> <a href="#calculator">madCalculatorService.py</a>&nbsp; </li>
+  <li> <a href="#timeCalculator">madTimeCalculatorService.py</a>&nbsp; </li>
+  <li> <a href="#radar">radarToGeodeticService.py</a></li>
+  <li><a href="#geodetic">geodeticToRadarService.py</a></li>
+  <li> <a href="#magnetic">traceMagneticFieldService.py</a></li>
+  <li><a href="#getMetadata">getMetadata</a></li>
+</ul>
+<p> </p>
+<h4><a name="instrument" id="instrument"></a>getInstrumentsService.py</h4>
+<p>The top layer of the Madrigal data model is the instrument. All data in Madrigal is associated with one and only one instrument. Since Madrigal is ground-based focused, an instrument has a particular location associated with it. The following information is available for each instrument: </p>
+<ol>
+  <li>instrument.name Example: <em>Millstone Hill Incoherent Scatter Radar </em> </li>
+  <li>instrument.code (unique id) Example: <em>30 </em> </li>
+  <li>instrument.mnemonic (also unique) (3 char string) Example: <em>mlh </em> </li>
+  <li>instrument.latitude Example: <em>45.0 </em> </li>
+  <li>instrument.longitude Example: <em>110.0 </em> </li>
+  <li>instrument.altitude Example: <em>0.015 </em> (km) </li>
+</ol>
+<p>To access Instrument metadata, call url:</p>
+<pre>	&lt;any Madrigal server&gt;/getInstrumentsService.py </pre>
+<p>For example:</p>
+<pre>http://www.haystack.mit.edu/cgi-bin/madrigal/getInstrumentsService.py </pre>
+<p>will return comma-delimited lines with the six fields above, one for each instrument. </p>
+<h4><a name="experiment" id="experiment"></a>getExperimentsService.py</h4>
+<p>In the madrigal database system, the data are organized by experiment. An experiment consists of data from a single instrument covering a limited period of time, and, as a rule, is meant to address a particular scientific goal. The following information is available for each instrument: </p>
+<ol>
+  <li>experiment.id (int) Example: <em>10000111 </em> </li>
+  <li>experiment.url (string) Example: <em>http://www.haystack.mit.edu/cgi-bin/madtoc/1997/mlh/03dec97 </em> </li>
+  <li>experiment.name (string) Example: <em>Wide Latitude Substorm Study </em> </li>
+  <li>experiment.siteid (int) Example: <em>1 </em> </li>
+  <li>experiment.sitename (string) Example: <em>Millstone Hill Observatory </em> </li>
+  <li>experiment.instcode (int) Code of instrument. Example: <em>30 </em> </li>
+  <li>experiment.instname (string) Instrument name. Example: <em>Millstone Hill Incoherent Scatter Radar </em> </li>
+  <li>experiment.start year (int) year of experiment start </li>
+  <li>experiment.start month (int) month of experiment start </li>
+  <li>experiment.start day (int) day of experiment start </li>
+  <li>experiment.start hour (int) hour of experiment start </li>
+  <li>experiment.start minute (int) min of experiment start </li>
+  <li>experiment.start second (int) sec of experiment start </li>
+  <li>experiment.end year (int) year of experiment end </li>
+  <li>experiment.end month (int) month of experiment end </li>
+  <li>experiment.end day (int) day of experiment end </li>
+  <li>experiment.end hour (int) hour of experiment end </li>
+  <li>experiment.end minute (int) min of experiment end </li>
+  <li>experiment.end second (int) sec of experiment end </li>
+  <li>experiment.isLocal (int) 1 if local, 0 if not </li>
+</ol>
+<p>To access Experiment metadata for a given instrument and time range, call url: </p>
+<pre>&lt;any Madrigal server&gt;/getExperimentsService.py?code=&lt;instrument code&gt;&amp;startyear=&lt;year&gt;&amp;startmonth=&lt;month&gt;
+&amp;startday=&lt;day&gt;&amp;starthour=&lt;hour&gt;&amp;startmin=&lt;min&gt;&amp;startsec=&lt;sec&gt;&amp;endyear=&lt;year&gt;&amp;endmonth=&lt;month&gt;&amp;endday=&lt;day&gt;
+&amp;endhour=&lt;hour&gt;&amp;endmin=&lt;min&gt;&amp;endsec=&lt;sec&gt;&amp;local=&lt;1 or 0&gt; </pre>
+<p>Example: To get all data from instrument Millstone Hill ISR (code=30) during 1998 for all Madrigal servers, url is: </p>
+<pre>http://www.haystack.mit.edu/cgi-bin/madrigal/getExperimentsService.py?code=30&amp;startyear=1998
+&amp;startmonth=1&amp;startday=1&amp;starthour=0&amp;startmin=0&amp;startsec=0&amp;endyear=1999&amp;endmonth=1&amp;endday=1
+&amp;endhour=0&amp;endmin=0&amp;endsec=0&amp;local=0</pre>
+<p> which will return comma-delimited lines with the 20 fields above, one for each experiment. </p>
+<h4><a name="experimentfiles" id="experimentfiles"></a>getExperimentFilesService.py</h4>
+<p>The data from a given experiment is stored in one or more experiment files. The format of these files is the Cedar database format, but this is not important since this data is exposed remotely in an ascii format. Note that once we are at the level of experiment files, we need to request the file from the right Madrigal server. The name of correct Madrigal server is given by the experiment.url field, with everything after the "madtoc" indicator replaced by the correct cgi script name (see example below). The following information is available for each experiment file: </p>
+<ol>
+  <li>file.name (string) Example <em>/opt/madrigal/blah/mlh980120g.001 </em> </li>
+  <li>file.kindat (int) Kindat code. Example: <em>3001 </em> </li>
+  <li>file.kindat desc (string) Kindat description: Example <em>Basic Derived Parameters </em> </li>
+  <li>file.category (int) (1=default, 2=variant, 3=history, 4=real-time) </li>
+  <li>file.status (string)(preliminary, final, or any other description) </li>
+  <li>file.permission (int) 0 for public, 1 for private. For now will not return private files. </li>
+</ol>
+<p>To access Experiment file metadata for a given experiment, call url: </p>
+<pre>&lt;the correct Madrigal server&gt;/getExperimentFilesService.py?id=&lt;experiment id&gt;</pre>
+<p> where experiment id was returned by getExperimentsService.py, and the correct Madrigal server is experiment.url, truncated before /madtoc/. </p>
+<p>Example: to get Experiment File from experiment id = 20001996,experiment url = http://www.eiscat.se/madrigal/cgi-bin/madtoc/1998/mlh/20jan98:</p>
+<pre> http://www.eiscat.se/madrigal/cgi-bin/getExperimentFilesService.py?id=20001996</pre>
+<p> which will return comma-delimited lines with the 6 fields above, one for each experiment file. (Note: this experiment id may change in the future). </p>
+<h4><a name="parameters" id="parameters"></a>getParametersService.py</h4>
+<p>Any given file is made up a series of records holding parameters. The next cgi scripts returns information about the parameters contained in a given file. The following information is available about the parameters in any experiment file: </p>
+<ol>
+  <li>parameter.mnemonic (string) Example <em>dti </em> </li>
+  <li>parameter.description (string) Example: <em>"F10.7 Multiday average observed (Ott)" </em> </li>
+  <li>parameter.isError (int) 1 if error parameter, 0 if not </li>
+  <li>parameter.units (string) Example <em>"W/m2/Hz" </em> </li>
+  <li>parameter.isMeasured (int) 1 if measured, 0 if derivable </li>
+  <li>parameter.category (string) Example: <em>"Time Related Parameter" </em> </li>
+  <li>parameter.isSure (int) - 1 if parameter can be found for every record, 0 if can only be found for some </li>
+</ol>
+<p>Note that Madrigal will automatically derive a large number of parameters such as Kp and Magnetic field strength that aren't in the file itself; from the user's point of view these derived parameters appear to be in the file. This is the meaning of column 5: isMeasured. 1 means the data comes from the file itself, 0 means it was derived. To access the parameter information for a given file, call url: </p>
+<pre>&lt;the correct Madrigal server&gt;/getParametersService.py?filename=&lt;full filename&gt;</pre>
+<p> where full filename was returned by getExperimentFilesService.py in column 1, and the correct Madrigal server is again required. </p>
+<p>Example: to get the parameters for file mil980120g.001 from the eiscat server: </p>
+<pre>http://www.eiscat.se/madrigal/cgi-bin/getParametersService.py?filename=/usr/local/madroot/experiments/1998/mlh/20jan98/mil980120g.001 </pre>
+<p>which will return backslash-delimited lines with the 7 fields above, one for each parameter. Note that backslash is used as a delimiter since commas appear in the parameter descriptions. </p>
+<h4><a name="data" id="data"></a>isprintService.py</h4>
+The bottom level of the Madrigal data model is of course the data itself. A Madrigal file is made up of a series of records, each with a start and stop time, representing the integration period of measurement (Madrigal tries to enforce the idea that all measurements take a finite time, but sometimes the start time = the stop time). When a user wants data from a file, they simply specify the parameters they want (and optionally, any filters to apply to the data). For the moment I'll ignore filtering data (for details, see <a href="madpyDoc/services/isprintService_IsprintService.py.html">isprint services </a>).
+<p>To access the parameters for a given file, call url:</p>
+<pre>&lt;the correct Madrigal server&gt;/isprintService.py?file=&lt;full filename&gt; &amp;parms=&lt;plus-separated parameter mnemonics&gt;</pre>
+<p> where the filename is the same as in getParametersService.py and parameter mnemonics were returned by getParametersService.py. </p>
+<p>Example: To get parameters year, month, day, hour, min, sec, gdlat, glon, gdalt, and ti (temperature ions) from the file /usr/local/madroot/experiments/1998/mlh/20jan98/mil980120g.001, we call url: </p>
+<pre>http://www.eiscat.se/madrigal/cgi-bin/isprintService.py?file=/usr/local/madroot/experiments/1998/mlh/20jan98/mil980120g.001
+&amp;parms=year+month+day+hour+min+sec+gdlat+glon+gdalt+ti </pre>
+<p>This will return 11 columns for the 11 requested parameters in the same order as they were requested, with one line for each measurement. </p>
+<h4><a name="calculator" id="calculator"></a> madCalculatorService.py </h4>
+<p>Madrigal can derive data, as well as display data from existing experiment files. For example, Madrigal can derive MSIS neutral atmosphere parameters for any time and location. To access this derivation engine, call the madCalculatorService.py script. This script allows you to derive one or more parameters for a range of locations at a single time. If you need data at more than one time, simply call this script repeatedly. If you need data that is independent of position (such as Kp) for more than one time, use the <a href="#timeCalculator">madTimeCalculator.py</a> service. Note that this service does <strong>not</strong> provide measured data from Madrigal data files; use <a href="#data">isprintService.py</a> for that. </p>
+<p>It has the following input arguments: </p>
+<ul>
+  <li>
+    <p>year - int (required) </p>
+  </li>
+  <li>
+    <p>month - int (required) </p>
+  </li>
+  <li>
+    <p>day - int (required) </p>
+  </li>
+  <li>
+    <p>hour - int (required) </p>
+  </li>
+  <li>
+    <p>min - int (required) </p>
+  </li>
+  <li>
+    <p>sec - int (required) </p>
+  </li>
+  <li>
+    <p>startLat - Starting geodetic latitude, -90 to 90 (required) </p>
+  </li>
+  <li>
+    <p>endLat - Ending geodetic latitude, -90 to 90 (required) </p>
+  </li>
+  <li>
+    <p>stepLat - Latitude step (0.1 to 90) (required) </p>
+  </li>
+  <li>
+    <p>startLong - Starting geodetic longitude, -180 to 180 (required) </p>
+  </li>
+  <li>
+    <p>endLong - Ending geodetic longitude, -180 to 180 (required) </p>
+  </li>
+  <li>
+    <p>stepLong - Longitude step (0.1 to 180) (required) </p>
+  </li>
+  <li>
+    <p>startAlt - Starting geodetic altitude, &gt;= 0 (required) </p>
+  </li>
+  <li>
+    <p>endAlt - Ending geodetic altitude, &gt; 0 (required) </p>
+  </li>
+  <li>
+    <p>stepAlt - Altitude step (&gt;= 0.1) (required) </p>
+  </li>
+  <li>
+    <p>parms - comma delimited string of Madrigal parameters desired (required) </p>
+  </li>
+</ul>
+<p>The script returns  comma-delimited data, one line for each combination of lat, long, and alt, with the following fields: </p>
+<ol>
+  <li>latitude 2. longitude 3. altitude 4. Values for each Madrigal parameter listed in argument parms, separated by whitespace </li>
+</ol>
+<p>Example: To get the three components on the magnetic field (BN, BE, BD) at midnight 1/1/2000 at latitude = 20, longitude = 40, and altitudes of 100 to 1000 km in steps of 100 km, use:</p>
+<pre>http://madrigal.haystack.mit.edu/cgi-bin/madrigal/madCalculatorService.py?year=2000&amp;month=1&amp;day=1&amp;
+hour=0&amp;min=0&amp;sec=0&amp;startLat=20&amp;endLat=20&amp;stepLat=1&amp;startLong=40&amp;endLong=40&amp;stepLong=1&amp;
+startAlt=100&amp;endAlt=1000&amp;stepAlt=100&amp;parms=bn,be,bd 
+</pre>
+<p>This will return the following six columns: latitude, longitude, altitude, BN, BE, BD: </p>
+<pre>
+
+
+20.00 40.00 100.00 3.33234e-05 1.23289e-06 1.69326e-05 
+20.00 40.00 200.00 3.16261e-05 1.07499e-06 1.60124e-05 
+20.00 40.00 300.00 3.00451e-05 9.33461e-07 1.51637e-05 
+20.00 40.00 400.00 2.85703e-05 8.06412e-07 1.43793e-05 
+20.00 40.00 500.00 2.71927e-05 6.92227e-07 1.36528e-05 
+20.00 40.00 600.00 2.59044e-05 5.89497e-07 1.29786e-05 
+20.00 40.00 700.00 2.46981e-05 4.96988e-07 1.23518e-05 
+20.00 40.00 800.00 2.35672e-05 4.13624e-07 1.17679e-05 
+20.00 40.00 900.00 2.25059e-05 3.38453e-07 1.12232e-05 
+20.00 40.00 1000.00 2.15087e-05 2.70640e-07 1.07142e-05
+
+
+</pre>
+<h4>    <a name="timeCalculator" id="timeCalculator"></a> madTimeCalculatorService.py</h4>
+<p>The madTimeCalculatorService.py service is similar to the <a href="#calculator">madCalculatorService.py</a> service, but it calculates values for a series of times. However, it is limited to parameters that are independent of position, such as Kp. </p>
+<p>Input cgi arguments:</p>
+<ol><li>startyear - int (required)</li>
+<li>startmonth - int (required)</li>
+<li>startday - int (required)</li>
+<li>starthour - int (required)</li>
+<li>startmin - int (required)</li>
+<li>startsec - int (required)</li>
+<li>endyear - int (required)</li>
+<li>endmonth - int (required)</li>
+<li>endday - int (required)</li>
+<li>endhour - int (required)</li>
+<li>endmin - int (required)</li>
+<li>endsec - int (required)</li>
+<li>stephours - double - number of hours between each measurement (required)</li>
+<li>parms - comma delimited string of Madrigal parameters desired (required)</li></ol>
+
+<p>    Returns comma-delimited data, one line for time,
+    with the following fields:</p>
+<ol><li>year</li>
+<li>month</li>
+<li>day</li>
+<li>hour</li>
+<li>min</li>
+<li>sec</li>
+<li>Values for each Madrigal parameter listed in argument parms, separated by whitespace</li>
+</ol>
+<p>Example: To get Kp and F10.7 for each 3 hour interval on Jan. 1, 2000, use:</p>
+<pre>
+http://grail.haystack.mit.edu/cgi-bin/madrigal/madTimeCalculatorService.py?
+startyear=2000&amp;startmonth=1&amp;startday=1&amp;starthour=0
+&amp;startmin=0&amp;startsec=0&amp;endyear=2000&amp;endmonth=1&amp;
+endday=1&amp;endhour=23&amp;endmin=59&amp;endsec=59&amp;stephours=1&amp;parms=kp,f10.7 
+</pre>
+<p>This will return the following eight columns: year, month, day, hour, min, sec, kp, f10.7:</p>
+<pre> 
+ 2000 1 1 0 0 0 5.30 1.29900e-20 
+ 2000 1 1 3 0 0 4.70 1.29900e-20 
+ 2000 1 1 6 0 0 4.00 1.29900e-20 
+ 2000 1 1 9 0 0 3.30 1.29900e-20 
+ 2000 1 1 12 0 0 4.30 1.29900e-20 
+ 2000 1 1 15 0 0 3.00 1.29900e-20 
+ 2000 1 1 18 0 0 4.30 1.29900e-20 
+ 2000 1 1 21 0 0 3.70 1.29900e-20 
+ </pre>
+<h4><a name="radar" id="radar"></a>RadarToGeodeticService.py</h4>
+<p>The radarToGeodeticService.py script converts a radar position (azimuth, elevation, and range) to a geodetic location. Use <a href="#geodetic">geodeticToRadarService.py</a> to go in the other direction. </p>
+<p>    Input cgi arguments:</p>
+<ol>
+<li>slatgd  - radar geodetic latitude</li>
+<li>slon - radar longitude</li>
+<li>saltgd - radar geodetic altitude</li>
+<li>az - a comma-separated list of radar azimuth in degrees (0 = north)</li>
+<li>el - a comma-separated list of radar elevation in degrees </li>
+<li>range - a comma-separated list of radar range in km</li>
+</ol>
+
+<p>    Returns comma-delimited data, one line for point in lists:</p>
+<ol><li>geodetic latitude of point</li>
+<li>longitude of point</li>
+<li>geodetic altitude of point</li></ol>
+
+<p>Example: To get the geodetic point at azimuth=100, elevation=45,55, and 65, and range=1000 km from the Millstone Hill IS Radar at 
+
+
+ latitude=42.619, longitude=288.51, and altitude=0.146, use:</p>
+<pre>http://madrigal.haystack.mit.edu/cgi-bin/madrigal/radarToGeodeticService.py?
+slatgd=42.619&amp;slon=288.51&amp;saltgd=0.146&amp;az=100,100,100&amp;el=45,55,65&amp;range=1000,1000,1000</pre>
+<p> which will return the geodetic latitude, longitude, and altitude of those three radar positions: </p>
+<pre>
+  41.361338,-64.012651,742.038442
+  41.645771,-65.488196,841.794521
+  41.932738,-67.098375,918.473216
+</pre>
+
+<h4><a name="geodetic" id="geodetic"></a>geodeticToRadar</h4>
+<p>The geodeticToRadarService.py script converts a a geodetic location to radar position (azimuth, elevation, and range) . Use <a href="#radar">radarToGeodeticService.py</a> to go the other way. </p>
+<p>    Input cgi arguments:</p>
+<ol>
+<li>slatgd  - radar geodetic latitude</li>
+<li>slon - radar longitude</li>
+<li>saltgd - radar geodetic altitude</li>
+<li>gdlat - a comma-separated list of geodetic latitude of point</li>
+<li>glon - a comma-separated list of longitude of point</li>
+<li>gdalt - a comma-separated list of geodetic altitude of point</li>
+</ol>
+
+<p>    Returns comma-delimited data, one line for point in lists:</p>
+<ol><li>radar azimuth in degrees (0 = north)</li>
+<li>radar elevation in degrees</li>
+<li>radar range in km</li></ol>
+
+<p>Example: To get the radar location at gdlat=42, glon=290, and gdalt=1000, 2000, and 3000 km from the Millstone Hill IS Radar at latitude=42.619, longitude=288.51, and altitude=0.146, use:</p>
+<pre>http://madrigal.haystack.mit.edu/cgi-bin/madrigal/geodeticToRadarService.py?
+slatgd=42.619&amp;slon=288.51&amp;saltgd=0.146&amp;gdlat=42,42,42&amp;glon=290,290,290&amp;gdalt=1000,2000,3000</pre>
+<p> which will return the azimuth, elevation, and range of those three geodetic positions: </p>
+<pre>
+ 117.704418,80.825093,1011.252383
+ 116.906481,84.802395,2006.351074
+ 116.270492,86.139493,3004.705956
+</pre>
+<h4><a name="magnetic" id="magnetic"></a>traceMagneticFieldService.py</h4>
+<p>The traceMagneticFieldService.py service allows you to trace magnetic field lines using either the IGRF model or the Tysganenko models. </p>
+<p>    Input cgi arguments:</p>
+<ul>
+<li>year</li>
+<li>month</li>
+<li>day</li>
+<li>hour</li>
+<li>min</li>
+<li>sec</li>
+<li>inputType (0 for geodetic, 1 for GSM)</li>
+<li>outputType (0 for geodetic, 1 for GSM)
+  <blockquote>
+    <p>The following parameters depend on inputType:</p>
+  </blockquote>
+</li>
+<li>in1 - a comma-separated list of geodetic altitudes or ZGSMs of starting point</li>
+<li>in2 - a comma-separated list of geodetic latitudes or XGSMs of starting point</li>
+<li>in3 - a comma-separated list of longitude or YGSM of starting point
+    <blockquote>
+      <p>Length of all three lists must be the same</p>
+    </blockquote>
+</li>
+<li>model - 0 for Tsyganenko, 1 for IGRF</li>
+<li>qualifier - 0 for conjugate, 1 for north_alt, 2 for south_alt, 3 for apex, 4 for GSM XY plane</li>
+<li>topAlt - altitude in km to stop trace at, if qualifier is north_alt or south_alt. If other qualifier, 
+     this parameter is not required.</li>
+</ul>
+
+<p>    Returns comma-delimited data, one line for point in in lists:</p>
+<ol><li>geodetic altitude or ZGSM of ending point</li>
+<li>geodetic latitude or XGSM of ending point</li>
+<li>longitude or YGSM of ending point</li>
+</ol>
+<p>Example: To get the position of the magnetic field line when it crosses 1000 km in the northern hemisphere at midnight 1/1/2004, using the Tysganenko model, with starting points given in GSM and output in geodetic, use:</p>
+<pre>
+http://www.haystack.mit.edu/cgi-bin/madrigal/traceMagneticFieldService.py?
+model=0&amp;stopAlt=1000.000000&amp;year=2004&amp;month=1&amp;day=1&amp;hour=0&amp;min=0&amp;sec=0&amp;
+in1=0.269000,0.300000,0.300000,0.300000,0.300000&amp;
+in2=0.583000,0.600000,0.600000,0.600000,0.600000&amp;
+in3=-0.959870,-10.000000,-1.000000,-10.000000,-1.000000&amp;inputType=1&amp;outputType=0&amp;qualifier=1
+</pre>
+<p>which in this case returns a comma-separated list of geodetic altitude, latitude, and longitude:</p>
+<pre>
+missing,missing,missing
+1000.000000,74.695086,102.027236
+1000.000000,19.026779,129.445239
+1000.000000,74.695086,102.027236
+1000.000000,19.026779,129.445239
+</pre>
+
+<h4><a name="getMetadata" id="getMetadata"></a>getMetadata</h4>
+<p>Finally, one other tcl cgi script should be included as part of the web services API: getMetadata. This cgi script allows direct downloading of any of the <a href="ad_metadata.html">10 metadata files </a>. In general, all information needed from Madrigal should be available in an easier-to-use form from the python cgi scripts above. However, there is some information in the metadata that is not available through those scripts, and if that information is ever needed, a user can call getMetadata to download the metadata file itself as follows: </p>
+<p><em>cgiUrl </em>/getMetadata?fileType= <em>value </em></p>
+<p>where value is </p>
+<ul>
+  <li>0: expTab.txt </li>
+  <li>1: fileTab.txt </li>
+  <li>2: dataTab.txt </li>
+  <li>3: instTab.txt </li>
+  <li>4: parcods.tab </li>
+  <li>5: siteTab.txt </li>
+  <li>6: typeTab.txt </li>
+  <li>7: instKindatTab.txt </li>
+  <li>8: instParmTab.txt </li>
+  <li>9: madCatTab.txt </li>
+</ul>
+<p>&nbsp; </p>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="rt_introduction.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rt_contents.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rt_matlab.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Madrigal web services <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/MADSERVERROOT/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/MADSERVERROOT">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="rt_introduction.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Remote access - introduction <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="rt_contents.html"><!-- InstanceBeginEditable name="UpTitle2" -->Remote access programming tutorial toc <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="rt_matlab.html"><!-- InstanceBeginEditable name="NextTitle2" -->Matlab remote access <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

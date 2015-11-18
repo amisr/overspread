@@ -1,0 +1,157 @@
+Test C geometry package
+test vprod
+adota =  14.000000
+adotb =  20.000000
+bdota =  20.000000
+bdotb =  29.000000
+
+test vadd
+aplusa = 2.000000 4.000000 6.000000
+aplusb = 3.000000 5.000000 7.000000
+bplusa = 3.000000 5.000000 7.000000
+bplusb = 4.000000 6.000000 8.000000
+
+test vsub
+aminusa = 0.000000 0.000000 0.000000
+aminusb = -1.000000 -1.000000 -1.000000
+bminusa = 1.000000 1.000000 1.000000
+bminusb = 0.000000 0.000000 0.000000
+
+Test csconv
+x, y, z = 1619.066083 -4448.347504 4262.361963
+r, theta, phi = 6370.000000 48.000000 -70.000000
+
+Test vctcnv
+fx, fy, fz = 749.536556 -597.432563 -609.318704
+x, y, z = 1619.066083 -4448.347504 4262.361963 
+fr, ft, fp = 200.000000 1000.000000 500.000000 
+r, theta, phi = 6370.000000 48.000000 -70.000000
+
+Test point and look
+sr, slat, slon = 6361.295550 62.567710 221.049330
+az, el, range = 45.000000 45.000000 1000.000000
+pr, glat, glon = 7103.682954 66.287470 -128.870547
+az, el, range = 45.000000 45.000000 1000.000000
+
+Test convrt
+gclat rkm = 66.287470 7103.682954
+gdlat gdalt = 66.414093 743.464424
+gclat rkm = 66.287448 7103.684988
+
+Test rpcart
+slat sr = 42.428293 6368.545165
+rfx rfy rfz = 974.559896 191.070115 117.154687
+pfx pfy pfz = 2466.756966 -4266.568310 4413.801646
+
+Test gdv
+cst,csp,csr = 0.127804 0.939333 0.318307
+cx cy cz = -0.128507 0.939333 -0.318024
+cx*cx+cy*cy+cz*cz = 1.000000
+
+Test los2geodetic
+gdlat, glon, gdalt = 48.328541 -62.413943 249.631565
+
+Solar distance at 7/27/1980 is 1.51935e+08
+
+Test shadowheight, sunrise_set through 24 h at 42.0, -70.0
+
+Shadow height at 0 = 705.439607
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 1 = 1597.829715
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 2 = 3112.709960
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 3 = 5576.509702
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 4 = 8933.216641
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 5 = 10514.944109
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 6 = 7925.874535
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 7 = 4730.564114
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 8 = 2581.002742
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 9 = 1279.933903
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 10 = 524.812296
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 11 = 132.692280
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 12 = 1.415156
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 13 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 14 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 15 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 16 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 17 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 18 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 19 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 20 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 21 = 0.000000
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 22 = 16.044655
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 23 = 213.255207
+At 20 km, sunrise = 11.671549 and sunset = 22.046712
+At 2000 km, sunrise = 8.384440 and sunset = 1.320475
+
+Shadow height at 24 = 694.191443
+At 20 km, sunrise = 35.659831 and sunset = 46.064616
+At 2000 km, sunrise = 32.378581 and sunset = 25.336426
+

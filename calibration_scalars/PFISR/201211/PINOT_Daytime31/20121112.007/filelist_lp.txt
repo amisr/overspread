@@ -1,0 +1,4 @@
+/Volumes/ISR_DATA_02/processed_data/PFISR/2012/11/
+PINOT_Daytime31/20121112.007/cal-0/PINOT_Daytime31-63239-plline-000_lp_1min_.txt
+PINOT_Daytime31/20121112.007/cal-0/PINOT_Daytime31-64037-plline-000_lp_1min_.txt
+PINOT_Daytime31/20121112.007/cal-0/PINOT_Daytime31-64055-plline-000_lp_1min_.txt

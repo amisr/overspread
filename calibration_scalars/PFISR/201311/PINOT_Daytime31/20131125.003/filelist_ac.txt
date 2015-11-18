@@ -1,0 +1,9 @@
+/Volumes/ISR_DATA_02/processed_data/PFISR/2013/11/
+PINOT_Daytime31/20131125.003/cal-0/PINOT_Daytime31-64016-plline-000_ac_5min_.txt
+PINOT_Daytime31/20131125.003/cal-0/PINOT_Daytime31-64016-plline-001_ac_5min_.txt
+PINOT_Daytime31/20131125.003/cal-0/PINOT_Daytime31-64016-plline-002_ac_5min_.txt
+PINOT_Daytime31/20131125.003/cal-0/PINOT_Daytime31-64037-plline-000_ac_5min_.txt
+PINOT_Daytime31/20131125.003/cal-0/PINOT_Daytime31-64037-plline-001_ac_5min_.txt
+PINOT_Daytime31/20131125.003/cal-0/PINOT_Daytime31-64037-plline-002_ac_5min_.txt
+PINOT_Daytime31/20131125.003/cal-0/PINOT_Daytime31-64157-plline-000_ac_5min_.txt
+PINOT_Daytime31/20131125.003/cal-0/PINOT_Daytime31-64157-plline-001_ac_5min_.txt

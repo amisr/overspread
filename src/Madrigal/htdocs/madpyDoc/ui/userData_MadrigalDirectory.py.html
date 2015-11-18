@@ -1,0 +1,176 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalDirectory</title>
+        </head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalDirectory</font>
+            </th>
+            <th align="right"><font color="#000000">ui/userData.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalDirectory is a public object that provides access to information in a single user directory.</h3>
+<p>    The MadrigalDirectory object is designed to allow easy access to the information in
+    one directory of user data.  At the moment this data is the directory name, the directory
+    type, and a list of filternames in that directory.  Created by MadrigalUserData.getAllDirInfo()</p>
+
+<p>    Usage example:</p>
+<PRE>
+        import madrigal.ui.userData
+
+        test = madrigal.ui.userData.MadrigalUserData()
+
+        userDirInfo = test.getAllDirInfo()
+
+        # print all the directory information for user brideout
+
+        for madDir in userDirInfo['brideout']:
+
+            print 'Directory name is ' + madDir.dirName
+
+            print 'This directory type (public or private) is ' + madDir.dirType
+
+            print 'The filter names in this directory are:'
+
+            for filtername in madDir.filterList:
+
+                print '    ' + filtername
+
+</PRE>
+
+<p>    Non-standard Python modules used: None</p>
+
+<p>    Exceptions thrown: None</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Dec. 11, 2001</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__init__">__init__</a><br>
+<a href="#toString">toString</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        dirName,
+        dirType,
+        )
+
+</pre></font>
+<h3>__init__ initializes MadrigalDirectory by initializing the class members from the inputs.</h3>
+<p>        Inputs: dirName - case sensitive name of directory (string), dirType = public or private (string).</p>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes all the class member variables.  All member variables are public.</p>
+
+<p>        Exceptions: None.</p>
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="toString"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">toString&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+toString ( self )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri Dec 30 09:02:26 2005 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

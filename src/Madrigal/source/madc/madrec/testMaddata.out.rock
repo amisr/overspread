@@ -1,0 +1,1364 @@
+Number of filters = 2
+Parm 2 of second filt = 
+Next parameter in use = BYEAR
+Next parameter in use = AZM
+Next parameter in use = BMD
+Next parameter in use = KINDAT
+Next parameter in use = 32750
+Next parameter in use = RANGE
+Next parameter in use = GDALT
+Next parameter in use = BMAG
+Next parameter in use = NO2L
+Next parameter in use = UTS
+Next parameter in use = SUNRISE_HOUR
+Next parameter in use = SLT
+Next parameter in use = F10.7
+List has "  uTH " = 0
+List has "  kindat " = 1
+Min value of uth = 1.000000e-38
+Max value of uth = 1.000000e-38
+analyzeFileParms returned status 0
+This meas 1D parm is EL1
+This meas 1D parm is EL2
+This meas 1D parm is AZ1
+This meas 1D parm is AZ2
+This meas 1D parm is PL
+This meas 1D parm is TFREQ
+This meas 2D parm is RANGE
+This meas 2D parm is RANGEI
+This meas 2D parm is RGATE
+This meas 2D parm is RGATEI
+This meas 2D parm is SNP3
+This meas 2D parm is PNRMD
+This meas 2D parm is PNRMDI
+This meas 2D parm is SYSTMP
+This meas 2D parm is SYSTMI
+This meas 2D parm is POWER
+This meas 2D parm is TI
+This meas 2D parm is DTI
+This meas 2D parm is TR
+This meas 2D parm is DTR
+This meas 2D parm is POPL
+This meas 2D parm is DPOPL
+This meas 2D parm is PH+
+This meas 2D parm is DPH+
+This meas 2D parm is FA
+This meas 2D parm is DFA
+This meas 2D parm is COI
+This meas 2D parm is DCOI
+This meas 2D parm is PM
+This meas 2D parm is DPM
+This meas 2D parm is VO
+This meas 2D parm is DVO
+This meas 2D parm is DVOI
+This derv 1D parm is BYEAR
+This derv 1D parm is YEAR
+This derv 1D parm is MONTH
+This derv 1D parm is DAY
+This derv 1D parm is HOUR
+This derv 1D parm is MIN
+This derv 1D parm is SEC
+This derv 1D parm is CSEC
+This derv 1D parm is BMD
+This derv 1D parm is BMONTH
+This derv 1D parm is BDAY
+This derv 1D parm is MD
+This derv 1D parm is DAYNO
+This derv 1D parm is BHM
+This derv 1D parm is BHHMMSS
+This derv 1D parm is EHHMMSS
+This derv 1D parm is HM
+This derv 1D parm is UTH
+This derv 1D parm is UTS
+This derv 1D parm is B_UTH
+This derv 1D parm is INTTMS
+This derv 1D parm is INTTMM
+This derv 1D parm is DATNTD
+This derv 1D parm is UT
+This derv 1D parm is BEG_UT
+This derv 1D parm is JDAYNO
+This derv 1D parm is DUT21
+This derv 1D parm is FYEAR
+This derv 1D parm is GDLATR
+This derv 1D parm is GDLONR
+This derv 1D parm is GALTR
+This derv 1D parm is AZM
+This derv 1D parm is DAZ
+This derv 1D parm is ELM
+This derv 1D parm is DEL
+This derv 1D parm is KP
+This derv 1D parm is AP3
+This derv 1D parm is AP
+This derv 1D parm is F10.7
+This derv 1D parm is FBAR
+This derv 1D parm is DST
+This derv 1D parm is FOF2
+This derv 1D parm is BXGSM
+This derv 1D parm is BYGSM
+This derv 1D parm is BZGSM
+This derv 1D parm is BIMF
+This derv 1D parm is BXGSE
+This derv 1D parm is BYGSE
+This derv 1D parm is BZGSE
+This derv 1D parm is SWDEN
+This derv 1D parm is SWSPD
+This derv 1D parm is SWQ
+This derv 2D parm is GDLAT
+This derv 2D parm is GLON
+This derv 2D parm is GDALT
+This derv 2D parm is SZEN
+This derv 2D parm is SLTMUT
+This derv 2D parm is SLT
+This derv 2D parm is SDWHT
+This derv 2D parm is SUNRISE
+This derv 2D parm is SUNSET
+This derv 2D parm is SUNRISE_HOUR
+This derv 2D parm is SUNSET_HOUR
+This derv 2D parm is BN
+This derv 2D parm is BE
+This derv 2D parm is BD
+This derv 2D parm is BMAG
+This derv 2D parm is BDEC
+This derv 2D parm is BINC
+This derv 2D parm is LSHELL
+This derv 2D parm is DIPLAT
+This derv 2D parm is INVLAT
+This derv 2D parm is APLAT
+This derv 2D parm is APLON
+This derv 2D parm is MAGCONJLAT
+This derv 2D parm is MAGCONJLON
+This derv 2D parm is CXR
+This derv 2D parm is CYR
+This derv 2D parm is CZR
+This derv 2D parm is CGM_LAT
+This derv 2D parm is CGM_LONG
+This derv 2D parm is SLTC
+This derv 2D parm is APLT
+This derv 2D parm is SZENC
+This derv 2D parm is CONJ_SUNRISE
+This derv 2D parm is CONJ_SUNSET
+This derv 2D parm is CONJ_SUNRISE_H
+This derv 2D parm is CONJ_SUNSET_H
+This derv 2D parm is MAGCONJSDWHT
+This derv 2D parm is TSYG_EQ_XGSM
+This derv 2D parm is TSYG_EQ_YGSM
+This derv 2D parm is TSYG_EQ_XGSE
+This derv 2D parm is TSYG_EQ_YGSE
+This derv 2D parm is PACLAT
+This derv 2D parm is PACLON
+This derv 2D parm is E_REG_S_LAT
+This derv 2D parm is E_REG_S_LON
+This derv 2D parm is E_REG_S_SDWHT
+This derv 2D parm is E_REG_N_LAT
+This derv 2D parm is E_REG_N_LON
+This derv 2D parm is E_REG_N_SDWHT
+This derv 2D parm is ASPECT
+This derv 2D parm is POP
+This derv 2D parm is TE
+This derv 2D parm is DTE
+This derv 2D parm is NE
+This derv 2D parm is NEL
+This derv 2D parm is NE_MODEL
+This derv 2D parm is NEL_MODEL
+This derv 2D parm is TE_MODEL
+This derv 2D parm is TI_MODEL
+This derv 2D parm is VO_MODEL
+This derv 2D parm is NE_MODELDIFF
+This derv 2D parm is NEL_MODELDIFF
+This derv 2D parm is TE_MODELDIFF
+This derv 2D parm is TI_MODELDIFF
+This derv 2D parm is VO_MODELDIFF
+This derv 2D parm is SN
+This derv 2D parm is TNM
+This derv 2D parm is TINFM
+This derv 2D parm is MOL
+This derv 2D parm is NTOTL
+This derv 2D parm is NN2L
+This derv 2D parm is NO2L
+This derv 2D parm is NOL
+This derv 2D parm is NARL
+This derv 2D parm is NHEL
+This derv 2D parm is NHL
+This derv 2D parm is NN4SL
+This derv 2D parm is NPRESL
+This derv 2D parm is PSH
+This derv 2D parm is TN
+This derv 2D parm is PDCON
+This derv 2D parm is PDCONL
+This derv 2D parm is HLCON
+This derv 2D parm is HLCONL
+This derv 2D parm is NE_IRI
+This derv 2D parm is NEL_IRI
+This derv 2D parm is TN_IRI
+This derv 2D parm is TI_IRI
+This derv 2D parm is TE_IRI
+This derv 2D parm is PO+_IRI
+This derv 2D parm is PNO+_IRI
+This derv 2D parm is PO2+_IRI
+This derv 2D parm is PHE+_IRI
+This derv 2D parm is PH+_IRI
+This derv 2D parm is PN+_IRI
+Printing list of  37 1D parameters used...
+This parm is FIRST_IBYR
+This parm is FIRST_IBDT
+This parm is FIRST_IBHM
+This parm is FIRST_IBCS
+This parm is KINST
+This parm is KINDAT
+This parm is IBYR
+This parm is IBDT
+This parm is IBHM
+This parm is IBCS
+This parm is IEYR
+This parm is IEDT
+This parm is IEHM
+This parm is IECS
+This parm is NROW
+This parm is AZ1
+This parm is AZ2
+This parm is EL1
+This parm is EL2
+This parm is ELM
+This parm is YEAR
+This parm is BMD
+This parm is BYEAR
+This parm is BHM
+This parm is UTS
+This parm is AZM
+This parm is DAZ
+This parm is GDLATR
+This parm is GDLONR
+This parm is GALTR
+This parm is UT1
+This parm is UT2
+This parm is KP
+This parm is AP3
+This parm is AP
+This parm is F10.7
+This parm is FBAR
+Printing list of  73 1D parameters avail...
+This parm is FIRST_IBYR
+This parm is FIRST_IBDT
+This parm is FIRST_IBHM
+This parm is FIRST_IBCS
+This parm is KINST
+This parm is KINDAT
+This parm is IBYR
+This parm is IBDT
+This parm is IBHM
+This parm is IBCS
+This parm is IEYR
+This parm is IEDT
+This parm is IEHM
+This parm is IECS
+This parm is NROW
+This parm is AZ1
+This parm is AZ2
+This parm is EL1
+This parm is EL2
+This parm is ELM
+This parm is YEAR
+This parm is BMD
+This parm is BYEAR
+This parm is MONTH
+This parm is DAY
+This parm is HOUR
+This parm is MIN
+This parm is SEC
+This parm is CSEC
+This parm is BMONTH
+This parm is BDAY
+This parm is MD
+This parm is DAYNO
+This parm is BHM
+This parm is BHHMMSS
+This parm is EHHMMSS
+This parm is HM
+This parm is UTH
+This parm is UTS
+This parm is B_UTH
+This parm is INTTMS
+This parm is INTTMM
+This parm is DATNTD
+This parm is UT
+This parm is BEG_UT
+This parm is JDAYNO
+This parm is UT1
+This parm is UT2
+This parm is DUT21
+This parm is FYEAR
+This parm is GDLATR
+This parm is GDLONR
+This parm is GALTR
+This parm is AZM
+This parm is DAZ
+This parm is DEL
+This parm is KP
+This parm is AP3
+This parm is AP
+This parm is F10.7
+This parm is FBAR
+This parm is DST
+This parm is FOF2
+This parm is BXGSM
+This parm is BYGSM
+This parm is BZGSM
+This parm is BIMF
+This parm is BXGSE
+This parm is BYGSE
+This parm is BZGSE
+This parm is SWDEN
+This parm is SWSPD
+This parm is SWQ
+Printing list of 40 2D parameters used...
+This 2d parm is ROW
+This 2d parm is RANGE
+This 2d parm is TI
+This 2d parm is GDLAT
+This 2d parm is GLON
+This 2d parm is GDALT
+This 2d parm is SLT
+This 2d parm is SUNRISE
+This 2d parm is SUNSET
+This 2d parm is SUNRISE_HOUR
+This 2d parm is SUNSET_HOUR
+This 2d parm is BN
+This 2d parm is BE
+This 2d parm is BD
+This 2d parm is BMAG
+This 2d parm is BDEC
+This 2d parm is BINC
+This 2d parm is LSHELL
+This 2d parm is DIPLAT
+This 2d parm is INVLAT
+This 2d parm is APLAT
+This 2d parm is APLON
+This 2d parm is MAGCONJLAT
+This 2d parm is MAGCONJLON
+This 2d parm is CXR
+This 2d parm is CYR
+This 2d parm is CZR
+This 2d parm is TNM
+This 2d parm is TINFM
+This 2d parm is MOL
+This 2d parm is NTOTL
+This 2d parm is NN2L
+This 2d parm is NO2L
+This 2d parm is NOL
+This 2d parm is NARL
+This 2d parm is NHEL
+This 2d parm is NHL
+This 2d parm is NN4SL
+This 2d parm is NPRESL
+This 2d parm is PSH
+Printing list of  83 2D parameters avail...
+This 2d parm is ROW
+This 2d parm is RANGE
+This 2d parm is TI
+This 2d parm is GDLAT
+This 2d parm is GLON
+This 2d parm is GDALT
+This 2d parm is SZEN
+This 2d parm is SLTMUT
+This 2d parm is SLT
+This 2d parm is SDWHT
+This 2d parm is SUNRISE
+This 2d parm is SUNSET
+This 2d parm is SUNRISE_HOUR
+This 2d parm is SUNSET_HOUR
+This 2d parm is BN
+This 2d parm is BE
+This 2d parm is BD
+This 2d parm is BMAG
+This 2d parm is BDEC
+This 2d parm is BINC
+This 2d parm is LSHELL
+This 2d parm is DIPLAT
+This 2d parm is INVLAT
+This 2d parm is APLAT
+This 2d parm is APLON
+This 2d parm is MAGCONJLAT
+This 2d parm is MAGCONJLON
+This 2d parm is CXR
+This 2d parm is CYR
+This 2d parm is CZR
+This 2d parm is CGM_LAT
+This 2d parm is CGM_LONG
+This 2d parm is SLTC
+This 2d parm is APLT
+This 2d parm is SZENC
+This 2d parm is CONJ_SUNRISE
+This 2d parm is CONJ_SUNSET
+This 2d parm is CONJ_SUNRISE_H
+This 2d parm is CONJ_SUNSET_H
+This 2d parm is MAGCONJSDWHT
+This 2d parm is TSYG_EQ_XGSM
+This 2d parm is TSYG_EQ_YGSM
+This 2d parm is TSYG_EQ_XGSE
+This 2d parm is TSYG_EQ_YGSE
+This 2d parm is PACLAT
+This 2d parm is PACLON
+This 2d parm is E_REG_S_LAT
+This 2d parm is E_REG_S_LON
+This 2d parm is E_REG_S_SDWHT
+This 2d parm is E_REG_N_LAT
+This 2d parm is E_REG_N_LON
+This 2d parm is E_REG_N_SDWHT
+This 2d parm is ASPECT
+This 2d parm is NE_MODEL
+This 2d parm is NEL_MODEL
+This 2d parm is TE_MODEL
+This 2d parm is TI_MODEL
+This 2d parm is VO_MODEL
+This 2d parm is TI_MODELDIFF
+This 2d parm is TNM
+This 2d parm is TINFM
+This 2d parm is MOL
+This 2d parm is NTOTL
+This 2d parm is NN2L
+This 2d parm is NO2L
+This 2d parm is NOL
+This 2d parm is NARL
+This 2d parm is NHEL
+This 2d parm is NHL
+This 2d parm is NN4SL
+This 2d parm is NPRESL
+This 2d parm is PSH
+This 2d parm is NE_IRI
+This 2d parm is NEL_IRI
+This 2d parm is TN_IRI
+This 2d parm is TI_IRI
+This 2d parm is TE_IRI
+This 2d parm is PO+_IRI
+This 2d parm is PNO+_IRI
+This 2d parm is PO2+_IRI
+This 2d parm is PHE+_IRI
+This 2d parm is PH+_IRI
+This 2d parm is PN+_IRI
+Printing list of 1 unavailable parameters...
+This unavailable parm is 32750
+create: No errors
+open: No errors
+In file, num types found = 1
+This type is 0
+It has 1143 records of this type
+
+Printing list of  40 1D parameters used...
+This 1D parm is FIRST_IBYR
+This 1D parm is FIRST_IBDT
+This 1D parm is FIRST_IBHM
+This 1D parm is FIRST_IBCS
+This 1D parm is KINST
+This 1D parm is KINDAT
+This 1D parm is IBYR
+This 1D parm is IBDT
+This 1D parm is IBHM
+This 1D parm is IBCS
+This 1D parm is IEYR
+This 1D parm is IEDT
+This 1D parm is IEHM
+This 1D parm is IECS
+This 1D parm is NROW
+This 1D parm is UT1
+This 1D parm is UT2
+This 1D parm is RECNO
+This 1D parm is EL1
+This 1D parm is EL2
+This 1D parm is AZ1
+This 1D parm is AZ2
+This 1D parm is PL
+This 1D parm is TFREQ
+This 1D parm is BYEAR
+This 1D parm is BMD
+This 1D parm is BHM
+This 1D parm is UTS
+This 1D parm is AZM
+This 1D parm is DAZ
+This 1D parm is ELM
+This 1D parm is DEL
+This 1D parm is GDLATR
+This 1D parm is GDLONR
+This 1D parm is GALTR
+This 1D parm is KP
+This 1D parm is AP3
+This 1D parm is AP
+This 1D parm is F10.7
+This 1D parm is FBAR
+Printing list of  6 meas 1D parameters used and codes...
+This meas 1D parm is EL1, code 142
+This meas 1D parm is EL2, code 143
+This meas 1D parm is AZ1, code 132
+This meas 1D parm is AZ2, code 133
+This meas 1D parm is PL, code 402
+This meas 1D parm is TFREQ, code 490
+Printing list of  65 2D parameters used...
+This 2D parm is ROW
+This 2D parm is RANGE
+This 2D parm is RANGEI
+This 2D parm is RGATE
+This 2D parm is RGATEI
+This 2D parm is SNP3
+This 2D parm is PNRMD
+This 2D parm is PNRMDI
+This 2D parm is SYSTMP
+This 2D parm is SYSTMI
+This 2D parm is POWER
+This 2D parm is TI
+This 2D parm is DTI
+This 2D parm is TR
+This 2D parm is DTR
+This 2D parm is POPL
+This 2D parm is DPOPL
+This 2D parm is PH+
+This 2D parm is DPH+
+This 2D parm is FA
+This 2D parm is DFA
+This 2D parm is COI
+This 2D parm is DCOI
+This 2D parm is PM
+This 2D parm is DPM
+This 2D parm is VO
+This 2D parm is DVO
+This 2D parm is DVOI
+This 2D parm is GDLAT
+This 2D parm is GLON
+This 2D parm is GDALT
+This 2D parm is SLT
+This 2D parm is SUNRISE
+This 2D parm is SUNSET
+This 2D parm is SUNRISE_HOUR
+This 2D parm is SUNSET_HOUR
+This 2D parm is BN
+This 2D parm is BE
+This 2D parm is BD
+This 2D parm is BMAG
+This 2D parm is BDEC
+This 2D parm is BINC
+This 2D parm is LSHELL
+This 2D parm is DIPLAT
+This 2D parm is INVLAT
+This 2D parm is APLAT
+This 2D parm is APLON
+This 2D parm is MAGCONJLAT
+This 2D parm is MAGCONJLON
+This 2D parm is CXR
+This 2D parm is CYR
+This 2D parm is CZR
+This 2D parm is TNM
+This 2D parm is TINFM
+This 2D parm is MOL
+This 2D parm is NTOTL
+This 2D parm is NN2L
+This 2D parm is NO2L
+This 2D parm is NOL
+This 2D parm is NARL
+This 2D parm is NHEL
+This 2D parm is NHL
+This 2D parm is NN4SL
+This 2D parm is NPRESL
+This 2D parm is PSH
+Printing list of 64 2D parameters used...
+This 2d parm is RANGE
+This 2d parm is RANGEI
+This 2d parm is RGATE
+This 2d parm is RGATEI
+This 2d parm is SNP3
+This 2d parm is PNRMD
+This 2d parm is PNRMDI
+This 2d parm is SYSTMP
+This 2d parm is SYSTMI
+This 2d parm is POWER
+This 2d parm is TI
+This 2d parm is DTI
+This 2d parm is TR
+This 2d parm is DTR
+This 2d parm is POPL
+This 2d parm is DPOPL
+This 2d parm is PH+
+This 2d parm is DPH+
+This 2d parm is FA
+This 2d parm is DFA
+This 2d parm is COI
+This 2d parm is DCOI
+This 2d parm is PM
+This 2d parm is DPM
+This 2d parm is VO
+This 2d parm is DVO
+This 2d parm is DVOI
+This 2d parm is GDLAT
+This 2d parm is GLON
+This 2d parm is GDALT
+This 2d parm is SLT
+This 2d parm is SUNRISE
+This 2d parm is SUNSET
+This 2d parm is SUNRISE_HOUR
+This 2d parm is SUNSET_HOUR
+This 2d parm is BN
+This 2d parm is BE
+This 2d parm is BD
+This 2d parm is BMAG
+This 2d parm is BDEC
+This 2d parm is BINC
+This 2d parm is LSHELL
+This 2d parm is DIPLAT
+This 2d parm is INVLAT
+This 2d parm is APLAT
+This 2d parm is APLON
+This 2d parm is MAGCONJLAT
+This 2d parm is MAGCONJLON
+This 2d parm is CXR
+This 2d parm is CYR
+This 2d parm is CZR
+This 2d parm is TNM
+This 2d parm is TINFM
+This 2d parm is MOL
+This 2d parm is NTOTL
+This 2d parm is NN2L
+This 2d parm is NO2L
+This 2d parm is NOL
+This 2d parm is NARL
+This 2d parm is NHEL
+This 2d parm is NHL
+This 2d parm is NN4SL
+This 2d parm is NPRESL
+This 2d parm is PSH
+Printing list of 1 unavailable parameters...
+This unavailable parm is 32750
+Printing list of 7 1D parameters (includes unavailable ones) and map
+	This 1D parm is BYEAR, and is mapped to 24
+	This 1D parm is AZM, and is mapped to 28
+	This 1D parm is BMD, and is mapped to 25
+	This 1D parm is KINDAT, and is mapped to 5
+	This 1D parm is 32750, and is mapped to -1
+	This 1D parm is UTS, and is mapped to 27
+	This 1D parm is F10.7, and is mapped to 38
+Printing list of 6 2D parameters and map
+	This 2D parm is RANGE, and is mapped to 1
+	This 2D parm is GDALT, and is mapped to 30
+	This 2D parm is BMAG, and is mapped to 39
+	This 2D parm is NO2L, and is mapped to 57
+	This 2D parm is SUNRISE_HOUR, and is mapped to 34
+	This 2D parm is SLT, and is mapped to 31
+Printing whether filters are valid: 1
+1D filter with AZM and 
+Does this 1D filter use only measured data? 0
+Map parm 1 = 28
+Map parm 2 = -1
+1D filter with BHM and 
+Does this 1D filter use only measured data? 0
+Map parm 1 = 26
+Map parm 2 = -1
+Cycle number of record 1130 is 0
+close: No errors
+Finished createMaddata
+Number of cycles = 1
+Num recs in cyc 0 is 10
+Printing all maddata info from file /home/grail/brideout/madroot/experiments/1998/mlh/20jan98/mil980120g.002:
+Filters used:
+Filter 1:
+	AZM
+	Range 1: Lower = -100, upper = 180
+
+Filter 2:
+	BHM
+	Range 1: Lower = 1500, upper = 1505
+
+
+Printing record 0 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998           -0.1            120           3001      missing        5.403e+04       9.14e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       163.1          117.7       5.17e-05          16.83          11.21          10.24   
+       184.1          132.9      5.135e-05          16.02          11.16          10.24   
+       205.1          148.2      5.101e-05           15.5           11.1          10.24   
+         226          163.6      5.068e-05           15.1          11.04          10.24   
+         247          178.9      5.034e-05          14.76          10.99          10.24   
+         268          194.3      5.001e-05          14.44          10.94          10.24   
+         289          209.7      4.968e-05          14.13          10.89          10.24   
+         310          225.2      4.935e-05          13.84          10.85          10.24   
+         331          240.7      4.902e-05          13.55           10.8          10.24   
+         352          256.2      4.869e-05          13.26          10.76          10.24   
+       372.9          271.7      4.837e-05          12.97          10.72          10.24   
+       393.9          287.3      4.805e-05          12.69          10.68          10.24   
+       414.9          302.9      4.773e-05          12.41          10.63          10.24   
+       435.9          318.6      4.741e-05          12.13           10.6          10.24   
+       456.9          334.2       4.71e-05          11.85          10.56          10.24   
+       477.9          349.9      4.679e-05          11.57          10.52          10.24   
+       498.9          365.6      4.648e-05          11.29          10.49          10.24   
+       519.8          381.4      4.617e-05          11.01          10.45          10.24   
+       540.8          397.2      4.586e-05          10.74          10.42          10.24   
+       561.8            413      4.556e-05          10.46          10.38          10.24   
+       582.8          428.8      4.525e-05          10.19          10.35          10.24   
+       603.8          444.7      4.495e-05          9.915          10.32          10.24   
+       624.8          460.5      4.465e-05          9.643          10.28          10.24   
+       645.8          476.5      4.436e-05          9.371          10.25          10.24   
+       666.7          492.4      4.406e-05            9.1          10.22          10.24   
+       687.7          508.4      4.377e-05          8.831          10.19          10.24   
+       708.7          524.4      4.348e-05          8.562          10.16          10.24   
+
+
+Printing record 1 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            120           3001      missing        5.411e+04       9.14e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       167.6          114.5      5.181e-05          17.04          11.23          10.26   
+       215.6          147.7      5.108e-05          15.51           11.1          10.26   
+       263.5          181.1      5.036e-05          14.71          10.99          10.26   
+       311.5          214.6      4.964e-05          14.04          10.88          10.26   
+       359.5          248.3      4.894e-05          13.41          10.79          10.26   
+       407.4          282.2      4.824e-05          12.79          10.69          10.26   
+       455.4          316.3      4.755e-05          12.17          10.61          10.26   
+       503.4          350.5      4.687e-05          11.56          10.53          10.26   
+       551.3          384.9       4.62e-05          10.96          10.45          10.26   
+       599.3          419.4      4.554e-05          10.36          10.38          10.26   
+       647.3          454.2      4.489e-05          9.759           10.3          10.26   
+       695.2            489      4.424e-05          9.165          10.23          10.26   
+       743.2          524.1      4.361e-05          8.575          10.17          10.26   
+       791.2          559.3      4.298e-05          7.989           10.1          10.26   
+       839.1          594.6      4.236e-05          7.406          10.04          10.26   
+       887.1          630.1      4.175e-05          6.827          9.973          10.26   
+       935.1          665.8      4.115e-05          6.252          9.908          10.26   
+         983          701.5      4.056e-05          5.681           9.85          10.26   
+        1031          737.5      3.998e-05          5.114          9.791          10.26   
+        1079          773.5       3.94e-05          4.551          9.733          10.26   
+        1127          809.8      3.884e-05          3.991          9.674          10.26   
+        1175          846.1      3.828e-05          3.436          9.616          10.26   
+        1223          882.6      3.773e-05          2.884          9.563          10.26   
+
+
+Printing record 2 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            120           3001      missing        5.418e+04       9.14e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       167.6          101.3      5.219e-05          18.16           11.3          10.29   
+       215.6          130.7      5.156e-05          16.11          11.17          10.29   
+       263.5          160.4      5.093e-05          15.18          11.07          10.29   
+       311.5          190.3      5.031e-05          14.53          10.97          10.29   
+       359.5          220.4      4.968e-05          13.94          10.87          10.29   
+       407.4          250.7      4.907e-05          13.37          10.79          10.28   
+       455.4          281.2      4.845e-05          12.81          10.71          10.28   
+       503.4          311.9      4.784e-05          12.26          10.63          10.28   
+       551.3          342.9      4.724e-05          11.71          10.56          10.28   
+       599.3            374      4.664e-05          11.16          10.48          10.28   
+       647.3          405.3      4.604e-05          10.61          10.42          10.28   
+       695.2          436.8      4.545e-05          10.07          10.35          10.28   
+       743.2          468.5      4.487e-05          9.527          10.28          10.28   
+       791.2          500.4      4.429e-05          8.987          10.22          10.28   
+       839.1          532.5      4.372e-05           8.45          10.16          10.28   
+       887.1          564.8      4.315e-05          7.915           10.1          10.28   
+       935.1          597.2      4.259e-05          7.383          10.04          10.28   
+         983          629.8      4.203e-05          6.853          9.979          10.28   
+        1031          662.6      4.148e-05          6.325           9.92          10.28   
+        1079          695.6      4.094e-05            5.8          9.862          10.28   
+        1127          728.8       4.04e-05          5.278          9.809          10.28   
+        1175          762.1      3.987e-05          4.758          9.751          10.28   
+        1223          795.6      3.934e-05          4.242          9.698          10.28   
+
+
+Printing record 3 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            120           3001      missing        5.426e+04       9.14e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       167.6             88      5.257e-05          19.29          11.37          10.31   
+       215.6          113.7      5.204e-05           17.1          11.26          10.31   
+       263.5          139.7       5.15e-05          15.77          11.15          10.31   
+       311.5          165.9      5.097e-05          15.05          11.06          10.31   
+       359.5          192.4      5.043e-05          14.49          10.97          10.31   
+       407.4          219.1      4.989e-05          13.97          10.89          10.31   
+       455.4          246.1      4.936e-05          13.46          10.82          10.31   
+       503.4          273.3      4.882e-05          12.96          10.74          10.31   
+       551.3          300.7      4.829e-05          12.47          10.67          10.31   
+       599.3          328.3      4.775e-05          11.97          10.61          10.31   
+       647.3          356.2      4.722e-05          11.48          10.54          10.31   
+       695.2          384.3      4.669e-05          10.99          10.48          10.31   
+       743.2          412.7      4.616e-05           10.5          10.41          10.31   
+       791.2          441.2      4.563e-05          10.01          10.35          10.31   
+       839.1            470      4.511e-05          9.517           10.3          10.31   
+       887.1            499      4.459e-05          9.029          10.24          10.31   
+       935.1          528.2      4.407e-05          8.541          10.18          10.31   
+         983          557.6      4.355e-05          8.054          10.12          10.31   
+        1031          587.2      4.304e-05          7.569          10.06          10.31   
+        1079            617      4.253e-05          7.084          10.01          10.31   
+        1127            647      4.203e-05          6.601          9.956          10.31   
+        1175          677.2      4.153e-05           6.12          9.897          10.31   
+        1223          707.6      4.103e-05           5.64          9.845          10.31   
+
+
+Printing record 4 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            120           3001      missing        5.434e+04       9.14e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       299.5          136.6      5.172e-05          15.88          11.17          10.33   
+       395.4          182.5      5.082e-05          14.69          11.02          10.33   
+       491.4          229.6       4.99e-05          13.77          10.87          10.33   
+       587.3          277.7      4.897e-05          12.89          10.75          10.33   
+       683.2          326.9      4.803e-05          12.01          10.62          10.33   
+       779.2            377      4.709e-05          11.13          10.51          10.33   
+       875.1          428.2      4.615e-05          10.25          10.39          10.33   
+         971          480.3      4.521e-05          9.362          10.28          10.33   
+        1067          533.3      4.427e-05          8.477          10.18          10.33   
+        1163          587.3      4.333e-05          7.593          10.07          10.33   
+        1259          642.1       4.24e-05          6.709          9.968          10.33   
+        1355          697.8      4.148e-05          5.827          9.862          10.33   
+        1451          754.4      4.057e-05          4.948          9.757          10.33   
+        1547          811.8      3.966e-05          4.072          9.658          10.33   
+        1643          870.1      3.877e-05            3.2          9.552          10.33   
+        1738          929.1       3.79e-05          2.332          9.447          10.33   
+        1834          988.9      3.703e-05          1.469          9.342          10.33   
+        1930           1049      3.618e-05         0.6106          9.236          10.33   
+        2026           1111      3.535e-05        -0.2418          9.125          10.33   
+        2122           1173      3.453e-05         -1.088          9.014          10.33   
+        2218           1236      3.373e-05         -1.928          8.903          10.33   
+
+
+Printing record 5 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            121           3001      missing        1.404e+05       9.09e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       299.5          113.9      5.234e-05          17.09          11.27          10.25   
+       395.4          152.8      5.161e-05          15.34          11.12          10.25   
+       491.4          192.9      5.085e-05          14.43          10.99          10.25   
+       587.3          234.2      5.007e-05          13.61          10.88          10.25   
+       683.2          276.6      4.927e-05          12.81          10.76          10.25   
+       779.2            320      4.846e-05             12          10.65          10.25   
+       875.1          364.6      4.763e-05          11.18          10.54          10.25   
+         971          410.3      4.679e-05          10.36          10.44          10.25   
+        1067          456.9      4.594e-05          9.522          10.34          10.25   
+        1163          504.6      4.508e-05          8.683          10.24          10.25   
+        1259          553.3      4.422e-05          7.839          10.14          10.25   
+        1355            603      4.336e-05           6.99          10.03          10.25   
+        1451          653.7      4.251e-05          6.137          9.933          10.25   
+        1547          705.2      4.165e-05          5.281          9.834          10.25   
+        1643          757.7       4.08e-05          4.423          9.728          10.25   
+        1738          811.1      3.995e-05          3.564          9.629          10.25   
+        1834          865.4      3.912e-05          2.704          9.523          10.25   
+        1930          920.5      3.829e-05          1.843          9.418          10.25   
+        2026          976.5      3.747e-05         0.9833          9.307          10.25   
+        2122           1033      3.666e-05         0.1244          9.196          10.24   
+        2218           1091      3.586e-05         -0.733          9.085          10.24   
+
+
+Printing record 6 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            121           3001      missing        1.405e+05       9.09e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       299.5          95.33      5.285e-05           18.7          11.36          10.27   
+       395.4          128.4      5.227e-05           16.2          11.23          10.27   
+       491.4          162.8      5.165e-05          15.09          11.11          10.27   
+       587.3          198.4        5.1e-05          14.32             11          10.27   
+       683.2          235.1      5.032e-05           13.6          10.89          10.27   
+       779.2          273.1      4.961e-05          12.88          10.79          10.27   
+       875.1          312.2      4.888e-05          12.15          10.69          10.27   
+         971          352.5      4.813e-05          11.41          10.59          10.27   
+        1067          393.9      4.736e-05          10.66          10.49          10.27   
+        1163          436.4      4.658e-05          9.899           10.4          10.27   
+        1259          479.9      4.579e-05          9.128           10.3          10.27   
+        1355          524.5      4.499e-05          8.349           10.2          10.27   
+        1451          570.2      4.419e-05          7.563          10.11          10.27   
+        1547          616.9      4.338e-05           6.77          10.01          10.27   
+        1643          664.6      4.257e-05          5.971           9.91          10.27   
+        1738          713.2      4.176e-05          5.167          9.811          10.27   
+        1834          762.8      4.095e-05          4.358          9.705          10.27   
+        1930          813.4      4.014e-05          3.547            9.6          10.27   
+        2026          864.8      3.934e-05          2.732          9.495          10.27   
+        2122          917.2      3.854e-05          1.916          9.383          10.27   
+        2218          970.4      3.775e-05          1.097          9.272          10.27   
+
+
+Printing record 7 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            121           3001      missing        1.406e+05       9.09e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       299.5           76.5      5.337e-05          20.04          11.46          10.29   
+       395.4          103.7      5.294e-05          17.95          11.34          10.29   
+       491.4          132.2      5.247e-05          16.03          11.24          10.29   
+       587.3            162      5.195e-05          15.12          11.13          10.29   
+       683.2          193.1       5.14e-05          14.44          11.04          10.29   
+       779.2          225.4      5.081e-05           13.8          10.95          10.29   
+       875.1          258.9      5.019e-05          13.16          10.85          10.29   
+         971          293.6      4.954e-05          12.51          10.76          10.29   
+        1067          329.6      4.887e-05          11.84          10.67          10.29   
+        1163          366.7      4.818e-05          11.16          10.58          10.29   
+        1259            405      4.746e-05          10.47          10.49          10.29   
+        1355          444.4      4.673e-05          9.769           10.4          10.29   
+        1451          484.9      4.599e-05          9.055          10.31          10.29   
+        1547          526.5      4.523e-05           8.33          10.21          10.29   
+        1643          569.2      4.447e-05          7.596          10.12          10.29   
+        1738          612.9       4.37e-05          6.853          10.02          10.29   
+        1834          657.7      4.292e-05          6.102          9.922          10.29   
+        1930          703.5      4.215e-05          5.345          9.817          10.29   
+        2026          750.3      4.137e-05          4.581          9.712          10.29   
+        2122          798.1      4.059e-05          3.812          9.606          10.29   
+        2218          846.8      3.981e-05          3.038          9.495          10.29   
+
+
+Printing record 8 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            121           3001      missing        1.407e+05       9.09e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       500.4           95.7      5.348e-05          18.66          11.41          10.31   
+       650.3          131.5      5.293e-05          16.06          11.29          10.31   
+       800.1          170.6      5.227e-05          14.93          11.16          10.31   
+         950          212.9      5.151e-05          14.05          11.03          10.31   
+        1100          258.3      5.067e-05          13.18           10.9          10.31   
+        1250          306.8      4.975e-05          12.28          10.77          10.31   
+        1400          358.2      4.876e-05          11.33          10.64          10.31   
+        1550          412.5      4.771e-05          10.35           10.5          10.31   
+        1700          469.7      4.662e-05          9.339          10.36          10.31   
+        1849          529.7       4.55e-05          8.294          10.22          10.31   
+        1999          592.4      4.435e-05          7.221          10.06          10.31   
+        2149          657.7      4.319e-05          6.125          9.905          10.31   
+        2299          725.6      4.201e-05          5.006          9.736          10.31   
+        2449            796      4.084e-05           3.87          9.555          10.31   
+        2599          868.8      3.966e-05          2.718          9.362          10.31   
+        2749          943.9       3.85e-05          1.552          9.157          10.31   
+
+
+Printing record 9 from cycle 0:
+1D parameters are:
+     BYEAR            AZM            BMD         KINDAT          32750            UTS          F10.7     
+        1998          -0.09            121           3001      missing        1.408e+05       9.09e-21   
+
+2D parameters are:
+     RANGE          GDALT           BMAG           NO2L     SUNRISE_HO            SLT     
+       500.4          66.87      5.427e-05          20.62          11.58          10.33   
+       650.3          94.26      5.394e-05          18.77          11.47          10.33   
+       800.1            125      5.348e-05          16.38          11.36          10.33   
+         950            159      5.291e-05          15.21          11.24          10.33   
+        1100          196.3      5.223e-05          14.39          11.13          10.33   
+        1250          236.8      5.146e-05           13.6          11.01          10.33   
+        1400          280.4      5.061e-05          12.78          10.89          10.33   
+        1550          327.1      4.968e-05          11.92          10.76          10.33   
+        1700          376.7      4.868e-05          11.01          10.63          10.33   
+        1849          429.4      4.764e-05          10.07          10.49          10.33   
+        1999          484.8      4.656e-05           9.09          10.34          10.33   
+        2149          543.1      4.544e-05           8.08          10.19          10.33   
+        2299          604.1       4.43e-05          7.041          10.02          10.33   
+        2449          667.8      4.315e-05          5.975          9.854          10.33   
+        2599          734.1      4.199e-05          4.887          9.666          10.33   
+        2749          802.8      4.083e-05          3.779          9.462          10.33   
+
+
+Data derived from file /home/grail/brideout/madroot/experiments/1998/mlh/20jan98/mil980120g.002:
+Filters used:
+Filter 1:
+	AZM
+	Range 1: Lower = -100, upper = 180
+
+Filter 2:
+	BHM
+	Range 1: Lower = 1500, upper = 1505
+
+
+Millstone Hill UHF Steerable Antenna: 01/20/1998 1500:04-1501:03
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.10      120.0       3001     Missing    163.09     117.68   5.16958e-05   1.68257e+01      54034      11.21     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    184.07     132.94   5.13541e-05   1.60160e+01      54034      11.16     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    205.06     148.24   5.10144e-05   1.54954e+01      54034      11.10     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    226.04     163.57   5.06768e-05   1.50991e+01      54034      11.04     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    247.03     178.93   5.03413e-05   1.47567e+01      54034      10.99     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    268.01     194.32   5.00078e-05   1.44392e+01      54034      10.94     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    289.00     209.75   4.96764e-05   1.41348e+01      54034      10.89     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    309.99     225.20   4.93470e-05   1.38383e+01      54034      10.85     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    330.97     240.68   4.90198e-05   1.35468e+01      54034      10.80     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    351.96     256.20   4.86946e-05   1.32588e+01      54034      10.76     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    372.94     271.74   4.83714e-05   1.29734e+01      54034      10.72     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    393.93     287.32   4.80503e-05   1.26898e+01      54034      10.68     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    414.91     302.92   4.77313e-05   1.24077e+01      54034      10.63     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    435.90     318.56   4.74144e-05   1.21269e+01      54034      10.60     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    456.88     334.22   4.70995e-05   1.18472e+01      54034      10.56     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    477.87     349.91   4.67867e-05   1.15685e+01      54034      10.52     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    498.85     365.63   4.64759e-05   1.12908e+01      54034      10.49     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    519.84     381.38   4.61673e-05   1.10139e+01      54034      10.45     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    540.83     397.16   4.58606e-05   1.07380e+01      54034      10.42     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    561.81     412.96   4.55560e-05   1.04629e+01      54034      10.38     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    582.80     428.80   4.52535e-05   1.01887e+01      54034      10.35     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    603.78     444.66   4.49530e-05   9.91533e+00      54034      10.32     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    624.77     460.55   4.46545e-05   9.64285e+00      54034      10.28     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    645.75     476.47   4.43581e-05   9.37123e+00      54034      10.25     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    666.74     492.41   4.40636e-05   9.10048e+00      54034      10.22     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    687.72     508.38   4.37713e-05   8.83058e+00      54034      10.19     10.243   9.14000e-21  
+   1998.0      -0.10      120.0       3001     Missing    708.71     524.38   4.34809e-05   8.56155e+00      54034      10.16     10.243   9.14000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/20/1998 1501:13-1502:21
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      120.0       3001     Missing    167.58     114.55   5.18091e-05   1.70413e+01      54107      11.23     10.264   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    215.55     147.71   5.10792e-05   1.55112e+01      54107      11.10     10.264   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    263.52     181.07   5.03573e-05   1.47128e+01      54107      10.99     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    311.48     214.60   4.96437e-05   1.40429e+01      54107      10.88     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    359.45     248.31   4.89384e-05   1.34074e+01      54107      10.79     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    407.42     282.19   4.82417e-05   1.27861e+01      54107      10.69     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    455.38     316.25   4.75535e-05   1.21721e+01      54107      10.61     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    503.35     350.48   4.68739e-05   1.15630e+01      54107      10.53     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    551.32     384.87   4.62030e-05   1.09580e+01      54107      10.45     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    599.29     419.43   4.55409e-05   1.03567e+01      54107      10.38     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    647.25     454.15   4.48876e-05   9.75912e+00      54107      10.30     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    695.22     489.03   4.42430e-05   9.16524e+00      54107      10.23     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    743.19     524.07   4.36073e-05   8.57507e+00      54107      10.17     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    791.15     559.27   4.29804e-05   7.98866e+00      54107      10.10     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    839.12     594.61   4.23623e-05   7.40603e+00      54107      10.04     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    887.09     630.11   4.17529e-05   6.82722e+00      54107       9.97     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    935.05     665.75   4.11524e-05   6.25226e+00      54107       9.91     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    983.02     701.54   4.05605e-05   5.68116e+00      54107       9.85     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1030.99     737.48   3.99773e-05   5.11395e+00      54107       9.79     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1078.95     773.55   3.94027e-05   4.55065e+00      54107       9.73     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1126.92     809.76   3.88367e-05   3.99128e+00      54107       9.67     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1174.89     846.11   3.82792e-05   3.43585e+00      54107       9.62     10.263   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1222.85     882.60   3.77302e-05   2.88437e+00      54107       9.56     10.263   9.14000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/20/1998 1502:31-1503:39
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      120.0       3001     Missing    167.58     101.27   5.21926e-05   1.81632e+01      54185      11.30     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    215.55     130.72   5.15604e-05   1.61107e+01      54185      11.17     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    263.52     160.39   5.09313e-05   1.51782e+01      54185      11.07     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    311.48     190.28   5.03056e-05   1.45256e+01      54185      10.97     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    359.45     220.38   4.96835e-05   1.39363e+01      54185      10.87     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    407.42     250.69   4.90654e-05   1.33685e+01      54185      10.79     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    455.38     281.21   4.84515e-05   1.28102e+01      54185      10.71     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    503.35     311.93   4.78420e-05   1.22567e+01      54185      10.63     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    551.32     342.86   4.72371e-05   1.17063e+01      54185      10.56     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    599.29     373.99   4.66371e-05   1.11582e+01      54185      10.48     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    647.25     405.31   4.60422e-05   1.06123e+01      54185      10.42     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    695.22     436.83   4.54524e-05   1.00685e+01      54185      10.35     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    743.19     468.53   4.48680e-05   9.52686e+00      54185      10.28     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    791.15     500.43   4.42891e-05   8.98740e+00      54185      10.22     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    839.12     532.51   4.37158e-05   8.45019e+00      54185      10.16     10.285   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    887.09     564.78   4.31483e-05   7.91531e+00      54185      10.10     10.284   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    935.05     597.22   4.25866e-05   7.38283e+00      54185      10.04     10.284   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    983.02     629.85   4.20308e-05   6.85280e+00      54185       9.98     10.284   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1030.99     662.65   4.14811e-05   6.32530e+00      54185       9.92     10.284   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1078.95     695.62   4.09374e-05   5.80036e+00      54185       9.86     10.284   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1126.92     728.77   4.03999e-05   5.27806e+00      54185       9.81     10.284   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1174.89     762.08   3.98686e-05   4.75843e+00      54185       9.75     10.284   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1222.85     795.56   3.93435e-05   4.24152e+00      54185       9.70     10.284   9.14000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/20/1998 1503:49-1504:58
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      120.0       3001     Missing    167.58      88.00   5.25723e-05   1.92852e+01      54264      11.37     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    215.55     113.72   5.20384e-05   1.71024e+01      54264      11.26     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    263.52     139.70   5.15032e-05   1.57660e+01      54264      11.15     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    311.48     165.93   5.09671e-05   1.50501e+01      54264      11.06     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    359.45     192.40   5.04304e-05   1.44866e+01      54264      10.97     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    407.42     219.11   4.98935e-05   1.39653e+01      54264      10.89     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    455.38     246.07   4.93569e-05   1.34599e+01      54264      10.82     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    503.35     273.26   4.88207e-05   1.29615e+01      54264      10.74     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    551.32     300.68   4.82854e-05   1.24664e+01      54264      10.67     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    599.29     328.34   4.77512e-05   1.19729e+01      54264      10.61     10.307   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    647.25     356.23   4.72186e-05   1.14803e+01      54264      10.54     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    695.22     384.34   4.66876e-05   1.09885e+01      54264      10.48     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    743.19     412.67   4.61587e-05   1.04974e+01      54264      10.41     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    791.15     441.22   4.56321e-05   1.00070e+01      54264      10.35     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    839.12     469.99   4.51079e-05   9.51734e+00      54264      10.30     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    887.09     498.98   4.45865e-05   9.02861e+00      54264      10.24     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    935.05     528.17   4.40680e-05   8.54086e+00      54264      10.18     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    983.02     557.58   4.35527e-05   8.05417e+00      54264      10.12     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1030.99     587.19   4.30407e-05   7.56865e+00      54264      10.06     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1078.95     617.01   4.25322e-05   7.08438e+00      54264      10.01     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1126.92     647.02   4.20274e-05   6.60143e+00      54264       9.96     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1174.89     677.24   4.15263e-05   6.11990e+00      54264       9.90     10.306   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1222.85     707.65   4.10292e-05   5.63984e+00      54264       9.84     10.306   9.14000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/20/1998 1505:07-1506:16
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      120.0       3001     Missing    299.49     136.56   5.17234e-05   1.58791e+01      54342      11.17     10.329   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    395.43     182.55   5.08189e-05   1.46922e+01      54342      11.02     10.328   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    491.36     229.61   4.99005e-05   1.37728e+01      54342      10.87     10.328   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    587.29     277.73   4.89715e-05   1.28884e+01      54342      10.75     10.328   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    683.23     326.88   4.80350e-05   1.20090e+01      54342      10.62     10.328   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    779.16     377.03   4.70936e-05   1.11284e+01      54342      10.51     10.328   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    875.09     428.16   4.61501e-05   1.02458e+01      54342      10.39     10.328   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing    971.03     480.26   4.52068e-05   9.36178e+00      54342      10.28     10.328   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1066.96     533.30   4.42660e-05   8.47709e+00      54342      10.18     10.328   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1162.90     587.25   4.33298e-05   7.59261e+00      54342      10.07     10.327   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1258.83     642.10   4.23998e-05   6.70916e+00      54342       9.97     10.327   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1354.76     697.83   4.14778e-05   5.82749e+00      54342       9.86     10.327   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1450.70     754.41   4.05653e-05   4.94830e+00      54342       9.76     10.327   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1546.63     811.83   3.96634e-05   4.07224e+00      54342       9.66     10.327   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1642.56     870.06   3.87733e-05   3.19991e+00      54342       9.55     10.327   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1738.50     929.09   3.78961e-05   2.33185e+00      54342       9.45     10.327   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1834.43     988.89   3.70324e-05   1.46859e+00      54342       9.34     10.326   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   1930.36    1049.46   3.61830e-05   6.10561e-01      54342       9.24     10.326   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   2026.30    1110.76   3.53486e-05  -2.41810e-01      54342       9.13     10.326   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   2122.23    1172.78   3.45294e-05  -1.08815e+00      54342       9.01     10.326   9.14000e-21  
+   1998.0      -0.09      120.0       3001     Missing   2218.17    1235.50   3.37260e-05  -1.92813e+00      54342       8.90     10.326   9.14000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/21/1998 1500:16-1501:24
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      121.0       3001     Missing    299.49     113.90   5.23438e-05   1.70935e+01     140450      11.27     10.248   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    395.43     152.83   5.16125e-05   1.53445e+01     140450      11.12     10.247   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    491.36     192.93   5.08548e-05   1.44307e+01     140450      10.99     10.247   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    587.29     234.18   5.00742e-05   1.36134e+01     140450      10.88     10.247   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    683.23     276.56   4.92739e-05   1.28078e+01     140450      10.76     10.247   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    779.16     320.05   4.84569e-05   1.19979e+01     140450      10.65     10.247   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    875.09     364.62   4.76264e-05   1.11805e+01     140450      10.54     10.247   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    971.03     410.26   4.67851e-05   1.03551e+01     140450      10.44     10.247   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1066.96     456.94   4.59357e-05   9.52240e+00     140450      10.34     10.246   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1162.90     504.64   4.50807e-05   8.68339e+00     140450      10.24     10.246   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1258.83     553.34   4.42226e-05   7.83890e+00     140450      10.14     10.246   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1354.76     603.01   4.33635e-05   6.98982e+00     140450      10.03     10.246   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1450.70     653.65   4.25053e-05   6.13700e+00     140450       9.93     10.246   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1546.63     705.23   4.16500e-05   5.28122e+00     140450       9.83     10.246   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1642.56     757.72   4.07991e-05   4.42326e+00     140450       9.73     10.246   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1738.50     811.11   3.99542e-05   3.56382e+00     140450       9.63     10.245   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1834.43     865.37   3.91166e-05   2.70360e+00     140450       9.52     10.245   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1930.36     920.49   3.82875e-05   1.84323e+00     140450       9.42     10.245   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2026.30     976.46   3.74680e-05   9.83303e-01     140450       9.31     10.245   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2122.23    1033.24   3.66589e-05   1.24395e-01     140450       9.20     10.245   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2218.17    1090.82   3.58611e-05  -7.32969e-01     140450       9.08     10.245   9.09000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/21/1998 1501:35-1502:43
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      121.0       3001     Missing    299.49      95.33   5.28546e-05   1.86961e+01     140529      11.36     10.269   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    395.43     128.44   5.22694e-05   1.62002e+01     140529      11.23     10.269   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    491.36     162.79   5.16491e-05   1.50948e+01     140529      11.11     10.269   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    587.29     198.37   5.09967e-05   1.43247e+01     140529      11.00     10.269   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    683.23     235.15   5.03155e-05   1.36011e+01     140529      10.89     10.269   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    779.16     273.11   4.96086e-05   1.28799e+01     140529      10.79     10.269   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    875.09     312.23   4.88791e-05   1.21506e+01     140529      10.69     10.269   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    971.03     352.49   4.81300e-05   1.14107e+01     140529      10.59     10.269   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1066.96     393.88   4.73643e-05   1.06598e+01     140529      10.49     10.268   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1162.90     436.36   4.65848e-05   9.89872e+00     140529      10.40     10.268   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1258.83     479.92   4.57941e-05   9.12824e+00     140529      10.30     10.268   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1354.76     524.54   4.49947e-05   8.34931e+00     140529      10.20     10.268   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1450.70     570.20   4.41891e-05   7.56283e+00     140529      10.11     10.268   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1546.63     616.88   4.33795e-05   6.76969e+00     140529      10.01     10.268   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1642.56     664.56   4.25679e-05   5.97071e+00     140529       9.91     10.267   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1738.50     713.21   4.17562e-05   5.16672e+00     140529       9.81     10.267   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1834.43     762.82   4.09462e-05   4.35850e+00     140529       9.71     10.267   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1930.36     813.36   4.01394e-05   3.54676e+00     140529       9.60     10.267   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2026.30     864.83   3.93373e-05   2.73223e+00     140529       9.49     10.267   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2122.23     917.19   3.85412e-05   1.91556e+00     140529       9.38     10.267   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2218.17     970.43   3.77522e-05   1.09738e+00     140529       9.27     10.266   9.09000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/21/1998 1502:53-1504:01
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      121.0       3001     Missing    299.49      76.50   5.33743e-05   2.00379e+01     140607      11.46     10.291   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    395.43     103.71   5.29414e-05   1.79512e+01     140607      11.34     10.291   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    491.36     132.21   5.24655e-05   1.60331e+01     140607      11.24     10.291   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    587.29     162.00   5.19495e-05   1.51188e+01     140607      11.13     10.291   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    683.23     193.05   5.13963e-05   1.44396e+01     140607      11.04     10.291   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    779.16     225.35   5.08089e-05   1.37980e+01     140607      10.95     10.290   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    875.09     258.89   5.01903e-05   1.31566e+01     140607      10.85     10.290   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    971.03     293.63   4.95435e-05   1.25052e+01     140607      10.76     10.290   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1066.96     329.57   4.88716e-05   1.18408e+01     140607      10.67     10.290   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1162.90     366.69   4.81774e-05   1.11630e+01     140607      10.58     10.290   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1258.83     404.95   4.74640e-05   1.04722e+01     140607      10.49     10.290   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1354.76     444.36   4.67339e-05   9.76917e+00     140607      10.40     10.290   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1450.70     484.87   4.59900e-05   9.05483e+00     140607      10.31     10.289   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1546.63     526.49   4.52347e-05   8.33009e+00     140607      10.21     10.289   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1642.56     569.17   4.44705e-05   7.59584e+00     140607      10.12     10.289   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1738.50     612.92   4.36997e-05   6.85297e+00     140607      10.02     10.289   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1834.43     657.70   4.29243e-05   6.10230e+00     140607       9.92     10.289   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1930.36     703.49   4.21464e-05   5.34467e+00     140607       9.82     10.288   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2026.30     750.28   4.13677e-05   4.58084e+00     140607       9.71     10.288   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2122.23     798.05   4.05900e-05   3.81158e+00     140607       9.61     10.288   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2218.17     846.78   3.98146e-05   3.03759e+00     140607       9.50     10.288   9.09000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/21/1998 1504:11-1505:20
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      121.0       3001     Missing    500.35      95.70   5.34814e-05   1.86557e+01     140686      11.41     10.313   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    650.25     131.55   5.29313e-05   1.60648e+01     140686      11.29     10.312   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    800.15     170.64   5.22723e-05   1.49269e+01     140686      11.16     10.312   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    950.04     212.91   5.15144e-05   1.40529e+01     140686      11.03     10.312   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1099.94     258.31   5.06683e-05   1.31808e+01     140686      10.90     10.312   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1249.84     306.75   4.97451e-05   1.22763e+01     140686      10.77     10.311   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1399.73     358.19   4.87560e-05   1.13334e+01     140686      10.64     10.311   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1549.63     412.54   4.77120e-05   1.03534e+01     140686      10.50     10.311   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1699.52     469.75   4.66235e-05   9.33915e+00     140686      10.36     10.311   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1849.42     529.73   4.55006e-05   8.29407e+00     140686      10.22     10.310   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1999.32     592.42   4.43526e-05   7.22146e+00     140686      10.06     10.310   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2149.21     657.75   4.31879e-05   6.12451e+00     140686       9.91     10.310   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2299.11     725.63   4.20141e-05   5.00630e+00     140686       9.74     10.309   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2449.01     796.01   4.08378e-05   3.86974e+00     140686       9.55     10.309   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2598.90     868.79   3.96649e-05   2.71756e+00     140686       9.36     10.309   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2748.80     943.92   3.85003e-05   1.55236e+00     140686       9.16     10.308   9.09000e-21  
+
+Millstone Hill UHF Steerable Antenna: 01/21/1998 1505:30-1506:38
+     BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+   1998.0      -0.09      121.0       3001     Missing    500.35      66.87   5.42743e-05   2.06244e+01     140764      11.58     10.334   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    650.25      94.26   5.39406e-05   1.87681e+01     140764      11.47     10.334   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    800.15     125.01   5.34837e-05   1.63802e+01     140764      11.36     10.334   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing    950.04     159.05   5.29118e-05   1.52076e+01     140764      11.24     10.334   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1099.94     196.33   5.22345e-05   1.43943e+01     140764      11.13     10.333   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1249.84     236.80   5.14621e-05   1.36016e+01     140764      11.01     10.333   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1399.73     280.40   5.06054e-05   1.27786e+01     140764      10.89     10.333   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1549.63     327.07   4.96755e-05   1.19154e+01     140764      10.76     10.333   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1699.52     376.75   4.86835e-05   1.10113e+01     140764      10.63     10.332   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1849.42     429.36   4.76402e-05   1.00686e+01     140764      10.49     10.332   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   1999.32     484.84   4.65560e-05   9.09048e+00     140764      10.34     10.332   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2149.21     543.12   4.54405e-05   8.08012e+00     140764      10.19     10.331   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2299.11     604.13   4.43026e-05   7.04075e+00     140764      10.02     10.331   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2449.01     667.80   4.31502e-05   5.97545e+00     140764       9.85     10.331   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2598.90     734.06   4.19906e-05   4.88719e+00     140764       9.67     10.330   9.09000e-21  
+   1998.0      -0.09      121.0       3001     Missing   2748.80     802.83   4.08298e-05   3.77879e+00     140764       9.46     10.330   9.09000e-21  
+
+Printing list derivable parameters ...
+This derivable parm is FIRST_IBYR
+This derivable parm is FIRST_IBDT
+This derivable parm is FIRST_IBHM
+This derivable parm is FIRST_IBCS
+This derivable parm is KINST
+This derivable parm is IBYR
+This derivable parm is IBDT
+This derivable parm is IBHM
+This derivable parm is IBCS
+This derivable parm is IEYR
+This derivable parm is IEDT
+This derivable parm is IEHM
+This derivable parm is IECS
+This derivable parm is NROW
+This derivable parm is UT1
+This derivable parm is UT2
+This derivable parm is RECNO
+This derivable parm is YEAR
+This derivable parm is MONTH
+This derivable parm is DAY
+This derivable parm is HOUR
+This derivable parm is MIN
+This derivable parm is SEC
+This derivable parm is CSEC
+This derivable parm is BMONTH
+This derivable parm is BDAY
+This derivable parm is MD
+This derivable parm is DAYNO
+This derivable parm is BHM
+This derivable parm is BHHMMSS
+This derivable parm is EHHMMSS
+This derivable parm is HM
+This derivable parm is UTH
+This derivable parm is B_UTH
+This derivable parm is INTTMS
+This derivable parm is INTTMM
+This derivable parm is DATNTD
+This derivable parm is UT
+This derivable parm is BEG_UT
+This derivable parm is JDAYNO
+This derivable parm is DUT21
+This derivable parm is FYEAR
+This derivable parm is GDLATR
+This derivable parm is GDLONR
+This derivable parm is GALTR
+This derivable parm is GDLAT
+This derivable parm is GLON
+This derivable parm is ELM
+This derivable parm is SZEN
+This derivable parm is SLTMUT
+This derivable parm is SDWHT
+This derivable parm is SUNRISE
+This derivable parm is SUNSET
+This derivable parm is SUNSET_HOUR
+This derivable parm is BN
+This derivable parm is BE
+This derivable parm is BD
+This derivable parm is BDEC
+This derivable parm is BINC
+This derivable parm is LSHELL
+This derivable parm is DIPLAT
+This derivable parm is INVLAT
+This derivable parm is APLAT
+This derivable parm is APLON
+This derivable parm is MAGCONJLAT
+This derivable parm is MAGCONJLON
+This derivable parm is CXR
+This derivable parm is CYR
+This derivable parm is CZR
+This derivable parm is CGM_LAT
+This derivable parm is CGM_LONG
+This derivable parm is SLTC
+This derivable parm is APLT
+This derivable parm is SZENC
+This derivable parm is CONJ_SUNRISE
+This derivable parm is CONJ_SUNSET
+This derivable parm is CONJ_SUNRISE_H
+This derivable parm is CONJ_SUNSET_H
+This derivable parm is MAGCONJSDWHT
+This derivable parm is TSYG_EQ_XGSM
+This derivable parm is TSYG_EQ_YGSM
+This derivable parm is TSYG_EQ_XGSE
+This derivable parm is TSYG_EQ_YGSE
+This derivable parm is PACLAT
+This derivable parm is PACLON
+This derivable parm is E_REG_S_LAT
+This derivable parm is E_REG_S_LON
+This derivable parm is E_REG_S_SDWHT
+This derivable parm is E_REG_N_LAT
+This derivable parm is E_REG_N_LON
+This derivable parm is E_REG_N_SDWHT
+This derivable parm is ASPECT
+This derivable parm is KP
+This derivable parm is AP3
+This derivable parm is AP
+This derivable parm is FBAR
+This derivable parm is DST
+This derivable parm is FOF2
+This derivable parm is NE_MODEL
+This derivable parm is NEL_MODEL
+This derivable parm is TE_MODEL
+This derivable parm is TI_MODEL
+This derivable parm is VO_MODEL
+This derivable parm is TNM
+This derivable parm is TINFM
+This derivable parm is MOL
+This derivable parm is NTOTL
+This derivable parm is NN2L
+This derivable parm is NOL
+This derivable parm is NARL
+This derivable parm is NHEL
+This derivable parm is NHL
+This derivable parm is NN4SL
+This derivable parm is NPRESL
+This derivable parm is PSH
+This derivable parm is BXGSM
+This derivable parm is BYGSM
+This derivable parm is BZGSM
+This derivable parm is BIMF
+This derivable parm is BXGSE
+This derivable parm is BYGSE
+This derivable parm is BZGSE
+This derivable parm is SWDEN
+This derivable parm is SWSPD
+This derivable parm is SWQ
+This derivable parm is NE_IRI
+This derivable parm is NEL_IRI
+This derivable parm is TN_IRI
+This derivable parm is TI_IRI
+This derivable parm is TE_IRI
+This derivable parm is PO+_IRI
+This derivable parm is PNO+_IRI
+This derivable parm is PO2+_IRI
+This derivable parm is PHE+_IRI
+This derivable parm is PH+_IRI
+This derivable parm is PN+_IRI
+This derivable parm is ROW
+Printing getClassicMadrecordStrings:
+headerStr is Millstone Hill UHF Steerable Antenna: 01/20/1998 1500:04-1501:03
+mnemStr is BYEAR,AZM,BMD,KINDAT,32750,RANGE,GDALT,BMAG,NO2L,UTS,SUNRISE_HOUR,SLT,F10.7
+labelStr is      BYEAR        AZM        BMD     KINDAT      32750      RANGE      GDALT          BMAG          NO2L        UTS SUNRISE_HO        SLT         F10.7 
+dataStr is    1998.0      -0.10      120.0       3001     missing    163.09     117.68   5.16958e-05   1.68257e+01      54034      11.21     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    184.07     132.94   5.13541e-05   1.60160e+01      54034      11.16     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    205.06     148.24   5.10144e-05   1.54954e+01      54034      11.10     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    226.04     163.57   5.06768e-05   1.50991e+01      54034      11.04     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    247.03     178.93   5.03413e-05   1.47567e+01      54034      10.99     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    268.01     194.32   5.00078e-05   1.44392e+01      54034      10.94     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    289.00     209.75   4.96764e-05   1.41348e+01      54034      10.89     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    309.99     225.20   4.93470e-05   1.38383e+01      54034      10.85     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    330.97     240.68   4.90198e-05   1.35468e+01      54034      10.80     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    351.96     256.20   4.86946e-05   1.32588e+01      54034      10.76     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    372.94     271.74   4.83714e-05   1.29734e+01      54034      10.72     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    393.93     287.32   4.80503e-05   1.26898e+01      54034      10.68     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    414.91     302.92   4.77313e-05   1.24077e+01      54034      10.63     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    435.90     318.56   4.74144e-05   1.21269e+01      54034      10.60     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    456.88     334.22   4.70995e-05   1.18472e+01      54034      10.56     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    477.87     349.91   4.67867e-05   1.15685e+01      54034      10.52     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    498.85     365.63   4.64759e-05   1.12908e+01      54034      10.49     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    519.84     381.38   4.61673e-05   1.10139e+01      54034      10.45     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    540.83     397.16   4.58606e-05   1.07380e+01      54034      10.42     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    561.81     412.96   4.55560e-05   1.04629e+01      54034      10.38     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    582.80     428.80   4.52535e-05   1.01887e+01      54034      10.35     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    603.78     444.66   4.49530e-05   9.91533e+00      54034      10.32     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    624.77     460.55   4.46545e-05   9.64285e+00      54034      10.28     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    645.75     476.47   4.43581e-05   9.37123e+00      54034      10.25     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    666.74     492.41   4.40636e-05   9.10048e+00      54034      10.22     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    687.72     508.38   4.37713e-05   8.83058e+00      54034      10.19     10.243   9.14000e-21 ,   1998.0      -0.10      120.0       3001     missing    708.71     524.38   4.34809e-05   8.56155e+00      54034      10.16     10.243   9.14000e-21 

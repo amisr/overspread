@@ -1,0 +1,152 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Module: madCalculator</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Module: madCalculator</font>
+            </th>
+            <th align="right"><font color="#000000">madCalculator.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <p>madCalculator.py is a script run to return a text output of derived Madrigal parameters for a time and a range of gdlat, glon, and gdalt.</p>
+
+<p>It is presently used by the madmatlab methods madCalculator, and via the cgi script
+<a href="../services/madCalculatorService.py.html">madCalculatorService.py</a> the madmatlab method madCalculatorWeb.</p>
+
+<p>It has the following input arguments:</p>
+<p>     --date=&lt;MM/DD/YYYY&gt; (required)</p>
+
+<p>     --time=&lt;HH:MM:SS&gt;  (optional - if no HH:MM:SS given, 00:00:00 assumed)</p>
+
+<p>     --startLat=&lt;latitude&gt;  Starting geodetic latitude, -90 to 90 (required)</p>
+
+<p>     --endLat=&lt;latitude&gt;  Ending geodetic latitude, -90 to 90 (required)</p>
+
+<p>     --stepLat=&lt;latitude step&gt;  Latitude step (0.1 to 90) (required)</p>
+
+<p>     --startLong=&lt;longitude&gt;  Starting geodetic longitude, -180 to 180 (required)</p>
+
+<p>     --endLong=&lt;longitude&gt;  Ending geodetic longitude, -180 to 180 (required)</p>
+
+<p>     --stepLong=&lt;longitude step&gt;  Longitude step (0.1 to 180) (required)</p>
+
+<p>     --startAlt=&lt;altitude&gt;  Starting geodetic altitude, &gt;= 0 (required)</p>
+
+<p>     --endAlt=&lt;altitude&gt;  Ending geodetic altitude, &gt; 0 (required)</p>
+
+<p>     --stepAlt=&lt;altitude step&gt;  Altitude step (&gt;= 0.1) (required)</p>
+
+<p>     --parms=&lt;comma delimited string of Madrigal parameters desired&gt; (required)</p>
+
+<p>     --showHeader (optional)  Prints header line before data</p>
+
+<p>     --oneD=&lt;parm&gt;,&lt;value&gt;  (optional - 0 or more allowed) This argument allows the user to
+                            set any number of one-D parameters to be used in the calculation.
+                            Value must be parameter name, comma, value as double.
+                            Example:  --oneD=kinst,31.0  --oneD=elm=45.0</p>
+
+
+<p>Returns comma-delimited data, one line for each combination of lat, long, and alt,
+with the following fields:</p>
+
+<ol><li><p>latitude
+2. longitude
+3. altitude
+4. Values for each Madrigal parameter listed in argument parms, separated by whitespace</p>
+
+</li></ol>
+<p>If --showHeader given, also prints header line before data</p>
+
+<p>This script, and the corresponding cgi script
+<a href="../services/madCalculatorService.py.html">madCalculatorService.py</a> are available to any scripting
+language that wants to access Madrigal derived parameters.
+</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Functions">Functions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#isnan">isnan</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="isnan"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">isnan&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+isnan ( x )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri Oct  3 15:58:24 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

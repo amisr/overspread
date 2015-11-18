@@ -1,0 +1,150 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Module: madTimeCalculator</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Module: madTimeCalculator</font>
+            </th>
+            <th align="right"><font color="#000000">madTimeCalculator.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <p>madTimeCalculator.py is a script run to return a text output of derived Madrigal parameters for parameters that depend only on time.</p>
+
+<p>It is presently used by the cgi script
+<a href="../services/madTimeCalculatorService.py.html">madTimeCalculatorService.py</a>.</p>
+
+<p>It has the following input arguments:</p>
+<p>     --date1=&lt;MM/DD/YYYY&gt; (required)</p>
+
+<p>     --time1=&lt;HH:MM:SS&gt;  (required)</p>
+
+<p>     --date2=&lt;MM/DD/YYYY&gt; (required)</p>
+
+<p>     --time2=&lt;HH:MM:SS&gt;  (required)</p>
+
+<p>     --stepHours=&lt;step hours between each calculation (double)&gt; (required)</p>
+
+<p>     --parms=&lt;comma delimited string of Madrigal parameters desired&gt; (required)</p>
+
+<p>     --showHeader (optional)  Prints header line before data</p>
+
+
+<p>Returns comma-delimited data, one line for each time
+with the following fields:</p>
+<ol><li><p>year</p>
+
+</li>
+<li><p>month</p>
+
+</li>
+<li><p>day</p>
+
+</li>
+<li><p>hour</p>
+
+</li>
+<li><p>min</p>
+
+</li>
+<li><p>sec</p>
+
+</li>
+<li><p>Values for each Madrigal parameter listed in argument parms, separated by whitespace</p>
+
+</li></ol>
+
+<p>If --showHeader given, also prints header line before data</p>
+
+<p>This script, and the corresponding cgi script
+<a href="../services/madTimeCalculatorService.py.html">madTimeCalculatorService.py</a> are available to any scripting
+language that wants to access Madrigal derived parameters.
+</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Functions">Functions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#isnan">isnan</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="isnan"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">isnan&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+isnan ( x )
+
+</pre></font>
+<p>
+<TABLE BORDER=1 CELLPADDING=2>
+</TABLE></p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri Dec 30 10:17:51 2005 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

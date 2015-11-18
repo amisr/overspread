@@ -1,0 +1,85 @@
+# testMadtcl tests the  madrigal extensions to tcl.
+# This script is a simple example illustrating the use of the madtclsh.
+# This example is a madtclsh version of testMadrec.c, which
+# calls the madrec library directly.
+
+# usage: madtclsh testMadtcl [madrigal_file]
+
+# Get parameter codes
+cedarCode cedarCode
+
+# Get the name of the madrigal file
+if {$argc != 1} {
+    # Get the name of the madrigal file from the environment
+    set madfile $env(MADROOT)/experiments/1998/mlh/20jan98/mil980120g.002
+} else {
+    # The madrigal file is the first argument of testMadrec
+    set madfile [lindex $argv 0]
+}
+
+# Create a madrec object
+mad mad1
+puts "create: [$mad1 get error]"
+
+# Connect the madrec object to a madrigal file
+set status [$mad1 open 30 $madfile]
+puts "open: [$mad1 get error]"
+
+# Specify a record by date and time
+set key [getKey 1998 1 20 15 0 0]
+
+# Get the specified record
+$mad1 getRecordByKey $key
+puts "getRecordByKey - time 1500: [$mad1 get error]"
+
+# Print the record
+$mad1 printRecord
+puts "printRecord: [$mad1 get error]\n"
+
+# get a record by record number
+$mad1 getRecordByRecno 27
+puts "getRecByRecno - rec 27 time 1441: [$mad1 get error]"
+
+# Print the record
+$mad1 printRecord
+puts "printRecord: [$mad1 get error]\n"
+
+# Specify a record by new date and time
+set key [getKey 1998 1 20 16 0 0]
+
+# Get the specified record
+$mad1 getRecordByKey $key
+puts "getRecordByKey - time 1600: [$mad1 get error]"
+
+# Print the record
+$mad1 printRecord
+puts "printRecord: [$mad1 get error]\n"
+
+# Get the sorted recno list
+set sortList [$mad1 get sortedRecnoList]
+
+# Get the first record
+$mad1 getRecordByRecno [lindex $sortList 0]
+
+# Print the record
+puts "madrecGetRecByRecno for sorted rec 0: [$mad1 get error]"
+$mad1 printRecord
+puts "printRecord: [$mad1 get error]\n"
+
+# Get the 11th record
+$mad1 getRecordByRecno [lindex $sortList 10]
+
+# Print the record
+puts "madrecGetRecByRecno for sorted rec 10 - time 1405: [$mad1 get error]"
+$mad1 printRecord
+puts "printRecord: [$mad1 get error]\n"
+
+# Disconnect the madrigal file
+$mad1 close
+puts "close: [$mad1 get error]"
+
+# Destroy the madrec object
+$mad1 destroy
+
+exit
+

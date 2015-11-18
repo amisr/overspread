@@ -1,0 +1,694 @@
+#!/bin/sh
+# The madtclsh path is longer than 32 characters. So, we take advantage
+# of the fact that a backslash continues a comment line in tcl \
+exec MADROOT/bin/madtclsh "$0" ${1+"$@"}
+
+# $Id: updateGeoparms_madlib,v 1.6 2008/01/03 14:20:42 brideout Exp $
+
+# UpdateGeoparms_madlib reads solar flux and geomagnetic index files and adds
+# the indices to the old, madlib version of the Madrigal geophysical parameter file. If an index is
+# already in the geophysical parameter file, it is replaced. FBAR107,
+# the 81-day centered average of F107 is claculated and added to the
+# geophysical parameter file.
+#
+# The solar flux parameters are located at:
+#  ftp://ftp.ngdc.noaa.gov/STP/SOLAR_DATA/SOLAR_RADIO/FLUX/
+#
+# The geomagnetic parameters are located at :
+#     ftp://ftp.ngdc.noaa.gov/STP/GEOMAGNETIC_DATA/INDICES/KP_AP/
+#
+# Usage: updateGeoparms_madlib \[options\]
+#   Options:
+#     -i geoFileIn     Original geophysical parameter file
+#     -o geoFileOut    Updated geophysical parameter file
+#     -f fluxFile      Solar Flux file
+#     -g geomagFile    Geomagnetic parameter file
+#     -u               Automatically update geoFileIn with the new values
+#     -h               Help information
+#   If the -i option is omitted,
+#     geoFileIn = /opt/madrigal/experiments/1950/gpi/01jan50/geo500101g.001.
+#   If the -o option is omitted, geoFileOut = ./geoFileOut
+#   If  both -f and -g are omitted, a summary of geofileIn is displayed.
+#   If either or both the -f or -g options are present, geofileOut will be
+#     updated with the geophysical parameters in the specified files.
+#
+# e.g.: updateGeoparms_madlib -i /opt/madrigal/experiments/1950/gpi/01jan50/geo500101g.001 -g 2001.v11 -f 2001.OBS
+#
+
+# B. Rideout - 10/15/2004
+# this old version of updateGeoparms was added to CVS to allow updating of old geo500101g.001 files,
+# until I can convince Larisa to abandon that ancient library forever.
+
+proc printUsage {} {
+
+    puts "Usage: updateGeoparms_madlib \[options\]"
+    puts "  Options:"
+    puts "    -i geoFileIn     Original geophysical parameter file"
+    puts "    -o geoFileOut    Updated geophysical parameter file"
+    puts "    -f fluxFile      Solar Flux file"
+    puts "    -g geomagFile    Geomagnetic parameter file"
+    puts "    -u               Automatically update geoFileIn with the new values"
+    puts "    -h               Help information"
+    puts "  If the -i option is omitted,"
+    puts "    geoFileIn = /opt/madrigal/experiments/1950/gpi/01jan50/geo500101g.001."
+    puts "  If the -o option is omitted, geoFileIn is updated, i.e. geofileOut=geofileIn."
+    puts "  If  both -f and -g are omitted, a summary of geofileIn is displayed."
+    puts "  If either or both the -f or -g options are present, geofileOut will be"
+    puts "    updated with the geophysical parameters in the specified files."
+
+    return 0 
+}
+
+set debug 0
+
+# Get number of arguments
+set nargs $argc
+if {$nargs == 0 || $nargs > 9} {
+    printUsage
+    exit
+}
+
+# Process arguments
+set isgeofilein 0
+set isgeofileout 0
+set isfluxfile 0
+set isgeomagfile 0
+set update 0
+set i 0
+while {$i < $nargs} {
+    set option [lindex $argv $i]
+
+    if {$option == "-i"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Error: Option $option requires file name argument"
+            printUsage
+            return -1
+        }
+        set geoFileIn [lindex $argv $i]
+        incr i
+        set isgeofilein 1
+
+    } elseif {$option == "-o"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires file name argument"
+            printUsage
+            return -1
+        }
+        set geoFileOut [lindex $argv $i]
+        incr i
+        set isgeofileout 1
+
+    } elseif {$option == "-f"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires file name argument"
+            printUsage
+            return -1
+        }
+        set fluxFile [lindex $argv $i]
+        incr i
+        set isfluxfile 1
+
+    } elseif {$option == "-g"} {
+        incr i
+        if {$i == $nargs} {
+            puts "Option $option requires file name argument"
+            printUsage
+            return -1
+        }
+        set geomagFile [lindex $argv $i]
+        incr i
+        set isgeomagfile 1
+
+    } elseif {$option == "-u"} {
+        incr i
+        set update 1
+
+    } elseif {$option == "-h"} {
+        incr i
+        printUsage
+        return 0
+
+    } else {
+        puts "Error: Unknown option $option"
+        printUsage
+        return -1
+    }
+}
+
+if {$isgeofilein == 0} {
+    set geoFileIn "/opt/madrigal/experiments/1950/gpi/01jan50/geo500101g.001"
+}
+
+puts ""
+puts "Input geophysical parameter file = $geoFileIn"
+
+if {$isgeofileout == 0} {
+    puts ""
+    puts "Output geophysical parameter file = ./geoFileOut"
+    set geoFileOut "./geoFileOut"
+} else {
+    puts ""
+    puts "Output geophysical parameter file = $geoFileOut"
+}
+
+if {$isfluxfile == 1} {
+    puts ""
+    puts "Input solar flux file = $fluxFile"
+} else {
+    puts ""
+    puts "No input solar flux file"
+}
+
+if {$isgeomagfile == 1} {
+    puts ""
+    puts "Input geomagnetic parameter file = $geomagFile"
+} else {
+    puts ""
+    puts "No input geomagnetic parameter flux file"
+}
+
+
+# Get parameter codes
+cedarCode cedarCode
+
+# Read solar flux file
+if {[catch {
+    set dy -1
+    if {$isfluxfile == 1} {
+        set fpf [open $fluxFile]
+        gets $fpf line
+        # puts "--> $line"
+        set y [string range $line 0 3]
+        if {$y < 1950 || $y > 2050} {
+            error "Illegal year $y"
+        }
+        set d 1
+        while {[gets $fpf line] >= 0} {
+            scan $line " %4d" dy
+            if {$dy == $d} {
+               # puts $line
+                set i1 7
+                set i2 10
+                for {set m 1} {$m <= 12} {incr m} {
+                    set f107a($d,$m) [string range $line $i1 $i2]
+                    if {($f107a($d,$m) < 600 || $f107a($d,$m) > 4000) &&
+                         ($f107a($d,$m) != "    ") && ($f107a($d,$m) != "")} {
+                        #error "F107 = $f107a($d,$m) out of range"
+			set f107a($d,$m) "    "
+                    }
+                    set i1 [expr $i1 + 6]
+                    set i2 [expr $i2 + 6]
+                }
+              incr d
+            }
+        }
+        if {$d != 32} {
+            error "Solar flux file does not contains [expr $d-1] rather than 31 days"
+        }
+    }
+} result]} {
+    puts "Error reading solar flux file"
+    puts $result
+    exit
+}
+
+# Convert array of F107 values to a list
+if {[catch {
+    set fluxkeys {}
+    set fluxjdaynos {}
+    set f107l {}
+    for {set m 1} {$m <= 12} {incr m} {
+        for {set d 1} {$d <= 31} {incr d} {
+            #puts "$m $d $f107a($d,$m)"
+            if {($f107a($d,$m) != "    ") && ($f107a($d,$m) != "")} {
+                set fluxkeys [lappend fluxkeys [getKey $y $m $d 0 0 0]]
+                set fluxdaynos [lappend fluxjdaynos [jday $d $m $y]]
+                set f107l [lappend f107l $f107a($d,$m)]
+            }
+        }
+    }
+    set ndays [llength $f107l]
+    if {$ndays!=365 && $ndays!=366} {
+        puts "Error in $fluxFile: Found $ndays days in year"
+    }
+    set firstDateSF [format "%2.2d/%2.2d/%4d" 1 1 $y]
+    set lastDateSF [format "%2.2d/%2.2d/%4d" 12 31 $y]
+    set firstJdaynoSF [lindex $fluxjdaynos 0]
+    set lastJdaynoSF [lindex $fluxjdaynos [expr [llength $fluxjdaynos]-1]]
+    
+    puts ""
+    puts "Solar Flux File:"
+    puts "  First Day: $firstJdaynoSF  $firstDateSF"
+    puts "   Last Day: $lastJdaynoSF  $lastDateSF"
+    if {$debug} {
+        puts "[llength $fluxkeys] flux keys"
+        puts $fluxkeys
+        puts "[llength $fluxjdaynos] flux Julian day numbers"
+        puts $fluxjdaynos
+    }
+} result]} {
+    puts "Error processing solar flux values"
+    puts $result
+    exit
+}
+
+# Process geomagnetic parameter file
+if {[catch {
+    if {$isgeomagfile == 1} {
+        set geomagkeys {}
+        set geomagjdaynos {}
+        set apsuml {}
+        set apl {}
+        set kpl {}
+        set fpg [open $geomagFile]
+        set j 0
+        while {[gets $fpg line] >= 0} {
+            # puts "--> $line"
+            set year [string range $line 0 1]
+	    scan $year %d year
+            if {$year >= 50} {
+                set year [expr $year + 1900]
+            } else {
+                set year [expr $year + 2000]
+            }
+            if {$year < 1950 || $y > 2050} {
+                error "Illegal year $y"
+            }
+            set month [string range $line 2 3]
+            if {[string trim $month "0"] < 1 || [string trim $month "0"] > 12} {
+                error "Illegal month $month"
+            }
+            if {[string index $month 0] == "0"} {
+	        set month [string trim $month "0"]
+            }
+            set day [string range $line 4 5]
+            if {[string trim $day "0"] < 1 || [string trim $day "0"] > 31} {
+                error "Illegal day $day"
+            }
+            if {[string index $day 0] == "0"} {
+	        set day [string trim $day "0"]
+            }
+            set geomagkeys [lappend geomagkeys [getKey $year $month $day 0 0 0]]
+            set geomagjdaynos [lappend geomagjdaynos [jday $day $month $year]]
+            set i1 12
+            set i2 13
+            set kp {}
+            for {set i 1} {$i < 9} {incr i} {
+                set kp1 [string trim [string range $line $i1 $i2]]
+                if {$kp1 < 0 || $kp1 > 90} {
+                    error "Illegal kp value $kp1"
+                }
+                set kp [lappend kp $kp1]
+                set i1 [expr $i1 + 2]
+                set i2 [expr $i2 + 2]
+            }
+            set i1 31
+            set i2 33
+            set ap {}
+            for {set i 1} {$i < 9} {incr i} {
+                set ap1 [string trim [string range $line $i1 $i2]]
+                if {$ap1 < 0 || $kp1 > 400} {
+                    error "Illegal kp value $kp1"
+                }
+                set ap [lappend ap $ap1]
+                set i1 [expr $i1 + 3]
+                set i2 [expr $i2 + 3]
+            }
+            set apsum [string range $line 55 57]
+            if {$j == 0} {
+                set firstDateMP [format "%2.2d/%2.2d/%4d" $month $day $year]
+            }
+            set apsuml [lappend apsuml $apsum]
+            set apl [lappend apl $ap]
+            set kpl [lappend kpl $kp]
+            incr j
+        }
+        set lastDateMP [format "%2.2d/%2.2d/%4d" $month $day $year]
+    }
+    set firstJdaynoMP [lindex $geomagjdaynos 0]
+    set lastJdaynoMP [lindex $geomagjdaynos [expr [llength $geomagjdaynos]-1]]
+
+    puts ""
+    puts "Geomagnetic Parameter File:"
+    puts "  First Day: $firstJdaynoMP  $firstDateMP"
+    puts "   Last Day: $lastJdaynoMP  $lastDateMP"
+    if {$debug} {
+        puts "[llength $geomagkeys] geomagnetic parameter keys"
+        puts $geomagkeys
+        puts "[llength $geomagjdaynos] geomagnetic Julian day numbers"
+        puts $geomagjdaynos
+    }
+} result]} {
+    puts "Error processing geomagnetic parameter file"
+    puts $result
+    exit
+}
+
+# Create madrec object for the input geophysical parameter file
+set status [catch {mad madin}]
+if {$status != 0} {
+    puts "mad Error: [$madin get error]"
+    exit
+}
+set status [catch {$madin open 1 $geoFileIn}]
+if {$status != 0} {
+    puts "mad open Error: [$madin get error]"
+    exit
+}
+
+# Create madrec object for the output geophysical parameter file
+set status [catch {mad madout}]
+if {$status != 0} {
+    puts "mad Error: [$madout get error]"
+    exit
+}
+set status [catch {$madout open 20 $geoFileOut}]
+if {$status != 0} {
+    puts "mad open Error: [$madout get error]"
+    exit
+}
+
+# Create madrec object for the memory image of geophysical parameter file
+set status [catch {mad madmem}]
+if {$status != 0} {
+    puts "mad Error: [$madmem get error]"
+    exit
+}
+set status [catch {$madmem open 30 $geoFileIn}]
+if {$status != 0} {
+    puts "mad open Error: [$madmem get error]"
+    exit
+}
+
+# Print a one line per record summary of the file
+#puts ""
+#puts "Geophysical parameter file:"
+#puts "                 rec jday1       Start Time            End Time       kinst krec kindat"
+set rec 0
+set jdayl 0
+
+while {[set status [$madin getNextRecord]] == 0} {
+
+    incr rec
+
+   # puts " [$madin get startTime] [$madin get 1dInt 354] [$madin get 1dInt 356]"
+
+    set recno [format %5d $rec]
+    set startTime [$madin get startTime]
+    set yr1 [lindex $startTime 0]
+    set mo1 [lindex $startTime 1]
+    set dy1 [lindex $startTime 2]
+    set hr1 [lindex $startTime 3]
+    set mn1 [lindex $startTime 4]
+    set sc1 [lindex $startTime 5]
+    set zero 0
+    if {[string length $hr1] == 1} {
+        set hr1 $zero$hr1
+    }
+    if {[string length $mn1] == 1} {
+        set mn1 $zero$mn1
+    }
+    if {[string length $sc1] == 1} {
+        set sc1 $zero$sc1
+    }
+    set endTime [$madin get endTime]
+    set yr2 [lindex $endTime 0]
+    set mo2 [lindex $endTime 1]
+    set dy2 [lindex $endTime 2]
+    set hr2 [lindex $endTime 3]
+    set mn2 [lindex $endTime 4]
+    set sc2 [lindex $endTime 5]
+    set zero 0
+    if {[string length $hr2] == 1} {
+        set hr2 $zero$hr2
+    }
+    if {[string length $mn2] == 1} {
+        set mn2 $zero$mn2
+    }
+    if {[string length $sc2] == 1} {
+        set sc2 $zero$sc2
+    }
+    set startDate [format %2.2d/%2.2d/%2.2d $mo1 $dy1 $yr1]
+    set endDate [format %2.2d/%2.2d/%2.2d $mo2 $dy2 $yr2]
+    set jday1 [expr int([$madin get startJday])]
+    set jday2 [expr int([$madin get endJday])]
+    set summary "$recno $jday1 \
+             $startDate $hr1:$mn1:$sc1  $endDate $hr2:$mn2:$sc2 \
+             [$madin get kinst] \
+             [$madin get krec] \
+             [$madin get kindat]"
+    set summary "$recno $jday1 \
+             $startDate $hr1:$mn1:$sc1  $endDate $hr2:$mn2:$sc2 \
+             [$madin get kinst] \
+             [$madin get 1dInt 354] \
+             [$madin get 1dInt 356]"
+#puts $summary
+    if {$jday1 != $jday2} {
+        puts "Error in:     $summary"
+        puts "    Start and end Julian Day numbers, $jday1 and $jday2 are not the same."
+    }
+    if {$rec > 1 && $jday1 != [expr $jdayl+1]} {
+        puts "Error in:     $summary"
+        puts "    Missing day"
+    }
+    set jdayl $jday1
+    if {$rec == 1} {
+        set firstJdaynoGP $jday1
+        set firstDateGP [format %2.2d/%2.2d/%2.2d $mo1 $dy1 $yr1]
+        #puts "First record: $summary"
+    }
+}
+#puts "Exit status = $status"
+#puts "Last record:  $summary"
+
+set lastJdaynoGP $jday1
+set lastDateGP [format %2.2d/%2.2d/%2.2d $mo1 $dy1 $yr1]
+
+puts ""
+puts "Geophysical Parameter File:"
+puts "  First Day: $firstJdaynoGP  $firstDateGP"
+puts "   Last Day: $lastJdaynoGP  $lastDateGP"
+
+if {$isfluxfile==1 && $isgeomagfile==1} {
+    if {$lastJdaynoSF >= $lastJdaynoMP} {
+        set lastJdaynoSFMP $lastJdaynoSF
+    } else {
+        set lastJdaynoSFMP $lastJdaynoMP
+    }
+} elseif {$isfluxfile == 0} {
+    set lastJdaynoSFMP $lastJdaynoMP
+} elseif {$isgeomagfile == 0} {
+    set lastJdaynoSFMP $lastJdaynoSF
+} else {
+    puts "No solar flux or gemagnetic parameter file - Exiting"
+    exit
+}
+
+puts ""
+if {$lastJdaynoSFMP > $lastJdaynoGP} {
+    set firstJdaynoAdd [expr $lastJdaynoGP+1]
+    set lastJdaynoAdd $lastJdaynoSFMP
+    set d [jdater $firstJdaynoAdd]
+    set firstDateAdd [format %2.2d/%2.2d/%2.2d [lindex $d 1] [lindex $d 0] [lindex $d 2]]
+    set d [jdater $lastJdaynoAdd]
+    set lastDateAdd [format %2.2d/%2.2d/%2.2d [lindex $d 1] [lindex $d 0] [lindex $d 2]]
+    puts "Add records from $firstDateAdd (jday=$firstJdaynoAdd) to $lastDateAdd (jday=$lastJdaynoAdd)"
+puts "  to geophysical parameter file."
+} else {
+    puts "No new records to be added"
+}
+
+# describe whether any solar flux records will be modified in existing file
+if {$isfluxfile==1} {
+    puts ""
+    if {$firstJdaynoSF < $lastJdaynoGP} {
+        set d [jdater $firstJdaynoSF]
+        set firstDateAdd [format %2.2d/%2.2d/%2.2d [lindex $d 1] [lindex $d 0] [lindex $d 2]]
+        if {$lastJdaynoSF < $lastJdaynoGP} {
+            set lastJdaynoUpSF $lastJdaynoSF
+        } else {
+            set lastJdaynoUpSF $lastJdaynoGP
+        }
+        set d [jdater $lastJdaynoUpSF]
+        set lastDateAdd [format %2.2d/%2.2d/%2.2d [lindex $d 1] [lindex $d 0] [lindex $d 2]]
+        puts "Modifying solar flux data from $firstDateAdd (jday=$firstJdaynoSF) to $lastDateAdd (jday=$lastJdaynoUpSF)"
+        puts "  in existing geophysical parameter file."
+    } 
+}
+
+# describe whether any Kp/Ap records will be modified in existing file
+if {$isgeomagfile==1} {
+    puts ""
+    if {$firstJdaynoMP < $lastJdaynoGP} {
+        set d [jdater $firstJdaynoMP]
+        set firstDateAdd [format %2.2d/%2.2d/%2.2d [lindex $d 1] [lindex $d 0] [lindex $d 2]]
+        if {$lastJdaynoMP < $lastJdaynoGP} {
+            set lastJdaynoUpMP $lastJdaynoMP
+        } else {
+            set lastJdaynoUpMP $lastJdaynoGP
+        }
+        set d [jdater $lastJdaynoUpMP]
+        set lastDateAdd [format %2.2d/%2.2d/%2.2d [lindex $d 1] [lindex $d 0] [lindex $d 2]]
+        puts "Modifying geomagnetic parm (Kp/Ap) data from $firstDateAdd (jday=$firstJdaynoMP) to $lastDateAdd (jday=$lastJdaynoUpMP)"
+        puts "  in existing geophysical parameter file."
+    } 
+}
+
+# Add records to the memory image as necessary
+set lprol 16
+set jpar 3
+set mpar 2
+set nrow 8
+set krec 1002
+set kinst 210
+set kindat 30007
+set ibyr 2001
+set ibmo 8
+set ibdy 31
+set ibh 0
+set ibm 0
+set ibs 0
+set ibcs 0
+set ieyr 2001
+set iemo 8
+set iedy 31
+set ieh 23
+set iem 59
+set ies 59
+set iecs 99
+# insert new records only if needed
+if {$lastJdaynoSFMP > $lastJdaynoGP} {
+    for {set jday $firstJdaynoAdd} {$jday <= $lastJdaynoAdd} {incr jday} {
+	set d [jdater $jday]
+	set ibyr [lindex $d 2]
+	set ibmo [lindex $d 1]
+	set ibdy [lindex $d 0]
+	set ieyr $ibyr
+	set iemo $ibmo
+	set iedy $ibdy
+	set status [catch {$madmem createRecord $lprol $jpar $mpar $nrow $krec \
+				 $kinst $kindat \
+				 $ibyr $ibmo $ibdy $ibh $ibm $ibs $ibcs \
+				 $ieyr $iemo $iedy $ieh $iem $ies $iecs} result]
+	if {$status != 0} {
+            puts "createRecord Error: $result"
+            exit
+	}
+	# Initialize all data values to "Missing"
+	$madmem set 1dInt 340 -32767 0
+	$madmem set 1dInt 354 -32767 1
+	$madmem set 1dInt 356 -32767 2
+	set parmvals [list -32767 -32767 -32767 -32767 -32767 -32767 -32767 -32767]
+	$madmem set 2dInt 310 $parmvals 0
+	$madmem set 2dInt 335 $parmvals 1
+
+	$madmem putNextRecord
+    }
+}
+
+if {[llength $fluxkeys] > 0} {
+    puts ""
+    puts "Enter new solar flux values into output file"
+}
+set i 0
+foreach key $fluxkeys {
+    set status [catch {$madmem getRecordByKey $key} result]
+    if {$status == 0} {
+        set f107Old [$madmem get 1dInt 354]
+        set f107New [lindex $f107l $i]
+        $madmem set 1dInt 354 $f107New 1
+    } else {
+        puts "$status $result *"
+    }
+    incr i
+}
+
+
+if {[llength $geomagkeys] > 0} {
+    puts ""
+    puts "Enter new geomagnetic parameter values into output file"
+}
+set i 0
+foreach key $geomagkeys {
+    set status [catch {$madmem getRecordByKey $key} result]
+    if {$status == 0} {
+        set apsumOld [$madmem get 1dInt 340]
+        set apsumNew [lindex $apsuml $i]
+        $madmem set 1dInt 340 $apsumNew 0
+        $madmem set 2dInt 310 [lindex $kpl $i] 0
+        $madmem set 2dInt 335 [lindex $apl $i] 1
+    } else {
+        puts "$status $result *"
+    }
+    incr i
+}
+
+puts ""
+puts "Calculate 81-day average solar flux values and enter into output file"
+$madmem rewind
+set i 0
+while {[set status [$madmem getNextRecord]] == 0} {
+    set startTimet($i) [$madmem get startTime]
+    set f107t($i) [$madmem get 1dInt 354]
+    #puts "$startTimet($i) [$madmem get 1dInt 354] [$madmem get 1dInt 356]"
+    incr i    
+}
+set nrecs $i
+#puts "nrecs = $nrecs"
+
+$madmem rewind
+set i 0
+while {[set status [$madmem getRecordByRecno $i]] == 0} {
+    set f107 [$madmem get 1dInt 354]
+        set f107at($i) 0
+        set n 0
+        if {[expr $i-40] >= 0 &&  [expr $i+40] <= [expr $nrecs-1]} {
+            for {set j [expr $i-40]} {$j <= [expr $i+40]} {incr j} {
+	        if {$f107t($j) >= 0} {
+                    set f107at($i) [expr $f107at($i) + $f107t($j)]
+		    incr n
+		}
+            }
+           set f107at($i) [expr round($f107at($i)/($n+.0000001))]
+	   $madmem set 1dInt 356 $f107at($i) 2
+        } else {
+            set f107at($i) -32767
+	    $madmem set 1dInt 356 $f107at($i) 2
+        }
+        #puts "$startTimet($i) $n $f107t($i) $f107at($i)"
+    incr i
+}
+
+# Copy the memory image to the output file
+puts ""
+puts "Write the output geophysical parameter file"
+$madmem rewind
+while {[set status [$madmem getNextRecord]] == 0} {
+    $madmem copy $madout
+    $madout putNextRecord
+}
+
+# Close file and delete madrec object
+puts ""
+puts "Close all files and exit"
+$madin close
+$madin destroy
+$madout close
+$madout destroy
+#$madmem destroy
+
+# Update the input geophysical parameter file
+if {$update == 1} {
+   puts ""
+   puts "Replacing old geophysical parameter file with updated file"
+   puts "The old file is backed up to geoFile.sav"
+   file copy -force $geoFileIn geoFileIn.sav
+   #file copy -force $geoFileOut $geoFileIn
+   file copy -force $geoFileOut temp
+}
+
+exit
+

@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/doc_template.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Remote access using python</title>
+<!-- InstanceEndEditable --><!-- InstanceBeginEditable name="head" -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+<!--
+.style1 {
+	font-weight: bold;
+	font-style: italic;
+}
+-->
+</style>
+<!-- InstanceEndEditable -->
+<link href="madrigal.css" rel="stylesheet" type="text/css" />
+<!-- InstanceParam name="href_up_top" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_next_top" type="text" value="rr_contents.html" --><!-- InstanceParam name="href_back_top" type="text" value="rt_matlab.html" --><!-- InstanceParam name="href_back_bottom" type="text" value="rt_matlab.html" --><!-- InstanceParam name="href_up_bottom" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_next_bottom" type="text" value="rr_contents.html" --><!-- InstanceParam name="href_prev_top" type="text" value="rt_matlab.html" --><!-- InstanceParam name="href_uptitle_top" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_nexttitle_top" type="text" value="rr_contents.html" --><!-- InstanceParam name="href_prevtitle_bottom" type="text" value="rt_matlab.html" --><!-- InstanceParam name="href_uptitle_bottom" type="text" value="rt_contents.html" --><!-- InstanceParam name="href_nexttitle_bottom" type="text" value="rr_contents.html" -->
+</head>
+
+<BODY BGCOLOR=#FFFFFF LINK=#008000 VLINK=#003366>
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="rt_matlab.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rt_contents.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rr_contents.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleTop" -->Remote access using python <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="rt_matlab.html"><!-- InstanceBeginEditable name="PreviousTitle" -->Remote access using Matlab <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="rt_contents.html"><!-- InstanceBeginEditable name="UpTitle" -->Remote access programming tutorial toc <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="rr_contents.html"><!-- InstanceBeginEditable name="NextTitle" -->Remote access reference toc <!-- InstanceEndEditable --></A></div>
+<hr/>
+<!-- InstanceBeginEditable name="EditDoc" -->
+<h1 align="center">Remote access using python</h1>
+<p>This page describes the remote Python API, and gives some examples of using this API.
+These examples have been tested on both Windows and Linux, and require only access to the
+internet and python 2.3 to run. It is available for download 
+<a href="http://www.haystack.mit.edu/madrigal/madDownload.html"> here</a>.</p>
+<p>The remote Python API is organized in the same way as the <a href="wt_dataOrg.html">Madrigal data model</a>, from Instrument at the highest level, down to the level of data values. Readers who are not familiar with the Madrigal data model should read the material in that section before proceeding with this tutorial.</p>
+<p> The basic object in the remote Python API is the <em>MadrigalData</em>, found in the madrigalWeb module. To initialize <em>MadrigalData</em> requires only the url of the
+home page on any Madrigal 2.3 (or above) site as an argument. Calling the methods of this object will return all possible information from one Madrigal site. The other objects in madrigalWeb are simply there to hold returned information - for example, the <em>MadrigalExperiment</em> object holds information about one experiment. </p>
+<p>MadrigalData has the following methods:</p>
+<ul>
+  <li><span class="style1">getAllInstruments</span> -  returns a list of all <em>MadrigalInstrument</em> objects at all Madrigal sites</li>
+  <li><span class="style1">getExperiments</span> - returns a list of all <em>MadrigalExperiment</em> objects that meet the criteria you set at any Madrigal site</li>
+  <li><span class="style1">getExperimentFiles</span> - returns a list of all default <em>MadrigalExperimentFile</em> objects for a given experiment id</li>
+  <li><span class="style1">getExperimentFileParameters</span> - returns a list of all measured and derivable parameters in file</li>
+  <li><span class="style1">isprint</span>  - returns as a string the isprint output given file, parms, filters without headers or summary. This is the method that accesses the raw data in a Madrigal data file. </li>
+  <li><span class="style1">madCalculator</span> - returns derived parameters for a range of latitudes, longitudes, and altitudes at a given time. Note that this method does not returned measured values from a file - use isprint for that. Instead, it is useful for accessing parameters available via the Madrigal derivation engine, such as magnetic field or MSIS parameters. </li>
+  <li><span class="style1">madTimeCalculator</span> - is similar to madCalculator, except that it returns data from a range of times, but only returns parameters such as Kp that are independent of position.</li>
+  <li><span class="style1">radarToGeodetic</span> - converts arrays of az, el, and ranges to geodetic locations.</li>
+  <li><span class="style1">geodeticToRadar</span> - converts arrays of points in space to az, el, and range.</li>
+</ul>
+<p>See the <a href="madpyDoc/remotePythonAPI/index.html">Madrigal Python API reference guide</a> for complete documentation. </p>
+<p> Two applications written with the remote Python API follow. The first is a 
+<a href=#regression>simple regression test</a>
+that is run to test web services when Madrigal is installed.  The second is a script that downloads realtime data from any desired Madrigal site.</p>
+
+<A NAME="regression"></A>
+
+<hr>
+<p><b>Simple regression test</b></p>
+
+<p>This simple script calls the following MadrigalData methods:</p>
+<ul>
+    <li>getAllInstruments</li>
+    <li>getExperiments</li>
+    <li>getExperimentFiles</li>
+    <li>isprint</li>
+    <li>madCalculator</li>
+</ul>
+
+<p>To use this regression test, cd to the examples directory in the installation directory, and type: </p>
+<p align="center">python testMadrigalWebServices.py http://www.haystack.mit.edu/madrigal </p>
+<hr />
+<pre>
+<b><font color="#A020F0">import</font></b> madrigalWeb.madrigalWeb
+<b><font color="#A020F0">import</font></b> sys
+<b><font color="#A020F0">import</font></b> string
+<b><font color="#A020F0">import</font></b> difflib
+
+<b><font color="#A020F0">if</font></b> len(sys.argv) &lt; 2:
+    <b><font color="#A020F0">print</font></b> <b><font color="#BC8F8F">'usage: python testMadrigalWebServices.py &lt;madrigal main url&gt;'</font></b>
+    sys.exit(-1)
+
+madrigalUrl = sys.argv[1]
+
+outFile = open(<b><font color="#BC8F8F">'testMadrigalWebServices.out'</font></b>, <b><font color="#BC8F8F">'w'</font></b>)
+
+<i><font color="#B22222"># create the main object to get all needed info from Madrigal
+</font></i>testData = madrigalWeb.madrigalWeb.MadrigalData(madrigalUrl)
+
+instList = testData.getAllInstruments()
+
+<i><font color="#B22222"># print out Millstone
+</font></i><b><font color="#A020F0">for</font></b> inst <b><font color="#A020F0">in</font></b> instList:
+    <b><font color="#A020F0">if</font></b> inst.code == 30:
+        outFile.write(str(inst) + <b><font color="#BC8F8F">'\n'</font></b>)
+        
+
+expList = testData.getExperiments(30, 1998,1,19,0,0,0,1998,1,22,0,0,0)
+
+<b><font color="#A020F0">for</font></b> exp <b><font color="#A020F0">in</font></b> expList:
+    <i><font color="#B22222"># should be only one
+</font></i>    outFile.write(str(exp) + <b><font color="#BC8F8F">'\n'</font></b>)
+
+fileList = testData.getExperimentFiles(expList[0].id)
+
+<b><font color="#A020F0">for</font></b> file <b><font color="#A020F0">in</font></b> fileList:
+    <b><font color="#A020F0">if</font></b> string.find(file.name, <b><font color="#BC8F8F">'mil980120g.002'</font></b>) != -1:
+        outFile.write(str(file) + <b><font color="#BC8F8F">'\n'</font></b>)
+        thisFilename = file.name
+        <b><font color="#A020F0">break</font></b>
+
+outFile.write(testData.isprint(thisFilename,
+                               <b><font color="#BC8F8F">'gdalt,ti'</font></b>,
+                               <b><font color="#BC8F8F">'filter=gdalt,500,600 filter=ti,1900,2000'</font></b>))
+outFile.write(<b><font color="#BC8F8F">'\n'</font></b>)
+
+result = testData.madCalculator(1999,2,15,12,30,0,45,55,5,-170,-150,10,200,200,0,<b><font color="#BC8F8F">'bmag,bn'</font></b>)
+
+<b><font color="#A020F0">for</font></b> line <b><font color="#A020F0">in</font></b> result:
+    <b><font color="#A020F0">for</font></b> value <b><font color="#A020F0">in</font></b> line:
+        outFile.write(<b><font color="#BC8F8F">'%8.2e '</font></b> % (value))
+    outFile.write(<b><font color="#BC8F8F">'\n'</font></b>)
+
+outFile.write(<b><font color="#BC8F8F">'\n'</font></b>)
+
+outFile.close()
+
+
+</pre>
+
+
+
+<A NAME="realtime"></A>
+
+<hr>
+<p><b>Script to download realtime data from Madrigal </b></p>
+
+<p>The following  is a demonstration script that shows how real-time data can be imported from any Madrigal site that is updated on a real-time basis.</p>
+
+<p>In this example, data is imported from http://www.haystack.mit.edu/madrigal from
+&quot;Millstone Hill IS Radar&quot;. The following Madrigal parameters are retrieved:</p>
+<p align="center">year,month,day,hour,min,sec,gdlat,glon,gdalt,az,el,vo,dvo</p>
+<p>for all records from the past 15 minutes.</p>
+<p>Although the particular Madrigal site (http://www.haystack.mit.edu/madrigal), the instrument (&quot;Millstone Hill IS Radar&quot;), the parameters, and the times are hard-coded in this example, they could be easily be modified to be arguments.</p>
+<p>To avoid missing data, we choose one parameter to be the filter parameter: vo. By filtering on this parameter, any &quot;missing&quot; values are filtered out. </p>
+<p>To run this script requires the python Madrigal API be installed, which can be downloaded from http://www.haystack.edu/madrigal/madDownload.html.</p>
+<hr>
+
+<pre>
+
+
+<b><font color="#A020F0">import</font></b> os,sys,os.path
+<b><font color="#A020F0">import</font></b> string
+<b><font color="#A020F0">import</font></b> time
+
+
+<b><font color="#A020F0">import</font></b> madrigalWeb.madrigalWeb
+
+
+<i><font color="#B22222">#constants
+</font></i>madrigalUrl = <b><font color="#BC8F8F">'http://www.haystack.mit.edu/madrigal'</font></b>
+instrument = <b><font color="#BC8F8F">'Millstone Hill IS Radar'</font></b>
+
+user_fullname = <b><font color="#BC8F8F">'Put your name here!!!'</font></b>
+user_email = <b><font color="#BC8F8F">'your@email.here'</font></b>
+user_affiliation = <b><font color="#BC8F8F">'Put your affiliation here!!!'</font></b>
+
+
+<i><font color="#B22222"># each line of data contains the following parameters
+</font></i>params = <b><font color="#BC8F8F">'year,month,day,hour,min,sec,gdlat,glon,gdalt,azm,elm,vo,dvo'</font></b>
+filterParm = <b><font color="#BC8F8F">'vo'</font></b>
+timeDelay = 15
+
+<i><font color="#B22222"># create the main object to get all needed info from Madrigal
+</font></i>madrigalObj = madrigalWeb.madrigalWeb.MadrigalData(madrigalUrl)
+
+
+<i><font color="#B22222"># these next few lines convert instrument name to code
+</font></i>code = None
+instList = madrigalObj.getAllInstruments()
+<b><font color="#A020F0">for</font></b> inst <b><font color="#A020F0">in</font></b> instList:
+    <b><font color="#A020F0">if</font></b> inst.name.lower() == instrument.lower():
+        code = inst.code
+        <b><font color="#A020F0">break</font></b>
+
+<b><font color="#A020F0">if</font></b> code == None:
+    <b><font color="#A020F0">raise</font></b> ValueError, <b><font color="#BC8F8F">'Unknown instrument %s'</font></b> % (instrument)
+
+
+<i><font color="#B22222"># next, get a list of real time experiments in the last timeDelay minutes
+</font></i>startTime = time.gmtime(time.time() - timeDelay*60.0)
+endTime = time.gmtime(time.time())
+
+
+<b><font color="#A020F0">try</font></b>:
+    expList = madrigalObj.getExperiments(code, startTime[0],
+                                     startTime[1],
+                                     startTime[2],
+                                     startTime[3],
+                                     startTime[4],
+                                     startTime[5],
+                                     endTime[0],
+                                     endTime[1],
+                                     endTime[2],
+                                     endTime[3],
+                                     endTime[4],
+                                     endTime[5])
+
+<b><font color="#A020F0">except</font></b>:
+    <b><font color="#A020F0">raise</font></b> ValueError, <b><font color="#BC8F8F">'No realtime experiments found'</font></b>
+
+
+<i><font color="#B22222"># assume there's only one realtime experiment, and get the file names
+</font></i>fileList = madrigalObj.getExperimentFiles(expList[0].id)
+
+<b><font color="#A020F0">if</font></b> len(fileList) == 0:
+    <b><font color="#A020F0">raise</font></b> ValueError, <b><font color="#BC8F8F">'No realtime experiment files found'</font></b>
+
+
+<i><font color="#B22222"># get data from each of the files
+</font></i>startDateStr = time.strftime(<b><font color="#BC8F8F">'%m/%d/%Y'</font></b>, startTime)
+startDateStr = <b><font color="#BC8F8F">' date1='</font></b> + startDateStr
+startTimeStr = time.strftime(<b><font color="#BC8F8F">'%H:%M:%S'</font></b>, startTime)
+startTimeStr = <b><font color="#BC8F8F">' time1='</font></b> + startTimeStr
+endDateStr = time.strftime(<b><font color="#BC8F8F">'%m/%d/%Y'</font></b>, endTime)
+endDateStr = <b><font color="#BC8F8F">' date2='</font></b> + endDateStr
+endTimeStr = time.strftime(<b><font color="#BC8F8F">'%H:%M:%S'</font></b>, endTime)
+endTimeStr = <b><font color="#BC8F8F">' time2='</font></b> + endTimeStr
+
+filterString = <b><font color="#BC8F8F">'filter=%s,-1E30,1E30'</font></b> % (filterParm) + startDateStr + startTimeStr + endDateStr + endTimeStr
+<b><font color="#A020F0">for</font></b> dataFile <b><font color="#A020F0">in</font></b> fileList:
+    result = madrigalObj.isprint(dataFile.name, params, filterString,
+                                 user_fullname, user_email, user_affiliation)
+    <i><font color="#B22222"># make sure it succeeded
+</font></i>    <b><font color="#A020F0">if</font></b> result.find(<b><font color="#BC8F8F">'No records were selected'</font></b>) != -1:
+        <b><font color="#A020F0">continue</font></b>
+    <b><font color="#A020F0">if</font></b> result.find(<b><font color="#BC8F8F">'****'</font></b>) != -1:
+        <b><font color="#A020F0">continue</font></b>
+    <b><font color="#A020F0">print</font></b> result
+</pre>
+<!-- InstanceEndEditable -->
+<table width="100%" border="1" cellpadding="0" cellspacing="2" class="navigation">
+  <tr>
+    <td width="5%"><a href="rt_matlab.html"><img src="icons/previous.png" alt="previous" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rt_contents.html"><img src="icons/up.png" alt="up" width="32" height="32" /></a></td>
+    <td width="5%"><a href="rr_contents.html"><img src="icons/next.png" alt="next" width="32" height="32" /></a></td>
+    <td width="54%"><!-- InstanceBeginEditable name="EditTitleBottom" -->Remote access using python <!-- InstanceEndEditable --></td>
+    <td width="13%"><a href="/madrigal/madContents.html">Doc home </a></td>
+    <td width="18%"><a href="/madrigal">Madrigal home</a></td>
+  </tr>
+</table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" href="rt_matlab.html"><!-- InstanceBeginEditable name="PreviousTitle2" -->Remote access using Matlab <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Up:</b>
+<a class="sectref" href="rt_contents.html"><!-- InstanceBeginEditable name="UpTitle2" -->Remote access programming tutorial toc <!-- InstanceEndEditable --></A>
+<b class="navlabel">&nbsp;&nbsp;Next:</b>
+<a class="sectref" href="rr_contents.html"><!-- InstanceBeginEditable name="NextTitle2" -->Remote access reference toc <!-- InstanceEndEditable --></A></div>
+<hr/>
+<p>&nbsp;</p>
+</body>
+<!-- InstanceEnd --></html>

@@ -1,0 +1,212 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Class: MadrigalExperimentFile</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Class: MadrigalExperimentFile</font>
+            </th>
+            <th align="right"><font color="#000000">madrigalWeb/madrigalWeb.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>MadrigalExperimentFile is a class that encapsulates information about a Madrigal ExperimentFile.</h3>
+<p>    Attributes:</p>
+<PRE>
+        name (string) Example '/opt/mdarigal/blah/mlh980120g.001'
+
+        kindat (int) Kindat code.  Example: 3001
+
+        kindatdesc (string) Kindat description: Example 'Basic Derived Parameters'
+
+        category (int) (1=default, 2=variant, 3=history, 4=real-time)
+
+        status (string)('preliminary', 'final', or any other description)
+
+        permission (int)  0 for public, 1 for private
+
+        expId - experiment id of the experiment this MadrigalExperimentFile belongs in
+
+</PRE>
+
+<p>    Non-standard Python modules used: None</p>
+
+<p>    Change history:</p>
+
+<p>    Written by <a href="mailto:wrideout@haystack.mit.edu">Bill Rideout</a>  Feb. 10, 2004</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Methods">Methods</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#__init__">__init__</a><br>
+<a href="#__str__">__str__</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__init__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__init__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__init__ (
+        self,
+        name,
+        kindat,
+        kindatdesc,
+        category,
+        status,
+        permission,
+        expId=None,
+        )
+
+</pre></font>
+<h3>__init__ initializes a MadrigalExperimentFile.</h3>
+<p>        Inputs:</p>
+<PRE>
+            name - (string) Example '/opt/mdarigal/blah/mlh980120g.001'
+
+            kindat - (int, or string that can be converted) Kindat code.  Example: 3001
+
+            kindatdesc - (string) Kindat description: Example 'Basic Derived Parameters'
+
+            category - (int, or string that can be converted) (1=default, 2=variant, 3=history, 4=real-time)
+
+            status - (string)('preliminary', 'final', or any other description)
+
+            permission - (int, or string that can be converted)  0 for public, 1 for private
+
+            expId - experiment id of the experiment this MadrigalExperimentFile belongs in
+
+</PRE>
+
+<p>        Returns: void</p>
+
+<p>        Affects: Initializes all the class member variables.</p>
+
+<p>        Exceptions: If illegal argument passed in.</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'In MadrigalExperimentFile, kindatdesc not string type: %s' %(str( kindatdesc ) )<br>
+ValueError, 'In MadrigalExperimentFile, name not string type: %s' %(str( name ) )<br>
+ValueError, 'In MadrigalExperimentFile, status not string type: %s' %(str( status ) )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="__str__"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">__str__&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+__str__ ( self )
+
+</pre></font>
+<p>return a readible form of this object</p>
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Wed Jul  2 15:58:53 2008 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        
