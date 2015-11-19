@@ -1,0 +1,1 @@
+python main.py --exp_dir 2014/09 --exp_type PLCal30 --exp_name 201409*[0-9] --cal_file PLCal30/20140921.001/cal-201409-calibration-scalar-09.18.2015.txt --gui
