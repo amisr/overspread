@@ -20,6 +20,9 @@ import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_
 from ISfitter import *
 from constants import *
 
+from loggerinit.LoggerInit import *
+from amisrplotting import amisrwrapper
+
 MAXFEV_C=20
 
 ##############################
@@ -792,6 +795,7 @@ class Run_Fitter:
         config.read(inifile.split(','))
 
         # make sure all necessary sections exist
+        print(inifile)
         if (not config.has_section('GENERAL')) or (not config.has_section('FIT_OPTIONS')) or (not config.has_section('INPUT')) or (not config.has_section('OUTPUT')):
             raise IOError, 'Configuration files must contain at least 4 sections: GENERAL, FIT_OPTIONS, INPUT, and OUTPUT'
 
@@ -1023,19 +1027,19 @@ class Run_Fitter:
             except:
                 raise IOError, 'Unable to continue from locked file: ' + self.OPTS['outfileLocked']
         else:
-            try:
-                NrecsToSkip=0
-                outh5file=tables.openFile(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File")
-                io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
-                if self.FITOPTS['DO_FITS']:
-                    io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
-                    if self.OPTS['saveACFs']:
-                        io_utils.createh5groups(outh5file,[self.h5Paths['ACFs']])
-                if self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                    io_utils.createh5groups(outh5file,[self.h5Paths['Antenna']])
-                outh5file.close()
-            except:
-                raise IOError, 'Cannot create output file: ' + self.OPTS['outfileLocked']
+            #try:
+            NrecsToSkip=0
+            outh5file=tables.openFile(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File")
+            io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
+            if self.FITOPTS['DO_FITS']:
+                io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
+                if self.OPTS['saveACFs']:
+                    io_utils.createh5groups(outh5file,[self.h5Paths['ACFs']])
+            if self.FITOPTS['MOTION_TYPE']==1: # Az,El
+                io_utils.createh5groups(outh5file,[self.h5Paths['Antenna']])
+            outh5file.close()
+            #except:
+            #    raise IOError, 'Cannot create output file: ' + self.OPTS['outfileLocked']
 
 
         # initialize some vars
@@ -1533,6 +1537,7 @@ class Run_Fitter:
         except:
             raise IOError, 'Error renaming output file: ' + self.OPTS['outfileLocked'] + 'to ' + self.OPTS['outfile']
 
+        """
         # make some final color plots
         if (self.OPTS['plotson']>0):
             if len(self.OPTS['pcolClims'])>0 and len(self.OPTS['pcolYlims'])>0:
@@ -1543,6 +1548,15 @@ class Run_Fitter:
                 plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],clims=self.OPTS['pcolClims'])
             else:
                 plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'])
+        """
+
+        if (self.OPTS['plotson']>0):
+            # Load logging module
+            logger = LoggerInit(config=os.path.join('/Users/fitter/Documents/amisr-src/src/calibration/',
+                            "config",
+                            "log.ini") ).logger
+            inst = amisrwrapper.amisrwrapper(configpath="/opt/amisr-plotting/amisrplotting/config/*.ini",logger=logger)
+            inst.pcolor_plot(self.OPTS['outfile'],self.OPTS['plotsdir'])
 
         return 0
 

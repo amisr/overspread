@@ -2,6 +2,7 @@ import os
 import sys
 from PyQt4 import QtGui
 from PyQt4.QtCore import pyqtSlot
+from fitting import *
 
 class GUI(QtGui.QMainWindow):
 
@@ -28,9 +29,13 @@ class GUI(QtGui.QMainWindow):
         # window size
         w.resize(600, 390)
 
-        # button to choose processing files
-        btn = QtGui.QPushButton('Choose folders for processing', w)
-        btn.move(10,0)
+        # button to choose processing folders
+        btn_add = QtGui.QPushButton('Add folders for processing', w)
+        btn_add.move(10,0)
+
+        # button to delete processing folders
+        btn_rm = QtGui.QPushButton('Remove folders for processing', w)
+        btn_rm.move(300,0)
 
         #Listbox for processing folders
         lista = QtGui.QListWidget(w)
@@ -62,7 +67,7 @@ class GUI(QtGui.QMainWindow):
 
         # Create the actions for folder/file selection
         @pyqtSlot()
-        def on_click():
+        def on_click_add():
             print('choosing processing folders')
             print self.config['variables']['PATHS']['topdir']
             file_dialog = QtGui.QFileDialog(w, "", self.config['variables']['PATHS']['topdir'])
@@ -81,11 +86,27 @@ class GUI(QtGui.QMainWindow):
                 dir_list = file_dialog.selectedFiles()
                 for dir in dir_list:
                     lista.addItem(str(dir))
+                    #lista.addItem(os.path.basename(str(dir)))
                     w.processing_dirs.append(str(dir))
 
             print w.processing_dirs
 
             w.show()
+
+        @pyqtSlot()
+        def on_click_rm():
+            print('removing processing folders')
+            selected_item = lista.currentItem()
+            selected_item_text = lista.currentItem().text()
+            lista.removeItemWidget(selected_item)
+            lista.clear()
+            print(selected_item_text)
+            w.processing_dirs.remove(selected_item_text)
+            print("processing dirs now:")
+            print(w.processing_dirs)
+            for dir in w.processing_dirs:
+                lista.addItem(str(dir))
+                #lista.addItem(os.path.basename(str(dir)))
 
         @pyqtSlot()
         def on_click_cal():
@@ -105,17 +126,14 @@ class GUI(QtGui.QMainWindow):
         @pyqtSlot()
         def checkbox_cb(self):
             w.AC = not w.AC
-            # print str(w.AC)
-            # return AC_flag
 
         @pyqtSlot()
         def checkbox_cb2(self):
             w.LP = not w.LP
-            # print str(w.LP)
-            # return LP_flag
 
         # connect the signals to the slots
-        btn.clicked.connect(on_click)
+        btn_add.clicked.connect(on_click_add)
+        btn_rm.clicked.connect(on_click_rm)
         btn2.clicked.connect(on_click_cal)
         btn3.clicked.connect(a.instance().quit)
         cb.clicked.connect(checkbox_cb)
@@ -130,52 +148,11 @@ class GUI(QtGui.QMainWindow):
         # let's assume that this is already done because I'm not sure how to automate it
 
         # fitting
+        fitting_class = fitting()
+        fitting_class.fitting_loop(w.processing_dirs,w.AC,w.LP)
 
+        print("GOT HERE!!!!!!!!!!!!!!!")
         # calibration
 
-        #
 
         return (w.AC, w.LP, w.cal_file, w.processing_dirs)
-
-
-
-'''
-        file_dialog = QtGui.QFileDialog(w, "", self.config['variables']['PATHS']['topdir'])
-        file_dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
-
-        # *Emma* has no idea what this does. But will keep it in regardless...
-        if sys.platform == "darwin": # The native dialog doesn't allow selecting >1 directory
-            file_dialog.setOption(QtGui.QFileDialog.DontUseNativeDialog)
-
-
-        tree_view = file_dialog.findChild(QtGui.QTreeView)
-        tree_view.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
-        list_view = file_dialog.findChild(QtGui.QListView, "listView")
-        list_view.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
-
-        if file_dialog.exec_() == QtGui.QDialog.Accepted:
-            dir_list = file_dialog.selectedFiles()
-
-        # Show window
-        w.show()
-
-        return [str(dir) for dir in dir_list]
-
-    def cal_file(self):
-
-        a = QtGui.QApplication(sys.argv)
-
-        w = QtGui.QWidget()
-
-        # Set window size.
-        w.resize(320, 240)
-        # Set window title
-        #w.setWindowTitle("Select Experiment Directories")
-
-        f = QtGui.QFileDialog.getOpenFileName(w, 'Open file',self.config['variables']['PATHS']['cal_pname'])
-
-        # Show window
-        w.show()
-
-        return str(f)
-'''

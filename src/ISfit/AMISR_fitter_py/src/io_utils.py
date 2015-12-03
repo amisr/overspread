@@ -12,7 +12,7 @@ import tables
 import os
 
 def read_whole_h5file(fname):
-    
+
     h5file=tables.openFile(fname)
     output={}
     for group in h5file.walkGroups("/"):
@@ -20,12 +20,12 @@ def read_whole_h5file(fname):
         for array in h5file.listNodes(group, classname = 'Array'):
             output[group._v_pathname][array.name]=array.read()
     h5file.close()
-     
+
     return output
-    
+
 def ini_tool(config,secName,parmName,required=0,defaultParm=''):
 
-    try: 
+    try:
         if config.has_option(secName,parmName):
             parm=config.get(secName,parmName)
         elif required==1:
@@ -34,22 +34,22 @@ def ini_tool(config,secName,parmName,required=0,defaultParm=''):
             parm=defaultParm
     except:
         raise IOError, 'Error reading %s from %s' % (parmName,secName)
-        
+
     return parm
 
 # loads the lag ambiguity function from a file
 def load_amb_func(path,full=0):
 
     outDict={}
-    
+
     dat=read_whole_h5file(path)
     outDict=dat['/']
-    
+
     return outDict
-    
+
 def copyAmbDict(inAmb):
     # Copies ambiguity function from data files to something the fitter expects and needs
-    
+
     outAmb={}
     try:
         outAmb['Delay']=inAmb['Delay']
@@ -59,7 +59,7 @@ def copyAmbDict(inAmb):
         outAmb['Wrange']=inAmb['Wrange']
     except:
         print 'Dont understand format of Ambiguity in data file.'
-    
+
     return outAmb
 
 def write_outputfile(fhandle,dict2do,keys2do=[],groupname='',name='',grouploc='/'):
@@ -88,15 +88,15 @@ def write_outputfile(fhandle,dict2do,keys2do=[],groupname='',name='',grouploc='/
                 fhandle.createArray(group, key, dict2do[key], "Dataset")
 
     return
-    
+
 def createh5groups(fhandle,h5Groups):
     # creates groups
     for group in h5Groups:
         gp,gn = os.path.split(group[0])
         fhandle.createGroup(gp,gn,group[1])
     return
-    
-def createStaticArray(fhandle,path,data,keys2do=[]):  
+
+def createStaticArray(fhandle,path,data,keys2do=[]):
     # creates a static array
     if len(keys2do)==0:
         dp,dn = os.path.split(path)
@@ -105,9 +105,9 @@ def createStaticArray(fhandle,path,data,keys2do=[]):
         for key in keys2do:
             fhandle.createArray(path,key,data[key],'Static array')
     return
-    
-def createDynamicArray(fhandle,path,rec,keys2do=[]):  
-    # creates a dynamic array    
+
+def createDynamicArray(fhandle,path,rec,keys2do=[]):
+    # creates a dynamic array
     if len(keys2do)==0:
         dp,dn = os.path.split(path)
         data = rec.copy()
@@ -121,13 +121,13 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
         arr = fhandle.getNode(path)
         if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
             if data.shape[2] > arr.shape[2]:
-                # read array 
-                tarr = arr.read() 
-                # remove old node                 
-                arr.remove() 
+                # read array
+                tarr = arr.read()
+                # remove old node
+                arr.remove()
                 tshape=list(tarr.shape); tshape[2]=data.shape[2]-tarr.shape[2]
-                tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)   
-                # create new node                 
+                tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)
+                # create new node
                 shape = list(tarr.shape)
                 shape[0] = 0
                 atom = tables.Atom.from_dtype(tarr.dtype)
@@ -140,7 +140,7 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                 tshape=list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
                 data=scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
         arr.append(data)
-        arr.flush()   
+        arr.flush()
     else:
         for key in keys2do:
             data = scipy.array(rec[key])
@@ -154,13 +154,13 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
             arr = fhandle.getNode(path+'/'+key)
             if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
                 if data.shape[2] > arr.shape[2]:
-                    # read array  
-                    tarr = arr.read() 
-                    # remove old node                 
-                    arr.remove() 
+                    # read array
+                    tarr = arr.read()
+                    # remove old node
+                    arr.remove()
                     tshape=list(tarr.shape); tshape[2]=data.shape[2]-tarr.shape[2]
-                    tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)   
-                    # create new node                 
+                    tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)
+                    # create new node
                     shape = list(tarr.shape)
                     shape[0] = 0
                     atom = tables.Atom.from_dtype(tarr.dtype)
@@ -173,13 +173,12 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                     tshape=list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
                     data=scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
             arr.append(data)
-            arr.flush()   
+            arr.flush()
     return
-    
+
 def setAtrributes(fhandle,data):
     for key in data.keys():
         for attr in data[key]:
             try:  fhandle.setNodeAttr(key,attr[0],attr[1])
             except: ''
     return
-    

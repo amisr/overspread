@@ -29,7 +29,7 @@ import matplotlib.image as IM
 import pylab
 import datetime
 
-sys.path.append('/Users/fitter/Documents/Work/ISfit/AMISR_fitter_py/src')
+sys.path.append('/Users/fitter/Documents/amisr-src/src/ISfit/AMISR_fitter_py/src')
 #sys.path.append('/Users/schen/Desktop/ISR_Project/AMISR_fitter_py/src')
 #import plot_utils
 import io_utils
@@ -53,7 +53,7 @@ def readafile(fname):
 if __name__ == '__main__':
 
         # Load logging module
-        logger = LoggerInit(config=os.path.join('/Volumes/ISR_DATA/calibration/AMISR/calibration_PFISR',
+        logger = LoggerInit(config=os.path.join('/Users/fitter/Documents/amisr-src/src/calibration/',
                             "config",
                             "log.ini") ).logger
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
             logger.debug(keyword)
             yyyy = str(raw_input('Enter year : '))
             mm = str(raw_input('Enter month : ')).zfill(2)
-            topdir = '/Volumes/ISR_DATA/processed_data/PFISR/%s/%s/' %(yyyy,mm)
+            topdir = '/Volumes/ISR_DATA_02/processed_data/PFISR/%s/%s/' %(yyyy,mm)
             #topdir = str(raw_input('Enter top directory (like /Volumes/ISR_DATA/processed_data/PFISR/2014/09/ **make sure you have the end slash**) : '))
             logger.debug(topdir)
             exp_WC = str(raw_input('Enter regular expression for matching (like 2014092*[0-9]) : '))
@@ -88,24 +88,24 @@ if __name__ == '__main__':
             logger.debug(type_list)
             exp_name = str(raw_input('Enter calibration folder name (like 20140921.001) : '))
             #calFname = str(raw_input('Enter experiment name (like 20140921.001/cal-201409-calibration-scalar-09.18.2015.txt : '))
-            exp_fname = '/Volumes/ISR_DATA/calibration/AMISR/calibration_PFISR/%s%s/PLCal30/%s/' %(yyyy,mm,exp_name)
+            exp_fname = '/Volumes/ISR_DATA_02/calibration/AMISR/calibration_PFISR/%s%s/PLCal30/%s/' %(yyyy,mm,exp_name)
             logger.debug(exp_fname)
             calFname = glob.glob('%s*-calibration-scalar*.txt' %(exp_fname))
             calFname = calFname[0]
             logger.debug(calFname)
         else:
-            topdir = '/Volumes/ISR_DATA/processed_data/PFISR/2014/09/' #'/Volumes/ISR_DATA/processed_data/PFISR/2015/01/'
-            keyword = 'Swarm_v01_20140902.007'#'IPY27_Tracking_v01'
+            topdir = '/Volumes/ISR_DATA_02/processed_data/PFISR/2014/09/' #'/Volumes/ISR_DATA/processed_data/PFISR/2015/01/'
+            keyword = 'PLCal30'#'IPY27_Tracking_v01'
             list_flag = 0
-            type_list = ['LP']#('LP','AC')
+            type_list = ['AC']#('LP','AC')
             #exp_WC = '20150109.001' goes with IPY27_Tracking_v01
             #exp_WC = '20150117.004'
             #exp_WC = '2015011*[0-9]'
             #exp_WC = '20150110.002'
-            exp_WC = '20140902.034'#'20150113.002'
+            exp_WC = '20140921.001'#'20150113.002'
             exp_name = '20140921.001'#'20150108.003'
             #exp_name = '20150127.001'
-            exp_fname = '/Volumes/ISR_DATA/calibration/AMISR/calibration_PFISR/201409/PLCal30/%s/' %(exp_name) #'/Volumes/ISR_DATA/calibration/AMISR/calibration_PFISR/201501/PLCal30/%s/' %(exp_name)
+            exp_fname = '/Volumes/ISR_DATA_02/calibration/AMISR/calibration_PFISR/201409/PLCal30/%s/' %(exp_name) #'/Volumes/ISR_DATA/calibration/AMISR/calibration_PFISR/201501/PLCal30/%s/' %(exp_name)
             calFname = glob.glob('%s*-calibration-scalar*.txt' %(exp_fname))
             calFname = calFname[0]
 
@@ -537,4 +537,4 @@ if __name__ == '__main__':
 
                             if replot:
                                 inst = amisrwrapper.amisrwrapper(configpath="/opt/amisr-plotting/amisrplotting/config/*.ini",logger=logger)
-                                inst.pcolor_plot(oName,plotdir)
+                                inst.pcolor_plot(oName,plotdir,replot=True)
