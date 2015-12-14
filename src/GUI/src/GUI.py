@@ -3,6 +3,7 @@ import sys
 from PyQt4 import QtGui
 from PyQt4.QtCore import pyqtSlot
 from fitting import *
+from calibration import *
 
 class GUI(QtGui.QMainWindow):
 
@@ -20,6 +21,7 @@ class GUI(QtGui.QMainWindow):
         # initialize variables
         w.LP = False
         w.AC = False
+        w.BC = False
         w.processing_dirs = []
         w.cal_file = []
 
@@ -60,6 +62,8 @@ class GUI(QtGui.QMainWindow):
         cb.move(10,325)
         cb2 = QtGui.QCheckBox('LP',w)
         cb2.move(100,325)
+        cb3 = QtGui.QCheckBox('BC',w)
+        cb3.move(190,325)
 
         # button for exiting / running processing
         btn3 = QtGui.QPushButton('Run processing', w)
@@ -131,6 +135,10 @@ class GUI(QtGui.QMainWindow):
         def checkbox_cb2(self):
             w.LP = not w.LP
 
+        @pyqtSlot()
+        def checkbox_cb3(self):
+            w.BC = not w.BC
+
         # connect the signals to the slots
         btn_add.clicked.connect(on_click_add)
         btn_rm.clicked.connect(on_click_rm)
@@ -138,6 +146,7 @@ class GUI(QtGui.QMainWindow):
         btn3.clicked.connect(a.instance().quit)
         cb.clicked.connect(checkbox_cb)
         cb2.clicked.connect(checkbox_cb2)
+        cb3.clicked.connect(checkbox_cb3)
 
         # execute GUI commands
         w.show()
@@ -148,11 +157,13 @@ class GUI(QtGui.QMainWindow):
         # let's assume that this is already done because I'm not sure how to automate it
 
         # fitting
-        fitting_class = fitting()
-        fitting_class.fitting_loop(w.processing_dirs,w.AC,w.LP)
+        #print("now we are doing the fitting")
+        #fitting_class = fitting()
+        #fitting_class.fitting_loop(w.processing_dirs,w.AC,w.LP,w.BC)
 
-        print("GOT HERE!!!!!!!!!!!!!!!")
-        # calibration
+        #calibration
+        print("now we are doing the calibration")
+        calibration_class = calibration()
+        calibration_class.calibration_loop(w.processing_dirs,w.cal_file,w.AC,w.LP,w.BC)
 
-
-        return (w.AC, w.LP, w.cal_file, w.processing_dirs)
+        return (w.AC, w.LP, w.BC, w.cal_file, w.processing_dirs)

@@ -59,55 +59,75 @@ if __name__ == '__main__':
 
         snrFilter=0;
         replot=0;
-        debug_flag = str(raw_input('Are you debugging? (enter "y" or "n")'))
-        if debug_flag == 'n':
-            keyword = str(raw_input('Enter keyword (like IPY27_Tracking_v01) : '))
-            logger.debug(keyword)
-            yyyy = str(raw_input('Enter year : '))
-            mm = str(raw_input('Enter month : ')).zfill(2)
+        if len(sys.argv) > 2:
+            print("We have input arguments")
+            #renaming input parameters
+            dir = sys.argv[1]
+            yyyy = dir.split("/")[5]
+            print("yyyy = "+yyyy)
+            mm = dir.split("/")[6]
+            print("mm = "+mm)
             topdir = '/Volumes/ISR_DATA_02/processed_data/PFISR/%s/%s/' %(yyyy,mm)
-            #topdir = str(raw_input('Enter top directory (like /Volumes/ISR_DATA/processed_data/PFISR/2014/09/ **make sure you have the end slash**) : '))
-            logger.debug(topdir)
-            exp_WC = str(raw_input('Enter regular expression for matching (like 2014092*[0-9]) : '))
-            logger.debug(exp_WC)
-            if not exp_WC:
-                dir_list = str(raw_input('Enter list of directories for processing (like "dir1,dir2"): '))
-                dir_list = dir_list.split(',')
-                logger.debug(dir_list)
-                list_flag = 1
-            else:
-                list_flag = 0
-            type = str(raw_input('Enter LP or AC or BOTH: '))
-            logger.debug(type)
-            if type == 'BOTH':
-                type_list = ('LP','AC')
-            elif type == 'LP':
-                type_list = ['LP']
-            elif type == 'AC':
-                type_list = ['AC']
-            logger.debug(type_list)
-            exp_name = str(raw_input('Enter calibration folder name (like 20140921.001) : '))
-            #calFname = str(raw_input('Enter experiment name (like 20140921.001/cal-201409-calibration-scalar-09.18.2015.txt : '))
-            exp_fname = '/Volumes/ISR_DATA_02/calibration/AMISR/calibration_PFISR/%s%s/PLCal30/%s/' %(yyyy,mm,exp_name)
-            logger.debug(exp_fname)
-            calFname = glob.glob('%s*-calibration-scalar*.txt' %(exp_fname))
-            calFname = calFname[0]
-            logger.debug(calFname)
-        else:
-            topdir = '/Volumes/ISR_DATA_02/processed_data/PFISR/2014/09/' #'/Volumes/ISR_DATA/processed_data/PFISR/2015/01/'
-            keyword = 'PLCal30'#'IPY27_Tracking_v01'
+            print("topdir =  "+topdir)
+            keyword = dir.split("/")[7]
+            print("keyword = %s" %(keyword))
+
+            debug_flag = "n"
             list_flag = 0
-            type_list = ['AC']#('LP','AC')
-            #exp_WC = '20150109.001' goes with IPY27_Tracking_v01
-            #exp_WC = '20150117.004'
-            #exp_WC = '2015011*[0-9]'
-            #exp_WC = '20150110.002'
-            exp_WC = '20140921.001'#'20150113.002'
-            exp_name = '20140921.001'#'20150108.003'
-            #exp_name = '20150127.001'
-            exp_fname = '/Volumes/ISR_DATA_02/calibration/AMISR/calibration_PFISR/201409/PLCal30/%s/' %(exp_name) #'/Volumes/ISR_DATA/calibration/AMISR/calibration_PFISR/201501/PLCal30/%s/' %(exp_name)
-            calFname = glob.glob('%s*-calibration-scalar*.txt' %(exp_fname))
-            calFname = calFname[0]
+            exp_WC = dir.split("/")[8]
+            print("exp_WC = "+exp_WC)
+            calFname = sys.argv[2]
+            type_list = [sys.argv[3]]
+        else:
+            debug_flag = str(raw_input('Are you debugging? (enter "y" or "n")'))
+            if debug_flag == 'n':
+                keyword = str(raw_input('Enter keyword (like IPY27_Tracking_v01) : '))
+                logger.debug(keyword)
+                yyyy = str(raw_input('Enter year : '))
+                mm = str(raw_input('Enter month : ')).zfill(2)
+                topdir = '/Volumes/ISR_DATA_02/processed_data/PFISR/%s/%s/' %(yyyy,mm)
+                #topdir = str(raw_input('Enter top directory (like /Volumes/ISR_DATA/processed_data/PFISR/2014/09/ **make sure you have the end slash**) : '))
+                logger.debug(topdir)
+                exp_WC = str(raw_input('Enter regular expression for matching (like 2014092*[0-9]) : '))
+                logger.debug(exp_WC)
+                if not exp_WC:
+                    dir_list = str(raw_input('Enter list of directories for processing (like "dir1,dir2"): '))
+                    dir_list = dir_list.split(',')
+                    logger.debug(dir_list)
+                    list_flag = 1
+                else:
+                    list_flag = 0
+                type = str(raw_input('Enter LP or AC or BOTH: '))
+                logger.debug(type)
+                if type == 'BOTH':
+                    type_list = ('LP','AC')
+                elif type == 'LP':
+                    type_list = ['LP']
+                elif type == 'AC':
+                    type_list = ['AC']
+                logger.debug(type_list)
+                exp_name = str(raw_input('Enter calibration folder name (like 20140921.001) : '))
+                #calFname = str(raw_input('Enter experiment name (like 20140921.001/cal-201409-calibration-scalar-09.18.2015.txt : '))
+                exp_fname = '/Volumes/ISR_DATA_02/calibration/AMISR/calibration_PFISR/%s%s/PLCal30/%s/' %(yyyy,mm,exp_name)
+                logger.debug(exp_fname)
+                calFname = glob.glob('%s*-calibration-scalar*.txt' %(exp_fname))
+                calFname = calFname[0]
+                logger.debug(calFname)
+            else:
+                topdir = '/Volumes/ISR_DATA_02/processed_data/PFISR/2014/09/' #'/Volumes/ISR_DATA/processed_data/PFISR/2015/01/'
+                keyword = 'PLCal30'#'IPY27_Tracking_v01'
+                list_flag = 0
+                type_list = ['AC']#('LP','AC')
+                #exp_WC = '20150109.001' goes with IPY27_Tracking_v01
+                #exp_WC = '20150117.004'
+                #exp_WC = '2015011*[0-9]'
+                #exp_WC = '20150110.002'
+                exp_WC = '20140921.001'#'20150113.002'
+                exp_name = '20140921.001'#'20150108.003'
+                #exp_name = '20150127.001'
+                exp_fname = '/Volumes/ISR_DATA_02/calibration/AMISR/calibration_PFISR/201409/PLCal30/%s/' %(exp_name) #'/Volumes/ISR_DATA/calibration/AMISR/calibration_PFISR/201501/PLCal30/%s/' %(exp_name)
+                calFname = glob.glob('%s*-calibration-scalar*.txt' %(exp_fname))
+                calFname = calFname[0]
 
         logger.debug('now we have entered all the stuffs')
 
@@ -125,7 +145,8 @@ if __name__ == '__main__':
                     tpAll=['lp_60min','lp_10sec','lp_20sec','lp_2min','lp_5min','lp_5min-dt0','lp_5min-dt1','lp_5min-dt2','lp_3min','lp_1min','lp_30sec','lp_9min','lp_15min']; snrMin=0.0;snrLim=0.8# #snrLim=0.4 #for RAXbg03
                 elif type_flag == 'AC':
                     tpAll=['ac_5min-dt0','ac_5min-dt3','ac_10sec','ac_20sec','ac_30sec','ac_1min','ac_1.5min','ac_5min-dt1','ac_5min','ac_15min', 'ac_2min','ac_3min','ac_60min']; snrMin=5e-3; snrLim=0.2;#5e-3;  snrLim=0.2;
-                #tpAll = ['bc_2min-Ne','bc_5min-Ne']; snrMin=0.0; snrLim=0.5;
+                elif type_flag == 'BC':
+                    tpAll = ['bc_2min-Ne','bc_5min-Ne']; snrMin=0.0; snrLim=0.5;
                 #tpAll=['lp_30sec','lp_30sec-dt0','lp_30sec-dt1','lp_30sec-dt2']; snrMin=0.0;  snrLim=0.8; #snrLim=0.4 #for RAXbg03
                 #st='IPY17-'
                 st=''

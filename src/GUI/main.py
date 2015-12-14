@@ -2,11 +2,11 @@
 
 import sys
 import argparse
-from src.Calibration import *
+from src.GUIwrapper import *
 
 
 if __name__ == "__main__":
-    cal = Calibration()
+    gui_wrapper = GUIwrapper()
 
     '''
     Example inputs:
@@ -26,6 +26,4 @@ if __name__ == "__main__":
     parser.add_argument('--gui',nargs='?',const=True,help="Interactive GUI")
     args = parser.parse_args()
 
-    cal.run(vars(args))
-
-    
+    gui_wrapper.run(vars(args))

@@ -796,8 +796,14 @@ class Run_Fitter:
 
         # make sure all necessary sections exist
         print(inifile)
-        if (not config.has_section('GENERAL')) or (not config.has_section('FIT_OPTIONS')) or (not config.has_section('INPUT')) or (not config.has_section('OUTPUT')):
-            raise IOError, 'Configuration files must contain at least 4 sections: GENERAL, FIT_OPTIONS, INPUT, and OUTPUT'
+        if (not config.has_section('GENERAL')):
+            raise IOError, 'Configuration files must contain at least section: GENERAL'
+        if (not config.has_section('FIT_OPTIONS')):
+            raise IOError, 'Configuration files must contain at least section: FIT_OPTIONS'
+        if (not config.has_section('INPUT')):
+            raise IOError, 'Configuration files must contain at least section: INPUT'
+        if (not config.has_section('OUTPUT')):
+            raise IOError, 'Configuration files must contain at least section: OUTPUT'
 
         # General section
         self.FITTER_PATH=io_utils.ini_tool(config,'DEFAULT','FITTER_PATH',required=1,defaultParm='')

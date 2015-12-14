@@ -1,80 +1,39 @@
-#cal_processed_file3.py, but better
-
 import os
+import glob
 import sys
-import logging
-from PyQt4 import QtGui
+from multiprocessing import Pool
+import subprocess
 
-from loggerinit.LoggerInit import *
-from configreader.ConfigReader import *
+class calibration:
 
-from GUI import *
-from file_io import *
-
-class Calibration:
-    '''
-    This is the Calibration class and it will contain important variables but I don't know what they'll be.
-    '''
     def __init__(self):
-        # Must initialize logging module first so that everything else
-        # can utilize it
-        LoggerInit("config/log.ini")
+        pass
 
-        # Create logger instance for current class
-        self.logger = logging.getLogger(__name__)
+    def calibration_loop(self,directory_list,calfile,AC=False,LP=False,BC=False):
+        print("we are now in the calibration loop!")
 
-        # Set up a ConfigReader object
-        self.ConfigReader = ConfigReader() #self.logger,logger_level="INFO")
+        # navigate to directory top
+        command_list = []
+        for dir in directory_list:
+            calscript_path = "/Users/fitter/Documents/amisr-src/src/calibration/cal_processed_file3.py"
+            if AC:
+                bash_command = "python " + calscript_path +" "+ dir + " "+ calfile + " "+"AC"
+                #p = subprocess.Popen(bash_command.split(),shell=False)
+                command_list.append(bash_command)
+            if LP:
+                bash_command = "python " + calscript_path +" "+ dir + " "+ calfile + " "+"LP"
+                #p = subprocess.Popen(bash_command.split(),shell=False)
+                command_list.append(bash_command)
+            if BC:
+                bash_command = "python " + calscript_path +" "+ dir + " "+ calfile + " "+"BC"
+                #p = subprocess.Popen(bash_command.split(),shell=False)
+                command_list.append(bash_command)
 
-        # Read all configuration files from the config directory.
+        print(command_list)
 
-        # Return as dictionary
-        self.config = self.ConfigReader.read("config/*.ini")
+        for cmd in command_list:
+            self.worker(cmd)
 
-        self.file_io = FileIO(self.config,self.logger)
-
-        # Return as object
-        #self.config_object = self.ConfigReader.read("config/*.ini",type=object)
-
-        self.logger.info("Configuration files loaded...")
-
-
-    def run(self, kwargs):
-        """
-        Inputs:
-            args : List of input variables
-                exp_dir : MM/YYYY string of experiment
-                exp_str : name of the experiment
-                exp_type : "LP", "AC", "both"
-                cal_file : calibration file to use
-        Outputs:
-            None?
-        """
-        self.kwargs = kwargs
-
-        if kwargs["gui"]:
-
-            cal_input_gui = GUI(self.config)
-            outputs = cal_input_gui.get_dirs()
-            AC_flag = outputs[0]
-            LP_flag = outputs[1]
-            print AC_flag
-            print LP_flag
-            print outputs[2]
-            print outputs[3]
-
-            # try:
-            if AC_flag & LP_flag:
-                print('both true')
-                kwargs["exp_type"] = 'BOTH'
-            elif AC_flag:
-                print('AC is true')
-                kwargs["exp_type"] = 'AC'
-            elif LP_flag:
-                print('LP is true')
-                kwargs["exp_type"] = 'LP'
-
-            print(kwargs)
-
-        else:
-            self.file_io.construct_full_path(self.kwargs)
+    def worker(self,cmd):
+        p = subprocess.Popen(cmd.split(), shell=False);
+        p.wait()

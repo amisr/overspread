@@ -46,3 +46,5 @@ if __name__ == "__main__":
                             fid.write(line)
                             fid.close()
                             print(filelist_file)
+                        if not filelist_files:
+                            shutil.rmtree(new_pname)
