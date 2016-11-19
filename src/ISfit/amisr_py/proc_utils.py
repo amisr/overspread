@@ -7,10 +7,13 @@ xxxxx
 last revised: xx/xx/2007
 
 """
-
+import sys
+sys.path.append('/Users/fitter/Documents/amisr-src/src/ISfit/AMISR_fitter_py/src/ISfit/amisr_py')
 import scipy, ctypes, tables
+sys.path.append('/Users/fitter/Documents/amisr-src/src/ISfit/amisr_py/lib/')
 import geolib
 
+sys.path.append('/Users/fitter/Documents/amisr-src/src/ISfit/amisr_py/constants/')
 from constants import *
 
 def azAverage(input):
@@ -23,7 +26,8 @@ def complex_median(input,axis=0):
     return scipy.stats.stats.nanmedian(input.real,axis=axis)+scipy.stats.stats.nanmedian(input.imag,axis=axis)*1.0j
 
 def ne_prof(Power,Range,Altitude,Model,TxPower,Pulsewidth,TxFrequency,KSYS):
-    
+    import math
+    pi = math.pi    
     Nbeams=scipy.size(KSYS)
     Nranges=scipy.size(Range)
 
@@ -50,7 +54,8 @@ def range2heightSimple(rng,el):
     # 
     # Converts range to height assuming flat earth
     #
-        
+    import math
+    pi = math.pi    
     Nhts=rng.size
     Nbeams=el.size
     el2=scipy.repeat(scipy.reshape(el,(Nbeams,1)),Nhts,axis=1)

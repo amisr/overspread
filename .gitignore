@@ -3,3 +3,5 @@
 *.sh~
 *.log*
 *.log
+*.*~
+.DS_Store
