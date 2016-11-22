@@ -657,7 +657,7 @@ class Run_Fitter:
 
                             # record termination parameter of fitter
                             fitinfo['fitcode'][Ibm,Iht]=ier
-                            if cov_x == None:
+                            if cov_x is None:
                                 try:
                                     fitinfo['fitcode'][Ibm,Iht]=-fitcode[Ibm,Iht]
                                 except:
@@ -719,7 +719,7 @@ class Run_Fitter:
                         FITS_out[Ibm,Iht,:,3]=vi
 
                         # compute errors if the Jacobian was able to be inverted
-                        if cov_x != None:
+                        if cov_x is not None:
                             ne_out[Ibm,Iht,1]=cov_x[0]
                             ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
 
@@ -1559,7 +1559,7 @@ class Run_Fitter:
         except:
             raise IOError, 'Error renaming output file: ' + self.OPTS['outfileLocked'] + 'to ' + self.OPTS['outfile']
 
-        """
+
         # make some final color plots
         if (self.OPTS['plotson']>0):
             if len(self.OPTS['pcolClims'])>0 and len(self.OPTS['pcolYlims'])>0:
@@ -1579,7 +1579,7 @@ class Run_Fitter:
                             "log.ini") ).logger
             inst = amisrwrapper.amisrwrapper(configpath="/opt/amisr-plotting/amisrplotting/config/*.ini",logger=logger)
             inst.pcolor_plot(self.OPTS['outfile'],self.OPTS['plotsdir'])
-
+        """
         return 0
 
 #######

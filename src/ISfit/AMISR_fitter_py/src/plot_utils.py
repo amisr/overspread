@@ -155,8 +155,6 @@ def plot_array(ax,nrows,ncols,*args):
 
             ax[ii].clear()
             ax[ii].hold(True)
-            if aa==0:
-                ax[ii].set_xscale("log")
             for cc in range(args[aa*3].shape[2]):
                 tval=args[aa*3][bb,:,cc]
                 tax=args[aa*3+1][bb,:,cc]
@@ -171,7 +169,9 @@ def plot_array(ax,nrows,ncols,*args):
                 tval[I]=scipy.nan; terr[:,I]=scipy.nan
                 I=scipy.where((tval-terr[0,:])<xlims[aa][0])[0]; terr[0,I]=tval[I]-xlims[aa][0]-1.0e-10
                 I=scipy.where((tval+terr[1,:])>xlims[aa][1])[0]; terr[1,I]=xlims[aa][1]-tval[I]-1.0e-10
-                ax[ii].errorbar(tval,tax,yerr=terr,fmt='-k.')
+                ax[ii].errorbar(tval,tax,xerr=terr,fmt='-k.')
+            if aa==0:
+                ax[ii].set_xscale("log")
             if aa==0 and bb==0:
                 ax[ii].text(1,(ymax-ymin)*0.15+ymax,title,fontsize=labsize, horizontalalignment='left')
             if bb>0:
