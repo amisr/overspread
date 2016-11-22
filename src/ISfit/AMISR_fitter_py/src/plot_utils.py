@@ -11,10 +11,10 @@ last revised: xx/xx/2007
 import os
 import scipy, tables
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 matplotlib.interactive(False)
-import pylab, matplotlib.dates
-import matplotlib.pyplot as plt
+from matplotlib import pyplot
+import matplotlib.dates
 
 from constants import *
 
@@ -43,16 +43,16 @@ def geoplot(az,el,rng,ht,plat,plong,dip,dec,Ibeam=[]):
     elm=int(scipy.floor(el.min()/10.0)*10.0)
 
     axesBG  = '#f6f6f6'
-    figg=pylab.figure(1, figsize=(5,8), facecolor='w')
+    figg=pyplot.figure(1, figsize=(5,8), facecolor='w')
 
     # polar plot
     r = (90.0-el)*pi/180
     theta = (-az+90)*pi/180
     area = 50
     colors = r
-    ax = pylab.subplot(211, polar=True,axisbg=axesBG)
-#    c = pylab.scatter(theta, r, c=colors, s=area)
-    c = pylab.scatter(theta, r, s=area)
+    ax = pyplot.subplot(211, polar=True,axisbg=axesBG)
+#    c = pyplot.scatter(theta, r, c=colors, s=area)
+    c = pyplot.scatter(theta, r, s=area)
     c.set_alpha(0.75)
 
     ring_angles = [ x * (pi/180.) for x in range(0,100-elm,10)]
@@ -60,8 +60,8 @@ def geoplot(az,el,rng,ht,plat,plong,dip,dec,Ibeam=[]):
     ring_labels.reverse()
     if ring_angles[0]==0.0:
         ring_angles[0]=ring_angles[0]+0.01
-    pylab.rgrids (ring_angles,ring_labels, angle=-90+22.5,fontsize=textsize)
-    pylab.thetagrids( range(0,360,45), ('E', 'NE', 'N','NW', 'W', 'SW', 'S', 'SE'), fontsize=textsize )
+    pyplot.rgrids(ring_angles,ring_labels, angle=-90+22.5,fontsize=textsize)
+    pyplot.thetagrids( range(0,360,45), ('E', 'NE', 'N','NW', 'W', 'SW', 'S', 'SE'), fontsize=textsize )
 
     if len(Ibeam)==0:
         Ibeam=range(Nbeams)
@@ -77,7 +77,7 @@ def geoplot(az,el,rng,ht,plat,plong,dip,dec,Ibeam=[]):
 
     #
 
-    ax = pylab.subplot(212,axisbg=axesBG)
+    ax = pyplot.subplot(212,axisbg=axesBG)
     for ii in range(Nbeams):
         ri=scipy.where(scipy.array(Ibeam)==ii)[0]
         t=r'$%d$' % (ri+1)
@@ -86,27 +86,25 @@ def geoplot(az,el,rng,ht,plat,plong,dip,dec,Ibeam=[]):
         I=scipy.where(scipy.absolute(scipy.diff(tlon))>300.0)[0]
         if len(I)>0:
             tlon[I[0]+1:]+=360.0
-#       pylab.plot(plat[ii,:],plong[ii,:],label=str(ii),c=r[ii],linewidth=2)
-#        pylab.plot(plat[ii,:],plong[ii,:],label=str(ii),c='%f' % r[ii],linewidth=2)
-        pylab.plot(tlat,tlon,label=str(ii),linewidth=2)
+#       pyplot.plot(plat[ii,:],plong[ii,:],label=str(ii),c=r[ii],linewidth=2)
+#        pyplot.plot(plat[ii,:],plong[ii,:],label=str(ii),c='%f' % r[ii],linewidth=2)
+        pyplot.plot(tlat,tlon,label=str(ii),linewidth=2)
         ax.text(tlat[-1],tlon[-1],t,fontsize=labsize, horizontalalignment='right')
 
-    labels = pylab.getp(ax, 'xticklabels')
-    pylab.setp(labels, fontsize=textsize)
-    labels = pylab.getp(ax, 'yticklabels')
-    pylab.setp(labels, fontsize=textsize)
+    labels = pyplot.getp(ax, 'xticklabels')
+    pyplot.setp(labels, fontsize=textsize)
+    labels = pyplot.getp(ax, 'yticklabels')
+    pyplot.setp(labels, fontsize=textsize)
 
     ax.set_ylabel('Mag. Long. (degrees)', fontsize=labsize)
     ax.set_xlabel('Mag. Lat. (degrees)', fontsize=labsize)
 
 
-    ##pylab.show()
+    ##pyplot.show()
 
     return figg
 
 def multi_axes(nrows,ncols,dx=0.02,dy=0.05,figsz=(14,10)):
-
-    #pylab.ioff()
 
     figBG   = 'w'        # the figure background color
     axesBG  = '#f6f6f6'  # the axies background color
@@ -124,20 +122,18 @@ def multi_axes(nrows,ncols,dx=0.02,dy=0.05,figsz=(14,10)):
         fy=1.0/(nrows)-dy*1.5
         POS=[0.1,1.0-fy-dy*1.5,1.0/(ncols+1)-dx,fy]
 
-    figg=pylab.figure(figsize=figsz, facecolor=figBG)
+    figg=pyplot.figure(figsize=figsz, facecolor=figBG)
     ax=[]
     for aa in range(nrows):
         for bb in range(ncols):
             rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2],POS[3]]
-            ax.append(pylab.axes(rect, axisbg=axesBG))
+            ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
 
     return figg,ax
 
 def plot_array(ax,nrows,ncols,*args):
 
     # arr should be
-
-    pylab.ioff()
 
     textsize = 8       # size for axes text
     labsize = 10
@@ -159,8 +155,6 @@ def plot_array(ax,nrows,ncols,*args):
 
             ax[ii].clear()
             ax[ii].hold(True)
-            if aa==0:
-                ax[ii].set_xscale("log")
             for cc in range(args[aa*3].shape[2]):
                 tval=args[aa*3][bb,:,cc]
                 tax=args[aa*3+1][bb,:,cc]
@@ -175,22 +169,22 @@ def plot_array(ax,nrows,ncols,*args):
                 tval[I]=scipy.nan; terr[:,I]=scipy.nan
                 I=scipy.where((tval-terr[0,:])<xlims[aa][0])[0]; terr[0,I]=tval[I]-xlims[aa][0]-1.0e-10
                 I=scipy.where((tval+terr[1,:])>xlims[aa][1])[0]; terr[1,I]=xlims[aa][1]-tval[I]-1.0e-10
-                ax[ii].errorbar(tval,tax,None,terr,'-k.')
+                ax[ii].errorbar(tval,tax,xerr=terr,fmt='-k.')
+            if aa==0:
+                ax[ii].set_xscale("log")
             if aa==0 and bb==0:
                 ax[ii].text(1,(ymax-ymin)*0.15+ymax,title,fontsize=labsize, horizontalalignment='left')
             if bb>0:
                 ax[ii].yaxis.set_ticklabels([])
             else:
                 ax[ii].set_ylabel(ylabels[aa], fontsize=labsize)
-                labels = pylab.getp(ax[ii], 'yticklabels')
-                pylab.setp(labels, fontsize=textsize)
+                ax[ii].tick_params(axis='y',labelsize=textsize)
 
             ax[ii].set_xlabel(xlabels[aa], fontsize=labsize)
             ax[ii].set_xlim(xlims[aa])
             ax[ii].set_ylim((ymin,ymax))
 
-            labels = pylab.getp(ax[ii], 'xticklabels')
-            pylab.setp(labels, fontsize=textsize)
+            ax[ii].tick_params(axis='x',labelsize=textsize)
             if aa==0:
                 tt=r"$(%.1f^o \rm{az} , \ %.1f^o \rm{el})$" % (bmcodes[ii,1],bmcodes[ii,2])
                 ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
@@ -199,8 +193,6 @@ def plot_array(ax,nrows,ncols,*args):
     return
 
 def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=0,ax=[],figg=-543,xxx=0.0,yyy=0.0,sc=1.0,im=0):
-
-    pylab.ioff()
 
     textsize = 8        # size for axes text
     labsize = 12
@@ -219,18 +211,18 @@ def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=
     dx=(x[-1]-x[0])/3600.0
     dx2=dx/12.0
     if dx2>0.5:
-        interval=scipy.ceil(dx/12.0)
+        interval=int(scipy.ceil(dx/12.0))
         locator = matplotlib.dates.HourLocator(interval=interval)
         formatter = matplotlib.dates.DateFormatter("%H")
     elif dx2<0.5:
-        interval=scipy.ceil(dx*60.0/3.0/sc)
+        interval=int(scipy.ceil(dx*60.0/3.0/sc))
         locator = matplotlib.dates.MinuteLocator(interval=interval)
         formatter = matplotlib.dates.DateFormatter("%H:%M")
 
     x=matplotlib.dates.epoch2num(x)
     xlim=[x[0],x[-1]]
 
-    if len(ax)==0 or pylab.gcf()!=figg:
+    if len(ax)==0 or pyplot.gcf()!=figg:
         (figg,ax)=multi_axes(nrows,ncols)
 
     for ii in range(Nbeams):
@@ -242,10 +234,7 @@ def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=
         ax[ii].set_ylim(ylim)
         if scipy.mod(ii,ncols)==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
-        labels = pylab.getp(ax[ii], 'xticklabels')
-        pylab.setp(labels, fontsize=textsize)
-        labels = pylab.getp(ax[ii], 'yticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax[ii].tick_params(axis='both',labelsize=textsize)
 #       if ii>=(nrows*(ncols-1)):
         if scipy.mod(ii,nrows)==0:
             ax[ii].set_xlabel(xl, fontsize=labsize)
@@ -265,65 +254,58 @@ def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=
         gp[3]=gp[3]/6.
         ax[ii].set_position(gp)
         if log:
-            cl=pylab.colorbar(pc,ax[ii],orientation='horizontal',format=pylab.FormatStrFormatter('$10^{%.1f}$'))
+            cl=pyplot.colorbar(pc,ax[ii],orientation='horizontal',format=pyplot.FormatStrFormatter('$10^{%.1f}$'))
         else:
-            cl=pylab.colorbar(pc,ax[ii],orientation='horizontal')
+            cl=pyplot.colorbar(pc,ax[ii],orientation='horizontal')
         ax[ii].yaxis.set_ticklabels([])
-        labels = pylab.getp(ax[ii], 'xticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax[ii].tick_params(axis='x',labelsize=textsize)
     #   labels=scipy.linspace(cax[0],cax[1],len(labels)).tolist()
         cl.set_label(text,fontsize=labsize)
     else:
         if log:
-            cl=figg.colorbar(pc,orientation='vertical',format=pylab.FormatStrFormatter('$10^{%.1f}$'),pad=0.15)
+            cl=figg.colorbar(pc,orientation='vertical',format=pyplot.FormatStrFormatter('$10^{%.1f}$'),pad=0.15)
         else:
             cl=figg.colorbar(pc,orientation='vertical',pad=0.15)
         cl.set_label(text,fontsize=labsize*1.25)
 
     for jj in range(len(ax)):
-        ax2=pylab.twinx(ax[ii])
-        labels = pylab.getp(ax2, 'xticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax2=pyplot.twinx(ax[ii])
+        ax[ii].tick_params(axis='x',labelsize=textsize)
  #       ax2.plot([x[0],x[-1]],[y2[0],y2[-1]],'.',markersize=1e-10)
         ax2.set_xlim(xlim)
         ax2.set_ylim([y2[0],y2[-1]])
-        labels = pylab.getp(ax2, 'yticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax[ii].tick_params(axis='y',labelsize=textsize)
         ax2.set_ylabel(yl2, fontsize=labsize)
 
     for jj in range(ii+1,len(ax)):
         ax[jj].set_visible(False)
-
-    #pylab.show()
 
     return figg,ax
 
 
 def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax=[],figg=-543,xxx=0.0,yyy=0.0,sc=1.0,textsize=8,labsize=12,xtime=1,cmap='jet'):
 
-    pylab.ioff()
-
     figBG   = 'w'        # the figure background color
     axesBG  = '#f6f6f6'  # the axies background color
     figsz = (14,10)
     ncols=1; nrows=2; dx=0.1; dy=0.05
     POS=[dx,0.5,1.0-dx*2,1.0/(nrows)-dy*3]
-    figg=pylab.figure(figsize=figsz, facecolor=figBG)
+    figg=pyplot.figure(figsize=figsz, facecolor=figBG)
     ax=[]
     for aa in range(nrows):
         for bb in range(ncols):
             rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2],POS[3]]
-            ax.append(pylab.axes(rect, axisbg=axesBG))
+            ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
 
     if xtime==1:
         dx=(x[-1,0]-x[0,0])/3600.0
         dx2=dx/12.0
         if dx2>0.5:
-            interval=scipy.ceil(dx/12.0)
+            interval=int(scipy.ceil(dx/12.0))
             locator = matplotlib.dates.HourLocator(interval=interval)
             formatter = matplotlib.dates.DateFormatter("%H")
         elif dx2<0.5:
-            interval=scipy.ceil(dx*60.0/5.0/sc)
+            interval=int(scipy.ceil(dx*60.0/5.0/sc))
             locator = matplotlib.dates.MinuteLocator(interval=interval)
             formatter = matplotlib.dates.DateFormatter("%H:%M")
 
@@ -339,7 +321,7 @@ def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax
         if (data.shape[0]*data.shape[1])>1.0e5:
             pc=ax[ii].imshow(scipy.transpose(data),vmin=cax[0],vmax=cax[1],origin='lower',extent=(x.min(), x.max(), y.min(), y.max()),aspect='auto')
         else:
-            pc=ax[ii].pcolor(scipy.transpose(x),scipy.transpose(y),scipy.transpose(data),shading='interp',vmin=cax[0],vmax=cax[1],cmap=pylab.get_cmap(cmap))
+            pc=ax[ii].pcolor(scipy.transpose(x),scipy.transpose(y),scipy.transpose(data),shading='interp',vmin=cax[0],vmax=cax[1],cmap=cmap)
         if xtime==1:
             ax[ii].xaxis.set_major_locator(locator)
             ax[ii].xaxis.set_major_formatter(formatter)
@@ -347,18 +329,15 @@ def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax
         ax[ii].set_ylim(ylim)
         if scipy.mod(ii,ncols)==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
-        labels = pylab.getp(ax[ii], 'xticklabels')
-        pylab.setp(labels, fontsize=textsize)
-        labels = pylab.getp(ax[ii], 'yticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax[ii].tick_params(axis='both',labelsize=textsize)
         ax[ii].set_xlabel(xl, fontsize=labsize)
         ax[ii].set_title(title,fontsize=labsize, horizontalalignment='center')
 
-    pylab.axes(ax[ii])
+    #pylab.axes(ax[ii])
     if log:
-        cl=pylab.colorbar(pc,orientation='vertical',format=pylab.FormatStrFormatter('$10^{%.1f}$'))
+        cl=pyplot.colorbar(pc,orientation='vertical',format=pyplot.FormatStrFormatter('$10^{%.1f}$'))
     else:
-        cl=pylab.colorbar(pc,orientation='vertical')
+        cl=pyplot.colorbar(pc,orientation='vertical')
     cl.set_label(text,fontsize=labsize*1.25)
 
     try:
@@ -368,7 +347,7 @@ def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax
         gp=ax[ii].get_position()
 
     ii=ii+1
-    pylab.axes(ax[ii])
+    #pylab.axes(ax[ii])
     try:
         tmp=ax[ii].get_position()
         gp2=scipy.array([tmp.xmin,tmp.ymin,tmp.width,tmp.height])
@@ -388,10 +367,7 @@ def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax
     if xtime==1:
         ax[ii].xaxis.set_major_locator(locator)
         ax[ii].xaxis.set_major_formatter(formatter)
-    labels = pylab.getp(ax[ii], 'xticklabels')
-    pylab.setp(labels, fontsize=textsize)
-    labels = pylab.getp(ax[ii], 'yticklabels')
-    pylab.setp(labels, fontsize=textsize)
+    ax[ii].tick_params(axis='both',labelsize=textsize)
     ax[ii].set_xlabel(xl, fontsize=labsize)
     ax[ii].set_ylabel('Degrees', fontsize=labsize)
     ax[ii].legend( ('Azimuth', 'Elevation') )
@@ -402,8 +378,6 @@ def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax
     return figg,ax
 
 def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg=-543,xxx=0.0,yyy=0.0,sc=1.0,im=0,textsize=8,labsize=12,show=1,Ibeam=[],horz=2,xtime=1,doResCol=0,maxbeams=30,cmap='jet',ncols=-1,nrows=-1):
-
-    #pylab.ioff()
 
     Nbeams=data.shape[1]
 
@@ -427,11 +401,11 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
         dx=(xlim[-1]-xlim[0])/3600.0
         dx2=dx/12.0
         if dx2>0.5:
-            interval=scipy.ceil(dx/12.0)
+            interval=int(scipy.ceil(dx/12.0))
             locator = matplotlib.dates.HourLocator(interval=interval)
             formatter = matplotlib.dates.DateFormatter("%H")
         elif dx2<0.5:
-            interval=scipy.ceil(dx*60.0/5.0/sc)
+            interval=int(scipy.ceil(dx*60.0/5.0/sc))
             locator = matplotlib.dates.MinuteLocator(interval=interval)
             formatter = matplotlib.dates.DateFormatter("%H:%M")
 
@@ -442,7 +416,7 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
             xlim=[x[0],x[-1]]
 
     ax0=ax
-    if len(ax)==0 or pylab.gcf()!=figg:
+    if len(ax)==0 or pyplot.gcf()!=figg:
         (figg,ax)=multi_axes(nrows,ncols)
 
     if len(Ibeam)==0:
@@ -456,7 +430,7 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
         if (data.shape[0]*data.shape[2])>2.5e4:
             pc=ax[ii].imshow(scipy.transpose(data[:,iiB,ialt]),vmin=cax[0],vmax=cax[1],origin='lower',extent=(x.min(), x.max(), scipy.nanmin(y[iiB,:]), scipy.nanmax(y[iiB,:])),aspect='auto')
         else:
-            pc=ax[ii].pcolor(x,scipy.squeeze(y[iiB,ialt]),scipy.transpose(data[:,iiB,ialt]),shading='interp',vmin=cax[0],vmax=cax[1],cmap=pylab.get_cmap(cmap))
+            pc=ax[ii].pcolor(x,scipy.squeeze(y[iiB,ialt]),scipy.transpose(data[:,iiB,ialt]),shading='interp',vmin=cax[0],vmax=cax[1],cmap=cmap)
         if xtime==1:
             ax[ii].xaxis.set_major_locator(locator)
             ax[ii].xaxis.set_major_formatter(formatter)
@@ -465,10 +439,7 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
         if scipy.mod(ii,ncols)==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
 
-        labels = pylab.getp(ax[ii], 'xticklabels')
-        pylab.setp(labels, fontsize=textsize)
-        labels = pylab.getp(ax[ii], 'yticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax[ii].tick_params(axis='both',labelsize=textsize)
 
         if ii>=(Nbeams-(ncols*nrows-Nbeams)):
 #       if scipy.mod(ii,ncols)==0:
@@ -492,19 +463,20 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
             gp[1]=gp[1]-gp[3]
             ax[ii].set_position(gp)
         if log:
-            cl=pylab.colorbar(pc,ax[ii],orientation='horizontal',format=pylab.FormatStrFormatter('$10^{%.1f}$'))
+            cl=pyplot.colorbar(pc,ax[ii],orientation='horizontal',format=pyplot.FormatStrFormatter('$10^{%.1f}$'))
         else:
-            cl=pylab.colorbar(pc,ax[ii],orientation='horizontal')
+            cl=pyplot.colorbar(pc,ax[ii],orientation='horizontal')
         ax[ii].yaxis.set_ticklabels([])
-        labels = pylab.getp(ax[ii], 'xticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax[ii].tick_params(axis='y',labelsize=textsize)
         if horz>1:
-            pylab.setp(labels,rotation='vertical')
+            #pyplot.setp(labels,rotation='vertical')
+            t = ax[ii].get_xticklabels()
+            ax[ii].set_xticklabels(t,rotation=90)
     #   labels=scipy.linspace(cax[0],cax[1],len(labels)).tolist()
         cl.set_label(text,fontsize=labsize*1.25)
     else:
         if log:
-            cl=figg.colorbar(pc,orientation='vertical',format=pylab.FormatStrFormatter('$10^{%.1f}$'))
+            cl=figg.colorbar(pc,orientation='vertical',format=pyplot.FormatStrFormatter('$10^{%.1f}$'))
         else:
             cl=figg.colorbar(pc,orientation='vertical')
         cl.set_label(text,fontsize=labsize*1.25)
@@ -649,7 +621,7 @@ def pcolor_plot_all(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],ylim=[
         dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
         (figg,ax)=pcolor_plot(time,RF.NePower['Altitude']/1000,dat,clim,xlim,ylim,'Time (UT)','Altitude (km)',title2,txt,RF.BMCODES,log=1)
 
-        xxx
+        
         if RF.OPTS['saveplots']==1:
             if os.path.exists(RF.OPTS['plotsdir']):
                 oname=title + '_NePower_NoTr' + txtra + '.png'
@@ -784,7 +756,7 @@ def pcolor_plot_all(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],ylim=[
                         oname=title + '_Vlos' + txtra + '-' + str(ion) + '.png'
                         figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
 
-            pylab.close('all')
+            pyplot.close('all')
 
     return figg,ax
 
@@ -839,7 +811,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 oname=title + '_NePower_NoTr' + txtra + '.png'
                 figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
 
-        pylab.close('all')
+        pyplot.close('all')
 
         # plot density, SNR
         clim=[-20.0,10.0]
@@ -854,7 +826,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 oname=title + '_NePower_SNR' + txtra + '.png'
                 figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
 
-        pylab.close('all')
+        pyplot.close('all')
 
         if RF.FITOPTS['DO_FITS']:
 
@@ -896,7 +868,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 if os.path.exists(RF.OPTS['plotsdir']):
                     oname=title + '_Ne' + txtra + '.png'
                     figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pylab.close('all')
+                    pyplot.close('all')
 
             # plot ion temp
             clim=clims[1]
@@ -911,7 +883,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 if os.path.exists(RF.OPTS['plotsdir']):
                     oname=title + '_Ti' + txtra + '.png'
                     figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pylab.close('all')
+                    pyplot.close('all')
 
             # plot elec temp
             clim=clims[2]
@@ -926,7 +898,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 if os.path.exists(RF.OPTS['plotsdir']):
                     oname=title + '_Te' + txtra + '.png'
                     figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pylab.close('all')
+                    pyplot.close('all')
 
             # plot te/ti
             clim=clims[3]
@@ -941,7 +913,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 if os.path.exists(RF.OPTS['plotsdir']):
                     oname=title + '_Tr' + txtra + '.png'
                     figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pylab.close('all')
+                    pyplot.close('all')
 
             # plot drift
             clim=clims[4]
@@ -956,7 +928,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 if os.path.exists(RF.OPTS['plotsdir']):
                     oname=title + '_Vlos' + txtra + '.png'
                     figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pylab.close('all')
+                    pyplot.close('all')
 
             # plot M+
             if len(clims)>5:
@@ -974,7 +946,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 if os.path.exists(RF.OPTS['plotsdir']):
                     oname=title + '_OpFrac' + txtra + '.png'
                     figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pylab.close('all')
+                    pyplot.close('all')
 
             # plot nu_in
             clim=[-2,5]
@@ -989,7 +961,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
                 if os.path.exists(RF.OPTS['plotsdir']):
                     oname=title + '_nuin' + txtra + '.png'
                     figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pylab.close('all')
+                    pyplot.close('all')
 
 
     return figg,ax
@@ -1069,8 +1041,6 @@ def replot_pcolor_all(fname,saveplots=0,opath='.',clims=[[10,12],[0,1500],[0,300
 
 def acf_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibeams=[],maxlag=-1):
 
-    pylab.ioff()
-
     textsize = 8        # size for axes text
     labsize = 10
 
@@ -1094,7 +1064,7 @@ def acf_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
 
     if len(ax)==0 or figg==-542:
         (figg,ax)=multi_axes(nrows,ncols)
-    pylab.figure(figg.number)
+    pyplot.figure(figg.number)
 
     for ii in range(ncols):
         rr=Ibeams[ii]
@@ -1122,21 +1092,14 @@ def acf_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
         if ii==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
             ax[ii].text(1,(ylim[1]-ylim[0])*0.1+ylim[1],title,fontsize=labsize, horizontalalignment='left')
-        labels = pylab.getp(ax[ii], 'xticklabels')
-        pylab.setp(labels, fontsize=textsize)
-        labels = pylab.getp(ax[ii], 'yticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax[ii].tick_params(axis='both',labelsize=textsize)
 
         tt=r"$(%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (bmcodes[rr,1],bmcodes[rr,2])
         ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
 
-    #pylab.show()
-
     return figg,ax
 
 def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibeams=[],measSpc=0,fsc=1.0,Ialt=-1,ylim=-1,scfac=1.0,ploterrs=1,zeroline=1):
-
-    pylab.ioff()
 
     textsize = 8        # size for axes text
     labsize = 10
@@ -1180,7 +1143,7 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
 
     if len(ax)==0 or figg==-542:
         (figg,ax)=multi_axes(nrows,ncols)
-    pylab.figure(figg.number)
+    pyplot.figure(figg.number)
 
     for ii in range(ncols):
         rr=Ibeams[ii]
@@ -1211,15 +1174,10 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
         if ii==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
             ax[ii].text(1,(ylim[1]-ylim[0])*0.1+ylim[1],title,fontsize=labsize, horizontalalignment='left')
-        labels = pylab.getp(ax[ii], 'xticklabels')
-        pylab.setp(labels, fontsize=textsize)
-        labels = pylab.getp(ax[ii], 'yticklabels')
-        pylab.setp(labels, fontsize=textsize)
+        ax[ii].tick_params(axis='y',labelsize=textsize)
 
         tt=r"$(%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (bmcodes[rr,1],bmcodes[rr,2])
         ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
-
-    #pylab.show()
 
     return figg,ax
 
@@ -1278,7 +1236,7 @@ def test_plot(RF,irec,ax=[],figg=-542,xlims=[(0.01,10),(0,3),(-1,1)],maxbeams=10
 
         if len(ax)==0 or figg==-542:
             (figg,ax)=multi_axes(nrows,ncols,dx=0.015)
-        pylab.figure(figg.number)
+        #pyplot.figure(figg.number)
         plot_array(ax,nrows,ncols,in1a,in1b,in1c,in2a,in2b,in2c,in3a,in3b,in3c,in4a,in4b,in4c,xlims,xlabels,ylabels,title,RF.BMCODES[Ibeams,:])
 
     else:
@@ -1288,7 +1246,7 @@ def test_plot(RF,irec,ax=[],figg=-542,xlims=[(0.01,10),(0,3),(-1,1)],maxbeams=10
 
         if len(ax)==0 or figg==-542:
             (figg,ax)=multi_axes(nrows,ncols,dx=0.015)
-        pylab.figure(figg.number)
+        #pyplot.figure(figg.number)
         plot_array(ax,nrows,ncols,in1a,in1b,in1c,in2a,in2b,in2c,in3a,in3b,in3c,xlims,xlabels,ylabels,title,RF.BMCODES[Ibeams,:])
 
     return figg,ax,title

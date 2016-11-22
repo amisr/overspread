@@ -14,7 +14,7 @@ import tables, ctypes
 import scipy, scipy.interpolate
 import matplotlib
 matplotlib.use('Agg')
-import pylab
+from matplotlib import pyplot
 
 import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_data
 from ISfitter import *
@@ -392,7 +392,7 @@ class Run_Fitter:
 
         ### Debug
         if self.OPTS['plotson']>2:
-            gf=pylab.figure()
+            gf=pyplot.figure()
 
         if self.FITOPTS['molecularModel']==2:
             myfrac = scipy.loadtxt(self.FITOPTS['molmodFile'])
@@ -657,7 +657,7 @@ class Run_Fitter:
 
                             # record termination parameter of fitter
                             fitinfo['fitcode'][Ibm,Iht]=ier
-                            if cov_x==None:
+                            if cov_x is None:
                                 try:
                                     fitinfo['fitcode'][Ibm,Iht]=-fitcode[Ibm,Iht]
                                 except:
@@ -719,20 +719,20 @@ class Run_Fitter:
                         FITS_out[Ibm,Iht,:,3]=vi
 
                         # compute errors if the Jacobian was able to be inverted
-                        if cov_x!=None:
+                        if cov_x is not None:
                             ne_out[Ibm,Iht,1]=cov_x[0]
                             ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
 
                         # make some plots if we are supposed to
                         if self.OPTS['plotson']>2:
-                            pylab.errorbar(range(tAcf.size),tAcf.imag,scipy.sqrt(tAcfVar),scipy.sqrt(tAcfVar),'r')
-                            pylab.hold(1)
-                            pylab.errorbar(range(tAcf.size),tAcf.real,scipy.sqrt(tAcfVar),scipy.sqrt(tAcfVar),'b')
-                            pylab.plot(range(tAcf.size),m.real,'k')
-                            pylab.plot(range(tAcf.size),m.imag,'k')
-                            pylab.title(str(HT[Ibm,Iht]/1000.)+' '+str(FITS_out[Ibm,Iht,-1,1]/FITS_out[Ibm,Iht,0,1]))
-                            pylab.hold(0)
-                            pylab.show()
+                            figgg = pyplot.figure()
+                            axxx = figgg.add_subplot(111)
+                            ax.errorbar(range(tAcf.size),tAcf.imag,scipy.sqrt(tAcfVar),scipy.sqrt(tAcfVar),'r')
+                            ax.errorbar(range(tAcf.size),tAcf.real,scipy.sqrt(tAcfVar),scipy.sqrt(tAcfVar),'b')
+                            ax.plot(range(tAcf.size),m.real,'k')
+                            ax.plot(range(tAcf.size),m.imag,'k')
+                            ax.set_title(str(HT[Ibm,Iht]/1000.)+' '+str(FITS_out[Ibm,Iht,-1,1]/FITS_out[Ibm,Iht,0,1]))
+                            pyplot.show()
 
                     except BadComposition, exc:
                         fitinfo['fitcode'][Ibm,Iht]=-500
@@ -779,7 +779,7 @@ class Run_Fitter:
                 ''
 
         if self.OPTS['plotson']>2:
-            pylab.close(gf)
+            pyplot.close(gf)
 
         return RNG,HT,ne_out,FITS_out,ERRS_out,mod_ACF,meas_ACF,errs_ACF,fitinfo,models,gmag
 
@@ -963,9 +963,16 @@ class Run_Fitter:
     def run(self):
     # main routine that runs the fitting loop.
     # call after instantiating a run_fitter instance
+        figg = None
+        figg2 = None
+        figg3 = None
+        figg4 = None
+        figg5 = None
+        figg6 = None
+        self.ContinueFromLocked = 1
 
         # close all figures
-        pylab.close('all')
+        pyplot.close('all')
 
         # check out the FILELIST
         try:
@@ -1403,11 +1410,14 @@ class Run_Fitter:
                         IbPl=range(len(Ibeams))
                     except:
                         IbPl=[]
-                    try:
+                    #try:
+                    if 1==1:
                         print "Making profile plots..."
-                        try:
+                        #try:
+                        if figg is not None:
                             (figg,ax,title)=plot_utils.test_plot(self,IIrec,ax,figg,self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
-                        except:
+                        else:
+                        #except:
                             (figg,ax,title)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
 
                         if self.OPTS['saveplots']==1:
@@ -1419,39 +1429,46 @@ class Run_Fitter:
                                 self.OPTS['saveplots']=0
                         if self.OPTS['plotson']>1:
                             print "Plotting ACFs..."
-                            try:
+                            #try:
+                            if figg2 is not None:
                                 (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,ax2,figg2,Ibeams=IbPl)
-                            except:
+                            #except:
+                            else:
                                 (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                             if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])):
                                 oname='acf ' + title + '.png'
                                 figg2.savefig(os.path.join(self.OPTS['plotsdir'],oname))
                             if self.OPTS['dumpSpectra']>0:
                                 print "Plotting Spectra..."
-                                try:
+                                #try:
+                                if figg6 is not None:
                                     (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,ax6,figg6,Ibeams=IbPl)
-                                except:
+                                else:
+                                #except:
                                     (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                                 if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])):
                                     oname='spc ' + title + '.png'
                                     figg6.savefig(os.path.join(self.OPTS['plotsdir'],oname))
-                    except:
-                        print 'Plotting error...'
+                    #except:
+                    #    print 'Plotting error...'
 
-                    try:
+                    #try:
+                    if 1==1:
                         if self.OPTS['dumpSpectra']>1:
-                            try:
+                            #try:
+                            if figg3 is not None:
                                 (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
                                     self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0],figg1=figg3,ax1=ax3,figg2=figg4,ax2=ax4,figg3=figg5,ax3=ax5)
-                            except:
+                            else:
+                            #except:
                                 (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
                                     self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0])
                             if (self.OPTS['saveplots']==1) and (os.path.exists(os.path.join(self.OPTS['plotsdir'],'Spectra'))):
                                 figg3.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Measured.png'))
                                 figg4.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Modeled.png'))
                                 figg5.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Residual.png'))
-                    except:
-                        print 'Plotting error...'
+                    #except:
+                    #    print 'Plotting error...'
 
             # Output data to file
             #try:
@@ -1543,7 +1560,7 @@ class Run_Fitter:
         except:
             raise IOError, 'Error renaming output file: ' + self.OPTS['outfileLocked'] + 'to ' + self.OPTS['outfile']
 
-        """
+
         # make some final color plots
         if (self.OPTS['plotson']>0):
             if len(self.OPTS['pcolClims'])>0 and len(self.OPTS['pcolYlims'])>0:
@@ -1563,7 +1580,7 @@ class Run_Fitter:
                             "log.ini") ).logger
             inst = amisrwrapper.amisrwrapper(configpath="/opt/amisr-plotting/amisrplotting/config/*.ini",logger=logger)
             inst.pcolor_plot(self.OPTS['outfile'],self.OPTS['plotsdir'])
-
+        """
         return 0
 
 #######
