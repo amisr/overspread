@@ -211,11 +211,11 @@ def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=
     dx=(x[-1]-x[0])/3600.0
     dx2=dx/12.0
     if dx2>0.5:
-        interval=scipy.ceil(dx/12.0)
+        interval=int(scipy.ceil(dx/12.0))
         locator = matplotlib.dates.HourLocator(interval=interval)
         formatter = matplotlib.dates.DateFormatter("%H")
     elif dx2<0.5:
-        interval=scipy.ceil(dx*60.0/3.0/sc)
+        interval=int(scipy.ceil(dx*60.0/3.0/sc))
         locator = matplotlib.dates.MinuteLocator(interval=interval)
         formatter = matplotlib.dates.DateFormatter("%H:%M")
 
@@ -301,11 +301,11 @@ def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax
         dx=(x[-1,0]-x[0,0])/3600.0
         dx2=dx/12.0
         if dx2>0.5:
-            interval=scipy.ceil(dx/12.0)
+            interval=int(scipy.ceil(dx/12.0))
             locator = matplotlib.dates.HourLocator(interval=interval)
             formatter = matplotlib.dates.DateFormatter("%H")
         elif dx2<0.5:
-            interval=scipy.ceil(dx*60.0/5.0/sc)
+            interval=int(scipy.ceil(dx*60.0/5.0/sc))
             locator = matplotlib.dates.MinuteLocator(interval=interval)
             formatter = matplotlib.dates.DateFormatter("%H:%M")
 
@@ -401,11 +401,11 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
         dx=(xlim[-1]-xlim[0])/3600.0
         dx2=dx/12.0
         if dx2>0.5:
-            interval=scipy.ceil(dx/12.0)
+            interval=int(scipy.ceil(dx/12.0))
             locator = matplotlib.dates.HourLocator(interval=interval)
             formatter = matplotlib.dates.DateFormatter("%H")
         elif dx2<0.5:
-            interval=scipy.ceil(dx*60.0/5.0/sc)
+            interval=int(scipy.ceil(dx*60.0/5.0/sc))
             locator = matplotlib.dates.MinuteLocator(interval=interval)
             formatter = matplotlib.dates.DateFormatter("%H:%M")
 
@@ -469,9 +469,9 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
         ax[ii].yaxis.set_ticklabels([])
         ax[ii].tick_params(axis='y',labelsize=textsize)
         if horz>1:
-            pyplot.setp(labels,rotation='vertical')
-            #t = ax[ii].get_xticklabels()
-            #ax[ii].set_xticklabels(t,rotation=90)
+            #pyplot.setp(labels,rotation='vertical')
+            t = ax[ii].get_xticklabels()
+            ax[ii].set_xticklabels(t,rotation=90)
     #   labels=scipy.linspace(cax[0],cax[1],len(labels)).tolist()
         cl.set_label(text,fontsize=labsize*1.25)
     else:
@@ -621,7 +621,7 @@ def pcolor_plot_all(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],ylim=[
         dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
         (figg,ax)=pcolor_plot(time,RF.NePower['Altitude']/1000,dat,clim,xlim,ylim,'Time (UT)','Altitude (km)',title2,txt,RF.BMCODES,log=1)
 
-        xxx
+        
         if RF.OPTS['saveplots']==1:
             if os.path.exists(RF.OPTS['plotsdir']):
                 oname=title + '_NePower_NoTr' + txtra + '.png'

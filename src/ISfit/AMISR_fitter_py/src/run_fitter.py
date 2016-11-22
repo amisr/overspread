@@ -969,6 +969,7 @@ class Run_Fitter:
         figg4 = None
         figg5 = None
         figg6 = None
+        self.ContinueFromLocked = 1
 
         # close all figures
         pyplot.close('all')
