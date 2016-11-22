@@ -657,7 +657,7 @@ class Run_Fitter:
 
                             # record termination parameter of fitter
                             fitinfo['fitcode'][Ibm,Iht]=ier
-                            if cov_x==None:
+                            if cov_x == None:
                                 try:
                                     fitinfo['fitcode'][Ibm,Iht]=-fitcode[Ibm,Iht]
                                 except:
@@ -719,7 +719,7 @@ class Run_Fitter:
                         FITS_out[Ibm,Iht,:,3]=vi
 
                         # compute errors if the Jacobian was able to be inverted
-                        if cov_x!=None:
+                        if cov_x != None:
                             ne_out[Ibm,Iht,1]=cov_x[0]
                             ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
 

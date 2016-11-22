@@ -171,20 +171,20 @@ def plot_array(ax,nrows,ncols,*args):
                 tval[I]=scipy.nan; terr[:,I]=scipy.nan
                 I=scipy.where((tval-terr[0,:])<xlims[aa][0])[0]; terr[0,I]=tval[I]-xlims[aa][0]-1.0e-10
                 I=scipy.where((tval+terr[1,:])>xlims[aa][1])[0]; terr[1,I]=xlims[aa][1]-tval[I]-1.0e-10
-                ax[ii].errorbar(tval,tax,None,terr,'-k.')
+                ax[ii].errorbar(tval,tax,yerr=terr,fmt='-k.')
             if aa==0 and bb==0:
                 ax[ii].text(1,(ymax-ymin)*0.15+ymax,title,fontsize=labsize, horizontalalignment='left')
             if bb>0:
                 ax[ii].yaxis.set_ticklabels([])
             else:
                 ax[ii].set_ylabel(ylabels[aa], fontsize=labsize)
-                ax[ii].tick_params(axis='y',fontsize=textsize)
+                ax[ii].tick_params(axis='y',labelsize=textsize)
 
             ax[ii].set_xlabel(xlabels[aa], fontsize=labsize)
             ax[ii].set_xlim(xlims[aa])
             ax[ii].set_ylim((ymin,ymax))
 
-            ax[ii].tick_params(axis='x',fontsize=textsize)
+            ax[ii].tick_params(axis='x',labelsize=textsize)
             if aa==0:
                 tt=r"$(%.1f^o \rm{az} , \ %.1f^o \rm{el})$" % (bmcodes[ii,1],bmcodes[ii,2])
                 ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
@@ -234,7 +234,7 @@ def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=
         ax[ii].set_ylim(ylim)
         if scipy.mod(ii,ncols)==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
-        ax[ii].tick_params(axis='both',fontsize=textsize)
+        ax[ii].tick_params(axis='both',labelsize=textsize)
 #       if ii>=(nrows*(ncols-1)):
         if scipy.mod(ii,nrows)==0:
             ax[ii].set_xlabel(xl, fontsize=labsize)
@@ -258,7 +258,7 @@ def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=
         else:
             cl=pyplot.colorbar(pc,ax[ii],orientation='horizontal')
         ax[ii].yaxis.set_ticklabels([])
-        ax[ii].tick_params(axis='x',fontsize=textsize)
+        ax[ii].tick_params(axis='x',labelsize=textsize)
     #   labels=scipy.linspace(cax[0],cax[1],len(labels)).tolist()
         cl.set_label(text,fontsize=labsize)
     else:
@@ -270,11 +270,11 @@ def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=
 
     for jj in range(len(ax)):
         ax2=pyplot.twinx(ax[ii])
-        ax[ii].tick_params(axis='x',fontsize=textsize)
+        ax[ii].tick_params(axis='x',labelsize=textsize)
  #       ax2.plot([x[0],x[-1]],[y2[0],y2[-1]],'.',markersize=1e-10)
         ax2.set_xlim(xlim)
         ax2.set_ylim([y2[0],y2[-1]])
-        ax[ii].tick_params(axis='y',fontsize=textsize)
+        ax[ii].tick_params(axis='y',labelsize=textsize)
         ax2.set_ylabel(yl2, fontsize=labsize)
 
     for jj in range(ii+1,len(ax)):
@@ -329,7 +329,7 @@ def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax
         ax[ii].set_ylim(ylim)
         if scipy.mod(ii,ncols)==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
-        ax[ii].tick_params(axis='both',fontsize=textsize)
+        ax[ii].tick_params(axis='both',labelsize=textsize)
         ax[ii].set_xlabel(xl, fontsize=labsize)
         ax[ii].set_title(title,fontsize=labsize, horizontalalignment='center')
 
@@ -367,7 +367,7 @@ def pcolor_plot_mot1(x,y,data,time,AZ,EL,cax,xlim,ylim,xl,yl,title,text,log=0,ax
     if xtime==1:
         ax[ii].xaxis.set_major_locator(locator)
         ax[ii].xaxis.set_major_formatter(formatter)
-    ax[ii].tick_params(axis='both',fontsize=textsize)
+    ax[ii].tick_params(axis='both',labelsize=textsize)
     ax[ii].set_xlabel(xl, fontsize=labsize)
     ax[ii].set_ylabel('Degrees', fontsize=labsize)
     ax[ii].legend( ('Azimuth', 'Elevation') )
@@ -439,7 +439,7 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
         if scipy.mod(ii,ncols)==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
 
-        ax[ii].tick_params(axis='both',fontsize=textsize)
+        ax[ii].tick_params(axis='both',labelsize=textsize)
 
         if ii>=(Nbeams-(ncols*nrows-Nbeams)):
 #       if scipy.mod(ii,ncols)==0:
@@ -467,7 +467,7 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
         else:
             cl=pyplot.colorbar(pc,ax[ii],orientation='horizontal')
         ax[ii].yaxis.set_ticklabels([])
-        ax[ii].tick_params(axis='y',fontsize=textsize)
+        ax[ii].tick_params(axis='y',labelsize=textsize)
         if horz>1:
             pyplot.setp(labels,rotation='vertical')
             #t = ax[ii].get_xticklabels()
@@ -1092,7 +1092,7 @@ def acf_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
         if ii==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
             ax[ii].text(1,(ylim[1]-ylim[0])*0.1+ylim[1],title,fontsize=labsize, horizontalalignment='left')
-        ax[ii].tick_params(axis='both',fontsize=textsize)
+        ax[ii].tick_params(axis='both',labelsize=textsize)
 
         tt=r"$(%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (bmcodes[rr,1],bmcodes[rr,2])
         ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
@@ -1174,7 +1174,7 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
         if ii==0:
             ax[ii].set_ylabel(yl, fontsize=labsize)
             ax[ii].text(1,(ylim[1]-ylim[0])*0.1+ylim[1],title,fontsize=labsize, horizontalalignment='left')
-        ax[ii].tick_params(axis='y',fontsize=textsize)
+        ax[ii].tick_params(axis='y',labelsize=textsize)
 
         tt=r"$(%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (bmcodes[rr,1],bmcodes[rr,2])
         ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
@@ -1236,7 +1236,7 @@ def test_plot(RF,irec,ax=[],figg=-542,xlims=[(0.01,10),(0,3),(-1,1)],maxbeams=10
 
         if len(ax)==0 or figg==-542:
             (figg,ax)=multi_axes(nrows,ncols,dx=0.015)
-        pyplot.figure(figg.number)
+        #pyplot.figure(figg.number)
         plot_array(ax,nrows,ncols,in1a,in1b,in1c,in2a,in2b,in2c,in3a,in3b,in3c,in4a,in4b,in4c,xlims,xlabels,ylabels,title,RF.BMCODES[Ibeams,:])
 
     else:
@@ -1246,7 +1246,7 @@ def test_plot(RF,irec,ax=[],figg=-542,xlims=[(0.01,10),(0,3),(-1,1)],maxbeams=10
 
         if len(ax)==0 or figg==-542:
             (figg,ax)=multi_axes(nrows,ncols,dx=0.015)
-        pyplot.figure(figg.number)
+        #pyplot.figure(figg.number)
         plot_array(ax,nrows,ncols,in1a,in1b,in1c,in2a,in2b,in2c,in3a,in3b,in3c,xlims,xlabels,ylabels,title,RF.BMCODES[Ibeams,:])
 
     return figg,ax,title
