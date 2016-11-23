@@ -159,6 +159,7 @@ def plot_array(ax,nrows,ncols,*args):
                 tval=args[aa*3][bb,:,cc]
                 tax=args[aa*3+1][bb,:,cc]
                 terr=scipy.repeat(args[aa*3+2][bb,:,cc][scipy.newaxis,:],2,axis=0)
+
                 if aa==0:
                     I=scipy.where(tval<=0.0)[0]
                     tval[I]=scipy.nan
@@ -172,6 +173,7 @@ def plot_array(ax,nrows,ncols,*args):
                 ax[ii].errorbar(tval,tax,xerr=terr,fmt='-k.')
             if aa==0:
                 ax[ii].set_xscale("log")
+
             if aa==0 and bb==0:
                 ax[ii].text(1,(ymax-ymin)*0.15+ymax,title,fontsize=labsize, horizontalalignment='left')
             if bb>0:

@@ -1415,12 +1415,20 @@ class Run_Fitter:
                         print "Making profile plots..."
                         #try:
                         if figg is not None:
-                            (figg,ax,title)=plot_utils.test_plot(self,IIrec,ax,figg,self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
+                            try:
+                                (figg,ax,title)=plot_utils.test_plot(self,IIrec,ax,figg,self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
+                            except Exception as e:
+                                print("Plotting failed: "+str(e))
+                                figg = None
                         else:
                         #except:
-                            (figg,ax,title)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
+                            try:
+                                (figg,ax,title)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
+                            except Exception as e:
+                                print("Plotting failed: "+str(e))
+                                figg = None
 
-                        if self.OPTS['saveplots']==1:
+                        if (self.OPTS['saveplots']==1) and (figg is not None):
                             if os.path.exists(self.OPTS['plotsdir']):
                                 oname=title + '.png'
                                 figg.savefig(os.path.join(self.OPTS['plotsdir'],oname))
@@ -1431,22 +1439,38 @@ class Run_Fitter:
                             print "Plotting ACFs..."
                             #try:
                             if figg2 is not None:
-                                (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,ax2,figg2,Ibeams=IbPl)
+                                try:
+                                    (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,ax2,figg2,Ibeams=IbPl)
+                                except Exception as e:
+                                    print("Plotting failed: "+str(e))
+                                    figg2 = None
                             #except:
                             else:
-                                (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
-                            if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])):
+                                try:
+                                    (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
+                                except Exception as e:
+                                    print("Plotting failed: "+str(e))
+                                    figg2 = None
+                            if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg2 is not None):
                                 oname='acf ' + title + '.png'
                                 figg2.savefig(os.path.join(self.OPTS['plotsdir'],oname))
                             if self.OPTS['dumpSpectra']>0:
                                 print "Plotting Spectra..."
                                 #try:
                                 if figg6 is not None:
-                                    (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,ax6,figg6,Ibeams=IbPl)
+                                    try:
+                                        (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,ax6,figg6,Ibeams=IbPl)
+                                    except Exception as e:
+                                        print("Plotting failed: "+str(e))
+                                        figg6 = None
                                 else:
                                 #except:
-                                    (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
-                                if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])):
+                                    try:
+                                        (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
+                                    except Exception as e:
+                                        print("Plotting failed: "+str(e))
+                                        figg6 = None
+                                if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg6 is not None):
                                     oname='spc ' + title + '.png'
                                     figg6.savefig(os.path.join(self.OPTS['plotsdir'],oname))
                     #except:
@@ -1457,13 +1481,22 @@ class Run_Fitter:
                         if self.OPTS['dumpSpectra']>1:
                             #try:
                             if figg3 is not None:
-                                (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
-                                    self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0],figg1=figg3,ax1=ax3,figg2=figg4,ax2=ax4,figg3=figg5,ax3=ax5)
+                                try:
+                                    (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
+                                        self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0],figg1=figg3,ax1=ax3,figg2=figg4,ax2=ax4,figg3=figg5,ax3=ax5)
+                                except Exception as e:
+                                    print("Plotting failed: "+str(e))
+                                    figg3, figg4, figg5 = None, None, None
                             else:
                             #except:
-                                (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
-                                    self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0])
-                            if (self.OPTS['saveplots']==1) and (os.path.exists(os.path.join(self.OPTS['plotsdir'],'Spectra'))):
+                                try:
+                                    (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
+                                        self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0])
+                                except Exception as e:
+                                    print("Plotting failed: "+str(e))
+                                    figg3, figg4, figg5 = None, None, None
+
+                            if (self.OPTS['saveplots']==1) and (os.path.exists(os.path.join(self.OPTS['plotsdir'],'Spectra'))) and (None not in [figg3, figg4, figg5]):
                                 figg3.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Measured.png'))
                                 figg4.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Modeled.png'))
                                 figg5.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Residual.png'))
