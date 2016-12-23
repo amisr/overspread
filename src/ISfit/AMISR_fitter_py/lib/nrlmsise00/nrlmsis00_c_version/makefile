@@ -2,7 +2,7 @@ CFLAGS = -Wall -fPIC -ansi -D_GNU_SOURCE -D_DARWIN
 CC = gcc
 OBJS = nrlmsise-00.o nrlmsise-00_data.o
 
-all: clean nrlmsise-00.o nrlmsise-00_test.o nrlmsise-00_data.o msislib msislib_linux nrlmsise-test
+all: clean nrlmsise-00.o nrlmsise-00_test.o nrlmsise-00_data.o msislib nrlmsise-test
 
 nrlmsise-test: nrlmsise-00.o nrlmsise-00_test.o nrlmsise-00_data.o
 	$(CC) $(CFLAGS) nrlmsise-00.o -lm nrlmsise-00_test.o nrlmsise-00_data.o -o nrlmsise-test
