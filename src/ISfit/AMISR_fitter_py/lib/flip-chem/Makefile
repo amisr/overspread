@@ -65,7 +65,7 @@ OBJECTS = $(SOURCES:%.f=%.o)
 #       Libraries and Programs
 # ----------------------------------------------------------------------
 
-all: clean libflip.a libflip.so.1
+all: clean libflip.a libflip.so
 
 # libflip.a: $(OBJECTS)
 # 	libtool -static -o $@ $(OBJECTS)
@@ -74,23 +74,9 @@ all: clean libflip.a libflip.so.1
 libflip.a: $(OBJECTS)
 	ar -cvq $@ $(OBJECTS)
 
-# libflip.so.1: $(OBJECTS)
-# 	$(FC) -o $@ -shared $(OBJECTS)
-# 	cp libgeo.so.1 $(LIBDIR)
-# 	rm -f $(LIBDIR)/libflip.so
-# 	ln -s $(LIBDIR)/libflip.so.1 $(LIBDIR)/libflip.so
-
-libflip.so.1: $(OBJECTS)
+libflip.so: $(OBJECTS)
 	$(FC) -o $@ -shared $(OBJECTS)
-ifneq ($(LIBDIR), "")
-	cp libflip.so.1 $(LIBDIR)
-	rm -f $(LIBDIR)/libflip.so
-	ln -s $(LIBDIR)/libflip.so.1 $(LIBDIR)/libflip.so
-else
-	rm -f libflip.so
-	ln -s libflip.so.1 libflip.so
-endif
 
 clean:
 	@echo "Cleaning ... "
-	rm -f *# *~ *.o *.a
+	rm -f *~ *.o *.a *.so
