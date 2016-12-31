@@ -21,10 +21,10 @@ FC =  gfortran
 CC =  gcc
 
 # Library directory
-LIBDIR =
+LIBDIR = ""
 
 # Binary directory
-BINDIR =
+BINDIR = ""
 
 # ----------------------------------------------------------------------
 #       End of site-dependent definitions
@@ -40,14 +40,26 @@ PRINT = lp
 #       Library directives
 # ----------------------------------------------------------------------
 
-LDLIBS = -L/Users/mnicolls/Documents/Work/ISfit/AMISR_fitter_py/lib/geolib -lgeo -lm
+#LDLIBS = -L/Users/mnicolls/Documents/Work/ISfit/AMISR_fitter_py/lib/geolib -lgeo -lm
+
+LDLIBS = -L. -lgeo -lm
 
 # ----------------------------------------------------------------------
 #       Fortran compiler options
 # ----------------------------------------------------------------------
 
+#auto detect if mac or linux
+UNAME := $(shell uname -s)
+
+ifeq ($(UNAME), Linux)
+	FFLAGS = -O -fPIC -Wall -Wuninitialized -fno-second-underscore
+endif
+ifeq ($(UNAME), Darwin)
+	FFLAGS = -D_GNU_SOURCE -D_DARWIN -Wuninitialized -fno-second-underscore
+endif
+
 #FFLAGS = -O -fPIC -Wall -Wuninitialized -fno-second-underscore
-FFLAGS = -O -Wall -D_GNU_SOURCE -D_DARWIN -Wuninitialized -fno-second-underscore
+#FFLAGS = -O -Wall -D_GNU_SOURCE -D_DARWIN -Wuninitialized -fno-second-underscore
 #FFLAGS = -fno-automatic -finit-local-zero -O3 -ff77 -ffast-math -Wall -D_GNU_SOURCE -D_DARWIN -bundle -dynamiclib
 
 # ----------------------------------------------------------------------
@@ -81,26 +93,33 @@ OBJECTS = $(SOURCES:%.f=%.o)
 #       Libraries and Programs
 # ----------------------------------------------------------------------
 
-all: clean libgeo.a libgeo.so.1 testGeolib testGeolibs sfctest testISRIM verify
+#all: clean libgeo.a libgeo.so.1 testGeolib testGeolibs sfctest testISRIM verify
+all: clean libgeo.a libgeo.so.1 testGeolib sfctest testISRIM verify
+
+# libgeo.a: $(OBJECTS)
+# 	libtool -static -o $@ $(OBJECTS)
+# 	gcc -dynamiclib -all_load -flat_namespace -single_module -o libgeo.dylib libgeo.a /usr/local/Cellar/gcc/5.2.0/lib/gcc/5/libgfortran.dylib
+#/sw/lib/libg2c.a
 
 libgeo.a: $(OBJECTS)
-	libtool -static -o $@ $(OBJECTS)
-	gcc -dynamiclib -all_load -flat_namespace -single_module -o libgeo.dylib libgeo.a /usr/local/Cellar/gcc/5.2.0/lib/gcc/5/libgfortran.dylib
-#/sw/lib/libg2c.a
+	ar -cvq $@ $(OBJECTS)
 
 libgeo.so.1: $(OBJECTS)
 	$(FC) -o $@ -shared $(OBJECTS)
+ifneq ($(LIBDIR), "")
 	cp libgeo.so.1 $(LIBDIR)
 	rm -f $(LIBDIR)/libgeo.so
 	ln -s $(LIBDIR)/libgeo.so.1 $(LIBDIR)/libgeo.so
+else
+	rm -f libgeo.so
+	ln -s libgeo.so.1 libgeo.so
+endif
 
 testGeolib: testGeolib.o
-	$(LINK.f) testGeolib.o $(LDLIBS) -o $@
+	$(LINK.f) testGeolib.o libgeo.a -o $@
+ifneq ($(BINDIR), "")
 	cp testGeolib $(BINDIR)/testGeolib
-
-testGeolibs: testGeolib.o
-	$(LINK.f) testGeolib.o -static $(LDLIBS) -o $@
-	cp testGeolibs $(BINDIR)/testGeolibs
+endif
 
 sfctest: sfctest.o
 	$(LINK.f) sfctest.o $(LDLIBS) -o $@
@@ -122,14 +141,9 @@ verify:
            echo 'OK - testGeolib.out and testGeolib.out.rock are the same' || \
         (cmp -s testGeolib.out testGeolib.out.rock || \
            echo 'Fail - testGeolib.out and testGeolib.out.rock are different')
-	./testGeolibs
-	@cmp -s testGeolib.out testGeolib.out.rock && \
-           echo 'OK - testGeolib.out and testGeolib.out.rock are the same' || \
-        (cmp -s testGeolib.out testGeolib.out.rock || \
-           echo 'Fail - testGeolib.out and testGeolib.out.rock are different')
 
 clean cleanup:
-	rm -f testGeolib testGeolibs libgeo.a libgeo.so.1 sfctest testISRIM \
+	rm -f testGeolib testGeolibs libgeo.a libgeo.so.1 libgeo.so sfctest testISRIM \
               core *.o *.BAK *.CKP *%
 print listing:
 	$(PRINT) Makefile $(SOURCES) testGeolib.f testGeolib.out.rock

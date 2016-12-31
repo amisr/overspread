@@ -20,8 +20,13 @@ import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_
 from ISfitter import *
 from constants import *
 
-from loggerinit.LoggerInit import *
-from amisrplotting import amisrwrapper
+#Leftover from amisrwrapper code
+#from loggerinit.LoggerInit import *
+#from amisrplotting import amisrwrapper
+
+#For fitcal files (files that are calibrated and fitted at the same time)
+#we need to add a Calibration record
+from add_calibration_record import *
 
 MAXFEV_C=20
 
@@ -160,7 +165,7 @@ class Run_Fitter:
         # parse the ini file
         self.ini_parse(options.conffile)
 
-        self.ct_spec=load_ct_spec(self.LIB_SPEC) # spectra library
+        self.ct_spec=ctypes.CDLL(self.LIB_SPEC) # spectra library
         self.ct_msis=ctypes.CDLL(self.LIB_MSIS) # MSIS library
 #            self.ct_aacgm=ctypes.CDLL(self.LIB_AACGM) # AACGM library
 #            self.ct_igrf=ctypes.CDLL(self.LIB_IGRF) # IGRF library
@@ -866,6 +871,7 @@ class Run_Fitter:
         self.FITOPTS['CalToNoiseRatio']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','CalToNoiseRatio',required=0,defaultParm='1.0'))
         self.FITOPTS['beamMapScale']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','beamMapScale',required=0,defaultParm='0'))
         self.FITOPTS['beamMapScaleFile']=io_utils.ini_tool(config,'INPUT','beamMapScaleFile',required=0,defaultParm='')
+        self.FITOPTS['fitcal'] =eval(io_utils.ini_tool(config,'FIT_OPTIONS','fitcal',required=0,defaultParm='0'))
         self.FITOPTS['fit0lag']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','fit0lag',required=0,defaultParm='1'))
         self.FITOPTS['uselag1']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','uselag1',required=0,defaultParm='0'))
         self.FITOPTS['Recs2Integrate']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Recs2Integrate',required=1,defaultParm='')))
@@ -963,6 +969,23 @@ class Run_Fitter:
     def run(self):
     # main routine that runs the fitting loop.
     # call after instantiating a run_fitter instance
+        print "***************************************"
+        print self.FITOPTS['fitcal']
+        if (self.FITOPTS['fitcal'] == 1):
+            print("Appending -fitcal to file names.")
+
+            #Now change the output file name so it has the -fitcal string appended to it
+            temp = self.OPTS['outfile']
+            temp2 = temp[:-3]+'-fitcal'+temp[-3:]
+            print("Changing output filename to " + temp2)
+            self.OPTS['outfile'] = temp2
+
+            #Finally, change the output directory name for the plots directory
+            temp = self.OPTS['plotsdir']+'-fitcal'
+            print("Changing plotting dirname to " + temp)
+            self.OPTS['plotsdir'] = temp
+
+        #Initialize figure handles
         figg = None
         figg2 = None
         figg3 = None
@@ -1584,6 +1607,14 @@ class Run_Fitter:
             Iplot=Iplot+1
 
         ### end: main loop
+
+        if (self.FITOPTS['fitcal'] == 1):
+            print("Adding calibration information.")
+
+            fname = self.OPTS['outfileLocked']
+            calFname = self.FITOPTS['beamMapScaleFile']
+            calMethodIndex = 0  #Plasma Line! Need to change this so there is a test done to determine which method was used!!!
+            add_calibration_info(fname,calFname,calMethodIndex)
 
         # rename output file
         try:
