@@ -633,6 +633,77 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     
     return S,N,C
 
+
+def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None,h5PwrPath='/S/ZeroLags'):
+    
+    Nfreqs=len(fconts)
+    for ii in range(Nfreqs):
+        if len(Irecs[ii])>0:
+            tS,tN,tC=process_altcode(fconts[ii],Irecs[ii],acfopts,Amb,doamb=doamb,extCal=extCal,h5DataPath=h5DataPath,BeamCodes=BeamCodes,h5PwrPath='/S/ZeroLags')
+            BeamCodes=tS['BMCODES']
+            if ii==0:
+                S=tS.copy(); N=tN.copy(); C=tC.copy()
+                # ACF                
+                if acfopts['DO_FITS']:
+                    acfIntsS = scipy.repeat(scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],tS['Acf']['Data'].shape[1],axis=1),tS['Acf']['Data'].shape[2],axis=2)
+                    acfIntsN = scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis],tN['Acf']['Data'].shape[1],axis=1)                
+                    S['Acf']['Data']=tS['Acf']['Data']*acfIntsS
+                    N['Acf']['Data']=tN['Acf']['Data']*acfIntsN
+                    S['Acf']['Psc']=tS['Acf']['Psc']*acfIntsS
+                # Power
+                pwrIntsS = scipy.repeat(tS['Power']['PulsesIntegrated'][:,scipy.newaxis],tS['Power']['Data'].shape[1],axis=1)
+                S['Power']['Data']=tS['Power']['Data']*pwrIntsS
+                N['Power']['Data']=tN['Power']['Data']*tN['Power']['PulsesIntegrated']
+                C['Power']['Data']=tC['Power']['Data']*tC['Power']['PulsesIntegrated']
+                S['Power']['SNR']=tS['Power']['SNR']*pwrIntsS
+                S['Power']['StDev']=tS['Power']['StDev']*pwrIntsS
+                # Pulses Integrated
+                S['Power']['PulsesIntegrated']=tS['Power']['PulsesIntegrated']
+                N['Power']['PulsesIntegrated']=tN['Power']['PulsesIntegrated']
+                C['Power']['PulsesIntegrated']=tC['Power']['PulsesIntegrated']                
+                if acfopts['DO_FITS']:
+                    S['Acf']['PulsesIntegrated']=tS['Acf']['PulsesIntegrated']
+                    N['Acf']['PulsesIntegrated']=tN['Acf']['PulsesIntegrated']
+            else:
+                # ACF                
+                if acfopts['DO_FITS']:
+                    acfIntsS = scipy.repeat(scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],tS['Acf']['Data'].shape[1],axis=1),tS['Acf']['Data'].shape[2],axis=2)
+                    acfIntsN = scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis],tN['Acf']['Data'].shape[1],axis=1)                
+                    S['Acf']['Data']+=tS['Acf']['Data']*acfIntsS
+                    N['Acf']['Data']+=tN['Acf']['Data']*acfIntsN
+                    S['Acf']['Psc']+=tS['Acf']['Psc']*acfIntsS
+                # Power
+                pwrIntsS = scipy.repeat(tS['Power']['PulsesIntegrated'][:,scipy.newaxis],tS['Power']['Data'].shape[1],axis=1)
+                S['Power']['Data']+=tS['Power']['Data']*pwrIntsS
+                N['Power']['Data']+=tN['Power']['Data']*tN['Power']['PulsesIntegrated']
+                C['Power']['Data']+=tC['Power']['Data']*tC['Power']['PulsesIntegrated']
+                S['Power']['SNR']+=tS['Power']['SNR']*pwrIntsS
+                S['Power']['StDev']+=tS['Power']['StDev']*pwrIntsS
+                # Pulses Integrated
+                S['Power']['PulsesIntegrated']+=tS['Power']['PulsesIntegrated']
+                N['Power']['PulsesIntegrated']+=tN['Power']['PulsesIntegrated']
+                C['Power']['PulsesIntegrated']+=tC['Power']['PulsesIntegrated']                
+                if acfopts['DO_FITS']:
+                    S['Acf']['PulsesIntegrated']+=tS['Acf']['PulsesIntegrated']
+                    N['Acf']['PulsesIntegrated']+=tN['Acf']['PulsesIntegrated']
+
+    # ACF
+    if acfopts['DO_FITS']:    
+        acfIntsS = scipy.repeat(scipy.repeat(S['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],S['Acf']['Data'].shape[1],axis=1),S['Acf']['Data'].shape[2],axis=2)
+        acfIntsN = scipy.repeat(S['Acf']['PulsesIntegrated'][:,scipy.newaxis],N['Acf']['Data'].shape[1],axis=1)
+        S['Acf']['Data']/=acfIntsS
+        N['Acf']['Data']/=acfIntsN
+        S['Acf']['Psc']/=acfIntsS
+    # Power
+    pwrIntsS = scipy.repeat(S['Power']['PulsesIntegrated'][:,scipy.newaxis],S['Power']['Data'].shape[1],axis=1)
+    S['Power']['Data']/=pwrIntsS
+    N['Power']['Data']/=N['Power']['PulsesIntegrated']
+    C['Power']['Data']/=C['Power']['PulsesIntegrated']
+    S['Power']['SNR']/=pwrIntsS
+    S['Power']['StDev']/=pwrIntsS
+    
+    return S,N,C
+
 def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None):
     
     funcname='scipy.stats.stats.nanmean'
