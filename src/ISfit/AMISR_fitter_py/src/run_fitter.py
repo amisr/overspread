@@ -20,8 +20,8 @@ import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_
 from ISfitter import *
 from constants import *
 
-from loggerinit.LoggerInit import *
-from amisrplotting import amisrwrapper
+# from loggerinit.LoggerInit import *
+# from amisrplotting import amisrwrapper
 
 MAXFEV_C=20
 
@@ -160,7 +160,7 @@ class Run_Fitter:
         # parse the ini file
         self.ini_parse(options.conffile)
 
-        self.ct_spec=load_ct_spec(self.LIB_SPEC) # spectra library
+        self.ct_spec=ctypes.CDLL(self.LIB_SPEC) # spectra library
         self.ct_msis=ctypes.CDLL(self.LIB_MSIS) # MSIS library
 #            self.ct_aacgm=ctypes.CDLL(self.LIB_AACGM) # AACGM library
 #            self.ct_igrf=ctypes.CDLL(self.LIB_IGRF) # IGRF library
