@@ -646,9 +646,9 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
                 # ACF                
                 if acfopts['DO_FITS']:
                     acfIntsS = scipy.repeat(scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],tS['Acf']['Data'].shape[1],axis=1),tS['Acf']['Data'].shape[2],axis=2)
-                    acfIntsN = scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis],tN['Acf']['Data'].shape[1],axis=1)                
+                    #acfIntsN = scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis],tN['Acf']['Data'].shape[1],axis=1)                
                     S['Acf']['Data']=tS['Acf']['Data']*acfIntsS
-                    N['Acf']['Data']=tN['Acf']['Data']*acfIntsN
+                    #N['Acf']['Data']=tN['Acf']['Data']*acfIntsN
                     S['Acf']['Psc']=tS['Acf']['Psc']*acfIntsS
                 # Power
                 pwrIntsS = scipy.repeat(tS['Power']['PulsesIntegrated'][:,scipy.newaxis],tS['Power']['Data'].shape[1],axis=1)
@@ -668,9 +668,9 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
                 # ACF                
                 if acfopts['DO_FITS']:
                     acfIntsS = scipy.repeat(scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],tS['Acf']['Data'].shape[1],axis=1),tS['Acf']['Data'].shape[2],axis=2)
-                    acfIntsN = scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis],tN['Acf']['Data'].shape[1],axis=1)                
+                    #acfIntsN = scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis],tN['Acf']['Data'].shape[1],axis=1)                
                     S['Acf']['Data']+=tS['Acf']['Data']*acfIntsS
-                    N['Acf']['Data']+=tN['Acf']['Data']*acfIntsN
+                    #N['Acf']['Data']+=tN['Acf']['Data']*acfIntsN
                     S['Acf']['Psc']+=tS['Acf']['Psc']*acfIntsS
                 # Power
                 pwrIntsS = scipy.repeat(tS['Power']['PulsesIntegrated'][:,scipy.newaxis],tS['Power']['Data'].shape[1],axis=1)
@@ -690,9 +690,9 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
     # ACF
     if acfopts['DO_FITS']:    
         acfIntsS = scipy.repeat(scipy.repeat(S['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],S['Acf']['Data'].shape[1],axis=1),S['Acf']['Data'].shape[2],axis=2)
-        acfIntsN = scipy.repeat(S['Acf']['PulsesIntegrated'][:,scipy.newaxis],N['Acf']['Data'].shape[1],axis=1)
+        #acfIntsN = scipy.repeat(S['Acf']['PulsesIntegrated'][:,scipy.newaxis],N['Acf']['Data'].shape[1],axis=1)
         S['Acf']['Data']/=acfIntsS
-        N['Acf']['Data']/=acfIntsN
+        #N['Acf']['Data']/=acfIntsN
         S['Acf']['Psc']/=acfIntsS
     # Power
     pwrIntsS = scipy.repeat(S['Power']['PulsesIntegrated'][:,scipy.newaxis],S['Power']['Data'].shape[1],axis=1)
