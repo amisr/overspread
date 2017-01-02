@@ -663,7 +663,7 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
                 C['Power']['PulsesIntegrated']=tC['Power']['PulsesIntegrated']                
                 if acfopts['DO_FITS']:
                     S['Acf']['PulsesIntegrated']=tS['Acf']['PulsesIntegrated']
-                    N['Acf']['PulsesIntegrated']=tN['Acf']['PulsesIntegrated']
+                    #N['Acf']['PulsesIntegrated']=tN['Acf']['PulsesIntegrated']
             else:
                 # ACF                
                 if acfopts['DO_FITS']:
@@ -685,7 +685,7 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
                 C['Power']['PulsesIntegrated']+=tC['Power']['PulsesIntegrated']                
                 if acfopts['DO_FITS']:
                     S['Acf']['PulsesIntegrated']+=tS['Acf']['PulsesIntegrated']
-                    N['Acf']['PulsesIntegrated']+=tN['Acf']['PulsesIntegrated']
+                    #N['Acf']['PulsesIntegrated']+=tN['Acf']['PulsesIntegrated']
 
     # ACF
     if acfopts['DO_FITS']:    
