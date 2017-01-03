@@ -16,7 +16,7 @@ if amisr_fitter_path is not None:
     amisr_fitter_path = os.path.join(amisr_fitter_path, 'src')
     sys.path.append(amisr_fitter_path)
 
-#import io_utils
+import io_utils
 
 # Intention of this is that is will be added to the fitter code and used after the fitting
 #has already been done. It will add information to the fitted h5 file about the calibration
