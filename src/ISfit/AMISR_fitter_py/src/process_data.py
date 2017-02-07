@@ -375,11 +375,24 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         S['AvgElevation']=scipy.mean(el)
         S['Azimuth']=scipy.array([az[0,0],az[-1,-1]])
         S['Elevation']=scipy.array([el[0,0],el[-1,-1]])
+
+    # Now check to see if the lag0 power array and the ACF array have the 
+    # same number of range gates or not. If not, trim to the smallest.
+    # Added by ASR 07/02/2017
+    acf_nrange = fconts[h5DataPath+'/Acf']['Data'].shape[3]
+    power_nrange = fconts[h5PwrPath + '/Power']['Data'].shape[2]
+
+    if acf_nrange == power_nrange:
+        Nranges = acf_nrange
+    elif acf_nrange > power_nrange:
+        Nranges = power_nrange
+    else:
+        Nranges = acf_nrange
     
     # ACF
     S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,0].astype('complex64')
     S['Acf']['Data'].imag=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,1]
-    (Nrecs,Nbeams,Nlags,Nranges)=S['Acf']['Data'].shape
+    (Nrecs,Nbeams,Nlags,_)=S['Acf']['Data'].shape
     S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][[0]];
     S['Acf']['Lags']=fconts[h5DataPath+'/Acf']['Lags']
     if Nlags==Nbauds:
