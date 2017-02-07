@@ -375,12 +375,25 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         S['AvgElevation']=scipy.mean(el)
         S['Azimuth']=scipy.array([az[0,0],az[-1,-1]])
         S['Elevation']=scipy.array([el[0,0],el[-1,-1]])
+
+    # Now check to see if the lag0 power array and the ACF array have the 
+    # same number of range gates or not. If not, trim to the smallest.
+    # Added by ASR 07/02/2017
+    acf_nrange = fconts[h5DataPath+'/Acf']['Data'].shape[3]
+    power_nrange = fconts[h5PwrPath + '/Power']['Data'].shape[2]
+
+    if acf_nrange == power_nrange:
+        Nranges = acf_nrange
+    elif acf_nrange > power_nrange:
+        Nranges = power_nrange
+    else:
+        Nranges = acf_nrange
     
     # ACF
-    S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,0].astype('complex64')
-    S['Acf']['Data'].imag=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,1]
-    (Nrecs,Nbeams,Nlags,Nranges)=S['Acf']['Data'].shape
-    S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][[0]];
+    S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,0].astype('complex64')
+    S['Acf']['Data'].imag=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,1]
+    (Nrecs,Nbeams,Nlags,_)=S['Acf']['Data'].shape
+    S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][:,0:Nranges];
     S['Acf']['Lags']=fconts[h5DataPath+'/Acf']['Lags']
     if Nlags==Nbauds:
         S['Acf']['Kint']=1.0/scipy.arange(Nbauds,0.0,-1.0)
@@ -405,7 +418,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     S['Acf']['Lag1Index']=scipy.where(scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud'])==scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']).min())[0][0]
 
     # Power
-    S['Power']['Data']=fconts[h5PwrPath + '/Power']['Data'][Irecs,:,:]
+    S['Power']['Data']=fconts[h5PwrPath + '/Power']['Data'][Irecs,:,0:Nranges]
     
     if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Noise']['Beamcodes'])[-1]:
         beamloc = []
@@ -414,22 +427,22 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
             beamloc.append(scipy.where(condition)[0][0])
         beamloc = scipy.array(beamloc)
         
-        N['Power']['Data']=fconts['/S/Noise/Power']['Data'][Irecs,:,:]
+        N['Power']['Data']=fconts['/S/Noise/Power']['Data'][Irecs,:,0:Nranges]
         N['Power']['Data']=N['Power']['Data'][:,beamloc,:]
     else:
-        N['Power']['Data']=fconts['/S/Noise/Power']['Data'][Irecs,:,:]
+        N['Power']['Data']=fconts['/S/Noise/Power']['Data'][Irecs,:,0:Nranges]
         
     S['Power']['Range']=fconts[h5PwrPath + '/Power']['Range'][[0]]; 
     S['Power']['Kint']=1.0
     if extCal==0:
         if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Cal']['Beamcodes'])[-1]:  
-            C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,:]
+            C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,0:Nranges]
             C['Power']['Data']=C['Power']['Data'][:,beamloc,:]
         else:
-            C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,:]
+            C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,0:Nranges]
     elif extCal==1:
-        C['Power']['Data']=fcontsCal['/S/Cal/Power']['Data'][Irecs,:,:]
-        C['Power']['NoiseData']=fcontsCal['/S/Noise/Power']['Data'][Irecs,:,:]    
+        C['Power']['Data']=fcontsCal['/S/Cal/Power']['Data'][Irecs,:,0:Nranges]
+        C['Power']['NoiseData']=fcontsCal['/S/Noise/Power']['Data'][Irecs,:,0:Nranges]    
     
     # Pulses Integrated
     S['Acf']['PulsesIntegrated']=fconts[h5DataPath]['PulsesIntegrated'][Irecs,:]
