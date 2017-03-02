@@ -1439,9 +1439,11 @@ class Run_Fitter:
                     except:
                         IbPl=[]
 
+                    title= "%d-%d-%d %.3f-%.3f UT" % (self.Time['Month'][0],self.Time['Day'][0],self.Time['Year'][0],self.Time['dtime'][0],self.Time['dtime'][1])
+
                     print "Making profile plots..."
                     try:
-                        (figg1,ax1,title)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
+                        (figg1,ax1,_)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
                     except Exception as e:
                         print("Plotting failed: "+str(e))
                         figg1 = None
