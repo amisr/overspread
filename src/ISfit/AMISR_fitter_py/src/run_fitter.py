@@ -1446,7 +1446,7 @@ class Run_Fitter:
                         print("Plotting failed: "+str(e))
                         figg1 = None
 
-                    if (self.OPTS['saveplots']==1) and (figg is not None):
+                    if (self.OPTS['saveplots']==1) and (figg1 is not None):
                         if os.path.exists(self.OPTS['plotsdir']):
                             oname=title + '.png'
                             figg1.savefig(os.path.join(self.OPTS['plotsdir'],oname))
