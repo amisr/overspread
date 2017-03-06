@@ -639,9 +639,10 @@ class Run_Fitter:
                                     scaler[ii:(ii+I.size)]=self.FITOPTS['p_om0']/self.k_radar0
                                     ii=ii+I.size
                             iparams0=params0.copy()
+                            iparams0 = scipy.concatenate(Noise,iparams0)
 
                             #print iparams0
-
+                            noise_pi = K
                             # do the fit
                             if self.FITOPTS['fitSpectra']==1:
                                 tmp=scipy.concatenate((tAcf,scipy.conjugate(tAcf[Iy[-1]:0:-1])),axis=0) # hermitian extension
@@ -653,11 +654,11 @@ class Run_Fitter:
                                 tSpcVar=scipy.power(tSpc,2.0)/Kmed*scipy.power(1.0+scipy.absolute(1.0/tSn),2.0)
 
                                 (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun,params0,(tSpc,tSpcVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.sample_time,self.filter_coefficients,noise_pi,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
                                     full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
                             else:
                                 (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.sample_time,self.filter_coefficients,noise_pi,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
                                     full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
 
                             # record termination parameter of fitter
@@ -679,7 +680,7 @@ class Run_Fitter:
 
                             # get model ACF and parameter arrays
                             (m,m0,ni,ti,psi,vi)=fit_fun(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
-                                f,ni,ti,mi,psi,vi,self.k_radar0,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
+                                f,ni,ti,mi,psi,vi,self.k_radar0,self.sample_time,self.filter_coefficients,noise_pi,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
                             mod_ACF[Ibm,Iy,Iht]=m[Iy]
                             meas_ACF[Ibm,Iy,Iht]=tAcf[Iy]
                             errs_ACF[Ibm,Iy,Iht]=tAcfVar[Iy]
@@ -743,9 +744,9 @@ class Run_Fitter:
                         fitinfo['fitcode'][Ibm,Iht]=-500
                         print exc
 
-                    except: # an unknown error in the fit
-                        fitinfo['fitcode'][Ibm,Iht]=-100
-                        print "Fit failed!! Unexpected error"
+                    # except: # an unknown error in the fit
+                    #     fitinfo['fitcode'][Ibm,Iht]=-100
+                    #     print "Fit failed!! Unexpected error"
 
                     # bad records
                     if (fitinfo['fitcode'][Ibm,Iht]<1) or (fitinfo['fitcode'][Ibm,Iht]>4):
@@ -1392,6 +1393,9 @@ class Run_Fitter:
             else:
                 S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
                 S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
+
+            self.sample_time = output['Rx']['SampleTime']
+            self.filter_coefficients = output['Setup']['RxFilterfile']
 
             ### start: DO_FITS
             if self.FITOPTS['DO_FITS']: # do the fits

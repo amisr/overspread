@@ -20,6 +20,27 @@ DEBUG=0 # turn on debugging
 if DEBUG==1:
     import pylab
 
+
+
+
+
+def compute_noise_acf(dtau,noise_power,sample_time,impulse_response,noise_pi):
+
+    num_taps = impulse_response.size
+    times = np.arange(num_taps)*sample_time
+    acf = scipy.convolve(impulse_response,impulse_response)[num_taps-1:]
+
+    acf = acf / acf[0] * noise_power
+
+    f = scipy.interpolate.interp1d(times,acf)
+
+    noise_acf = f(dtau)
+
+    noise_var = noise_acf**2/scipy.sqrt(noise_pi)
+
+    return noise_acf, noise_var
+
+
 def print_timing(func):
     def wrapper(*arg):
         import time
@@ -231,6 +252,145 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     if mode==1:
         return m,m2[0],tni,tti,tpsi,tvi
 		        
+    # if we want to fit spectra, transform
+    if fitSpectra==1:
+        tmp=scipy.concatenate((m,scipy.conjugate(m[:0:-1])),axis=0) # hermitian extension
+        m=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
+        y=(data-m)/scipy.sqrt(var)
+    else:
+        y=scipy.concatenate(((data.real-m.real)/scipy.sqrt(var),(data.imag-m.imag)/scipy.sqrt(var)))
+
+    y=scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
+    y=y.astype('float64')
+    
+    if DEBUG:
+    
+        print scipy.sum(scipy.power(y,2.0))
+    
+        pylab.figure(10)
+        pylab.clf()
+        pylab.plot(freq,s)  
+        #pylab.show()
+
+        pylab.figure(20)
+        pylab.clf()
+        pylab.errorbar(range(data.size),data.real,scipy.sqrt(var))
+        pylab.hold(1)
+        pylab.plot(range(data.size),m,'k')
+        #pylab.show()
+
+        #pylab.figure(30)
+        #pylab.clf()
+        #pylab.plot(range(data.size),y,'k')
+        #pylab.show()
+
+#   pylab.figure()
+#   pylab.errorbar(scipy.arange(data.size,dtype='float64')*30e-6,data.imag,scipy.sqrt(var))
+#   pylab.hold(1)
+#   pylab.plot(scipy.arange(data.size,dtype='float64')*30e-6,m.imag,'k.')
+#   pylab.plot(dtau,m2.imag,'r')
+#   pylab.show()
+
+    y=y[scipy.where(scipy.isfinite(y))]
+
+    return y
+
+
+def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,ti,mi,psi,vi,k_radar0,sample_time,filter_coefficients,noise_pi,p_N0=1.0e11,p_T0=1000.0,p_M0=16,fitSpectra=0,tn=0.0,L=[0.0,0.0],scat_fac=1,mode=0):
+    # INPUTS:
+    #   x
+    # OUTPUTS:
+    #   x
+
+    sc=1 # always scaled parameters for fitting
+
+    noise_power = parameter[0]
+
+    ne=parameter[1]*p_N0 # first fitting parameter is always Ne
+    
+    tni=ni.copy()
+    tti=ti.copy()
+    tmi=mi.copy()
+    tpsi=psi.copy()
+    tvi=vi.copy()
+        
+    ii=2
+    # are we fitting for  fraction?
+    I=scipy.where(Ifit[:,0]==1)[0]
+    if I.size != 0: 
+        tni[I]=parameter[ii:ii+I.size]
+        ii=ii+I.size
+        I1=scipy.where(Ifit[:,0]==-1)[0]
+        tni[I1]=1.0-tni[I[0]]
+    # are we fitting for temperature?
+    I=scipy.where(Ifit[:,1]==1)[0]
+    if I.size != 0: 
+        tti[I]=parameter[ii:ii+I.size]
+        ii=ii+I.size
+        I1=scipy.where(Ifit[:,1]==-1)[0]
+        tti[I1]=tti[I[0]]
+    # are we fitting for collision frequency?
+    I=scipy.where(Ifit[:,2]==1)[0]
+    if I.size != 0: 
+        tpsi[I]=parameter[ii:ii+I.size]
+        ii=ii+I.size
+        I1=scipy.where(Ifit[:,2]==-1)[0]
+        tpsi[I1]=tpsi[I[0]]
+        if Ifit[-1,2]==-1:
+            tpsi[-1]=tpsi[-1]*0.35714
+    # are we fitting for velocity?
+    I=scipy.where(Ifit[:,3]==1)[0]
+    if I.size != 0: 
+        tvi[I]=parameter[ii:ii+I.size]
+        ii=ii+I.size
+        I1=scipy.where(Ifit[:,3]==-1)[0]
+        tvi[I1]=tvi[I[0]]
+    
+    tni=tni/p_N0
+
+    if DEBUG:
+        print ne
+        print tni*p_N0
+        print tpsi
+        print tvi
+        print tti
+    
+    s=compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,tni,tti,mi,tpsi,tvi,k_radar0,sc,p_N0,p_T0,p_M0)
+
+    # compute acf
+    (tau,acf)=spec2acf(freq,s)
+
+    # interpolate acf
+    m2=scipy.zeros(dtau.size,dtype='Complex64');
+    m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
+    m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
+#   t=scipy.interpolate.splrep(tau,acf.real) 
+#   m2.real=scipy.interpolate.splev(dtau,t) # cubic spline interpolation
+#   t=scipy.interpolate.splrep(tau,acf.imag)
+#   m2.imag=scipy.interpolate.splev(dtau,t) # cubic spline interpolation
+        
+    # lag ambiguity function - weighted average
+    m=scipy.zeros(Wl.shape[1],dtype='Complex64')
+    for i in range(Wl.shape[1]):  
+        #print Wl[:,i]
+        m[i]=scipy.sum(Wl[:,i]*m2)
+#        tmp=scipy.sum(Wl[:,i])
+#        tmp=(15.0-i)/16.0
+#        m[i]=tmp*scipy.interpolate.interp1d(dtau,m2.real,bounds_error=0)(20.0e-6*(i+1))[0] + tmp*scipy.interpolate.interp1d(dtau,m2.imag,bounds_error=0)(20.0e-6*(i+1))[0]*1.0j
+
+    # scaling factor
+
+    # compute noise acf
+    noise_acf, noise_var = compute_noise_acf(dtau,noise_power,sample_time,filter_coefficients,noise_pi)
+    var = var + noise_var
+    m = m + noise_acf
+
+
+    m=m*Psc
+    
+    if mode==1:
+        return m,m2[0],tni,tti,tpsi,tvi
+                
     # if we want to fit spectra, transform
     if fitSpectra==1:
         tmp=scipy.concatenate((m,scipy.conjugate(m[:0:-1])),axis=0) # hermitian extension
