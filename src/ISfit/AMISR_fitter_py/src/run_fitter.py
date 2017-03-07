@@ -7,13 +7,14 @@ xxxxx
 last revised: xx/xx/2007
 
 """
+import matplotlib
+matplotlib.use('agg')
+print matplotlib.get_backend()
 
 import sys, os.path, glob, datetime, time, copy
 import optparse, ConfigParser
 import tables, ctypes
 import scipy, scipy.interpolate
-import matplotlib
-matplotlib.use('Agg')
 from matplotlib import pyplot
 
 import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_data
@@ -468,8 +469,11 @@ class Run_Fitter:
                         sig=scipy.absolute(tAcf[0]) # 0 lag
                     # Signal to noise ratio
                     tSnr=scipy.mean(S['Power']['SNR'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
+
+                    tpower=scipy.mean(S['Power']['Data'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
                     # Variance
-                    tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
+                    #tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
+                    tAcfVar=(tpower + S['Acf']['iSCR']*tpower)**2/K.astype('Float64') # theoretical variances
                     # Height and range
                     HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)])
                     RNG[Ibm,Iht]=RngMean
@@ -639,10 +643,37 @@ class Run_Fitter:
                                     scaler[ii:(ii+I.size)]=self.FITOPTS['p_om0']/self.k_radar0
                                     ii=ii+I.size
                             iparams0=params0.copy()
-                            iparams0 = scipy.concatenate(Noise,iparams0)
+
+                            noise0 = float(Noise['Power']['Data'][Ibm])/Psc[0]/1.0e9
+                            params0 = scipy.concatenate((scipy.array([noise0]),params0))
+
+                            scaler = scipy.concatenate((scipy.array([Psc[0]*1.0e9]),scaler))
 
                             #print iparams0
-                            noise_pi = K
+
+                            def compute_noise_acf(num_lags,sample_time,impulse_response,noise_pi):
+
+                                t_num_taps = impulse_response.size
+                                t_times = scipy.arange(t_num_taps)*1e-6
+                                t_acf = scipy.convolve(impulse_response,impulse_response)[t_num_taps-1:]
+
+                                t_acf = t_acf / t_acf[0]
+
+                                t_lag_times = scipy.arange(num_lags)*sample_time
+
+                                interp_func = scipy.interpolate.interp1d(t_times,t_acf,bounds_error=0, fill_value=0)
+
+                                noise_acf = interp_func(t_lag_times)
+                                noise_var = noise_acf**2/noise_pi
+
+                                return noise_acf, noise_var
+
+                            # compute noise acf
+                            num_lags = scipy.size(tAcf[Iy].real)
+                            noise_acf, noise_var = compute_noise_acf(num_lags,self.sample_time,self.filter_coefficients,K)
+
+                            #print noise_var*Psc[0]**2*noise0**2
+
                             # do the fit
                             if self.FITOPTS['fitSpectra']==1:
                                 tmp=scipy.concatenate((tAcf,scipy.conjugate(tAcf[Iy[-1]:0:-1])),axis=0) # hermitian extension
@@ -653,13 +684,19 @@ class Run_Fitter:
                                 #tSpcVar=scipy.power(scipy.sum(tSpc)*tSpc/tSpc*scipy.sqrt(tAcfVar[0])/tAcf[0],2.0); tSpcVar=tSpcVar.astype('float64')
                                 tSpcVar=scipy.power(tSpc,2.0)/Kmed*scipy.power(1.0+scipy.absolute(1.0/tSn),2.0)
 
-                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun,params0,(tSpc,tSpcVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.sample_time,self.filter_coefficients,noise_pi,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tSpc,tSpcVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
                                     full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
                             else:
-                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.sample_time,self.filter_coefficients,noise_pi,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
-                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
+                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=1.0,diag=None)
+
+                            # print x
+                            # print cov_x
+                            # print infodict
+                            # print mesg
+                            # print ier
 
                             # record termination parameter of fitter
                             fitinfo['fitcode'][Ibm,Iht]=ier
@@ -670,7 +707,8 @@ class Run_Fitter:
                                     fitinfo['fitcode'][Ibm,Iht]=-45
                             else:
                                 cov_x=scipy.sqrt(scipy.diag(cov_x))*scaler
-                                terr[IfitMR]=cov_x[1:]
+                                #print scipy.shape(terr[IfitMR]),scipy.shape(cov_x)
+                                terr[IfitMR]=cov_x[2:]
 
                             infodict['fvec']=infodict['fvec'][:-len(self.FITOPTS['LagrangeParams'])]
 
@@ -679,8 +717,8 @@ class Run_Fitter:
                             fitinfo['chi2'][Ibm,Iht]=scipy.real(scipy.sum(scipy.power(scipy.real(infodict['fvec']),2.0))/fitinfo['dof'][Ibm,Iht])
 
                             # get model ACF and parameter arrays
-                            (m,m0,ni,ti,psi,vi)=fit_fun(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
-                                f,ni,ti,mi,psi,vi,self.k_radar0,self.sample_time,self.filter_coefficients,noise_pi,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
+                            (m,m0,ni,ti,psi,vi)=fit_fun_with_noise(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
+                                f,ni,ti,mi,psi,vi,self.k_radar0,noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
                             mod_ACF[Ibm,Iy,Iht]=m[Iy]
                             meas_ACF[Ibm,Iy,Iht]=tAcf[Iy]
                             errs_ACF[Ibm,Iy,Iht]=tAcfVar[Iy]
@@ -694,7 +732,7 @@ class Run_Fitter:
                             ti=ti*self.FITOPTS['p_T0']
                             psi=psi*self.FITOPTS['p_om0']
                             vi=vi*self.FITOPTS['p_om0']/self.k_radar0
-                            tNe=x[0]
+                            tNe=x[1]
 
                             # re-evaluate FLIP ion chemistry
                             if self.FITOPTS['molecularModel']==1:
@@ -705,7 +743,7 @@ class Run_Fitter:
                                 if tte<ttn:  tte=ttn
                                 tOXPLUS=OXPLUS
                                 LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT=flipchem.call_flip(self.ct_flipchem,int(self.Time['Year'][0]),int(self.Time['doy'][0]),self.Time['dtime'][0],HT[Ibm,Iht]/1000.0,
-                                    self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,x[0]*1.0e-6)
+                                    self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
 
                                 # break loop or continue
                                 if scipy.absolute(OXPLUS-tOXPLUS)<0.02: # break loop
@@ -726,7 +764,7 @@ class Run_Fitter:
 
                         # compute errors if the Jacobian was able to be inverted
                         if cov_x is not None:
-                            ne_out[Ibm,Iht,1]=cov_x[0]
+                            ne_out[Ibm,Iht,1]=cov_x[1]
                             ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
 
                         # make some plots if we are supposed to
@@ -744,9 +782,9 @@ class Run_Fitter:
                         fitinfo['fitcode'][Ibm,Iht]=-500
                         print exc
 
-                    # except: # an unknown error in the fit
-                    #     fitinfo['fitcode'][Ibm,Iht]=-100
-                    #     print "Fit failed!! Unexpected error"
+                    except Exception,e: # an unknown error in the fit
+                        fitinfo['fitcode'][Ibm,Iht]=-100
+                        print "Fit failed!! Unexpected error: " + str(e)
 
                     # bad records
                     if (fitinfo['fitcode'][Ibm,Iht]<1) or (fitinfo['fitcode'][Ibm,Iht]>4):
@@ -1394,8 +1432,9 @@ class Run_Fitter:
                 S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
                 S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
 
-            self.sample_time = output['Rx']['SampleTime']
-            self.filter_coefficients = output['Setup']['RxFilterfile']
+            self.sample_time = output['/Rx']['SampleTime']
+            temp = output['/Setup']['RxFilterfile']
+            self.filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
 
             ### start: DO_FITS
             if self.FITOPTS['DO_FITS']: # do the fits

@@ -14,31 +14,11 @@ import scipy, scipy.fftpack, scipy.interpolate, scipy.optimize, scipy.signal
 import io_utils
 from constants import *
 
-import pylab
+from matplotlib import pyplot
 
 DEBUG=0 # turn on debugging
 if DEBUG==1:
-    import pylab
-
-
-
-
-
-def compute_noise_acf(dtau,noise_power,sample_time,impulse_response,noise_pi):
-
-    num_taps = impulse_response.size
-    times = np.arange(num_taps)*sample_time
-    acf = scipy.convolve(impulse_response,impulse_response)[num_taps-1:]
-
-    acf = acf / acf[0] * noise_power
-
-    f = scipy.interpolate.interp1d(times,acf)
-
-    noise_acf = f(dtau)
-
-    noise_var = noise_acf**2/scipy.sqrt(noise_pi)
-
-    return noise_acf, noise_var
+    from matplotlib import pyplot
 
 
 def print_timing(func):
@@ -296,7 +276,7 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     return y
 
 
-def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,ti,mi,psi,vi,k_radar0,sample_time,filter_coefficients,noise_pi,p_N0=1.0e11,p_T0=1000.0,p_M0=16,fitSpectra=0,tn=0.0,L=[0.0,0.0],scat_fac=1,mode=0):
+def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,ti,mi,psi,vi,k_radar0,noise_acf,noise_var,p_N0=1.0e11,p_T0=1000.0,p_M0=16,fitSpectra=0,tn=0.0,L=[0.0,0.0],scat_fac=1,mode=0):
     # INPUTS:
     #   x
     # OUTPUTS:
@@ -304,7 +284,11 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
 
     sc=1 # always scaled parameters for fitting
 
-    noise_power = parameter[0]
+    #print parameter
+
+    noise_power = scipy.absolute(parameter[0])
+
+    #print noise_power
 
     ne=parameter[1]*p_N0 # first fitting parameter is always Ne
     
@@ -348,14 +332,12 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     
     tni=tni/p_N0
 
-    if DEBUG:
-        print ne
-        print tni*p_N0
-        print tpsi
-        print tvi
-        print tti
+    # if DEBUG:
+    # print noise_power, ne, tni*p_N0, tpsi, tvi, tti
     
     s=compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,tni,tti,mi,tpsi,tvi,k_radar0,sc,p_N0,p_T0,p_M0)
+
+    # print s
 
     # compute acf
     (tau,acf)=spec2acf(freq,s)
@@ -380,14 +362,11 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
 
     # scaling factor
 
-    # compute noise acf
-    noise_acf, noise_var = compute_noise_acf(dtau,noise_power,sample_time,filter_coefficients,noise_pi)
-    var = var + noise_var
-    m = m + noise_acf
-
-
+    var = var + noise_var * (noise_power * 1.0e9 * Psc[0])**2
     m=m*Psc
-    
+
+    m.real = m.real + noise_acf * noise_power * 1.0e9 * Psc[0]
+
     if mode==1:
         return m,m2[0],tni,tti,tpsi,tvi
                 
@@ -399,36 +378,28 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     else:
         y=scipy.concatenate(((data.real-m.real)/scipy.sqrt(var),(data.imag-m.imag)/scipy.sqrt(var)))
 
+    #noise_constraint = scipy.sqrt(1.0e4*scipy.exp(-min([0.1,noise_power]))) #must be positive
+
     y=scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
+
     y=y.astype('float64')
     
     if DEBUG:
     
         print scipy.sum(scipy.power(y,2.0))
     
-        pylab.figure(10)
-        pylab.clf()
-        pylab.plot(freq,s)  
-        #pylab.show()
+        pyplot.figure(10)
+        pyplot.clf()
+        pyplot.plot(freq,s)  
+        #pyplot.show()
 
-        pylab.figure(20)
-        pylab.clf()
-        pylab.errorbar(range(data.size),data.real,scipy.sqrt(var))
-        pylab.hold(1)
-        pylab.plot(range(data.size),m,'k')
-        #pylab.show()
+        pyplot.figure(20)
+        pyplot.clf()
+        pyplot.errorbar(range(data.size),data.real,scipy.sqrt(var))
+        pyplot.hold(1)
+        pyplot.plot(range(data.size),m,'k')
+        pyplot.show()
 
-        #pylab.figure(30)
-        #pylab.clf()
-        #pylab.plot(range(data.size),y,'k')
-        #pylab.show()
-
-#   pylab.figure()
-#   pylab.errorbar(scipy.arange(data.size,dtype='float64')*30e-6,data.imag,scipy.sqrt(var))
-#   pylab.hold(1)
-#   pylab.plot(scipy.arange(data.size,dtype='float64')*30e-6,m.imag,'k.')
-#   pylab.plot(dtau,m2.imag,'r')
-#   pylab.show()
 
     y=y[scipy.where(scipy.isfinite(y))]
 

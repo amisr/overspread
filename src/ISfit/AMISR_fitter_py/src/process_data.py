@@ -920,7 +920,8 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     S['Power']['StDev']=scipy.std(S['Power']['Data'],axis=0)/scipy.sqrt(Nrecs)
     S['Power']['Data']=eval(funcname+"(S['Power']['Data'],axis=0)")
     S['Power']['StDev']=S['Power']['StDev']/S['Power']['Data']
-    S['Power']['Data']=C['Pcal']*(S['Power']['Data']-scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    #S['Power']['Data']=C['Pcal']*(S['Power']['Data']-scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    S['Power']['Data']=C['Pcal']*(S['Power']['Data'])/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
 
     # convert noise to Watts
     N['Power']['Data']=C['Pcal']*(N['Power']['Data']/C['Power']['Data']) # Noise Power in Watts
