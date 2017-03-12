@@ -276,7 +276,7 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     return y
 
 
-def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,ti,mi,psi,vi,k_radar0,noise_acf,noise_var,p_N0=1.0e11,p_T0=1000.0,p_M0=16,fitSpectra=0,tn=0.0,L=[0.0,0.0],scat_fac=1,mode=0):
+def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,ti,mi,psi,vi,k_radar0,pertubation_noise_acf,noise_var,p_N0=1.0e11,p_T0=1000.0,p_M0=16,fitSpectra=0,tn=0.0,L=[0.0,0.0],scat_fac=1,mode=0):
     # INPUTS:
     #   x
     # OUTPUTS:
@@ -284,14 +284,10 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
 
     sc=1 # always scaled parameters for fitting
 
-    #print parameter
+    noise_power = parameter[0]  # first fitting parameter is always perturbation noise power
+    ne=parameter[1]*p_N0        # second fitting parameter is always Ne
 
-    noise_power = scipy.absolute(parameter[0])
-
-    #print noise_power
-
-    ne=parameter[1]*p_N0 # first fitting parameter is always Ne
-    
+    # Molecular model ion parameters    
     tni=ni.copy()
     tti=ti.copy()
     tmi=mi.copy()
@@ -331,41 +327,28 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
         tvi[I1]=tvi[I[0]]
     
     tni=tni/p_N0
-
-    # if DEBUG:
-    # print noise_power, ne, tni*p_N0, tpsi, tvi, tti
     
+
+    # Compute the model spectrum and compute acf from the model spectrum
     s=compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,tni,tti,mi,tpsi,tvi,k_radar0,sc,p_N0,p_T0,p_M0)
-
-    # print s
-
-    # compute acf
     (tau,acf)=spec2acf(freq,s)
 
-    # interpolate acf
+    # Interpolate the modeled Acf
     m2=scipy.zeros(dtau.size,dtype='Complex64');
     m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
     m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
-#   t=scipy.interpolate.splrep(tau,acf.real) 
-#   m2.real=scipy.interpolate.splev(dtau,t) # cubic spline interpolation
-#   t=scipy.interpolate.splrep(tau,acf.imag)
-#   m2.imag=scipy.interpolate.splev(dtau,t) # cubic spline interpolation
         
-    # lag ambiguity function - weighted average
+    # Apply the lag ambiguity function - weighted average to the modeled Acf
     m=scipy.zeros(Wl.shape[1],dtype='Complex64')
     for i in range(Wl.shape[1]):  
-        #print Wl[:,i]
         m[i]=scipy.sum(Wl[:,i]*m2)
-#        tmp=scipy.sum(Wl[:,i])
-#        tmp=(15.0-i)/16.0
-#        m[i]=tmp*scipy.interpolate.interp1d(dtau,m2.real,bounds_error=0)(20.0e-6*(i+1))[0] + tmp*scipy.interpolate.interp1d(dtau,m2.imag,bounds_error=0)(20.0e-6*(i+1))[0]*1.0j
 
     # scaling factor
-
-    var = var + noise_var * (noise_power * 1.0e9 * Psc[0])**2
     m=m*Psc
+    scaled_pertubation_noise_acf = pertubation_noise_acf * noise_power 
 
-    m.real = m.real + noise_acf * noise_power * 1.0e9 * Psc[0]
+    # Include the additional noise model
+    m.real = m.real + scaled_pertubation_noise_acf
 
     if mode==1:
         return m,m2[0],tni,tti,tpsi,tvi
@@ -376,32 +359,21 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
         m=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
         y=(data-m)/scipy.sqrt(var)
     else:
-        y=scipy.concatenate(((data.real-m.real)/scipy.sqrt(var),(data.imag-m.imag)/scipy.sqrt(var)))
+        real_diff = (data.real-m.real)/scipy.sqrt(var)
+        imag_diff = (data.imag-m.imag)/scipy.sqrt(var)
+        y=scipy.concatenate((real_diff, imag_diff))
 
-    #noise_constraint = scipy.sqrt(1.0e4*scipy.exp(-min([0.1,noise_power]))) #must be positive
+    # Noise has already been subtracted, we are adding a perturbation noise model
+    # so the a priori perturbation noise data is 0, hence noise_diff = (perturb_noise - 0)/variance
+    noise_diff = (scaled_pertubation_noise_acf)/scipy.sqrt(noise_var)
+    y = scipy.concatenate((y, noise_diff))        
 
-    y=scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
+    # Add constraint for ion/electron temps > neutral temps
+    y = scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
 
-    y=y.astype('float64')
-    
-    if DEBUG:
-    
-        print scipy.sum(scipy.power(y,2.0))
-    
-        pyplot.figure(10)
-        pyplot.clf()
-        pyplot.plot(freq,s)  
-        #pyplot.show()
-
-        pyplot.figure(20)
-        pyplot.clf()
-        pyplot.errorbar(range(data.size),data.real,scipy.sqrt(var))
-        pyplot.hold(1)
-        pyplot.plot(range(data.size),m,'k')
-        pyplot.show()
-
-
-    y=y[scipy.where(scipy.isfinite(y))]
+    # Intended to remove NaNs caused by variance = 0 (such as for the imaginary component of lag0)
+    y = y.astype('float64')
+    y = y[scipy.where(scipy.isfinite(y))]
 
     return y
 

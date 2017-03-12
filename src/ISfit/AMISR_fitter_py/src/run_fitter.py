@@ -341,7 +341,7 @@ class Run_Fitter:
             xxx
 
     #
-    def call_fitter(self,S,Noise,sstr=''):
+    def call_fitter(self,S,Noise,perturbation_noise_acf,sstr=''):
 
         ### Beams, Lags, Ranges
         Nbeams=self.Nbeams # number of beams
@@ -470,10 +470,10 @@ class Run_Fitter:
                     # Signal to noise ratio
                     tSnr=scipy.mean(S['Power']['SNR'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
 
-                    tpower=scipy.mean(S['Power']['Data'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
+                    #tpower=scipy.mean(S['Power']['Data'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
                     # Variance
-                    #tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
-                    tAcfVar=(tpower + S['Acf']['iSCR']*tpower)**2/K.astype('Float64') # theoretical variances
+                    tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
+                    #tAcfVar=(tpower + S['Acf']['iSCR']*tpower)**2/K.astype('Float64') # theoretical variances
                     # Height and range
                     HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)])
                     RNG[Ibm,Iht]=RngMean
@@ -481,6 +481,8 @@ class Run_Fitter:
 
                     # using guess for Ne from density profile
                     tNe=scipy.absolute(scipy.mean(S['Power']['Ne_Mod'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]))
+
+                    #print "INITIAL DENSITY GUESS", tNe
 
                     if len(self.FITOPTS['Lags2fit'])==0:
                         Iy=range(Nlags)
@@ -644,35 +646,17 @@ class Run_Fitter:
                                     ii=ii+I.size
                             iparams0=params0.copy()
 
-                            noise0 = float(Noise['Power']['Data'][Ibm])/Psc[0]/1.0e9
+
+                            # get initial guess for additional noise as 10% of measured noise
+                            # and add it to the param0 and scaler arrays, but at the beginning.
+                            noise0 = float(Noise['Power']['Data'][Ibm]) * 0.10
                             params0 = scipy.concatenate((scipy.array([noise0]),params0))
+                            scaler = scipy.concatenate((scipy.array([1]),scaler))
 
-                            scaler = scipy.concatenate((scipy.array([Psc[0]*1.0e9]),scaler))
-
-                            #print iparams0
-
-                            def compute_noise_acf(num_lags,sample_time,impulse_response,noise_pi):
-
-                                t_num_taps = impulse_response.size
-                                t_times = scipy.arange(t_num_taps)*1e-6
-                                t_acf = scipy.convolve(impulse_response,impulse_response)[t_num_taps-1:]
-
-                                t_acf = t_acf / t_acf[0]
-
-                                t_lag_times = scipy.arange(num_lags)*sample_time
-
-                                interp_func = scipy.interpolate.interp1d(t_times,t_acf,bounds_error=0, fill_value=0)
-
-                                noise_acf = interp_func(t_lag_times)
-                                noise_var = noise_acf**2/noise_pi
-
-                                return noise_acf, noise_var
-
-                            # compute noise acf
-                            num_lags = scipy.size(tAcf[Iy].real)
-                            noise_acf, noise_var = compute_noise_acf(num_lags,self.sample_time,self.filter_coefficients,K)
-
-                            #print noise_var*Psc[0]**2*noise0**2
+                            # The variance of the measured noise will be used to weight the amount of allowed
+                            # perturbation noise ACF. 
+                            K_noise = Noise['Power']['PulsesIntegrated'][Ibm]
+                            noise_var = float(Noise['Power']['Data'][Ibm]) / K_noise
 
                             # do the fit
                             if self.FITOPTS['fitSpectra']==1:
@@ -685,18 +669,12 @@ class Run_Fitter:
                                 tSpcVar=scipy.power(tSpc,2.0)/Kmed*scipy.power(1.0+scipy.absolute(1.0/tSn),2.0)
 
                                 (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tSpc,tSpcVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
-                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=1,diag=None)
                             else:
                                 (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
-                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=1.0,diag=None)
-
-                            # print x
-                            # print cov_x
-                            # print infodict
-                            # print mesg
-                            # print ier
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=1,diag=None)
 
                             # record termination parameter of fitter
                             fitinfo['fitcode'][Ibm,Iht]=ier
@@ -718,7 +696,7 @@ class Run_Fitter:
 
                             # get model ACF and parameter arrays
                             (m,m0,ni,ti,psi,vi)=fit_fun_with_noise(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
-                                f,ni,ti,mi,psi,vi,self.k_radar0,noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
+                                f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
                             mod_ACF[Ibm,Iy,Iht]=m[Iy]
                             meas_ACF[Ibm,Iy,Iht]=tAcf[Iy]
                             errs_ACF[Ibm,Iy,Iht]=tAcfVar[Iy]
@@ -748,7 +726,8 @@ class Run_Fitter:
                                 # break loop or continue
                                 if scipy.absolute(OXPLUS-tOXPLUS)<0.02: # break loop
                                     break
-                                elif nloops>=5:
+                                elif nloops>=10:            # Increased from 5 to 10. Empirically found 
+                                                            # that this helps prevent too many BadComposition errors.
                                     raise BadComposition()  # throw an invalid fit error
                             elif mi[1]==mi[0] and nloops==1:
                                 continue
@@ -1432,16 +1411,38 @@ class Run_Fitter:
                 S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
                 S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
 
-            self.sample_time = output['/Rx']['SampleTime']
+
+            # Parameters needed for calculating the perturbation noise_acf
+            sample_time = output['/Rx']['SampleTime']
             temp = output['/Setup']['RxFilterfile']
-            self.filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
+            filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
+
+            # A function to compute the perturbation noise acf based on the assumption that such noise
+            # is white and broadband (at least compared to the width of the filter)
+            def compute_noise_acf(num_lags,sample_time,impulse_response):
+
+                t_num_taps = impulse_response.size
+                t_times = scipy.arange(t_num_taps)*1e-6
+                t_acf = scipy.convolve(impulse_response,impulse_response)[t_num_taps-1:]
+                t_acf = t_acf / t_acf[0]
+
+                t_lag_times = scipy.arange(num_lags)*sample_time
+                interp_func = scipy.interpolate.interp1d(t_times,t_acf,bounds_error=0, fill_value=0)
+                noise_acf = interp_func(t_lag_times)
+
+                return noise_acf
+
+            # Compute the perturbation noise acf
+            num_lags = self.Nlags
+            perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
+
 
             ### start: DO_FITS
             if self.FITOPTS['DO_FITS']: # do the fits
                 if self.FITOPTS['FullProfile']:
                     (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo)=self.call_fitter_FP(S,Noise,sstr=fstr)
                 else:
-                    (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,sstr=fstr)
+                    (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,perturbation_noise_acf,sstr=fstr)
                 self.FITS['Range']=trng
                 self.FITS['Altitude']=tht
                 self.FITS['Ne']=tne[:,:,0]

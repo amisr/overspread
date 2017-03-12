@@ -902,37 +902,45 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:
         C['Power']['Data']=N['Power']['Data']*acfopts['CalToNoiseRatio']
-        
-    # Noise subtract and calibrate the ACF
-    if acfopts['DO_FITS']:
-        S['Acf']['Data']=S['Acf']['Data']/scipy.repeat(scipy.repeat(S['Acf']['PulsesIntegrated'][:,:,scipy.newaxis,scipy.newaxis],Nlags,axis=2),Nranges,axis=3) 
-        S['Acf']['PulsesIntegrated']=scipy.sum(S['Acf']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
-        N['Acf']['PulsesIntegrated']=scipy.sum(N['Acf']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
-        S['Acf']['Data']=eval(funcname+"(S['Acf']['Data'],axis=0)") 
-        S['Acf']['Data']=C['Pcal']*(S['Acf']['Data']-scipy.repeat(N['Acf']['Data'][:,:,scipy.newaxis],Nranges,axis=2))/scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
 
-    # Noise subtract and calibrate power profle
-    S['Power']['Data']=S['Power']['Data']/scipy.repeat(S['Power']['PulsesIntegrated'][:,:,scipy.newaxis],Nranges,axis=2)
-    S['Power']['PulsesIntegrated']=scipy.sum(S['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
-    N['Power']['PulsesIntegrated']=scipy.sum(N['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
     if extCal!=2:
         C['Power']['PulsesIntegrated']=scipy.sum(C['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
-    S['Power']['StDev']=scipy.std(S['Power']['Data'],axis=0)/scipy.sqrt(Nrecs)
-    S['Power']['Data']=eval(funcname+"(S['Power']['Data'],axis=0)")
-    S['Power']['StDev']=S['Power']['StDev']/S['Power']['Data']
-    #S['Power']['Data']=C['Pcal']*(S['Power']['Data']-scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
-    S['Power']['Data']=C['Pcal']*(S['Power']['Data'])/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+
 
     # convert noise to Watts
     N['Power']['Data']=C['Pcal']*(N['Power']['Data']/C['Power']['Data']) # Noise Power in Watts
-    N['Acf']['Data']=C['Pcal']*N['Acf']['Data']/scipy.repeat(scipy.reshape(C['Power']['Data'],(Nbeams,1)),Nlags,axis=1) # Noise Acf in Watts
-                
-    Range=scipy.repeat(scipy.repeat(scipy.squeeze(S['Acf']['Range'])[scipy.newaxis,scipy.newaxis,:],NbeamsIn,axis=0),Nlags,axis=1)
+    N['Power']['PulsesIntegrated']=scipy.sum(N['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
 
-    S['Acf']['Psc']=S['Acf']['Pulsewidth']*Ksys/(Range*Range)    
-    S['Power']['SNR']=S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    N['Acf']['Data']=C['Pcal']*N['Acf']['Data']/scipy.repeat(scipy.reshape(C['Power']['Data'],(Nbeams,1)),Nlags,axis=1) # Noise Acf in Watts
+    N['Acf']['PulsesIntegrated']=scipy.sum(N['Acf']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
+
+    # Convert power data and power ACF to Watts
+    S['Power']['Data']=S['Power']['Data']/scipy.repeat(S['Power']['PulsesIntegrated'][:,:,scipy.newaxis],Nranges,axis=2)
+    S['Power']['PulsesIntegrated']=scipy.sum(S['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
+    S['Power']['StDev']=scipy.std(S['Power']['Data'],axis=0)/scipy.sqrt(Nrecs)
+    S['Power']['Data']=eval(funcname+"(S['Power']['Data'],axis=0)")
+    S['Power']['StDev']=S['Power']['StDev']/S['Power']['Data']
+
+
+    # SNR = (S+N)/N, we aren't going to subtract off the noise, but instead fit the data with a data model + noise model
+    #S['Power']['Data']=C['Pcal']*(S['Power']['Data']-scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    S['Power']['Data']  = C['Pcal']*S['Power']['Data']/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    S['Power']['Data']  = S['Power']['Data'] - scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    S['Power']['SNR']   = S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+
+    if acfopts['DO_FITS']:
+        S['Acf']['Data']=S['Acf']['Data']/scipy.repeat(scipy.repeat(S['Acf']['PulsesIntegrated'][:,:,scipy.newaxis,scipy.newaxis],Nlags,axis=2),Nranges,axis=3) 
+        S['Acf']['PulsesIntegrated']=scipy.sum(S['Acf']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate 
+        S['Acf']['Data']=eval(funcname+"(S['Acf']['Data'],axis=0)") 
+        #S['Acf']['Data']=C['Pcal']*(S['Acf']['Data']-scipy.repeat(N['Acf']['Data'][:,:,scipy.newaxis],Nranges,axis=2))/scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
+        S['Acf']['Data']=C['Pcal']*S['Acf']['Data']/scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
+        S['Acf']['Data']=S['Acf']['Data']-scipy.repeat(N['Acf']['Data'][:,:,scipy.newaxis],Nranges,axis=2)
+
+    Range=scipy.repeat(scipy.repeat(scipy.squeeze(S['Acf']['Range'])[scipy.newaxis,scipy.newaxis,:],NbeamsIn,axis=0),Nlags,axis=1)
+    S['Acf']['Psc']=S['Acf']['Pulsewidth']*Ksys/(Range*Range)
     
     return S,N,C
+
     
 def process_longpulse_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None):
     
