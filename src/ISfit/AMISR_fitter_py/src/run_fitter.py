@@ -8,7 +8,7 @@ last revised: xx/xx/2007
 
 """
 import matplotlib
-matplotlib.use('tkagg')
+matplotlib.use('agg')
 print matplotlib.get_backend()
 
 import sys, os.path, glob, datetime, time, copy

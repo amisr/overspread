@@ -36,6 +36,43 @@ def trim_Ibeams(inDict,Ibeams,Nbeams):
 
 	return inDict
 
+
+def check_noise(noise, power, noise_pulses_integrated, power_pulses_integrated):
+    num_rng_data_noise = 20
+
+    # Now check to see how "good" this noise estimate is. Compare it against
+    # the power at "long ranges"
+    num_noise_rng = noise.shape[2]
+
+    # Get the average noise for each time and beam
+    temp_noise = scipy.median(noise,axis=2) #(time,beams)
+    temp_noise /= (noise_pulses_integrated + num_noise_rng)
+    output_noise_pulses_integrated = noise_pulses_integrated
+
+    # Now get and estimate of the noise from the data power measurement
+    noise_long_rng_data = scipy.median(power[:,:,-num_rng_data_noise:],axis=2)
+    noise_long_rng_data /= (power_pulses_integrated + num_rng_data_noise)
+
+    # We are going to compare the estimates up to their standard deviations
+    std_temp_noise = temp_noise/scipy.sqrt(noise_pulses_integrated + num_noise_rng)
+    std_noise_long_rng_data = noise_long_rng_data/scipy.sqrt(num_rng_data_noise + power_pulses_integrated)
+
+    ind = scipy.where((scipy.absolute(noise_long_rng_data-temp_noise) > std_noise_long_rng_data + std_temp_noise)
+                       & (temp_noise > noise_long_rng_data))[0]
+
+    # Replace any bad noise estimates with power based noise estimates
+    temp_noise *= (noise_pulses_integrated + num_noise_rng)
+    if ind.size:
+        temp_noise[ind] = noise_long_rng_data[ind] * (power_pulses_integrated + num_rng_data_noise)
+        output_noise_pulses_integrated[ind] = power_pulses_integrated[ind]
+
+    # Now reform the noise into and array of (time,beam,range) for the
+    # processing code to use. We can use a bogus range here.
+    output_noise = scipy.repeat(temp_noise[:,:,scipy.newaxis],10,axis=2)
+
+    return output_noise, output_noise_pulses_integrated
+
+
 def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None,h5PwrPath='/S/ZeroLags'):
     
     # function to use for data combining
@@ -124,9 +161,21 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
             S['Acf']['Kint']=scipy.ones((Nlags))/(Nbauds)    #????              
     S['Acf']['Lag1Index']=scipy.where(scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud'])==scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']).min())[0][0]
 
+    # Now let's test if the noise estimates are "good enough" or should be replaced
+    # by comparing the noise estimates against furthest ranges of data
+    input_power = fconts[h5PwrPath + '/Power']['Data'][Irecs,:,:]
+    input_noise = fconts['/IncohcodeCS/Noise/Power']['Data'][Irecs,:,:]
+
+    input_power_pulses_integrated = fconts[h5PwrPath]['PulsesIntegrated'][Irecs,:]
+    input_noise_pulses_integrated = fconts['/IncohcodeCS/Noise']['PulsesIntegrated'][Irecs,:]
+
+    output_noise, output_noise_pulses_integrated = check_noise(input_noise, input_power,
+                                                               input_noise_pulses_integrated,
+                                                               input_power_pulses_integrated)
+
     # Power
-    S['Power']['Data']=fconts[h5PwrPath + '/Power']['Data'][Irecs,:,:]
-    N['Power']['Data']=fconts['/IncohcodeCS/Noise/Power']['Data'][Irecs,:,:]
+    S['Power']['Data']=input_power
+    N['Power']['Data']=output_noise
     S['Power']['Range']=fconts[h5PwrPath + '/Power']['Range'][[0]]; 
     S['Power']['Kint']=1.0
     if extCal==0:
@@ -137,8 +186,8 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     
     # Pulses Integrated
     S['Acf']['PulsesIntegrated']=fconts[h5DataPath]['PulsesIntegrated'][Irecs,:]
-    S['Power']['PulsesIntegrated']=fconts[h5PwrPath]['PulsesIntegrated'][Irecs,:]
-    N['Power']['PulsesIntegrated']=fconts['/IncohcodeCS/Noise']['PulsesIntegrated'][Irecs,:]
+    S['Power']['PulsesIntegrated']=input_power_pulses_integrated
+    N['Power']['PulsesIntegrated']=output_noise_pulses_integrated
     if extCal==0:
         C['Power']['PulsesIntegrated']=fconts['/IncohcodeCS/Cal']['PulsesIntegrated'][Irecs,:]
     elif extCal==1:
@@ -417,41 +466,49 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
             S['Acf']['Kint']=scipy.ones((Nlags))/(Nbauds)    #????              
     S['Acf']['Lag1Index']=scipy.where(scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud'])==scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']).min())[0][0]
 
+    # Now let's test if the noise estimates are "good enough" or should be replaced
+    # by comparing the noise estimates against furthest ranges of data
+    input_power = fconts[h5PwrPath + '/Power']['Data'][Irecs,:,:]
+    input_noise = fconts['/S/Noise/Power']['Data'][Irecs,:,:]
+
+    input_power_pulses_integrated = fconts[h5PwrPath]['PulsesIntegrated'][Irecs,:]
+    input_noise_pulses_integrated = fconts['/S/Noise']['PulsesIntegrated'][Irecs,:]
+
+    output_noise, output_noise_pulses_integrated = check_noise(input_noise, input_power,
+                                                               input_noise_pulses_integrated,
+                                                               input_power_pulses_integrated)
+
+
     # Power
-    S['Power']['Data']=fconts[h5PwrPath + '/Power']['Data'][Irecs,:,0:Nranges]
-    
+    S['Power']['Data']  = input_power[:,:,0:Nranges]
+    N['Power']['Data']  = output_noise
+
+    # Noise
     if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Noise']['Beamcodes'])[-1]:
         beamloc = []
         for beam in fconts[h5DataPath]['Beamcodes'][0,:]:
             condition = (fconts['/S/Noise']['Beamcodes'][0,:] == beam)
             beamloc.append(scipy.where(condition)[0][0])
         beamloc = scipy.array(beamloc)
-        
-        N['Power']['Data']=fconts['/S/Noise/Power']['Data'][Irecs,:,0:Nranges]
         N['Power']['Data']=N['Power']['Data'][:,beamloc,:]
-    else:
-        N['Power']['Data']=fconts['/S/Noise/Power']['Data'][Irecs,:,0:Nranges]
         
     S['Power']['Range']=fconts[h5PwrPath + '/Power']['Range'][[0]]; 
     S['Power']['Kint']=1.0
+    C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,:]
     if extCal==0:
         if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Cal']['Beamcodes'])[-1]:  
-            C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,0:Nranges]
             C['Power']['Data']=C['Power']['Data'][:,beamloc,:]
-        else:
-            C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,0:Nranges]
     elif extCal==1:
-        C['Power']['Data']=fcontsCal['/S/Cal/Power']['Data'][Irecs,:,0:Nranges]
-        C['Power']['NoiseData']=fcontsCal['/S/Noise/Power']['Data'][Irecs,:,0:Nranges]    
+        C['Power']['Data']=fcontsCal['/S/Cal/Power']['Data'][Irecs,:,:]
+        C['Power']['NoiseData']=fcontsCal['/S/Noise/Power']['Data'][Irecs,:,:]
     
     # Pulses Integrated
-    S['Acf']['PulsesIntegrated']=fconts[h5DataPath]['PulsesIntegrated'][Irecs,:]
-    S['Power']['PulsesIntegrated']=fconts[h5PwrPath]['PulsesIntegrated'][Irecs,:]
+    S['Acf']['PulsesIntegrated']    = fconts[h5DataPath]['PulsesIntegrated'][Irecs,:]
+    S['Power']['PulsesIntegrated']  = input_power_pulses_integrated
+    N['Power']['PulsesIntegrated']  = output_noise_pulses_integrated
+
     if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Noise']['Beamcodes'])[-1]:
-        N['Power']['PulsesIntegrated']=fconts['/S/Noise']['PulsesIntegrated'][Irecs,:]
         N['Power']['PulsesIntegrated']=N['Power']['PulsesIntegrated'][:,beamloc]
-    else:
-        N['Power']['PulsesIntegrated']=fconts['/S/Noise']['PulsesIntegrated'][Irecs,:]
         
     if extCal==0:
         if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Noise']['Beamcodes'])[-1]:
@@ -591,6 +648,22 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     elif extCal==2:
         C['Power']['Data']=N['Power']['Data']*acfopts['CalToNoiseRatio']
 
+    # convert noise to Watts
+    N['Power']['Data'] = C['Pcal']*(N['Power']['Data']/C['Power']['Data']) # Noise Power in Watts
+    N['Power']['PulsesIntegrated']=scipy.sum(N['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
+
+    # Noise subtract and calibrate power profle
+    S['Power']['Data']=S['Power']['Data']/scipy.repeat(S['Power']['PulsesIntegrated'][:,:,scipy.newaxis],Nranges,axis=2)
+    S['Power']['PulsesIntegrated']=scipy.sum(S['Power']['PulsesIntegrated'],axis=0)
+    S['Power']['StDev']=scipy.std(S['Power']['Data'],axis=0)/scipy.sqrt(Nrecs)
+    S['Power']['Data']=eval(funcname+"(S['Power']['Data'],axis=0)")
+    S['Power']['StDev']=S['Power']['StDev']/S['Power']['Data']
+
+    # SNR = S/N, we subtract off the average noise, then fit the data with a data model + perturbation noise model
+    S['Power']['Data']  = C['Pcal']*S['Power']['Data']/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    S['Power']['Data']  = S['Power']['Data'] - scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    S['Power']['SNR']   = S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+
     # Noise subtract and calibrate the ACF
     S['Acf']['Data']=S['Acf']['Data']/scipy.repeat(scipy.repeat(S['Acf']['PulsesIntegrated'][:,:,scipy.newaxis,scipy.newaxis],Nlags,axis=2),Nranges,axis=3) 
     S['Acf']['PulsesIntegrated']=scipy.sum(S['Acf']['PulsesIntegrated'],axis=0)
@@ -599,24 +672,12 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     S['Acf']['StDev']=S['Acf']['StDev']/scipy.absolute(S['Acf']['Data'][:,1,:])
     S['Acf']['Data']=C['Pcal']*(S['Acf']['Data'])/scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
 
-    # Noise subtract and calibrate power profle
-    S['Power']['Data']=S['Power']['Data']/scipy.repeat(S['Power']['PulsesIntegrated'][:,:,scipy.newaxis],Nranges,axis=2)
-    S['Power']['PulsesIntegrated']=scipy.sum(S['Power']['PulsesIntegrated'],axis=0)
-    S['Power']['StDev']=scipy.std(S['Power']['Data'],axis=0)/scipy.sqrt(Nrecs)
-    S['Power']['Data']=eval(funcname+"(S['Power']['Data'],axis=0)")
-    S['Power']['StDev']=S['Power']['StDev']/S['Power']['Data']
-    S['Power']['Data']=C['Pcal']*(S['Power']['Data']-scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
 
-    # convert noise to Watts
-    N['Power']['Data']=C['Pcal']*(N['Power']['Data']/C['Power']['Data']) # Noise Power in Watts
-    
     # scaling constant
     Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
     Range=scipy.repeat(scipy.repeat(scipy.squeeze(S['Acf']['Range'])[scipy.newaxis,scipy.newaxis,:],Nbeams,axis=0),Nlags,axis=1)
     S['Acf']['Psc']=S['Acf']['Pulsewidth']*Ksys/(Range*Range)
 
-    # Signal to Noise ratio
-    S['Power']['SNR']=scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))
     
 	# Clutter to Noise ratio
     S['Acf']['iSCR']=(Nbauds-1.0)*scipy.ones(Nlags)
@@ -659,9 +720,7 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
                 # ACF                
                 if acfopts['DO_FITS']:
                     acfIntsS = scipy.repeat(scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],tS['Acf']['Data'].shape[1],axis=1),tS['Acf']['Data'].shape[2],axis=2)
-                    #acfIntsN = scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis],tN['Acf']['Data'].shape[1],axis=1)                
                     S['Acf']['Data']=tS['Acf']['Data']*acfIntsS
-                    #N['Acf']['Data']=tN['Acf']['Data']*acfIntsN
                     S['Acf']['Psc']=tS['Acf']['Psc']*acfIntsS
                 # Power
                 pwrIntsS = scipy.repeat(tS['Power']['PulsesIntegrated'][:,scipy.newaxis],tS['Power']['Data'].shape[1],axis=1)
@@ -676,14 +735,11 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
                 C['Power']['PulsesIntegrated']=tC['Power']['PulsesIntegrated']                
                 if acfopts['DO_FITS']:
                     S['Acf']['PulsesIntegrated']=tS['Acf']['PulsesIntegrated']
-                    #N['Acf']['PulsesIntegrated']=tN['Acf']['PulsesIntegrated']
             else:
                 # ACF                
                 if acfopts['DO_FITS']:
                     acfIntsS = scipy.repeat(scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],tS['Acf']['Data'].shape[1],axis=1),tS['Acf']['Data'].shape[2],axis=2)
-                    #acfIntsN = scipy.repeat(tS['Acf']['PulsesIntegrated'][:,scipy.newaxis],tN['Acf']['Data'].shape[1],axis=1)                
                     S['Acf']['Data']+=tS['Acf']['Data']*acfIntsS
-                    #N['Acf']['Data']+=tN['Acf']['Data']*acfIntsN
                     S['Acf']['Psc']+=tS['Acf']['Psc']*acfIntsS
                 # Power
                 pwrIntsS = scipy.repeat(tS['Power']['PulsesIntegrated'][:,scipy.newaxis],tS['Power']['Data'].shape[1],axis=1)
@@ -698,14 +754,11 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
                 C['Power']['PulsesIntegrated']+=tC['Power']['PulsesIntegrated']                
                 if acfopts['DO_FITS']:
                     S['Acf']['PulsesIntegrated']+=tS['Acf']['PulsesIntegrated']
-                    #N['Acf']['PulsesIntegrated']+=tN['Acf']['PulsesIntegrated']
 
     # ACF
     if acfopts['DO_FITS']:    
         acfIntsS = scipy.repeat(scipy.repeat(S['Acf']['PulsesIntegrated'][:,scipy.newaxis,scipy.newaxis],S['Acf']['Data'].shape[1],axis=1),S['Acf']['Data'].shape[2],axis=2)
-        #acfIntsN = scipy.repeat(S['Acf']['PulsesIntegrated'][:,scipy.newaxis],N['Acf']['Data'].shape[1],axis=1)
         S['Acf']['Data']/=acfIntsS
-        #N['Acf']['Data']/=acfIntsN
         S['Acf']['Psc']/=acfIntsS
     # Power
     pwrIntsS = scipy.repeat(S['Power']['PulsesIntegrated'][:,scipy.newaxis],S['Power']['Data'].shape[1],axis=1)
@@ -780,23 +833,36 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     S['Acf']['Kint']=scipy.ones(Nlags,dtype='float64')
     S['Acf']['iSCR']=scipy.zeros(Nlags,dtype='float64')
 
+
+    # Now let's test if the noise estimates are "good enough" or should be replaced
+    # by comparing the noise estimates against furthest ranges of data
+    input_power = fconts['/S/Data/Power']['Data'][Irecs,:,:]
+    input_noise = fconts['/S/Noise/Power']['Data'][Irecs,:,:]
+
+    input_power_pulses_integrated = fconts['/S/Data']['PulsesIntegrated'][Irecs,:]
+    input_noise_pulses_integrated = fconts['/S/Noise']['PulsesIntegrated'][Irecs,:]
+
+    output_noise, output_noise_pulses_integrated = check_noise(input_noise, input_power,
+                                                               input_noise_pulses_integrated,
+                                                               input_power_pulses_integrated)
+
     # Power
-    S['Power']['Data']=fconts['/S/Data/Power']['Data'][Irecs,:,:]
-    N['Power']['Data']=fconts['/S/Noise/Power']['Data'][Irecs,:,:]
-    S['Power']['Range']=fconts['/S/Data/Power']['Range'][[0]]; 
+    S['Power']['Data']  = input_power
+    N['Power']['Data']  = output_noise
+    S['Power']['Range'] = fconts['/S/Data/Power']['Range'][[0]]; 
     if extCal==0:
-        C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,:]
+        C['Power']['Data']      = fconts['/S/Cal/Power']['Data'][Irecs,:,:]
     elif extCal==1:
-        C['Power']['Data']=fcontsCal['/S/Cal/Power']['Data'][Irecs,:,:]
-        C['Power']['NoiseData']=fcontsCal['/S/Noise/Power']['Data'][Irecs,:,:]
+        C['Power']['Data']      = fcontsCal['/S/Cal/Power']['Data'][Irecs,:,:]
+        C['Power']['NoiseData'] = fcontsCal['/S/Noise/Power']['Data'][Irecs,:,:]
     S['Power']['Kint']=1.0
     S['Power']['iSCR']=0.0
         
     # Pulses Integrated
-    S['Power']['PulsesIntegrated']=fconts['/S/Data']['PulsesIntegrated'][Irecs,:]
-    S['Acf']['PulsesIntegrated']=fconts['/S/Data']['PulsesIntegrated'][Irecs,:]
-    N['Power']['PulsesIntegrated']=fconts['/S/Noise']['PulsesIntegrated'][Irecs,:]
-    N['Acf']['PulsesIntegrated']=fconts['/S/Noise']['PulsesIntegrated'][Irecs,:]
+    S['Power']['PulsesIntegrated']  = input_power_pulses_integrated
+    N['Power']['PulsesIntegrated']  = output_noise_pulses_integrated
+    S['Acf']['PulsesIntegrated']    = fconts['/S/Data']['PulsesIntegrated'][Irecs,:]
+    N['Acf']['PulsesIntegrated']    = fconts['/S/Noise']['PulsesIntegrated'][Irecs,:]
     if extCal==0 or extCal==2:
         C['Power']['PulsesIntegrated']=fconts['/S/Cal']['PulsesIntegrated'][Irecs,:]
     elif extCal==1:
@@ -922,8 +988,7 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     S['Power']['StDev']=S['Power']['StDev']/S['Power']['Data']
 
 
-    # SNR = (S+N)/N, we aren't going to subtract off the noise, but instead fit the data with a data model + noise model
-    #S['Power']['Data']=C['Pcal']*(S['Power']['Data']-scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
+    # SNR = S/N, we subtract off the average noise, then fit the data with a data model + perturbation noise model
     S['Power']['Data']  = C['Pcal']*S['Power']['Data']/scipy.repeat(C['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
     S['Power']['Data']  = S['Power']['Data'] - scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
     S['Power']['SNR']   = S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
@@ -931,8 +996,8 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     if acfopts['DO_FITS']:
         S['Acf']['Data']=S['Acf']['Data']/scipy.repeat(scipy.repeat(S['Acf']['PulsesIntegrated'][:,:,scipy.newaxis,scipy.newaxis],Nlags,axis=2),Nranges,axis=3) 
         S['Acf']['PulsesIntegrated']=scipy.sum(S['Acf']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate 
-        S['Acf']['Data']=eval(funcname+"(S['Acf']['Data'],axis=0)") 
-        #S['Acf']['Data']=C['Pcal']*(S['Acf']['Data']-scipy.repeat(N['Acf']['Data'][:,:,scipy.newaxis],Nranges,axis=2))/scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
+        S['Acf']['Data']=eval(funcname+"(S['Acf']['Data'],axis=0)")
+        # calibrate the ACF data and then subtract off the noise ACF
         S['Acf']['Data']=C['Pcal']*S['Acf']['Data']/scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
         S['Acf']['Data']=S['Acf']['Data']-scipy.repeat(N['Acf']['Data'][:,:,scipy.newaxis],Nranges,axis=2)
 
@@ -1042,19 +1107,32 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     S['Power']['Pulsewidth']=fconts[gname]['Pulsewidth']
     S['Power']['TxBaud']=fconts[gname]['TxBaud']
     
+
+    # Now let's test if the noise estimates are "good enough" or should be replaced
+    # by comparing the noise estimates against furthest ranges of data
+    input_power = fconts[gname+'/Power']['Data'][Irecs,:,:]
+    input_noise = fconts['/CohCode/Noise/Power']['Data'][Irecs,:,:]
+
+    input_power_pulses_integrated = fconts[gname]['PulsesIntegrated'][Irecs,:]
+    input_noise_pulses_integrated = fconts['/CohCode/Noise']['PulsesIntegrated'][Irecs,:]
+
+    output_noise, output_noise_pulses_integrated = check_noise(input_noise, input_power,
+                                                               input_noise_pulses_integrated,
+                                                               input_power_pulses_integrated)
+
     # Power
-    S['Power']['Data']=fconts[gname+'/Power']['Data'][Irecs,:,:]
-    N['Power']['Data']=fconts['/CohCode/Noise/Power']['Data'][Irecs,:,:]
-    C['Power']['Data']=fconts['/CohCode/Cal/Power']['Data'][Irecs,:,:]
-    S['Power']['Range']=fconts[gname+'/Power']['Range'][[0]]; 
+    S['Power']['Data']  = input_power
+    N['Power']['Data']  = output_noise
+    C['Power']['Data']  = fconts['/CohCode/Cal/Power']['Data'][Irecs,:,:]
+    S['Power']['Range'] = fconts[gname+'/Power']['Range'][[0]]; 
     (Nrecs,Nbeams,Nranges)=S['Power']['Data'].shape
     S['Power']['Kint']=1.0
-    S['Power']['iSCR']=0.0	
+    S['Power']['iSCR']=0.0  
 
     # Pulses Integrated
-    S['Power']['PulsesIntegrated']=fconts[gname]['PulsesIntegrated'][Irecs,:]
-    N['Power']['PulsesIntegrated']=fconts['/CohCode/Noise']['PulsesIntegrated'][Irecs,:]
-    C['Power']['PulsesIntegrated']=fconts['/CohCode/Cal']['PulsesIntegrated'][Irecs,:]
+    S['Power']['PulsesIntegrated']  = input_power_pulses_integrated
+    N['Power']['PulsesIntegrated']  = output_noise_pulses_integrated
+    C['Power']['PulsesIntegrated']  = fconts['/CohCode/Cal']['PulsesIntegrated'][Irecs,:]
 
     # Beamcodes
     S['Power']['Beamcodes']=fconts[gname]['Beamcodes'][Irecs,:]
