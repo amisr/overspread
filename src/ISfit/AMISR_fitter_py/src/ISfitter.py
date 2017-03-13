@@ -276,7 +276,7 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     return y
 
 
-def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,ti,mi,psi,vi,k_radar0,pertubation_noise_acf,noise_var,p_N0=1.0e11,p_T0=1000.0,p_M0=16,fitSpectra=0,tn=0.0,L=[0.0,0.0],scat_fac=1,mode=0):
+def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,ti,mi,psi,vi,k_radar0,pertubation_noise_acf,noise_var,p_noise=1.0e-23,p_N0=1.0e11,p_T0=1000.0,p_M0=16,fitSpectra=0,tn=0.0,L=[0.0,0.0],scat_fac=1,mode=0):
     # INPUTS:
     #   x
     # OUTPUTS:
@@ -345,12 +345,18 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
 
     # scaling factor
     m=m*Psc
-    scaled_pertubation_noise_acf = pertubation_noise_acf * noise_power 
-
-    # Include the additional noise model
-    m.real = m.real + scaled_pertubation_noise_acf
+    scaled_pertubation_noise_acf = pertubation_noise_acf * noise_power
 
     if mode==1:
+        # fig = pyplot.figure()
+        # ax = fig.add_subplot(111)
+        # ax.plot(data.real,'b--')
+        # ax.plot(data.imag,'g--')
+        # ax.plot(m.real+scaled_pertubation_noise_acf,'r')
+        # ax.plot(m.imag,'k')
+        #pyplot.show()
+
+        m.real = m.real + scaled_pertubation_noise_acf
         return m,m2[0],tni,tti,tpsi,tvi
                 
     # if we want to fit spectra, transform
@@ -359,17 +365,20 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
         m=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
         y=(data-m)/scipy.sqrt(var)
     else:
-        real_diff = (data.real-m.real)/scipy.sqrt(var)
+        real_diff = (data.real-m.real-scaled_pertubation_noise_acf)/scipy.sqrt(var)
         imag_diff = (data.imag-m.imag)/scipy.sqrt(var)
         y=scipy.concatenate((real_diff, imag_diff))
 
-    # Noise has already been subtracted, we are adding a perturbation noise model
-    # so the a priori perturbation noise data is 0, hence noise_diff = (perturb_noise - 0)/variance
-    noise_diff = (scaled_pertubation_noise_acf)/scipy.sqrt(noise_var)
-    y = scipy.concatenate((y, noise_diff))        
-
     # Add constraint for ion/electron temps > neutral temps
     y = scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
+
+    # Density can't be negative...
+    y = scipy.concatenate((y,[scipy.sqrt(100*scipy.exp(-max([0.0,((ne-1e8)/1e9)])))]))
+
+    # Noise power can't be negative...
+    lb = p_noise/10000.0
+    sc = p_noise/1000.0
+    y = scipy.concatenate((y,[scipy.sqrt(100*scipy.exp(-max([0.0,((noise_power-lb)/sc)])))]))
 
     # Intended to remove NaNs caused by variance = 0 (such as for the imaginary component of lag0)
     y = y.astype('float64')

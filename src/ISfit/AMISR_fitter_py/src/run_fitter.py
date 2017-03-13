@@ -8,7 +8,7 @@ last revised: xx/xx/2007
 
 """
 import matplotlib
-matplotlib.use('agg')
+matplotlib.use('tkagg')
 print matplotlib.get_backend()
 
 import sys, os.path, glob, datetime, time, copy
@@ -461,6 +461,8 @@ class Run_Fitter:
                         # scaling factor for power
                         Psc[aa]=scipy.mean(S['Acf']['Psc'][Ibm,aa,(htI+SummationRule[0,aa]):(htI+SummationRule[1,aa]+1)])
 
+                    noise_order_of_magnitude = 10**(int(scipy.log10(scipy.nanmin(scipy.absolute(tAcf[3:])))) * 1.0)
+
                     ### compute variance
                     # Whether to use first or 0 lag
                     if self.FITOPTS['uselag1']==1:
@@ -470,10 +472,11 @@ class Run_Fitter:
                     # Signal to noise ratio
                     tSnr=scipy.mean(S['Power']['SNR'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
 
-                    #tpower=scipy.mean(S['Power']['Data'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
                     # Variance
                     tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
-                    #tAcfVar=(tpower + S['Acf']['iSCR']*tpower)**2/K.astype('Float64') # theoretical variances
+                    # Additional variance due to noise subtraction
+                    tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2/Noise['Power']['PulsesIntegrated'][Ibm].astype('Float64')
+
                     # Height and range
                     HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)])
                     RNG[Ibm,Iht]=RngMean
@@ -481,8 +484,6 @@ class Run_Fitter:
 
                     # using guess for Ne from density profile
                     tNe=scipy.absolute(scipy.mean(S['Power']['Ne_Mod'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]))
-
-                    #print "INITIAL DENSITY GUESS", tNe
 
                     if len(self.FITOPTS['Lags2fit'])==0:
                         Iy=range(Nlags)
@@ -545,6 +546,7 @@ class Run_Fitter:
                     psi[-1]=psi[-1]*0.35714
 
                     terr=scipy.transpose(scipy.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*scipy.nan
+
                     try:
                     #if 1==1:
                         nloops=0
@@ -647,9 +649,10 @@ class Run_Fitter:
                             iparams0=params0.copy()
 
 
-                            # get initial guess for additional noise as 10% of measured noise
-                            # and add it to the param0 and scaler arrays, but at the beginning.
-                            noise0 = float(Noise['Power']['Data'][Ibm]) * 0.10
+                            # get initial guess for additional noise as 1% of measured noise
+                            # Then add it to the param0 and scaler arrays, but at the beginning.
+                            if nloops == 1:
+                                noise0 = float(Noise['Power']['Data'][Ibm]) * 0.01
                             params0 = scipy.concatenate((scipy.array([noise0]),params0))
                             scaler = scipy.concatenate((scipy.array([1]),scaler))
 
@@ -669,12 +672,12 @@ class Run_Fitter:
                                 tSpcVar=scipy.power(tSpc,2.0)/Kmed*scipy.power(1.0+scipy.absolute(1.0/tSn),2.0)
 
                                 (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tSpc,tSpcVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
-                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=1,diag=None)
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,noise_order_of_magnitude,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=100,diag=None)
                             else:
                                 (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
-                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=1,diag=None)
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,noise_order_of_magnitude,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=100,diag=None)
 
                             # record termination parameter of fitter
                             fitinfo['fitcode'][Ibm,Iht]=ier
@@ -696,7 +699,7 @@ class Run_Fitter:
 
                             # get model ACF and parameter arrays
                             (m,m0,ni,ti,psi,vi)=fit_fun_with_noise(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
-                                f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
+                                f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,noise_order_of_magnitude,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
                             mod_ACF[Ibm,Iy,Iht]=m[Iy]
                             meas_ACF[Ibm,Iy,Iht]=tAcf[Iy]
                             errs_ACF[Ibm,Iy,Iht]=tAcfVar[Iy]
@@ -711,6 +714,7 @@ class Run_Fitter:
                             psi=psi*self.FITOPTS['p_om0']
                             vi=vi*self.FITOPTS['p_om0']/self.k_radar0
                             tNe=x[1]
+                            noise0 = x[0]
 
                             # re-evaluate FLIP ion chemistry
                             if self.FITOPTS['molecularModel']==1:
@@ -724,10 +728,11 @@ class Run_Fitter:
                                     self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
 
                                 # break loop or continue
-                                if scipy.absolute(OXPLUS-tOXPLUS)<0.02: # break loop
+                                if (scipy.absolute(OXPLUS-tOXPLUS)<0.02): # break loop
                                     break
                                 elif nloops>=10:            # Increased from 5 to 10. Empirically found 
-                                                            # that this helps prevent too many BadComposition errors.
+                                                            # that this helps prevent too many BadComposition
+                                                            # errors when SNR is low.
                                     raise BadComposition()  # throw an invalid fit error
                             elif mi[1]==mi[0] and nloops==1:
                                 continue
