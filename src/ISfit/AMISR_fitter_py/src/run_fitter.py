@@ -357,6 +357,7 @@ class Run_Fitter:
         HT=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan # Altitude
         RNG=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan # Range
         ne_out=scipy.zeros((Nbeams,Nranges,2),dtype='Float64')*scipy.nan # Fitted densities
+        noise_out = scipy.zeros((Nbeams,Nranges,3),dtype='Float64')*scipy.nan # Fitted noise
         FITS_out=scipy.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*scipy.nan # Fitted parameters
         ERRS_out=scipy.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*scipy.nan # Errors from fits
         mod_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')*scipy.nan # model ACFs
@@ -742,6 +743,8 @@ class Run_Fitter:
 
                         # store output
                         ne_out[Ibm,Iht,0]=tNe
+                        noise_out[Ibm,Iht,0]=noise0
+                        noise_out[Ibm,Iht,2]=float(Noise['Power']['Data'][Ibm])
                         FITS_out[Ibm,Iht,:,0]=ni
                         FITS_out[Ibm,Iht,:,1]=ti
                         FITS_out[Ibm,Iht,:,2]=psi
@@ -749,6 +752,7 @@ class Run_Fitter:
 
                         # compute errors if the Jacobian was able to be inverted
                         if cov_x is not None:
+                            noise_out[Ibm,Iht,1]=cov_x[0]
                             ne_out[Ibm,Iht,1]=cov_x[1]
                             ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
 
@@ -776,6 +780,7 @@ class Run_Fitter:
                         FITS_out[Ibm,Iht,:,:]=scipy.nan
                         ERRS_out[Ibm,Iht,:,:]=scipy.nan
                         ne_out[Ibm,Iht,:]=scipy.nan
+                        noise_out[Ibm,Iht,:]=scipy.nan
 
                     Ihtbm[Ibm]=Iht
 
@@ -788,6 +793,7 @@ class Run_Fitter:
         HT=HT[:,0:(Ihtbm+1)]
         RNG=RNG[:,0:(Ihtbm+1)]
         ne_out=ne_out[:,0:(Ihtbm+1),:]
+        noise_out=noise_out[:,0:(Ihtbm+1),:]
         FITS_out=FITS_out[:,0:(Ihtbm+1),:,:]
         ERRS_out=ERRS_out[:,0:(Ihtbm+1),:,:]
         mod_ACF=mod_ACF[:,:,0:(Ihtbm+1)]
@@ -810,7 +816,7 @@ class Run_Fitter:
         if self.OPTS['plotson']>2:
             pyplot.close(gf)
 
-        return RNG,HT,ne_out,FITS_out,ERRS_out,mod_ACF,meas_ACF,errs_ACF,fitinfo,models,gmag
+        return RNG,HT,ne_out,noise_out,FITS_out,ERRS_out,mod_ACF,meas_ACF,errs_ACF,fitinfo,models,gmag
 
     # This function parses the configuration files
     def ini_parse(self,inifile):
@@ -1448,10 +1454,11 @@ class Run_Fitter:
                 if self.FITOPTS['FullProfile']:
                     (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo)=self.call_fitter_FP(S,Noise,sstr=fstr)
                 else:
-                    (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,perturbation_noise_acf,sstr=fstr)
+                    (trng,tht,tne,tnoise,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,perturbation_noise_acf,sstr=fstr)
                 self.FITS['Range']=trng
                 self.FITS['Altitude']=tht
                 self.FITS['Ne']=tne[:,:,0]
+                self.FITS['Noise'] = tnoise
                 self.FITS['dNe']=tne[:,:,1]
                 self.FITS['Fits']=tfits
                 self.FITS['Errors']=terrs
@@ -1606,9 +1613,9 @@ class Run_Fitter:
                 if self.FITOPTS['DO_FITS']:
                     io_utils.createDynamicArray(outh5file,self.h5Paths['FitInfo'][0],self.FITS['FitInfo'],self.FITS['FitInfo'].keys())
                     if self.FITOPTS['MOTION_TYPE']==1 or self.OPTS['dynamicAlts']==1: # Az,El or case when we want to include entire array
-                        io_utils.createDynamicArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Errors','Fits','Ne','dNe','Range','Altitude'])
+                        io_utils.createDynamicArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Errors','Fits','Ne','dNe','Range','Altitude','Noise'])
                     else: # beamcodes
-                        io_utils.createDynamicArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Errors','Fits','Ne','dNe'])
+                        io_utils.createDynamicArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Errors','Fits','Ne','dNe','Noise'])
                         if IIrec==0:
                             io_utils.createStaticArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Altitude','Range'])
                     if IIrec==0:
