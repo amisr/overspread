@@ -349,12 +349,21 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
 
     if mode==1:
         # fig = pyplot.figure()
-        # ax = fig.add_subplot(111)
+        # ax = fig.add_subplot(311)
         # ax.plot(data.real,'b--')
         # ax.plot(data.imag,'g--')
         # ax.plot(m.real+scaled_pertubation_noise_acf,'r')
         # ax.plot(m.imag,'k')
-        #pyplot.show()
+
+        # # fig = pyplot.figure()
+        # ax = fig.add_subplot(312)
+        # ax.plot(dtau,m2.real,'r')
+        # ax.plot(dtau,m2.imag,'k')
+
+        # ax = fig.add_subplot(313)
+        # ax.plot(scipy.sum(Wl,axis=0),'r')
+        # ax.plot(pertubation_noise_acf,'k')
+        # pyplot.show()
 
         m.real = m.real + scaled_pertubation_noise_acf
         return m,m2[0],tni,tti,tpsi,tvi

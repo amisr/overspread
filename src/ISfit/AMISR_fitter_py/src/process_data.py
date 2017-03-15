@@ -37,6 +37,21 @@ def trim_Ibeams(inDict,Ibeams,Nbeams):
 	return inDict
 
 
+# A function to compute the perturbation noise acf based on the assumption that such noise
+# is white and broadband (at least compared to the width of the filter)
+def compute_noise_acf(num_lags,sample_time,impulse_response):
+
+    t_num_taps = impulse_response.size
+    t_times = scipy.arange(t_num_taps)*1e-6
+    t_acf = scipy.convolve(impulse_response,impulse_response)[t_num_taps-1:]
+    t_acf = t_acf / t_acf[0]
+
+    t_lag_times = scipy.arange(num_lags)*sample_time
+    interp_func = scipy.interpolate.interp1d(t_times,t_acf,bounds_error=0, fill_value=0)
+    noise_acf = interp_func(t_lag_times)
+
+    return noise_acf
+
 def check_noise(noise, power, noise_pulses_integrated, power_pulses_integrated):
     num_rng_data_noise = 20
 
@@ -461,9 +476,9 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
                     S['Acf']['Lags'][0,Lagmat[ilag]]=tlags[0,ilag]
                     #S['Acf']['Kint']=???
                 Nlags=maxLag
-            S['Acf']['Kint']=scipy.ones((maxLag))/(Nbauds)                  
+            S['Acf']['Kint']=scipy.ones((maxLag))/(Nbauds)**2                 
         except:
-            S['Acf']['Kint']=scipy.ones((Nlags))/(Nbauds)    #????              
+            S['Acf']['Kint']=scipy.ones((Nlags))/(Nbauds)**2
     S['Acf']['Lag1Index']=scipy.where(scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud'])==scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']).min())[0][0]
 
     # Now let's test if the noise estimates are "good enough" or should be replaced
@@ -672,22 +687,27 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     S['Acf']['StDev']=S['Acf']['StDev']/scipy.absolute(S['Acf']['Data'][:,1,:])
     S['Acf']['Data']=C['Pcal']*(S['Acf']['Data'])/scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
 
+    # Subtract the modeled noise ACF scaled by the estimated lag0 noise power from the data ACF
+    # Parameters needed for calculating the perturbation noise_acf
+    sample_time = fconts['/Rx']['SampleTime']
+    temp = fconts['/Setup']['RxFilterfile']
+    filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
+    noise_acf = compute_noise_acf(Nlags,sample_time,filter_coefficients)
+    noise_acfs = scipy.repeat(noise_acf[scipy.newaxis,:],Nbeams,axis=0)
+    scaled_noise_acfs = scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nlags,axis=1)*noise_acfs
+    scaled_noise_acfs = scipy.repeat(scaled_noise_acfs[:,:,scipy.newaxis],Nranges,axis=2)
+
+    S['Acf']['Data'].real=S['Acf']['Data'].real-scaled_noise_acfs
+
 
     # scaling constant
     Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
     Range=scipy.repeat(scipy.repeat(scipy.squeeze(S['Acf']['Range'])[scipy.newaxis,scipy.newaxis,:],Nbeams,axis=0),Nlags,axis=1)
     S['Acf']['Psc']=S['Acf']['Pulsewidth']*Ksys/(Range*Range)
-
     
 	# Clutter to Noise ratio
     S['Acf']['iSCR']=(Nbauds-1.0)*scipy.ones(Nlags)
     S['Power']['iSCR']=0.0
-
-    # set the 0 lag of the ACF to the short pulse zerolag measurement
-    S['Acf']['Data'][:,0,:]=S['Power']['Data']
-    S['Acf']['Psc'][:,0,:]=S['Acf']['Psc'][:,0,:]*S['Power']['Pulsewidth']/S['Acf']['Pulsewidth']
-    S['Acf']['Kint'][0]=1.0
-    S['Acf']['iSCR'][0]=0.0
     
     # if uselag1=1, use the 1st lag to compute the apriori density
     if uselag1:
@@ -700,11 +720,18 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         S['Acf']['Kint'][1:]=S['Acf']['Kint'][1:]*(Nbauds-1.0)**2.0
         S['Acf']['Kint'][0]=S['Acf']['Kint'][0]*(Nbauds*scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))**2.0
         S['Power']['SNR']=scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/((Nbauds-1.0)*scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))
+        #S['Power']['SNR']=scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/(scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))
         S['Power']['iSCR']=Nbauds-1.0
-        S['Power']['Kint']=Nbauds-1.0
+        #S['Power']['Kint']=Nbauds-1.0
+        S['Power']['Kint']=S['Acf']['Kint'][S['Acf']['Lag1Index']]
     else:
-        S['Acf']['Kint'][1:]=S['Acf']['Kint'][1:]/scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:]))**2.0
-    
+        # set the 0 lag of the ACF to the short pulse zerolag measurement
+        S['Acf']['Data'][:,0,:]=S['Power']['Data']
+        S['Acf']['Psc'][:,0,:]=S['Acf']['Psc'][:,0,:]*S['Power']['Pulsewidth']/S['Acf']['Pulsewidth']
+        S['Acf']['Kint'][0]=1.0
+        S['Acf']['Kint'][1:]=S['Acf']['Kint'][1:]*(Nbauds-1.0)**2.0
+        S['Acf']['iSCR'][0]=0.0
+
     return S,N,C
 
 
