@@ -451,7 +451,10 @@ class Run_Fitter:
                     SumFactor=scipy.squeeze(RngMean**2.0/scipy.power(RngAll,2.0))
 
                     # sum using the summation rule
-                    K=NSUM*S['Acf']['PulsesIntegrated'][Ibm]*S['Acf']['Kint']
+
+                    pulses_integrated = scipy.sum(S['Acf']['PulsesIntegrated'][Ibm][:,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)],axis=1)
+
+                    K=pulses_integrated*S['Acf']['Kint']
                     tAcf=scipy.zeros(Nlags,dtype='Complex64')
                     tAcfVar=scipy.zeros(Nlags,dtype='Float64')
                     Psc=scipy.zeros(Nlags,dtype='Float64')
@@ -1405,7 +1408,7 @@ class Run_Fitter:
                 (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['BMCODES'][:,3])
             elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
                 (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['Ksys'])
-            S['Power']['dNeFrac']=1.0/scipy.sqrt(scipy.repeat(S['Power']['Kint']*S['Power']['PulsesIntegrated'][:,scipy.newaxis],S['Power']['SNR'].shape[1],axis=1))*(1.0+scipy.absolute(1.0/S['Power']['SNR'])+S['Power']['iSCR'])
+            S['Power']['dNeFrac']=1.0/scipy.sqrt(S['Power']['Kint']*S['Power']['PulsesIntegrated'])*(1.0+scipy.absolute(1.0/S['Power']['SNR'])+S['Power']['iSCR'])
             S['Power']['dNeFrac'][scipy.where(S['Power']['SNR']<0.0)]=scipy.nan
             if self.FITOPTS['uselag1']: # if we are using the 1st lag to estimate the density, then we need to scale it a bit
                 S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/scipy.sum(scipy.absolute(self.AMB['Wlag'][S['Acf']['Lag1Index'],:]))
