@@ -57,14 +57,14 @@ def check_noise(noise, power, noise_pulses_integrated, power_pulses_integrated):
     std_temp_noise = temp_noise/scipy.sqrt(noise_pulses_integrated + num_noise_rng)
     std_noise_long_rng_data = noise_long_rng_data/scipy.sqrt(num_rng_data_noise + power_pulses_integrated)
 
-    ind = scipy.where((scipy.absolute(noise_long_rng_data-temp_noise) > std_noise_long_rng_data + std_temp_noise)
-                       & (temp_noise > noise_long_rng_data))[0]
+    ind1, ind2 = scipy.where((scipy.absolute(noise_long_rng_data-temp_noise) > std_noise_long_rng_data + std_temp_noise)
+                       & (temp_noise > noise_long_rng_data))
 
     # Replace any bad noise estimates with power based noise estimates
     temp_noise *= (noise_pulses_integrated + num_noise_rng)
-    if ind.size:
-        temp_noise[ind] = noise_long_rng_data[ind] * (power_pulses_integrated + num_rng_data_noise)
-        output_noise_pulses_integrated[ind] = power_pulses_integrated[ind]
+    if ind1:
+        temp_noise[ind1,ind2] = noise_long_rng_data[ind1,ind2] * (power_pulses_integrated[ind1,ind2] + num_rng_data_noise)
+        output_noise_pulses_integrated[ind1,ind2] = power_pulses_integrated[ind1,ind2]
 
     # Now reform the noise into and array of (time,beam,range) for the
     # processing code to use. We can use a bogus range here.
