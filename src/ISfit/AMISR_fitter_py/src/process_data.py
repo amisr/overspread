@@ -497,7 +497,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     try:
         acf_pulses_integrated = fconts[h5DataPath + '/Acf']['PulsesIntegrated']
     except KeyError:
-        acf_pulses_integrated = fconts['/S/Data']['PulsesIntegrated']
+        acf_pulses_integrated = fconts[h5DataPath]['PulsesIntegrated']
     if scipy.ndim(acf_pulses_integrated) == 2:
         acf_pulses_integrated = scipy.repeat(acf_pulses_integrated[:,:,scipy.newaxis],Nlags,axis=2)
     if scipy.ndim(acf_pulses_integrated) == 3:
@@ -538,7 +538,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
 
     # Anywhere that our ACFs or Powers pulses integrated is 0, we must make sure the data is zeroed out too
     S['Acf']['Data'][scipy.where(acf_pulses_integrated == 0)] = 0.0+0.0j
-    N['Acf']['Data'][scipy.where(noise_acf_pulses_integrated == 0)] = 0.0+0.0j
+    #N['Acf']['Data'][scipy.where(noise_acf_pulses_integrated == 0)] = 0.0+0.0j
     input_power[scipy.where(power_pulses_integrated == 0)] = 0
     input_noise[scipy.where(noise_power_pulses_integrated == 0)] = 0
 
@@ -741,7 +741,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
 
     # Noise subtract and calibrate the ACF
     S['Acf']['Data']=S['Acf']['Data']/S['Acf']['PulsesIntegrated']
-    S['Acf']['PulsesIntegrated']=scipy.sum(scipy.sum(S['Acf']['PulsesIntegrated'],axis=3),axis=0)
+    S['Acf']['PulsesIntegrated']=scipy.sum(S['Acf']['PulsesIntegrated'],axis=0)
     S['Acf']['StDev']=scipy.std(scipy.absolute(S['Acf']['Data'][:,:,1,:]),axis=0)/scipy.sqrt(Nrecs)
     S['Acf']['Data']=eval(funcname+"(S['Acf']['Data'],axis=0)")
     S['Acf']['StDev']=S['Acf']['StDev']/scipy.absolute(S['Acf']['Data'][:,1,:])
@@ -773,7 +773,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     if uselag1:
         S['Power']['Data']=scipy.absolute(S['Acf']['Data'][:,S['Acf']['Lag1Index'],:])
         S['Power']['StDev']=S['Acf']['StDev']
-        S['Power']['PulsesIntegrated']=S['Acf']['PulsesIntegrated']
+        S['Power']['PulsesIntegrated']=S['Acf']['PulsesIntegrated'][:,S['Acf']['Lag1Index'],:]
         S['Power']['Pulsewidth']=S['Acf']['Pulsewidth']
         S['Power']['TxBaud']=S['Acf']['TxBaud']
         S['Power']['Range']=S['Acf']['Range']
