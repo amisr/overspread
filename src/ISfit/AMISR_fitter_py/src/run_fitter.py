@@ -947,6 +947,8 @@ class Run_Fitter:
             if (self.FITOPTS['GroupHt'][-1]<self.FITOPTS['htmax']):
                 raise ValueError, 'GroupHt must go up to htmax!'
 
+        self.config = config
+
         return 0
 
     def read_a_datafile(self,files,frec,output=[],Irec=-1,nrecs=-1):
@@ -1679,16 +1681,7 @@ class Run_Fitter:
                 plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],clims=self.OPTS['pcolClims'])
             else:
                 plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'])
-        """
 
-        if (self.OPTS['plotson']>0):
-            # Load logging module
-            logger = LoggerInit(config=os.path.join('/Users/fitter/Documents/amisr-src/src/calibration/',
-                            "config",
-                            "log.ini") ).logger
-            inst = amisrwrapper.amisrwrapper(configpath="/opt/amisr-plotting/amisrplotting/config/*.ini",logger=logger)
-            inst.pcolor_plot(self.OPTS['outfile'],self.OPTS['plotsdir'])
-        """
         return 0
 
 #######
