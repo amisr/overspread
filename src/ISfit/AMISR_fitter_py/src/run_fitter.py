@@ -868,11 +868,16 @@ class Run_Fitter:
         self.DEFOPTS['CAL_TEMP_DEF']=eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','CAL_TEMP_DEF',required=0,defaultParm='100.0'))
 
         # Input section
+        # Get filelist or list of filelists
         self.OPTS['FILELIST']=io_utils.ini_tool(config,'INPUT','FILELIST',required=1,defaultParm='')
-
         try: self.OPTS['FILELIST']=eval(self.OPTS['FILELIST'])
         except: ''
+        
+        # Get input rawfile paths or list of them
         self.OPTS['ipath']=io_utils.ini_tool(config,'INPUT','FILE_PATH',required=0,defaultParm='')
+        try: self.OPTS['ipath'] = eval(self.OPTS['ipath'])
+        except: pass
+        
         self.OPTS['AMB_PATH']=io_utils.ini_tool(config,'INPUT','AMB_PATH',required=0,defaultParm='')
         try: self.OPTS['AMB_PATH']=eval(self.OPTS['AMB_PATH'])
         except: ''
@@ -953,11 +958,11 @@ class Run_Fitter:
         print 'Reading file ' + fname
 
         # make sure the file exists
-        if os.path.exists(os.path.join(self.OPTS['ipath'],fname))==False:
+        if os.path.exists(fname)==False:
             raise IOError, 'The input file does not exist.'
 
         # read the entire file
-        h5file=tables.openFile(os.path.join(self.OPTS['ipath'],fname))
+        h5file=tables.openFile(fname)
         if len(output)==0 or Irec==-1 or nrecs==-1: # we dont need to worry about preserving records
             output={}
             for group in h5file.walkGroups("/"):
@@ -1030,14 +1035,23 @@ class Run_Fitter:
             print 'Problem understanding filelist'
             return
 
+        # check out the raw file paths
+        try:
+            if (type(self.OPTS['ipath'])!=tuple):
+                self.OPTS['ipath']=tuple([self.OPTS['ipath']])
+        except:
+            print 'Problem understanding FILE_PATH'
+            return
+
         # read the file that contains the list of files to process
         files=[]
-        nfiles=[]
+        input_files = []
         for ii in range(NFREQ): # for each of the frequencies
             print self.OPTS['FILELIST'][ii]
             f=open(self.OPTS['FILELIST'][ii]) # open
             files.append(f.readlines()) # read list
             f.close() # close
+            input_files.append(list())
             #print files
             for ir in range(len(files[ii])):
                 files[ii][ir]=files[ii][ir].rstrip('\n')
@@ -1051,16 +1065,17 @@ class Run_Fitter:
             files2=copy.copy(files[ii])
             for ir in range(len(files2)):
                 if files2[ir].rfind('*') != -1:
-                    print(self.OPTS['ipath'],files2[ir])
-                    tfiles=glob.glob(os.path.join(self.OPTS['ipath'],files2[ir]))
+                    for path in self.OPTS['ipath']:
+                        tfiles=glob.glob(os.path.join(path,files2[ir]))
+                        print tfiles
+                        files[ii].extend(tfiles)
                     files[ii].remove(files2[ir])
-                    files[ii].extend(tfiles)
+
             if len(files[ii])!=len(files[0]): # abort! they need to be the same number of files
                 raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'
             files[ii]=sorted(files[ii],key=os.path.basename)
             #files[ii].sort() # sort the file sequence
         nfiles=len(files[0]) # number of files to process
-
 
         if nfiles==0: # abort!
             print 'Nothing to do...'
@@ -1120,7 +1135,7 @@ class Run_Fitter:
             if self.FITOPTS['MOTION_TYPE']==1: # Az,El
                 Ibad.append(scipy.where((outputAll[ii]['/Antenna']['Mode'][:,0] != outputAll[ii]['/Antenna']['Mode'][:,1]) | (outputAll[ii]['/Antenna']['Event'][:,0] != outputAll[ii]['/Antenna']['Event'][:,1]))[0])
         output=outputAll[0]
-        curexpname=self.get_expname(os.path.join(self.OPTS['ipath'],files[0][frec]))
+        curexpname=self.get_expname(files[0][frec])
         RecInt = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
 
         print 'Experiment: ' + curexpname
@@ -1167,7 +1182,7 @@ class Run_Fitter:
                     done=1
                 else:
                     # read another file
-                    expname=self.get_expname(os.path.join(self.OPTS['ipath'],files[0][frec]))
+                    expname=self.get_expname(files[0][frec])
                     if expname==curexpname:
                         Irec=0
                         for ifreq in range(NFREQ):
