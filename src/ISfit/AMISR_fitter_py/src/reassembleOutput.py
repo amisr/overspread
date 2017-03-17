@@ -38,8 +38,14 @@ class reassembleOutput(Run_Fitter):
     # run
     def run(self):
 
+        # Partition Options
+        self.OPTS['npart']=int(self.options.npart)
+
         if (self.FITOPTS['fitcal'] == 1):
             print("Appending -fitcal to file names.")
+
+            #Input file names
+            self.OPTS['infile']=[self.OPTS['outfile'][:-3]+'_'+'part_%d'%n+'-fitcal.h5' for n in range(self.OPTS['npart'])]
 
             #Now change the output file name so it has the -fitcal string appended to it
             temp = self.OPTS['outfile']
@@ -51,12 +57,11 @@ class reassembleOutput(Run_Fitter):
             temp = self.OPTS['plotsdir']+'-fitcal'
             print("Changing plotting dirname to " + temp)
             self.OPTS['plotsdir'] = temp
+        else:
+            #Input file names
+            self.OPTS['infile']=[self.OPTS['outfile'][:-3]+'_'+'part_%d'%n+'.h5' for n in range(self.OPTS['npart'])]
 
-        # Partition Options
-        self.OPTS['npart']=int(self.options.npart)
-
-        #Input file names
-        self.OPTS['infile']=[self.OPTS['outfile'][:-3]+'_'+'part_%d'%n+'.h5' for n in range(self.OPTS['npart'])]
+        
 
 
         #copy the zeroth part file to the (locked) main outfile

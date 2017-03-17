@@ -21,6 +21,10 @@ from constants import *
 
 from run_fitter import Run_Fitter
 
+#For fitcal files (files that are calibrated and fitted at the same time)
+#we need to add a Calibration record
+from add_calibration_record import *
+
 MAXFEV_C=20
 
 ##############################
