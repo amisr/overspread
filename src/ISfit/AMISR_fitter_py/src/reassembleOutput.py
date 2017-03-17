@@ -39,6 +39,14 @@ class reassembleOutput(Run_Fitter):
     def run(self):
 
         if (self.FITOPTS['fitcal'] == 1):
+            print("Appending -fitcal to file names.")
+
+            #Now change the output file name so it has the -fitcal string appended to it
+            temp = self.OPTS['outfile']
+            temp2 = temp[:-3]+'-fitcal'+temp[-3:]
+            print("Changing output filename to " + temp2)
+            self.OPTS['outfile'] = temp2
+
             #Finally, change the output directory name for the plots directory
             temp = self.OPTS['plotsdir']+'-fitcal'
             print("Changing plotting dirname to " + temp)

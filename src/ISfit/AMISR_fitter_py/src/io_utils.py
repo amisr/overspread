@@ -182,3 +182,74 @@ def setAtrributes(fhandle,data):
             try:  fhandle.setNodeAttr(key,attr[0],attr[1])
             except: ''
     return
+
+
+def createDynamicArray2(fhandle,path,rec,keys2do=[]):
+    # creates a dynamic array
+    if len(keys2do)==0:
+        dp,dn = os.path.split(path)
+        data = rec.copy()
+        #data.shape = (1,)+data.shape  ## add integration dimension to data array
+        if not fhandle.__contains__(path):
+            shape = list(data.shape)
+            shape[0] = 0
+            atom = tables.Atom.from_dtype(data.dtype)
+            arr = fhandle.createEArray(dp,dn,atom,shape)
+            arr.flavor='numpy'
+        arr = fhandle.getNode(path)
+        if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
+            if data.shape[2] > arr.shape[2]:
+                # read array
+                tarr = arr.read()
+                # remove old node
+                arr.remove()
+                tshape=list(tarr.shape); tshape[2]=data.shape[2]-tarr.shape[2]
+                tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)
+                # create new node
+                shape = list(tarr.shape)
+                shape[0] = 0
+                atom = tables.Atom.from_dtype(tarr.dtype)
+                arr = fhandle.createEArray(dp,dn,atom,shape)
+                arr.flavor='numpy'
+                arr = fhandle.getNode(path)
+                # dump data
+                arr.append(tarr)
+            else:
+                tshape=list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
+                data=scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
+        arr.append(data)
+        arr.flush()
+    else:
+        for key in keys2do:
+            data = scipy.array(rec[key])
+            #data.shape = (1,)+data.shape  ## add integration dimension to data array
+            if not fhandle.__contains__(path+'/'+key):
+                shape = list(data.shape)
+                shape[0] = 0
+                atom = tables.Atom.from_dtype(data.dtype)
+                arr = fhandle.createEArray(path,key,atom,shape)
+                arr.flavor='numpy'
+            arr = fhandle.getNode(path+'/'+key)
+            if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
+                if data.shape[2] > arr.shape[2]:
+                    # read array
+                    tarr = arr.read()
+                    # remove old node
+                    arr.remove()
+                    tshape=list(tarr.shape); tshape[2]=data.shape[2]-tarr.shape[2]
+                    tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)
+                    # create new node
+                    shape = list(tarr.shape)
+                    shape[0] = 0
+                    atom = tables.Atom.from_dtype(tarr.dtype)
+                    arr = fhandle.createEArray(path,key,atom,shape)
+                    arr.flavor='numpy'
+                    arr = fhandle.getNode(path+'/'+key)
+                    # dump data
+                    arr.append(tarr)
+                else:
+                    tshape=list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
+                    data=scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
+            arr.append(data)
+            arr.flush()
+    return
