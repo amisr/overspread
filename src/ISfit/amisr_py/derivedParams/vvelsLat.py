@@ -74,7 +74,7 @@ class vvelsLat:
     
     def __init__(self,inifiles,sec):
     
-        self.DefaultIni = '/Users/fitter/Documents/amisr-src/src/ISfit/AMISR_fitter_py/config_vvelsLat-default.ini'
+        self.DefaultIni = '/Users/fitter/Documents/amisr-src/src/ISfit/AMISR_fitter_py/config/config_vvelsLat-default.ini'
 
         # parse ini file
         self.ini_parse(inifiles,sec)
