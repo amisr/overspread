@@ -382,7 +382,7 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     y = scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
 
     # Density can't be negative...
-    y = scipy.concatenate((y,[scipy.sqrt(100*scipy.exp(-max([0.0,((ne-1e8)/1e9)])))]))
+    y = scipy.concatenate((y,[scipy.sqrt(L[2]*scipy.exp(-max([0.0,((ne-1e8)/1e9)])))]))
 
     # Intended to remove NaNs caused by variance = 0 (such as for the imaginary component of lag0)
     y = y.astype('float64')

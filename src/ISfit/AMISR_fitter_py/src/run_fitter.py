@@ -914,7 +914,9 @@ class Run_Fitter:
         self.FITOPTS['p_N0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_N0',required=0,defaultParm='1.0e11'))
         self.FITOPTS['p_T0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_T0',required=0,defaultParm='1000.0'))
         self.FITOPTS['p_M0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_M0',required=0,defaultParm='16.0'))
-        self.FITOPTS['LagrangeParams']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','LagrangeParams',required=0,defaultParm='[1.0e4,1.0e4]'))
+        self.FITOPTS['LagrangeParams']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','LagrangeParams',required=0,defaultParm='[1.0e4,1.0e4,1.0e2]'))
+        if len(self.FITOPTS['LagrangeParams']) != 3:
+            raise ValueError, "LagrangeParams must be a list of length 3. Te, Ti, and Ne penalties."
         self.FITOPTS['procMedian']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','procMedian',required=0,defaultParm='0'))
         self.FITOPTS['molecularModel']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','molecularModel',required=0,defaultParm='0')))
         self.FITOPTS['molmodFile']=io_utils.ini_tool(config,'FIT_OPTIONS','molmodFile',required=0,defaultParm='')
