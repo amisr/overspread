@@ -1263,6 +1263,18 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     C['Power']={}
     C['Pcal']=fconts['/Rx']['Bandwidth']*fconts['/Rx']['CalTemp']*v_Boltzmann # Cal power in Watts
 
+    # Antenna if necessary
+    if acfopts['MOTION_TYPE']==1:   
+        az=fconts['/Antenna']['Azimuth'][Irecs]
+        el=fconts['/Antenna']['Elevation'][Irecs]
+        I=scipy.where(el>90.0)[0]; el[I]=180.0-el[I]; az[I]=az[I]+180.0
+        I=scipy.where(az>360.0)[0]; az[I]=az[I]-360.0
+        I=scipy.where(az<0.0)[0]; az[I]=az[I]+360.0
+        S['AvgAzimuth']=azAverage(az*pi/180.0)*180.0/pi
+        S['AvgElevation']=scipy.mean(el)
+        S['Azimuth']=scipy.array([az[0,0],az[-1,-1]])
+        S['Elevation']=scipy.array([el[0,0],el[-1,-1]])
+
     # some generic stuff
     S['Power']['Pulsewidth']=fconts[gname]['Pulsewidth']
     S['Power']['TxBaud']=fconts[gname]['TxBaud']
