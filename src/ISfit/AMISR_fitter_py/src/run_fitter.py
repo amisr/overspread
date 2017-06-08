@@ -1453,7 +1453,7 @@ class Run_Fitter:
             def compute_noise_acf(num_lags,sample_time,impulse_response):
 
                 t_num_taps = impulse_response.size
-                t_times = scipy.arange(t_num_taps)*1e-6
+                t_times = scipy.arange(t_num_taps)*1e-6         # we have 1 us samples before decimating to final raw output
                 t_acf = scipy.convolve(impulse_response,impulse_response)[t_num_taps-1:]
                 t_acf = t_acf / t_acf[0]
 
