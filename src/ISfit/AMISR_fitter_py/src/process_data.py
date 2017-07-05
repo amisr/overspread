@@ -1279,19 +1279,6 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     S['Power']['Pulsewidth']=fconts[gname]['Pulsewidth']
     S['Power']['TxBaud']=fconts[gname]['TxBaud']
     
-
-    # Now let's test if the noise estimates are "good enough" or should be replaced
-    # by comparing the noise estimates against furthest ranges of data
-    input_power = fconts[gname+'/Power']['Data'][Irecs,:,:]
-    input_noise = fconts['/CohCode/Noise/Power']['Data'][Irecs,:,:]
-
-    input_power_pulses_integrated = fconts[gname]['PulsesIntegrated'][Irecs,:]
-    input_noise_pulses_integrated = fconts['/CohCode/Noise']['PulsesIntegrated'][Irecs,:]
-
-    output_noise, output_noise_pulses_integrated = check_noise(input_noise, input_power,
-                                                               input_noise_pulses_integrated,
-                                                               input_power_pulses_integrated)
-
     # Power
     S['Power']['Data']  = input_power
     N['Power']['Data']  = output_noise
@@ -1299,7 +1286,35 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     S['Power']['Range'] = fconts[gname+'/Power']['Range'][[0]]; 
     (Nrecs,Nbeams,Nranges)=S['Power']['Data'].shape
     S['Power']['Kint']=1.0
-    S['Power']['iSCR']=0.0  
+    S['Power']['iSCR']=0.0
+
+
+    # Now let's test if the noise estimates are "good enough" or should be replaced
+    # by comparing the noise estimates against furthest ranges of data
+    input_power = fconts[gname+'/Power']['Data'][Irecs,:,:]
+    input_noise = fconts['/CohCode/Noise/Power']['Data'][Irecs,:,:]
+
+
+    # Determine the existence and dimensionality of the pulses integrated arrays
+    # (implemented by ASR to handle resampled data 15/03/2017)
+
+    # Power pulses integrated
+    power_pulses_integrated = fconts[gname]['PulsesIntegrated']
+    if scipy.ndim(power_pulses_integrated) == 2:
+        power_pulses_integrated = scipy.repeat(power_pulses_integrated[:,:,scipy.newaxis],Nranges,axis=2)
+    input_power_pulses_integrated = power_pulses_integrated[Irecs,:,:]
+
+    # Noise pulses integrated
+    noise_power_pulses_integrated = fconts['/CohCode/Noise']['PulsesIntegrated']
+    if scipy.ndim(noise_power_pulses_integrated) == 2:
+        noise_power_pulses_integrated = scipy.repeat(noise_power_pulses_integrated[:,:,scipy.newaxis],noise_Nranges,axis=2)
+    input_noise_pulses_integrated = noise_power_pulses_integrated[Irecs,:,:]
+
+
+    output_noise, output_noise_pulses_integrated = check_noise(input_noise, input_power,
+                                                               input_noise_pulses_integrated,
+                                                               input_power_pulses_integrated)
+
 
     # Pulses Integrated
     S['Power']['PulsesIntegrated']  = input_power_pulses_integrated
