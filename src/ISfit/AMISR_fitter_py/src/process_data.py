@@ -1279,6 +1279,11 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     S['Power']['Pulsewidth']=fconts[gname]['Pulsewidth']
     S['Power']['TxBaud']=fconts[gname]['TxBaud']
     
+    # Now let's test if the noise estimates are "good enough" or should be replaced
+    # by comparing the noise estimates against furthest ranges of data
+    input_power = fconts[gname+'/Power']['Data'][Irecs,:,:]
+    input_noise = fconts['/CohCode/Noise/Power']['Data'][Irecs,:,:]
+
     # Power
     S['Power']['Data']  = input_power
     N['Power']['Data']  = output_noise
@@ -1287,12 +1292,6 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     (Nrecs,Nbeams,Nranges)=S['Power']['Data'].shape
     S['Power']['Kint']=1.0
     S['Power']['iSCR']=0.0
-
-
-    # Now let's test if the noise estimates are "good enough" or should be replaced
-    # by comparing the noise estimates against furthest ranges of data
-    input_power = fconts[gname+'/Power']['Data'][Irecs,:,:]
-    input_noise = fconts['/CohCode/Noise/Power']['Data'][Irecs,:,:]
 
 
     # Determine the existence and dimensionality of the pulses integrated arrays
