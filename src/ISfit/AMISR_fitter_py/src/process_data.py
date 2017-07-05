@@ -1286,7 +1286,6 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
 
     # Power
     S['Power']['Data']  = input_power
-    N['Power']['Data']  = output_noise
     C['Power']['Data']  = fconts['/CohCode/Cal/Power']['Data'][Irecs,:,:]
     S['Power']['Range'] = fconts[gname+'/Power']['Range'][[0]]; 
     (Nrecs,Nbeams,Nranges)=S['Power']['Data'].shape
@@ -1314,6 +1313,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
                                                                input_noise_pulses_integrated,
                                                                input_power_pulses_integrated)
 
+    N['Power']['Data']  = output_noise
 
     # Pulses Integrated
     S['Power']['PulsesIntegrated']  = input_power_pulses_integrated
