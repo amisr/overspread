@@ -1443,10 +1443,7 @@ class Run_Fitter:
                 S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
 
 
-            # Parameters needed for calculating the perturbation noise_acf
-            sample_time = output['/Rx']['SampleTime']
-            temp = output['/Setup']['RxFilterfile']
-            filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
+                
 
             # A function to compute the perturbation noise acf based on the assumption that such noise
             # is white and broadband (at least compared to the width of the filter)
@@ -1463,13 +1460,19 @@ class Run_Fitter:
 
                 return noise_acf
 
-            # Compute the perturbation noise acf
-            num_lags = self.Nlags
-            perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
-
 
             ### start: DO_FITS
             if self.FITOPTS['DO_FITS']: # do the fits
+
+                # Parameters needed for calculating the perturbation noise_acf
+                sample_time = output['/Rx']['SampleTime']
+                temp = output['/Setup']['RxFilterfile']
+                filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
+
+                # Compute the perturbation noise acf
+                num_lags = self.Nlags
+                perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
+
                 if self.FITOPTS['FullProfile']:
                     (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo)=self.call_fitter_FP(S,Noise,sstr=fstr)
                 else:
