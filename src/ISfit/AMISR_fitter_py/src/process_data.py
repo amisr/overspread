@@ -1400,7 +1400,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
         
                                                 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data'],axis=2)/N['Power']['PulsesIntegrated'],axis=0)
+    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
@@ -1415,7 +1415,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     # Noise subtract and calibrate power profle
     S['Power']['Data']=S['Power']['Data']/scipy.repeat(S['Power']['PulsesIntegrated'][:,:,scipy.newaxis],Nranges,axis=2)
     S['Power']['PulsesIntegrated']=scipy.sum(S['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
-    N['Power']['PulsesIntegrated']=scipy.sum(N['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
+    N['Power']['PulsesIntegrated']=scipy.sum(scipy.sum(N['Power']['PulsesIntegrated'],axis=0),axis=2) # total number of pulses used for the estimate
     if extCal!=2:
         C['Power']['PulsesIntegrated']=scipy.sum(C['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
     S['Power']['StDev']=scipy.std(S['Power']['Data'],axis=0)/scipy.sqrt(Nrecs)
