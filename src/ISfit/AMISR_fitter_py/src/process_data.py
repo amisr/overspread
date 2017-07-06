@@ -1413,7 +1413,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
         C['Power']['Data']=N['Power']['Data']*acfopts['CalToNoiseRatio']
         
     # Noise subtract and calibrate power profle
-    S['Power']['Data']=S['Power']['Data']/scipy.repeat(S['Power']['PulsesIntegrated'][:,:,scipy.newaxis],Nranges,axis=2)
+    S['Power']['Data']=S['Power']['Data']/S['Power']['PulsesIntegrated']
     S['Power']['PulsesIntegrated']=scipy.sum(S['Power']['PulsesIntegrated'],axis=0) # total number of pulses used for the estimate
     N['Power']['PulsesIntegrated']=scipy.sum(scipy.sum(N['Power']['PulsesIntegrated'],axis=0),axis=2) # total number of pulses used for the estimate
     if extCal!=2:
