@@ -1441,7 +1441,7 @@ def process_barkercode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5Dat
             if ii==0:
                 S=tS.copy(); N=tN.copy(); C=tC.copy()
                 # Power
-                pwrIntsS = scipy.repeat(tS['Power']['PulsesIntegrated'][:,scipy.newaxis],tS['Power']['Data'].shape[1],axis=1)
+                pwrIntsS = tS['Power']['PulsesIntegrated']
                 S['Power']['Data']=tS['Power']['Data']*pwrIntsS
                 N['Power']['Data']=tN['Power']['Data']*tN['Power']['PulsesIntegrated']
                 C['Power']['Data']=tC['Power']['Data']*tC['Power']['PulsesIntegrated']
@@ -1455,7 +1455,7 @@ def process_barkercode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5Dat
                 BeamCodes=S['BMCODES']
             else:
                 # Power
-                pwrIntsS = scipy.repeat(tS['Power']['PulsesIntegrated'][:,scipy.newaxis],tS['Power']['Data'].shape[1],axis=1)
+                pwrIntsS = tS['Power']['PulsesIntegrated']
                 S['Power']['Data']+=tS['Power']['Data']*pwrIntsS
                 N['Power']['Data']+=tN['Power']['Data']*tN['Power']['PulsesIntegrated']
                 C['Power']['Data']+=tC['Power']['Data']*tC['Power']['PulsesIntegrated']
@@ -1468,7 +1468,7 @@ def process_barkercode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5Dat
             N['Power']['Data'].shape
 
     # Power
-    pwrIntsS = scipy.repeat(S['Power']['PulsesIntegrated'][:,scipy.newaxis],S['Power']['Data'].shape[1],axis=1)
+    pwrIntsS = S['Power']['PulsesIntegrated']
     S['Power']['Data']/=pwrIntsS
     N['Power']['Data']/=N['Power']['PulsesIntegrated']
     C['Power']['Data']/=C['Power']['PulsesIntegrated']
