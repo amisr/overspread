@@ -322,9 +322,9 @@ if __name__ == '__main__':
 
         # Build a unique iirec name from the output name for
         # the fitted file.
-        temp = self.OPTS['outfile']           #output name
-        temp = "_".join(temp.split('_')[1:])  #remove the exp name
-        temp = temp.split('.')[0]             #remove the .h5 extension
+        temp = os.path.basename(RF.OPTS['outfile'])      #output name
+        temp = "_".join(temp.split('_')[1:])             #remove the exp name
+        temp = temp.split('.')[0]                        #remove the .h5 extension
         iirec_name = 'iirec_part_%d_' % n
         iirec_name = iirec_name + temp + ".ini"
 
