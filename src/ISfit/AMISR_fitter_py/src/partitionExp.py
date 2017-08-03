@@ -320,7 +320,15 @@ if __name__ == '__main__':
         
         print 'Segment %d spans records %d to %d'%(n,beg,end)
 
-        ftxt=open(os.path.join(RF.OPTS['outputpath'],'iirec_part_%d.ini'%n),'w')
+        # Build a unique iirec name from the output name for
+        # the fitted file.
+        temp = self.OPTS['outfile']           #output name
+        temp = "_".join(temp.split('_')[1:])  #remove the exp name
+        temp = temp.split('.')[0]             #remove the .h5 extension
+        iirec_name = 'iirec_part_%d_' % n
+        iirec_name = iirec_name + temp + ".ini"
+
+        ftxt=open(os.path.join(RF.OPTS['outputpath'],iirec_name),'w')
         ftxt.write('[PARTITION]\n')
         ftxt.write('partitioned=True\n')
         ftxt.write('string=part_%d\n'%n)
