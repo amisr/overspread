@@ -549,6 +549,16 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     input_power_pulses_integrated = power_pulses_integrated
     input_noise_pulses_integrated = noise_power_pulses_integrated
 
+    # Noise
+    if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(input_noise)[-1]:
+        beamloc = []
+        for beam in fconts[h5DataPath]['Beamcodes'][0,:]:
+            condition = (fconts['/S/Noise']['Beamcodes'][0,:] == beam)
+            beamloc.append(scipy.where(condition)[0][0])
+        beamloc = scipy.array(beamloc)
+        input_noise=input_noise[:,beamloc,:]
+        input_noise_pulses_integrated = input_noise_pulses_integrated[:,beamloc,:]
+
     output_noise, output_noise_pulses_integrated = check_noise(input_noise, input_power,
                                                                input_noise_pulses_integrated,
                                                                input_power_pulses_integrated)
@@ -558,15 +568,6 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     S['Power']['Data']  = input_power[:,:,0:Nranges]
     N['Power']['Data']  = output_noise
 
-    # Noise
-    if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Noise']['Beamcodes'])[-1]:
-        beamloc = []
-        for beam in fconts[h5DataPath]['Beamcodes'][0,:]:
-            condition = (fconts['/S/Noise']['Beamcodes'][0,:] == beam)
-            beamloc.append(scipy.where(condition)[0][0])
-        beamloc = scipy.array(beamloc)
-        N['Power']['Data']=N['Power']['Data'][:,beamloc,:]
-        
     S['Power']['Range']=fconts[h5PwrPath + '/Power']['Range'][[0]]; 
     S['Power']['Kint']=1.0
     C['Power']['Data']=fconts['/S/Cal/Power']['Data'][Irecs,:,:]
@@ -582,9 +583,6 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     S['Power']['PulsesIntegrated']  = input_power_pulses_integrated[:,:,0:Nranges]
     N['Power']['PulsesIntegrated']  = output_noise_pulses_integrated
 
-    if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Noise']['Beamcodes'])[-1]:
-        N['Power']['PulsesIntegrated']=N['Power']['PulsesIntegrated'][:,beamloc,:]
-        
     if extCal==0:
         if scipy.shape(fconts[h5DataPath]['Beamcodes'])[-1] != scipy.shape(fconts['/S/Noise']['Beamcodes'])[-1]:
             C['Power']['PulsesIntegrated']=fconts['/S/Cal']['PulsesIntegrated'][Irecs,:]
