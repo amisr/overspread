@@ -416,7 +416,7 @@ class Run_Fitter:
                 IfitIndex=0
                 Ifit=scipy.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
                 IfitMR=scipy.where(scipy.transpose(Ifit)==1)
-                NFIT=self.FITOPTS['NFIT'][IfitIndex]+1
+                NFIT=int(self.FITOPTS['NFIT'][IfitIndex]+1)
                 SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
                 NSUM=SummationRule[1,:]-SummationRule[0,:]+1
 
@@ -443,7 +443,7 @@ class Run_Fitter:
                             IfitIndex=IfitIndex+1
                             Ifit=scipy.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
                             IfitMR=scipy.where(scipy.transpose(Ifit)==1)
-                            NFIT=self.FITOPTS['NFIT'][IfitIndex]+1
+                            NFIT=int(self.FITOPTS['NFIT'][IfitIndex]+1)
                             SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
                             NSUM=SummationRule[1,:]-SummationRule[0,:]+1
 
@@ -550,7 +550,7 @@ class Run_Fitter:
                     terr=scipy.transpose(scipy.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*scipy.nan
 
                     try:
-                    #if 1==1:
+                    # if 1==1:
                         nloops=0
                         while 1==1:
                             nloops+=1
