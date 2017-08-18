@@ -71,7 +71,7 @@ class reassembleOutput(Run_Fitter):
         # Now append the other files to end of the zeroth
         for n in range(1,self.OPTS['npart']):
             # open file in append mode
-            outh5file=tables.openFile(self.OPTS['outfile'], mode = "a")
+            outh5file=tables.open_file(self.OPTS['outfile'], mode = "a")
 
             partfile=io_utils.read_whole_h5file(self.OPTS['infile'][n])
 

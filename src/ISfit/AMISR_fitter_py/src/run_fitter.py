@@ -966,23 +966,23 @@ class Run_Fitter:
             raise IOError, 'The input file does not exist.'
 
         # read the entire file
-        h5file=tables.openFile(fname)
+        h5file=tables.open_file(fname)
         if len(output)==0 or Irec==-1 or nrecs==-1: # we dont need to worry about preserving records
             output={}
-            for group in h5file.walkGroups("/"):
+            for group in h5file.walk_groups("/"):
                 if 'RAW' in group._v_pathname.upper():
                     continue
                 output[group._v_pathname]={}
-                for array in h5file.listNodes(group, classname = 'Array'):
+                for array in h5file.list_nodes(group, classname = 'Array'):
                     output[group._v_pathname][array.name]=array.read()
         else: # we do need to worry about preserving records
             output_cp=output
             output={}
-            for group in h5file.walkGroups("/"):
+            for group in h5file.walk_groups("/"):
                 if 'RAW' in group._v_pathname.upper():
                     continue
                 output[group._v_pathname]={}
-                for array in h5file.listNodes(group, classname = 'Array'):
+                for array in h5file.list_nodes(group, classname = 'Array'):
                     output[group._v_pathname][array.name]=array.read()
                     if (scipy.ndim(scipy.asarray(output_cp[group._v_pathname][array.name]))>0) and (scipy.asarray(output_cp[group._v_pathname][array.name]).shape[0]==nrecs): # it is a record we should preserve
                         output[group._v_pathname][array.name]=scipy.concatenate((output_cp[group._v_pathname][array.name][Irec:],output[group._v_pathname][array.name]),axis=0)
@@ -993,8 +993,8 @@ class Run_Fitter:
 
     def get_expname(self,fname):
         try:
-            h5file=tables.openFile(fname)
-            expname=h5file.getNode('/Setup/Experimentfile').read()
+            h5file=tables.open_file(fname)
+            expname=h5file.get_node('/Setup/Experimentfile').read()
             h5file.close()
             if type(expname)==scipy.ndarray:
                 expname=expname[0]
@@ -1108,7 +1108,7 @@ class Run_Fitter:
         else:
             #try:
             NrecsToSkip=0
-            outh5file=tables.openFile(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File")
+            outh5file=tables.open_file(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File")
             io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
             if self.FITOPTS['DO_FITS']:
                 io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
@@ -1587,7 +1587,7 @@ class Run_Fitter:
 
             # Output data to file
             # open file
-            with tables.openFile(self.OPTS['outfileLocked'], mode = "a") as outh5file:
+            with tables.open_file(self.OPTS['outfileLocked'], mode = "a") as outh5file:
                 # Processing params
                 if IIrec==0:
                     io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/ProcessingTimeStamp',scipy.array(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())))

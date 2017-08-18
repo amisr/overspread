@@ -8,7 +8,7 @@ last revised: xx/xx/2007
 
 """
 
-import scipy, ctypes, tables
+import scipy, ctypes
 import geolib
 
 from constants import *

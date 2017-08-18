@@ -40,7 +40,7 @@ def add_calibration_info(fname,calFname,calMethodIndex):
 
 
     # Open the fitted h5 file
-    with tables.openFile(fname,'r+') as h5file:
+    with tables.open_file(fname,'r+') as h5file:
         # Add the current date to state when the calibration was done
         io_utils.write_outputfile(h5file,datestr,groupname='Calibration',name='CalDate')
         # Include the calibration info in the calibration file
@@ -63,7 +63,7 @@ def add_calibration_method(fname,calMethodIndex):
     method = cal_method[calMethodIndex]
 
 	# Open the fitted h5 file
-    with tables.openFile(fname,'r+') as h5file:
+    with tables.open_file(fname,'r+') as h5file:
         # Specifiy the calibration method
         io_utils.write_outputfile(h5file,method,groupname='Calibration',name='CalibrationMethod')
 
@@ -90,30 +90,30 @@ def filter_calibrated_data(fname,type_flag):
         snrMin=0.0; snrLim=0.5;
 
     # open the data file
-    h5file=tables.openFile(fname,'r+')
+    h5file=tables.open_file(fname,'r+')
 
     # Read in the arrays that we are going to filter
-    mUnixTime=scipy.mean(h5file.getNode('/Time/UnixTime').read(),1)
-    NeFit=h5file.getNode('/FittedParams/Ne').read()
+    mUnixTime=scipy.mean(h5file.get_node('/Time/UnixTime').read(),1)
+    NeFit=h5file.get_node('/FittedParams/Ne').read()
     (Nrecs,Nbeams,Nhts)=NeFit.shape
-    dNeFit=h5file.getNode('/FittedParams/dNe').read()
-    Fits=h5file.getNode('/FittedParams/Fits').read()
-    Ne_NoTr=h5file.getNode('/NeFromPower/Ne_NoTr').read()
+    dNeFit=h5file.get_node('/FittedParams/dNe').read()
+    Fits=h5file.get_node('/FittedParams/Fits').read()
+    Ne_NoTr=h5file.get_node('/NeFromPower/Ne_NoTr').read()
     (x1,x2,Nhts2)=Ne_NoTr.shape
-    Ne_Mod=h5file.getNode('/NeFromPower/Ne_Mod').read()
-    SNR=h5file.getNode('/NeFromPower/SNR').read()
-    BeamCodes=h5file.getNode('/BeamCodes').read()
+    Ne_Mod=h5file.get_node('/NeFromPower/Ne_Mod').read()
+    SNR=h5file.get_node('/NeFromPower/SNR').read()
+    BeamCodes=h5file.get_node('/BeamCodes').read()
 
     # If we are going to filter using power limits read in the
     #aeu and txpower values
     if replaceVal:
-        AeuRx=h5file.getNode('/ProcessingParams/AeuRx').read()
-        AeuTx=h5file.getNode('/ProcessingParams/AeuTx').read()
+        AeuRx=h5file.get_node('/ProcessingParams/AeuRx').read()
+        AeuTx=h5file.get_node('/ProcessingParams/AeuTx').read()
         try: 
-            AeuTotal=h5file.getNode('/ProcessingParams/AeuTotal').read()
+            AeuTotal=h5file.get_node('/ProcessingParams/AeuTotal').read()
         except: 
             AeuTotal=4096
-        TxPower=h5file.getNode('/ProcessingParams/TxPower').read()
+        TxPower=h5file.get_node('/ProcessingParams/TxPower').read()
     Nbeams=Ne_Mod.shape[1]
     Nrecs=Ne_Mod.shape[0]
 
@@ -155,30 +155,30 @@ def filter_calibrated_data(fname,type_flag):
     # Recopies all modified data back into calibration file
     if replaceVal or snrFilter:
         # Fitted Ne
-        h5file.getNode('/FittedParams/Ne').rename('Ne2') # move node
-        h5file.createArray('/FittedParams','Ne',corrNeFit) # new array
-        h5file.getNode('/FittedParams/Ne2').attrs._f_copy(h5file.getNode('/FittedParams/Ne')) # attributes
-        h5file.getNode('/FittedParams/Ne2').remove() # delete original
+        h5file.get_node('/FittedParams/Ne').rename('Ne2') # move node
+        h5file.create_array('/FittedParams','Ne',corrNeFit) # new array
+        h5file.get_node('/FittedParams/Ne2').attrs._f_copy(h5file.get_node('/FittedParams/Ne')) # attributes
+        h5file.get_node('/FittedParams/Ne2').remove() # delete original
         # Fitted dNe
-        h5file.getNode('/FittedParams/dNe').rename('dNe2') # move node
-        h5file.createArray('/FittedParams','dNe',corrdNeFit) # new array
-        h5file.getNode('/FittedParams/dNe2').attrs._f_copy(h5file.getNode('/FittedParams/dNe')) # attributes
-        h5file.getNode('/FittedParams/dNe2').remove() # delete original
+        h5file.get_node('/FittedParams/dNe').rename('dNe2') # move node
+        h5file.create_array('/FittedParams','dNe',corrdNeFit) # new array
+        h5file.get_node('/FittedParams/dNe2').attrs._f_copy(h5file.get_node('/FittedParams/dNe')) # attributes
+        h5file.get_node('/FittedParams/dNe2').remove() # delete original
         # fitted
-        h5file.getNode('/FittedParams/Fits').rename('Fits2') # move node
-        h5file.createArray('/FittedParams','Fits',corrFits) # new array
-        h5file.getNode('/FittedParams/Fits2').attrs._f_copy(h5file.getNode('/FittedParams/Fits')) # attributes
-        h5file.getNode('/FittedParams/Fits2').remove() # delete original
+        h5file.get_node('/FittedParams/Fits').rename('Fits2') # move node
+        h5file.create_array('/FittedParams','Fits',corrFits) # new array
+        h5file.get_node('/FittedParams/Fits2').attrs._f_copy(h5file.get_node('/FittedParams/Fits')) # attributes
+        h5file.get_node('/FittedParams/Fits2').remove() # delete original
         # Ne_NoTr
-        h5file.getNode('/NeFromPower/Ne_NoTr').rename('Ne_NoTr2') # move node
-        h5file.createArray('/NeFromPower','Ne_NoTr',corrNe_NoTr) # new array
-        h5file.getNode('/NeFromPower/Ne_NoTr2').attrs._f_copy(h5file.getNode('/NeFromPower/Ne_NoTr')) # attributes
-        h5file.getNode('/NeFromPower/Ne_NoTr2').remove() # delete original
+        h5file.get_node('/NeFromPower/Ne_NoTr').rename('Ne_NoTr2') # move node
+        h5file.create_array('/NeFromPower','Ne_NoTr',corrNe_NoTr) # new array
+        h5file.get_node('/NeFromPower/Ne_NoTr2').attrs._f_copy(h5file.get_node('/NeFromPower/Ne_NoTr')) # attributes
+        h5file.get_node('/NeFromPower/Ne_NoTr2').remove() # delete original
         # Ne_Mod
-        h5file.getNode('/NeFromPower/Ne_Mod').rename('Ne_Mod2') # move node
-        h5file.createArray('/NeFromPower','Ne_Mod',corrNe_Mod) # new array
-        h5file.getNode('/NeFromPower/Ne_Mod2').attrs._f_copy(h5file.getNode('/NeFromPower/Ne_Mod')) # attributes
-        h5file.getNode('/NeFromPower/Ne_Mod2').remove() # delete original
+        h5file.get_node('/NeFromPower/Ne_Mod').rename('Ne_Mod2') # move node
+        h5file.create_array('/NeFromPower','Ne_Mod',corrNe_Mod) # new array
+        h5file.get_node('/NeFromPower/Ne_Mod2').attrs._f_copy(h5file.get_node('/NeFromPower/Ne_Mod')) # attributes
+        h5file.get_node('/NeFromPower/Ne_Mod2').remove() # delete original
 
     # Close the file
     h5file.close()
