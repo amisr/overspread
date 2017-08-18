@@ -972,13 +972,13 @@ def replot_pcolor_all(fname,saveplots=0,opath='.',clims=[[10,12],[0,1500],[0,300
 
     RF=MyClass()
 
-    h5file=tables.openFile(fname)
+    h5file=tables.open_file(fname)
     output={}
-    for array in h5file.listNodes('/',classname = 'Array'):
+    for array in h5file.list_nodes('/',classname = 'Array'):
         output[array.name]=array.read()
-    for group in h5file.walkGroups("/"):
+    for group in h5file.walk_groups("/"):
         output[group._v_pathname]={}
-        for array in h5file.listNodes(group, classname = 'Array'):
+        for array in h5file.list_nodes(group, classname = 'Array'):
             output[group._v_pathname][array.name]=array.read()
     h5file.close()
 
