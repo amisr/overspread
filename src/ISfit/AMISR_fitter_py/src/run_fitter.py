@@ -655,8 +655,10 @@ class Run_Fitter:
                             # Then add it to the param0 and scaler arrays, but at the beginning.
                             if nloops == 1:
                                 noise0 = float(Noise['Power']['Data'][Ibm]) * 0.01
-                            params0 = scipy.concatenate((scipy.array([noise0]),params0))
-                            scaler = scipy.concatenate((scipy.array([1]),scaler))
+
+                            if self.FITOPTS['PERTURBATION_NOISE']:
+                                params0 = scipy.concatenate((scipy.array([noise0]),params0))
+                                scaler = scipy.concatenate((scipy.array([1]),scaler))
 
                             # The variance of the measured noise will be used to weight the amount of allowed
                             # perturbation noise ACF. 
@@ -691,7 +693,10 @@ class Run_Fitter:
                             else:
                                 cov_x=scipy.sqrt(scipy.diag(cov_x))*scaler
                                 #print scipy.shape(terr[IfitMR]),scipy.shape(cov_x)
-                                terr[IfitMR]=cov_x[2:]
+                                if self.FITOPTS['PERTURBATION_NOISE']:
+                                    terr[IfitMR]=cov_x[2:]
+                                else:
+                                    terr[IfitMR]=cov_x[1:]
 
                             infodict['fvec']=infodict['fvec'][:-len(self.FITOPTS['LagrangeParams'])]
 
@@ -715,8 +720,12 @@ class Run_Fitter:
                             ti=ti*self.FITOPTS['p_T0']
                             psi=psi*self.FITOPTS['p_om0']
                             vi=vi*self.FITOPTS['p_om0']/self.k_radar0
-                            tNe=x[1]
-                            noise0 = x[0]
+                            if self.FITOPTS['PERTURBATION_NOISE']:
+                                tNe=x[1]
+                                noise0 = x[0]
+                            else:
+                                tNe=x[0]
+                                noise0 = scipy.nan
 
                             # re-evaluate FLIP ion chemistry
                             if self.FITOPTS['molecularModel']==1:
@@ -752,8 +761,12 @@ class Run_Fitter:
 
                         # compute errors if the Jacobian was able to be inverted
                         if cov_x is not None:
-                            noise_out[Ibm,Iht,1]=cov_x[0]
-                            ne_out[Ibm,Iht,1]=cov_x[1]
+                            if self.FITOPTS['PERTURBATION_NOISE']:
+                                noise_out[Ibm,Iht,1]=cov_x[0]
+                                ne_out[Ibm,Iht,1]=cov_x[1]
+                            else:
+                                noise_out[Ibm,Iht,1]=scipy.nan
+                                ne_out[Ibm,Iht,1]=cov_x[0]
                             ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
 
                         # make some plots if we are supposed to
@@ -902,6 +915,7 @@ class Run_Fitter:
 
         # Fit Options section
         self.FITOPTS['DO_FITS']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','DO_FITS',required=1,defaultParm=''))
+        self.FITOPTS['PERTURBATION_NOISE']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','PERTURBATION_NOISE',required=1,defaultParm=''))
         self.FITOPTS['useExternalCal']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','useExternalCal',required=0,defaultParm='0'))
         self.FITOPTS['CalToNoiseRatio']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','CalToNoiseRatio',required=0,defaultParm='1.0'))
         self.FITOPTS['beamMapScale']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','beamMapScale',required=0,defaultParm='0'))
@@ -1471,7 +1485,10 @@ class Run_Fitter:
 
                 # Compute the perturbation noise acf
                 num_lags = self.Nlags
-                perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
+                if self.FITOPTS['PERTURBATION_NOISE']:
+                    perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
+                else:
+                    perturbation_noise_acf = scipy.nan * scipy.zeros(num_lags)
 
                 if self.FITOPTS['FullProfile']:
                     (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo)=self.call_fitter_FP(S,Noise,sstr=fstr)
