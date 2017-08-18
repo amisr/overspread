@@ -1330,7 +1330,7 @@ class Run_Fitter:
             self.Time['doy']=scipy.array([int(r1.strftime('%j')),int(r2.strftime('%j'))])
 
             # get some standard info the first time through
-            if self.BMCODES==None or newexp:
+            if self.BMCODES is None or newexp:
 
                 self.BMCODES=S['BMCODES'] # beamcodes
                 self.BMCODES[:,2]=scipy.absolute(self.BMCODES[:,2])
