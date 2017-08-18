@@ -772,7 +772,7 @@ def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],y
     title= "%d-%d-%d %.3f UT - %d-%d-%d %.3f UT" % (RF.Time['Month'][0,0],RF.Time['Day'][0,0],RF.Time['Year'][0,0],RF.Time['dtime'][0,0],RF.Time['Month'][-1,1],RF.Time['Day'][-1,1],RF.Time['Year'][-1,1],RF.Time['dtime'][-1,1])
 
     Ttotal=(ttime[-1,-1]-ttime[0,0])/3600.0
-    Ntrecs=scipy.ceil(Ttotal/txMax)
+    Ntrecs=int(scipy.ceil(Ttotal/txMax))
 
     iStart=0;
     for iTime in range(Ntrecs):
