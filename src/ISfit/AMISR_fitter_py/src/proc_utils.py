@@ -20,7 +20,7 @@ def azAverage(input):
 
 def complex_median(input,axis=0):
     
-    return scipy.stats.stats.nanmedian(input.real,axis=axis)+scipy.stats.stats.nanmedian(input.imag,axis=axis)*1.0j
+    return scipy.nanmedian(input.real,axis=axis)+scipy.nanmedian(input.imag,axis=axis)*1.0j
 
 def ne_prof(Power,Range,Altitude,Model,TxPower,Pulsewidth,TxFrequency,KSYS):
     

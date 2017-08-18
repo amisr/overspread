@@ -8,7 +8,7 @@ last revised: xx/xx/2007
 
 """
 
-import scipy, scipy.io, scipy.stats, scipy.interpolate
+import scipy, scipy.io, scipy.interpolate
 import pylab
 
 import io_utils
@@ -93,7 +93,7 @@ def check_noise(noise, power, noise_pulses_integrated, power_pulses_integrated):
 def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None,h5PwrPath='/S/ZeroLags'):
     
     # function to use for data combining
-    funcname='scipy.stats.stats.nanmean'
+    funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
     			    
@@ -308,13 +308,13 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])                
 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data'],axis=2)/N['Power']['PulsesIntegrated'],axis=0)
+    N['Power']['Data']=scipy.nanmean(complex_median(N['Power']['Data'],axis=2)/N['Power']['PulsesIntegrated'],axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
         C['Power']['Data']=C['Power']['Data']-N['Power']['Data']
     elif extCal==1:
-        C['Power']['NoiseData']=scipy.stats.stats.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
+        C['Power']['NoiseData']=scipy.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
         C['Power']['Data']=C['Power']['Data']-C['Power']['NoiseData']
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:
@@ -378,7 +378,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
 def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None,h5PwrPath='/S/ZeroLags'):
 
     # function to use for data combining
-    funcname='scipy.stats.stats.nanmean'
+    funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
     			    
@@ -709,13 +709,13 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])                
 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
+    N['Power']['Data']=scipy.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
         C['Power']['Data']=C['Power']['Data']-N['Power']['Data']
     elif extCal==1:
-        C['Power']['NoiseData']=scipy.stats.stats.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
+        C['Power']['NoiseData']=scipy.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
         C['Power']['Data']=C['Power']['Data']-C['Power']['NoiseData']
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:
@@ -866,7 +866,7 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
 
 def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None):
     
-    funcname='scipy.stats.stats.nanmean'
+    funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
 
@@ -1104,14 +1104,14 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])
                                 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
-    N['Acf']['Data']=scipy.stats.stats.nanmean(complex_median(N['Acf']['Data']/N['Acf']['PulsesIntegrated'],axis=3),axis=0)
+    N['Power']['Data']=scipy.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
+    N['Acf']['Data']=scipy.nanmean(complex_median(N['Acf']['Data']/N['Acf']['PulsesIntegrated'],axis=3),axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
         C['Power']['Data']=C['Power']['Data']-N['Power']['Data']
     elif extCal==1:
-        C['Power']['NoiseData']=scipy.stats.stats.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
+        C['Power']['NoiseData']=scipy.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
         C['Power']['Data']=C['Power']['Data']-C['Power']['NoiseData']
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:
@@ -1237,7 +1237,7 @@ def process_longpulse_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5Data
 
 def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None):
                 
-    funcname='scipy.stats.stats.nanmean'
+    funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
         
@@ -1398,13 +1398,13 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
         
                                                 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
+    N['Power']['Data']=scipy.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
         C['Power']['Data']=C['Power']['Data']-N['Power']['Data']
     elif extCal==1:
-        C['Power']['NoiseData']=scipy.stats.stats.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
+        C['Power']['NoiseData']=scipy.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
         C['Power']['Data']=C['Power']['Data']-C['Power']['NoiseData']
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:

@@ -616,7 +616,10 @@ class Run_Fitter:
                             if Iht>0 and iparams0.size==NFIT and 1==0:
                                 tmp=scipy.transpose(scipy.squeeze(FITS_out[Ibm,Iht-1,:,:]))
                                 params0=scipy.zeros(NFIT,dtype='Float64')
-                                params0[1:]=tmp[IfitMR]
+                                if self.FITOPTS['PERTURBATION_NOISE']:
+                                    params0[1:]=tmp[IfitMR]
+                                else:
+                                    params0=tmp[IfitMR]
                                 params0=params0/scaler
                                 I=scipy.where((params0>1.0*iparams0) | (params0<iparams0/1.0) | (params0<0))[0]
                                 params0[I]=iparams0[I]
