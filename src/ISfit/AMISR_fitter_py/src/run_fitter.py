@@ -806,6 +806,7 @@ class Run_Fitter:
             ii=scipy.where(Ihtbm==Ihtbm.max())[0][0]
             Ihtbm=Ihtbm.max()
 
+        Ihtbm = int(Ihtbm)
         HT=HT[:,0:(Ihtbm+1)]
         RNG=RNG[:,0:(Ihtbm+1)]
         ne_out=ne_out[:,0:(Ihtbm+1),:]

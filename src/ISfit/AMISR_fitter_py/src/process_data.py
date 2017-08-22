@@ -303,7 +303,11 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
 
     elif acfopts['MOTION_TYPE']==1:
-        S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
+        try:
+            S['Ksys']=fconts['/Rx']['SysConst']
+        except KeyError:
+            print("/Rx/SysConst not found, using hardcoded default: %s" % str(S['Ksys']))
+            S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
         Ksys=S['Ksys']
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])                
 
@@ -704,7 +708,11 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
 
     elif acfopts['MOTION_TYPE']==1:
-        S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
+        try:
+            S['Ksys']=fconts['/Rx']['SysConst']
+        except KeyError:
+            print("/Rx/SysConst not found, using hardcoded default: %s" % str(S['Ksys']))
+            S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
         Ksys=S['Ksys']
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])                
 
@@ -1099,7 +1107,11 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
         
     elif acfopts['MOTION_TYPE']==1:
-        S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
+        try:
+            S['Ksys']=fconts['/Rx']['SysConst']
+        except KeyError:
+            print("/Rx/SysConst not found, using hardcoded default: %s" % str(S['Ksys']))
+            S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
         Ksys=S['Ksys']
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])
                                 
@@ -1392,7 +1404,11 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
             S['BMCODES']=BeamCodes
         
     elif acfopts['MOTION_TYPE']==1:
-        S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
+        try:
+            S['Ksys']=fconts['/Rx']['SysConst']
+        except KeyError:
+            print("/Rx/SysConst not found, using hardcoded default: %s" % str(S['Ksys']))
+            S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
         Ksys=S['Ksys']
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])
         
