@@ -224,7 +224,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     # Ambiguity function path
     if doamb:
         try:
-            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[h5DataPath]['Ambiguity']])
+            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5DataPath]['Ambiguity'])])
             if uselag1: # here the power is being set by the first lag of the ACF
                 S['Power']['Ambiguity']=S['Acf']['Ambiguity'].copy()
                 S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][1,:] 
@@ -232,7 +232,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         except:
             print 'Unable to load ambiguity function'
         try:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[h5PwrPath]['Ambiguity']])
+            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5PwrPath]['Ambiguity'])])
             # for the alternating code, set the ambiguity of the 0 lag to that of the S mode
             S['Acf']['Ambiguity']['Wlag'][0,:]=scipy.interpolate.interp1d(S['Power']['Ambiguity']['Delay'], S['Power']['Ambiguity']['Wlag'],bounds_error=0,fill_value=0.0)(S['Acf']['Ambiguity']['Delay']) # linear interpolation
             S['Acf']['Ambiguity']['Wrange'][0,:]=scipy.interpolate.interp1d(S['Power']['Ambiguity']['Range'], S['Power']['Ambiguity']['Wrange'],bounds_error=0,fill_value=0.0)(S['Acf']['Ambiguity']['Range']) # linear interpolation
@@ -616,7 +616,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     # Ambiguity function path
     if doamb:
         try:
-            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[h5DataPath]['Ambiguity']])
+            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5DataPath]['Ambiguity'])])
             if uselag1: # here the power is being set by the first lag of the ACF
                 S['Power']['Ambiguity']=S['Acf']['Ambiguity'].copy()
                 S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][1,:] 
@@ -624,7 +624,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         except:
             print 'Unable to load ambiguity function'
         try:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[h5PwrPath]['Ambiguity']])
+            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5PwrPath]['Ambiguity'])])
             # for the alternating code, set the ambiguity of the 0 lag to that of the S mode
             S['Acf']['Ambiguity']['Wlag'][0,:]=scipy.interpolate.interp1d(S['Power']['Ambiguity']['Delay'], S['Power']['Ambiguity']['Wlag'],bounds_error=0,fill_value=0.0)(S['Acf']['Ambiguity']['Delay']) # linear interpolation
             S['Acf']['Ambiguity']['Wrange'][0,:]=scipy.interpolate.interp1d(S['Power']['Ambiguity']['Range'], S['Power']['Ambiguity']['Wrange'],bounds_error=0,fill_value=0.0)(S['Acf']['Ambiguity']['Range']) # linear interpolation
@@ -1038,14 +1038,14 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     
     # Ambiguity function path
     if doamb:
-        try:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts['/S/Data']['Ambiguity']])
-            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts['/S/Data']['Ambiguity']])
-            # for the power, we are dealing only with the zero lags
-            S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:] 
-            S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:] 
-        except:
-            print 'Unable to load ambiguity function'
+        # try:
+        S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts['/S/Data']['Ambiguity'])])
+        S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts['/S/Data']['Ambiguity'])])
+        # for the power, we are dealing only with the zero lags
+        S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:] 
+        S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:] 
+        # except:
+        #     print 'Unable to load ambiguity function'
                 
     if acfopts['MOTION_TYPE']==0:
         # Deal the data
@@ -1340,7 +1340,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     if doamb:
         try:
             #if 1==1:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[gname]['Ambiguity']])
+            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[gname]['Ambiguity'])])
             # for the power, we are dealing only with the zero lags
             S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:][scipy.newaxis,:]
             S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:][scipy.newaxis,:]
