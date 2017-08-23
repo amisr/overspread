@@ -74,7 +74,10 @@ class vvelsLat:
     
     def __init__(self,inifiles,sec):
     
-        self.DefaultIni = '/Users/fitter/Documents/amisr-src/src/ISfit/AMISR_fitter_py/config/config_vvelsLat-default.ini'
+        self.DefaultIni = '/home/ashton/development/source_code/fitting_software/amisr-src/src/ISfit/AMISR_fitter_py/config/config_vvelsLat-default.ini'
+
+        print inifiles
+        print sec
 
         # parse ini file
         self.ini_parse(inifiles,sec)
@@ -588,7 +591,7 @@ class vvelsLat:
 
                 # compute vectors
                 (plat_out1,Vest,dVest,xx,Nmeas)=vvels.compute_velvec2(PLAT_OUT,vlosin,dvlosin,kin,platin,plongin,htin,htmin=self.minAlt*1000,htmax=self.maxAlt*1000,covar=self.covar,p=self.ppp)
-                (plat_out1,Eest,dEest,xx,Nmeas1)=vvels.compute_velvec2(PLAT_OUT,vlosin,dvlosin,ekin,platin,plongin,htin,htmin=self.minAlt*1000,htmax=self.maxAlt*1000,covar=self.covarE,p=self.ppp)
+                (plat_out1,Eest,dEest,xx,Nmeas1)=vvels.compute_velvec2(PLAT_OUT,vlosin,dvlosin,ekin,platin,plongin,htin,htmin=self.minAlt*1000,htmax=self.maxAlt*1000,covar=self.covarE,p=self.pppE)
                 Eest[:,-1]*=-1
                     
                 timeout.append([time1[Irecs[0],0],time1[Irecs[-1],1]])
