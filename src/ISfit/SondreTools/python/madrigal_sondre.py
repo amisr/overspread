@@ -442,6 +442,7 @@ class BatchExperiment:
             # add file
             fileHandler = hdf5Handler(hdf5Type)
             try:
+            # if 1==1:
                 fileHandler.createMadrigalFile(hdf5Filename, self.instrument, kindat, None, fullMadFilename, thisLowerRange, thisUpperRange)
             
                 
@@ -463,7 +464,7 @@ class BatchExperiment:
                 #self.__prependCatHeader__(fullMadFilename)
                 logging.info('added file from %s to %s using %s, kindat %i, type %s, lowerRange=%s, upperRange=%s' % \
                                  (str(firstTime), str(lastTime), hdf5Filename, kindat, hdf5Type, str(thisLowerRange), str(thisUpperRange)))
-            except:
+            except ValueError:
                 print fullMadFilename + ' already exists... skipping onto next one.'
 
     def __prependCatHeader__(self, fullMadFilename):
@@ -1537,29 +1538,49 @@ class hdf5VelocityToMadrigal:
         nmeasArray = nmeas.read()
         
         # magnetic latitude bins
-        plat = hdfObj.root.VectorVels.Plat
-        platArray = plat.read()
+        if hasattr(hdfObj.root.VectorVels,'Plat'):
+            platArray = hdfObj.root.VectorVels.Plat.read()
+        elif hasattr(hdfObj.root.VectorVels,'MagneticLatitude'):
+            platArray = hdfObj.root.VectorVels.MagneticLatitude.read()
         numPlat = platArray.shape[0]
 
         # velocity vectors and errors
         vestArray = hdfObj.root.VectorVels.Vest.read()
-        dvestArray = hdfObj.root.VectorVels.dVest.read()
+        if hasattr(hdfObj.root.VectorVels,'dVest'):
+            dvestArray = hdfObj.root.VectorVels.dVest.read()
+        elif hasattr(hdfObj.root.VectorVels,'errVest'):
+            dvestArray = hdfObj.root.VectorVels.errVest.read()
 
         # electric field vectors and errors
         eestArray = hdfObj.root.VectorVels.Eest.read()
-        deestArray = hdfObj.root.VectorVels.dEest.read()
+        if hasattr(hdfObj.root.VectorVels,'dEest'):
+            deestArray = hdfObj.root.VectorVels.dEest.read()
+        elif hasattr(hdfObj.root.VectorVels,'errEest'):
+            deestArray = hdfObj.root.VectorVels.errEest.read()
 
         # velocity magnitude and direction
         vmagArray = hdfObj.root.VectorVels.Vmag.read()
-        dvmagArray = hdfObj.root.VectorVels.dVmag.read()
+        if hasattr(hdfObj.root.VectorVels,'dVmag'):
+            dvmagArray = hdfObj.root.VectorVels.dVmag.read()
+        elif hasattr(hdfObj.root.VectorVels,'errVmag'):
+            dvmagArray = hdfObj.root.VectorVels.errVmag.read()
         vdirArray = hdfObj.root.VectorVels.Vdir.read()
-        dvdirArray = hdfObj.root.VectorVels.dVdir.read()       
+        if hasattr(hdfObj.root.VectorVels,'dVdir'):
+            dvdirArray = hdfObj.root.VectorVels.dVdir.read()
+        elif hasattr(hdfObj.root.VectorVels,'errVdir'):
+            dvdirArray = hdfObj.root.VectorVels.errVdir.read()
 
         # electric field magnitude and direction
         emagArray = hdfObj.root.VectorVels.Emag.read()
-        demagArray = hdfObj.root.VectorVels.dEmag.read()
+        if hasattr(hdfObj.root.VectorVels,'dEmag'):
+            demagArray = hdfObj.root.VectorVels.dEmag.read()
+        elif hasattr(hdfObj.root.VectorVels,'errEmag'):
+            demagArray = hdfObj.root.VectorVels.errEmag.read()
         edirArray = hdfObj.root.VectorVels.Edir.read()
-        dedirArray = hdfObj.root.VectorVels.dEdir.read()   
+        if hasattr(hdfObj.root.VectorVels,'dEdir'):
+            dedirArray = hdfObj.root.VectorVels.dEdir.read()
+        elif hasattr(hdfObj.root.VectorVels,'errEdir'):
+            dedirArray = hdfObj.root.VectorVels.errEdir.read()
         
         # create all data records 
         for recIndex in range(self.numRecs):
