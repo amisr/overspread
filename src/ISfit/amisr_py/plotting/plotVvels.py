@@ -464,7 +464,7 @@ class vvelsPlot:
             dvz=dvz.copy()*vzsc
         
         if lat.ndim==2:
-            lat2=scipy.stats.stats.nanmean(lat,axis=1)
+            lat2=scipy.nanmean(lat,axis=1)
             lat=scipy.concatenate((lat[:,0],lat[[-1],1]))
         else:
             lat2=lat
@@ -789,7 +789,7 @@ class vvelsMagPlot:
         dvy=dvy.copy()
         
         if lat.ndim==2:
-            lat2=scipy.stats.stats.nanmean(lat,axis=1)
+            lat2=scipy.nanmean(lat,axis=1)
             lat=scipy.concatenate((lat[:,0],lat[[-1],1]))
         else:
             lat2=lat
