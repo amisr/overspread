@@ -16,16 +16,16 @@ class h5file():
     
     def openFile(self):
         """ open file self.fname """
-        self.fhandle = tables.openFile(self.fname, mode = "a")
+        self.fhandle = tables.open_file(self.fname, mode = "a")
         return
     
     def readWholeh5file(self):
         
-        h5file=tables.openFile(self.fname)
+        h5file=tables.open_file(self.fname)
         output={}
-        for group in h5file.walkGroups("/"):
+        for group in h5file.walk_groups("/"):
             output[group._v_pathname]={}
-            for array in h5file.listNodes(group, classname = 'Array'):
+            for array in h5file.list_nodes(group, classname = 'Array'):
                 output[group._v_pathname][array.name]=array.read()
         h5file.close()
          
