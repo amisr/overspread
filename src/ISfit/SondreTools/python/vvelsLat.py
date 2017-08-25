@@ -393,6 +393,10 @@ class vvelsLat:
         Emag = self.VectorVels['Emag']; dEmag = self.VectorVels['errEmag']
         Edir = self.VectorVels['Edir']; dEdir = self.VectorVels['errEdir']
         
+        # Check if Sondrestrom (byGeo isn't set)        
+        if not hasattr(self,'byGeo'):
+            self.byGeo=0
+
         if self.byGeo==2:
             label = 'Latitude (Deg.)'
             lat = self.VectorVels['Latitude']
