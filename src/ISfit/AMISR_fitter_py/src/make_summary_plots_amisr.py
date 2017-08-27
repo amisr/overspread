@@ -1,0 +1,846 @@
+
+import os
+import scipy
+import numpy as np
+import tables
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot
+from matplotlib import cm
+import matplotlib.dates
+
+
+# TO DO, add the ability to plot all ions back in to the code.
+
+def make_grid_of_axes(nrows,ncols,dx=0.02,dy=0.05,figsz=(14,10)):
+
+    figBG   = 'w'        # the figure background color
+    axesBG  = '#f6f6f6'  # the axies background color
+
+    if ncols==1 and nrows==1:
+        POS=[0.1,0.1,1.0/(ncols+3.0)-dx,1.0/(nrows)-dy*5]
+    elif ncols==1:
+        POS=[0.1,0.65,1.0/(ncols+3.0)-dx,1.0/(nrows)-dy*2]
+    elif nrows==1:
+        POS=[0.1,0.1,1.0/(ncols+1)-dx,1.0/(nrows)-dy*5]
+    elif ncols==-1 and nrows==-1:
+        ncols=1; nrows=2; dx=0.1
+        POS=[0.1,0.1,1.0-dx,1.0/(nrows)-dy*5]
+    else:
+        fy=1.0/(nrows)-dy*1.5
+        POS=[0.1,1.0-fy-dy*1.5,1.0/(ncols+1)-dx,fy]
+
+    figg=pyplot.figure(figsize=figsz, facecolor=figBG)
+    ax=[]
+    for aa in range(nrows):
+        for bb in range(ncols):
+            rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2],POS[3]]
+            ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
+
+    return figg,ax
+
+
+def timegaps(time,data,rngOpt=[]):
+
+    if len(rngOpt)>0:
+        doRng=1
+        rng2=[]
+
+    time2=[]
+    if scipy.ndim(data)==3:
+        concnan=scipy.zeros((1,data.shape[1],data.shape[2]),dtype=data.dtype)*scipy.nan
+    elif scipy.ndim(data)==2:
+        concnan=scipy.zeros((1,data.shape[1]),dtype=data.dtype)*scipy.nan
+    data2=data.copy()
+    dt=scipy.median(scipy.diff(scipy.mean(time,axis=1)))
+    for aa in range(time.shape[0]-1):
+        time2.append(time[aa,0])
+        if ( (time[aa+1,1]-time[aa,0]) > (dt*2.0) ):
+            time2.append(time[aa,1])
+            #print datetime.datetime.utcfromtimestamp(time[aa,1])
+            if scipy.ndim(data)==3:
+                data2=scipy.concatenate((data2[0:len(time2)-1,:,:],concnan,data2[len(time2)-1:,:,:]),axis=0)
+            elif scipy.ndim(data)==2:
+                data2=scipy.concatenate((data2[0:len(time2)-1,:],concnan,data2[len(time2)-1:,:]),axis=0)
+
+    time2.append(time[-1,0])
+    time2.append(time[-1,1])
+
+    return scipy.array(time2), data2
+
+
+def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,save_fig_name=None,max_beams=11,log=0):
+    # Scale factor for number of x-tick markers when
+    # more than 12 hours of data is being plotted.
+    sc=1.0
+
+    # Set some font sizes
+    textsize=8
+    labsize=12
+
+    # Label alignment adjustment values
+    xxx=0.0
+    yyy=0.0
+
+    # Initialize some variables for figuring out how many groups of beams
+    # we will need to plot
+    num_beams = data.shape[1]
+    remaining_beams_to_plot = num_beams
+    start_beam = 0
+
+    # How many plots do we need to make?
+    num_of_figures = int(np.ceil(num_beams/float(max_beams)))
+
+    # Colormap to use.
+    cmap='jet'
+    cmap_to_use = cm.get_cmap(cmap)
+    cmap_to_use.set_bad('w',0)
+
+    # Then set up some x-axis time formatting that is common to all of the
+    # of the groups of beams we will plot.
+    num_hours       = (xlim[-1] - xlim[0]) / 3600.0
+    num_half_days   = num_hours / 12.0
+    if num_half_days > 0.5:
+        interval    = int(np.ceil(num_hours / 12.0))
+        locator     = matplotlib.dates.HourLocator(interval=interval)
+        formatter   = matplotlib.dates.DateFormatter("%H")
+    elif num_half_days < 0.5:
+        interval    = int(np.ceil(num_hours * 60.0 / 5.0 / sc))
+        locator     = matplotlib.dates.MinuteLocator(interval=interval)
+        formatter   = matplotlib.dates.DateFormatter("%H:%M")
+
+    # Convert times to from epoch to numbers
+    x = matplotlib.dates.epoch2num(x)
+    xlim = [matplotlib.dates.epoch2num(xlim[0]),matplotlib.dates.epoch2num(xlim[-1])]
+
+    # How many beams do we have left to plot?
+    if remaining_beams_to_plot > max_beams:
+        beams_to_plot = max_beams
+    else:
+        beams_to_plot = remaining_beams_to_plot
+
+    # Now let's figure out the grid that we are going to make
+    # by determining the number of rows and columns we need.
+    num_axes_needed = beams_to_plot + 1
+    if num_beams == 1:
+        nrows = 1
+        ncols = 2
+    else:
+        nrows = int(np.ceil(np.sqrt(num_axes_needed)))
+        ncols = nrows
+        if nrows * (nrows - 1) >= num_axes_needed:
+            ncols = nrows - 1
+
+
+    for fig_num in range(num_of_figures):
+        # How many beams do we have left to plot?
+        if remaining_beams_to_plot > max_beams:
+            beams_to_plot = max_beams
+        else:
+            beams_to_plot = remaining_beams_to_plot
+        remaining_beams_to_plot -= beams_to_plot
+
+        # Now set up the figure and axes
+        fig, ax = make_grid_of_axes(nrows,ncols)
+
+        # And start plotting data, one beam at a time.
+        for ii in range(beams_to_plot):
+            iiB = start_beam + ii
+
+            ax[ii].clear()
+
+            data_plot = data[:,iiB,:]
+
+            num_x, num_y    = data_plot.shape
+            temp_y          = y[iiB,:]
+            temp_y          = np.repeat(temp_y[np.newaxis,:],num_x,axis=0)
+            temp_y_diff     = np.repeat(np.diff(temp_y[0,:])[np.newaxis,:],num_x,axis=0)
+            y_diff          = np.zeros(temp_y.shape)
+            y_diff[:,0:-1]  = temp_y_diff
+            y_diff[:,-1]    = temp_y_diff[:,-1]
+
+            # Construct the range array for plotting
+            y_plot              = np.zeros((num_x+1,num_y+1))
+            y_plot[0:-1,0:-1]   = temp_y - y_diff/2
+            y_plot[0:-1,-1]     = temp_y[:,-1] + y_diff[:,-1]/2
+            y_plot[-1,:]        = y_plot[-2,:]
+
+            # Construct the time array for plotting
+            x_plot = np.zeros((num_x+1,num_y+1))
+            x_plot = np.repeat(x[:,np.newaxis],num_y+1,axis=1)
+
+            #y_plot = np.ma.masked_invalid(y_plot)
+
+
+            # Use pcolormesh to plot the data.
+            pc = ax[ii].pcolormesh(x_plot,y_plot,data_plot,vmin=cax[0],vmax=cax[1],cmap=cmap_to_use) #shading='interp',
+
+            # Set axis formatting and labels
+            ax[ii].xaxis.set_major_locator(locator)
+            ax[ii].xaxis.set_major_formatter(formatter)
+            ax[ii].set_xlim(xlim)
+            ax[ii].set_ylim(ylim)
+            if np.mod(ii,ncols)==0:
+                ax[ii].set_ylabel(yl, fontsize=labsize)
+
+            ax[ii].tick_params(axis='both',labelsize=textsize)
+
+            # Determine if we are on the last row of beams to be plotted, if so
+            # then label the x-axis appropriately.
+            if np.ceil((ii+1)/float(ncols)) >= np.ceil(beams_to_plot/float(ncols)):
+                ax[ii].set_xlabel(xl, fontsize=labsize)
+
+            tt=r"$%d \ (%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (iiB+1,bmcodes[iiB,1],bmcodes[iiB,2])
+            ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
+            if ii==0:
+                ax[ii].text(xlim[0]+(xlim[1]-xlim[0])/2+xxx,(ylim[1]-ylim[0])*0.05*nrows+ylim[1]+yyy,title,fontsize=labsize, horizontalalignment='left')
+
+        # Now we need to do the colorbar
+        ii=ii+1
+        # Scale the colorbar and change it's positions slightly.
+        try:
+            tmp=ax[ii].get_position()
+            gp=np.array([tmp.xmin,tmp.ymin,tmp.width,tmp.height])
+        except:
+            gp=ax[ii].get_position()
+        gp[1]=gp[1]+gp[3]
+        gp[3]=gp[3]/6.
+        gp[1]=gp[1]-gp[3]
+        ax[ii].set_position(gp)
+        if log:
+            cl=pyplot.colorbar(pc,ax[ii],orientation='horizontal',format=pyplot.FormatStrFormatter('$10^{%.1f}$'))
+        else:
+            cl=pyplot.colorbar(pc,ax[ii],orientation='horizontal')
+        ax[ii].yaxis.set_ticklabels([])
+        ax[ii].tick_params(axis='y',labelsize=textsize)
+
+        t = ax[ii].get_xticklabels()
+        ax[ii].set_xticklabels(t,rotation=90)
+        cl.set_label(text,fontsize=labsize*1.25)
+
+        # Set any remaining axes invisible (ones where we didn't plot data)
+        for jj in range(ii+1,len(ax)):
+            ax[jj].set_visible(False)
+
+        # Finally, save the figure if a name was provided.
+        # Form the save name for the figure
+        if save_fig_name is not None:
+            if num_of_figures > 1:
+                temp, extension = os.path.splitext(save_fig_name)
+                output_name = temp + '_bmgrp-%d' % fig_num
+                output_name += extension
+            else:
+                output_name = save_fig_name
+
+            fig.savefig(output_name)
+
+        # To help limit RAM usage, clear the figure from memory after
+        # plotting and saving is done
+        pyplot.close('all')
+
+        # Increment the start_beam so we can keep track of which beam
+        # is the next "first" one to plot.
+        start_beam += beams_to_plot
+
+
+def pcolor_plot_all(plot_info, data):
+    nionPlot = 0
+    mi = data['FittedParams']['mi']
+    ion = 0
+    #RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],ylim=[],ylim0=[],tlim=[],txMax=1.0e6,mi=[],nionPlot=0):
+
+    # get required time information
+    unix_time   = data['Time']['UnixTime']
+    max_time    = plot_info['max_time']
+
+    # Determine how many time groups of plots we should make
+    total_time = (unix_time[-1,-1] - unix_time[0,0]) / 3600.0
+    num_time_groups = scipy.ceil(total_time / max_time)
+
+    # Check if the output path exists
+    print plot_info['plotsdir']
+    if not os.path.exists(plot_info['plotsdir']):
+        raise IOError("Specified path: ''%s'' does not exist!" % plot_info['plotsdir'])
+
+
+    print("There will be %d time groups of plots made." % num_time_groups)
+
+    # First make the plots of the NeFromPower parameters
+    altitude        = data['NeFromPower']['alt'] / 1000.0
+    inds            = np.where(~np.isfinite(altitude))     # set all non finite values nan
+    altitude[inds]  = np.nan
+
+    ne_notr = data['NeFromPower']['ne_notr']
+    inds = np.where(ne_notr < 0)
+    ne_notr[inds] = np.nan
+    ne_notr = np.real(np.log10(ne_notr))
+
+    snr = data['NeFromPower']['snr']
+    snr[inds] = np.nan
+    snr = 10.0*np.real(np.log10(snr))
+
+    # Determine the y-axis limits for the nonfitted data
+    if len(plot_info['nonfitted_ylim'])==0:
+        nonfitted_ylim=[np.nanmin(altitude), np.nanmax(altitude)]
+    else:
+        nonfitted_ylim = plot_info['nonfitted_ylim']
+
+    start_ind=0;
+    for time_ind in range(int(num_time_groups)):
+        end_ind = scipy.where(unix_time[:,-1] <= (unix_time[start_ind,0] + max_time * 3600.0))[0]
+        end_ind = end_ind[-1]
+        tlim = [start_ind,end_ind]
+        start_ind = end_ind+1
+
+        if num_time_groups>1:
+            txtra='_day' + str(time_ind)
+        else:
+            txtra=''
+
+        # Figure out the time text for the title of the plots
+        title =  "%d-%d-%d "    % (data['Time']['Month'][tlim[0],0],data['Time']['Day'][tlim[0],0],data['Time']['Year'][tlim[0],0])
+        title += "%.3f UT "     %  data['Time']['dtime'][tlim[0],0]
+        title += "- %d-%d-%d "  % (data['Time']['Month'][tlim[-1],1],data['Time']['Day'][tlim[-1],1],data['Time']['Year'][tlim[-1],1])
+        title += "%.3f UT"      %  data['Time']['dtime'][tlim[-1],1]
+
+        # Set up the x-axis stuff
+        xlim                = [unix_time[tlim[0],0], unix_time[tlim[1],1]]
+        trimmed_unix_time   = unix_time[tlim[0]:(tlim[1]+1)]
+
+
+        # Plot the uncorrected density Ne_NoTr (Te/Ti)
+        clim = plot_info['clims'][0]
+        txt  = r'$\rm{Ne - no Tr} \ (\rm{m}^{-3})$'
+
+        plot_times, plot_datas = timegaps(trimmed_unix_time,ne_notr[tlim[0]:tlim[1]+1])
+        plot_datas = np.ma.masked_where(scipy.isnan(plot_datas),plot_datas)
+
+        if plot_info['saveplots']==1:
+            oname = title + '_NePower_NoTr' + txtra + '.png'
+            output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+        else:
+            output_fig_name = None
+
+        pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,nonfitted_ylim,'Time (UT)','Altitude (km)',
+                    title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=1)
+
+        # Plot the SNR now.
+        clim = [-20.0,10.0]
+        txt  = r'$\rm{SNR} \ (\rm{dB})$'
+
+        plot_times, plot_datas = timegaps(trimmed_unix_time,snr[tlim[0]:tlim[1]+1])
+        plot_datas = np.ma.masked_where(scipy.isnan(plot_datas),plot_datas)
+
+        if plot_info['saveplots']==1:
+            oname = title + '_SNR' + txtra + '.png'
+            output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+        else:
+            output_fig_name = None
+
+        pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,nonfitted_ylim,'Time (UT)','Altitude (km)',
+                    title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
+
+
+    # Now plot the fitted data if we need to.   
+    if plot_info['is_fitted']:
+        # First make the plots of the NeFromPower parameters
+        altitude        = data['FittedParams']['alt'] / 1000.0
+        inds            = np.where(~np.isfinite(altitude))     # set all non finite values nan
+        altitude[inds]  = np.nan
+
+        ne = data['FittedParams']['ne']
+        inds = np.where(ne < 0)
+        ne[inds] = np.nan
+        ne = np.real(np.log10(ne))
+
+        ti = data['FittedParams']['ti']
+        ti[inds] = np.nan
+        te = data['FittedParams']['te']
+        te[inds] = np.nan
+        tr = te/ti
+        tr[inds] = np.nan
+        vlos = data['FittedParams']['vlos']
+        vlos[inds] = np.nan
+        nu = data['FittedParams']['nuin']
+        nu[inds] = np.nan
+        frac = data['FittedParams']['frac']
+        frac[inds] = np.nan
+
+        # Determine the y-axis limits for the fitted data
+        if len(plot_info['fitted_ylim'])==0:
+            fitted_ylim=[np.nanmin(altitude), np.nanmax(altitude)]
+        else:
+            fitted_ylim = plot_info['fitted_ylim']
+
+
+        start_ind=0;
+        for time_ind in range(int(num_time_groups)):
+            end_ind = scipy.where(unix_time[:,-1] <= (unix_time[start_ind,0] + max_time * 3600.0))[0]
+            end_ind = end_ind[-1]
+            tlim = [start_ind,end_ind]
+            start_ind = end_ind+1
+
+            if num_time_groups>1:
+                txtra='_day' + str(time_ind)
+            else:
+                txtra=''
+
+            # Figure out the time text for the title of the plots
+            title =  "%d-%d-%d "    % (data['Time']['Month'][tlim[0],0],data['Time']['Day'][tlim[0],0],data['Time']['Year'][tlim[0],0])
+            title += "%.3f UT "     %  data['Time']['dtime'][tlim[0],0]
+            title += "- %d-%d-%d "  % (data['Time']['Month'][tlim[-1],1],data['Time']['Day'][tlim[-1],1],data['Time']['Year'][tlim[-1],1])
+            title += "%.3f UT"      %  data['Time']['dtime'][tlim[-1],1]
+
+            # Set up the x-axis stuff
+            xlim                = [unix_time[tlim[0],0], unix_time[tlim[1],1]]
+            trimmed_unix_time   = unix_time[tlim[0]:(tlim[1]+1)]
+
+
+            # plot density
+            clim = plot_info['clims'][0]
+            txt  = r'$\rm{Ne} \ (\rm{m}^{-3})$'
+
+            plot_times,plot_datas=timegaps(trimmed_unix_time,ne[tlim[0]:(tlim[1]+1)])
+            plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
+
+
+            if plot_info['saveplots']==1:
+                oname = title + '_Ne' + txtra + '.png'
+                output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+            else:
+                output_fig_name = None
+
+            pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
+                        title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=1)
+
+            # plot ion temp
+            clim = plot_info['clims'][1]
+            txt  = r'$\rm{Ti} \ (\rm{K}) \ - %d \ {\rm amu}$' % (mi[ion])
+
+            plot_times,plot_datas=timegaps(trimmed_unix_time,ti[tlim[0]:(tlim[1]+1)])
+            plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
+
+            if plot_info['saveplots']==1:
+                oname = oname = title + '_Ti' + '-' + str(ion) + txtra + '.png'
+                output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+            else:
+                output_fig_name = None
+
+            pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
+                        title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
+
+            # plot elec temp
+            clim = plot_info['clims'][2]
+            txt = r'$\rm{Te} \ (\rm{K})$'
+
+            plot_times,plot_datas=timegaps(trimmed_unix_time,te[tlim[0]:(tlim[1]+1)])
+            plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
+
+            if plot_info['saveplots']==1:
+                oname = oname = title + '_Te' + txtra + '.png'
+                output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+            else:
+                output_fig_name = None
+
+            pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
+                        title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
+
+            # plot te/ti
+            clim = plot_info['clims'][3]
+            txt  = r'$\rm{Te/Ti} \ - %d \ {\rm amu}$' % (mi[ion])
+
+            plot_times,plot_datas=timegaps(trimmed_unix_time,tr[tlim[0]:(tlim[1]+1)])
+            plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
+
+            if plot_info['saveplots']==1:
+                oname = oname = title + '_Tr' + '-' + str(ion) + txtra + '.png'
+                output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+            else:
+                output_fig_name = None
+
+            pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
+                        title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
+
+            # plot M+
+            if len(plot_info['clims']) > 5:
+                clim = plot_info['clims'][5]
+            else:
+                clim = [0,1]
+            txt = r'$\rm{Ion \ fraction} \ - %d \ {\rm amu}$' % (mi[ion])
+
+            plot_times,plot_datas=timegaps(trimmed_unix_time,frac[tlim[0]:(tlim[1]+1)])
+            plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
+
+            if plot_info['saveplots']==1:
+                oname = oname = title + '_IonFrac' + '-' + str(ion) + txtra + '.png'
+                output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+            else:
+                output_fig_name = None
+
+            pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
+                        title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
+
+            # plot nu_in
+            clim = [-2,5]
+            txt  = r'$\rm{\nu_{in}} \ \ (\rm{s^{-1}}) \ - %d \ {\rm amu}$' % (mi[0])
+
+            plot_times,plot_datas=timegaps(trimmed_unix_time,nu[tlim[0]:(tlim[1]+1)])
+            plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
+
+            if plot_info['saveplots']==1:
+                oname = oname = title + '_nuin' + '-' + str(ion) + txtra + '.png'
+                output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+            else:
+                output_fig_name = None
+
+            pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
+                        title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
+
+
+            # plot drift
+            clim = plot_info['clims'][4]
+            txt  = r'$\rm{Vlos} \ (\rm{m/s}) \ - %d \ {\rm amu}$' % (mi[ion])
+
+            plot_times,plot_datas=timegaps(trimmed_unix_time,vlos[tlim[0]:(tlim[1]+1)])
+            plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
+
+            if plot_info['saveplots']==1:
+                oname = oname = title + '_Vlos' + '-' + str(ion) + txtra + '.png'
+                output_fig_name = os.path.join(plot_info['plotsdir'],oname)
+            else:
+                output_fig_name = None
+
+            pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
+                        title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
+
+
+
+def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],ylim=[],tlim=[],ylim0=[],doAlt=1,txMax=24.0,mi=[]):
+
+    if len(ylim)==0:
+        ylim=[RF.NePower['Range'][scipy.where(scipy.isfinite(RF.NePower['Range']))].min()/1000,RF.NePower['Range'][scipy.where(scipy.isfinite(RF.NePower['Range']))].max()/1000]
+
+    ttime=RF.Time['UnixTime']
+
+    title= "%d-%d-%d %.3f UT - %d-%d-%d %.3f UT" % (RF.Time['Month'][0,0],RF.Time['Day'][0,0],RF.Time['Year'][0,0],RF.Time['dtime'][0,0],RF.Time['Month'][-1,1],RF.Time['Day'][-1,1],RF.Time['Year'][-1,1],RF.Time['dtime'][-1,1])
+
+    Ttotal=(ttime[-1,-1]-ttime[0,0])/3600.0
+    Ntrecs=scipy.ceil(Ttotal/txMax)
+
+    iStart=0;
+    for iTime in range(Ntrecs):
+        iEnd=scipy.where(ttime[:,-1]<=(ttime[iStart,0]+txMax*3600.0))[0]
+        iEnd=iEnd[-1]
+        tlim=[iStart,iEnd]
+        iStart=iEnd+1
+        if Ntrecs>1:
+            txtra=' ' + str(iTime)
+        else:
+            txtra=''
+
+        title2= "%d-%d-%d %.3f UT - %d-%d-%d %.3f UT" % (RF.Time['Month'][tlim[0],0],RF.Time['Day'][tlim[0],0],RF.Time['Year'][tlim[0],0],RF.Time['dtime'][tlim[0],0],RF.Time['Month'][tlim[-1],1],RF.Time['Day'][tlim[-1],1],RF.Time['Year'][tlim[-1],1],RF.Time['dtime'][tlim[-1],1])
+
+        dt=RF.NePower['Ne_NoTr'][tlim[0]:(tlim[1]+1)]
+        I=scipy.where(dt<0)
+
+        AZ=RF.Antenna['Azimuth'][tlim[0]:(tlim[1]+1)]
+        EL=RF.Antenna['Elevation'][tlim[0]:(tlim[1]+1)]
+
+        rng=scipy.squeeze(RF.NePower['Range'][0,:])
+        ytxt='Range (km)'
+
+        xlim=[ttime[tlim[0],0],ttime[tlim[1],1]]
+        tttime=ttime[tlim[0]:(tlim[1]+1)]
+
+        # plot density, No Te/Ti
+        clim=clims[0]
+        txt=r'$\rm{Ne - no Tr} \ (\rm{m}^{-3})$'
+        dat=scipy.real(scipy.log10(RF.NePower['Ne_NoTr']))[tlim[0]:(tlim[1]+1)]
+        dat[I]=scipy.nan
+        time,dat=timegaps(tttime,scipy.squeeze(dat))
+        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        (figg,ax)=pcolor_plot_mot1(time[:,scipy.newaxis],rng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=1)
+
+        if RF.OPTS['saveplots']==1:
+            if os.path.exists(RF.OPTS['plotsdir']):
+                oname=title + '_NePower_NoTr' + txtra + '.png'
+                figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+
+        pyplot.close('all')
+
+        # plot density, SNR
+        clim=[-20.0,10.0]
+        txt=r'$\rm{SNR} \ (\rm{dB})$'
+        dat=10.0*scipy.real(scipy.log10(RF.NePower['SNR']))[tlim[0]:(tlim[1]+1)]
+        dat[I]=scipy.nan
+        time,dat=timegaps(tttime,scipy.squeeze(dat))
+        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        (figg,ax)=pcolor_plot_mot1(time[:,scipy.newaxis],rng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
+        if RF.OPTS['saveplots']==1:
+            if os.path.exists(RF.OPTS['plotsdir']):
+                oname=title + '_NePower_SNR' + txtra + '.png'
+                figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+
+        pyplot.close('all')
+
+        if RF.FITOPTS['DO_FITS']:
+
+            alt=scipy.squeeze(RF.FITS['Altitude'][tlim[0]:(tlim[1]+1)])
+            rng=scipy.squeeze(RF.FITS['Range'][tlim[0]:(tlim[1]+1)])
+
+            dt=RF.FITS['Ne'][tlim[0]:(tlim[1]+1)]
+            dNe = RF.FITS['dNe'][tlim[0]:(tlim[1]+1)]/RF.FITS['Ne'][tlim[0]:(tlim[1]+1)]
+            dTi = RF.FITS['Errors'][tlim[0]:(tlim[1]+1),:,:,0,1]/RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,1]
+            dTe = RF.FITS['Errors'][tlim[0]:(tlim[1]+1),:,:,-1,1]/RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,-1,1]
+
+            I=scipy.where((dt<0) | (scipy.absolute(dNe)>1.0) | (scipy.absolute(dTi)>1.0) | (scipy.absolute(dTe)>1.0))
+
+            if doAlt==1:
+                dr=scipy.diff(alt,axis=1)
+                dr=scipy.concatenate((dr,dr[:,[-1]]),axis=1)/2.0
+                rng=scipy.concatenate((alt-dr,alt[:,[-1]]+dr[:,[-1]]),axis=1)
+                ytxt='Altitude (km)'
+                if len(ylim0)==0:
+                    ylim=[alt[scipy.where(scipy.isfinite(alt))].min()/1000,alt[scipy.where(scipy.isfinite(alt))].max()/1000]
+            else:
+                dr=scipy.diff(rng,axis=1)
+                dr=scipy.concatenate((dr,dr[:,[-1]]),axis=1)/2.0
+                rng=scipy.concatenate((rng-dr,rng[:,[-1]]+dr[:,[-1]]),axis=1)
+                ytxt='Range (km)'
+                if len(ylim0)==0:
+                    ylim=[rng[scipy.where(scipy.isfinite(rng))].min()/1000,rng[scipy.where(scipy.isfinite(rng))].max()/1000]
+
+            # plot density
+            clim=clims[0]
+            txt=r'$\rm{Ne} \ (\rm{m}^{-3})$'
+            dat=scipy.real(scipy.log10(RF.FITS['Ne']))[tlim[0]:(tlim[1]+1)]
+            dat[I]=scipy.nan
+            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
+            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
+            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=1)
+            if RF.OPTS['saveplots']==1:
+                if os.path.exists(RF.OPTS['plotsdir']):
+                    oname=title + '_Ne' + txtra + '.png'
+                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+                    pyplot.close('all')
+
+            # plot ion temp
+            clim=clims[1]
+            txt=r'$\rm{Ti} \ (\rm{K})$'
+            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,1]
+            dat[I]=scipy.nan
+            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
+            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
+            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
+            if RF.OPTS['saveplots']==1:
+                if os.path.exists(RF.OPTS['plotsdir']):
+                    oname=title + '_Ti' + txtra + '.png'
+                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+                    pyplot.close('all')
+
+            # plot elec temp
+            clim=clims[2]
+            txt=r'$\rm{Te} \ (\rm{K})$'
+            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,-1,1]
+            dat[I]=scipy.nan
+            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
+            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
+            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
+            if RF.OPTS['saveplots']==1:
+                if os.path.exists(RF.OPTS['plotsdir']):
+                    oname=title + '_Te' + txtra + '.png'
+                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+                    pyplot.close('all')
+
+            # plot te/ti
+            clim=clims[3]
+            txt=r'$\rm{Te/Ti}$'
+            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,-1,1]/RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,1]
+            dat[I]=scipy.nan
+            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
+            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
+            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
+            if RF.OPTS['saveplots']==1:
+                if os.path.exists(RF.OPTS['plotsdir']):
+                    oname=title + '_Tr' + txtra + '.png'
+                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+                    pyplot.close('all')
+
+            # plot drift
+            clim=clims[4]
+            txt=r'$\rm{Vlos} \ (\rm{m/s})$'
+            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,3]
+            dat[I]=scipy.nan
+            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
+            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
+            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
+            if RF.OPTS['saveplots']==1:
+                if os.path.exists(RF.OPTS['plotsdir']):
+                    oname=title + '_Vlos' + txtra + '.png'
+                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+                    pyplot.close('all')
+
+            # plot M+
+            if len(clims)>5:
+                clim=clims[5]
+            else:
+                clim=[0,1]
+            txt=r'$\rm{O^+ frac}$'
+            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,0]
+            dat[I]=scipy.nan
+            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
+            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
+            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
+            if RF.OPTS['saveplots']==1:
+                if os.path.exists(RF.OPTS['plotsdir']):
+                    oname=title + '_OpFrac' + txtra + '.png'
+                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+                    pyplot.close('all')
+
+            # plot nu_in
+            clim=[-2,5]
+            txt=r'$\rm{\nu_{in}} \ \ (\rm{s^{-1}})$'
+            dat=scipy.log10(RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,2])
+            dat[I]=scipy.nan
+            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
+            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
+            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=1)
+            if RF.OPTS['saveplots']==1:
+                if os.path.exists(RF.OPTS['plotsdir']):
+                    oname=title + '_nuin' + txtra + '.png'
+                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
+                    pyplot.close('all')
+
+
+    return figg,ax
+
+
+def has_fitted_params(fname):
+
+    with tables.open_file(fname) as h5:
+        try:
+            h5.get_node('/FittedParams')
+            fitted_params = True
+        except tables.NoSuchNodeError:
+            fitted_params = False
+
+    return fitted_params
+
+
+#max_time sets the maximum number of hours of data to plot in one plot
+#max_beams sets the number of beams to plot in a plot
+
+# This code is only designed to plot AMISR data
+
+def replot_pcolor_all(fname,saveplots=0,opath='.',clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],nonfitted_ylim=[],fitted_ylim=[],max_time=24.0,max_beams=11):
+    # Read the entire data file. Really we only need, Ne, Te, Ti, Tr, Vlos, Frac, SNR, nuin, NePower_NoTr
+    # Also we want to plot the errors in eNe, eTe, eTi, eVlos
+
+    # Initialize a plotting information dictionary and data dictionary
+    plot_info = dict()
+    data = dict()
+    data['NeFromPower'] = dict()
+    data['Time'] = dict()
+    data['FittedParams'] = dict()
+
+    # Copy the plotting configuration information
+    plot_info['saveplots']      = saveplots
+    plot_info['plotsdir']       = opath
+    plot_info['clims']          = clims
+    plot_info['nonfitted_ylim'] = nonfitted_ylim
+    plot_info['fitted_ylim']    = fitted_ylim
+    plot_info['max_time']       = max_time
+    plot_info['max_beams']      = max_beams
+
+    # If our fitted file has fitted parameters in it then we'll plot them
+    if has_fitted_params(fname):
+        plot_info['is_fitted'] = True
+    else:
+        plot_info['is_fitted'] = False
+
+    # Now we'll read in the data that we need
+    with tables.open_file(fname) as h5:
+        # Fitted data if available
+        if plot_info['is_fitted']:
+            FITS                            = h5.root.FittedParams.Fits.read()
+            data['FittedParams']['ne']      = h5.root.FittedParams.Ne.read()
+            data['FittedParams']['te']      = FITS[:,:,:,-1,1]
+            data['FittedParams']['ti']      = FITS[:,:,:,0,1]
+            data['FittedParams']['vlos']    = FITS[:,:,:,0,-1]
+            data['FittedParams']['frac']    = FITS[:,:,:,0,0]
+            data['FittedParams']['nuin']    = FITS[:,:,:,0,2]
+            data['FittedParams']['rng']     = h5.root.FittedParams.Range.read()
+            data['FittedParams']['alt']     = h5.root.FittedParams.Altitude.read()
+
+            ERRORS                          = h5.root.FittedParams.Fits.read()
+            data['FittedParams']['ene']     = h5.root.FittedParams.dNe.read()
+            data['FittedParams']['ete']     = ERRORS[:,:,:,-1,1]
+            data['FittedParams']['eti']     = ERRORS[:,:,:,0,1]
+            data['FittedParams']['evlos']   = ERRORS[:,:,:,0,-1]
+
+            data['FittedParams']['mi']      = h5.root.FittedParams.IonMass.read()
+
+        # Ne from Power data
+        data['NeFromPower']['snr']      = h5.root.NeFromPower.SNR.read()
+        data['NeFromPower']['ne_notr']  = h5.root.NeFromPower.Ne_NoTr.read()
+        data['NeFromPower']['rng']      = h5.root.NeFromPower.Range.read()
+        data['NeFromPower']['alt']      = h5.root.NeFromPower.Altitude.read()
+
+        # Get the Beam Codes
+        data['BeamCodes'] = h5.root.BeamCodes.read()
+
+        # Finally, grab the time and site information
+        data['Time']['UnixTime']    = h5.root.Time.UnixTime.read()
+        data['Time']['dtime']       = h5.root.Time.dtime.read()
+        data['Time']['Day']         = h5.root.Time.Day.read()
+        data['Time']['Month']       = h5.root.Time.Month.read()
+        data['Time']['Year']        = h5.root.Time.Year.read()
+
+
+    pcolor_plot_all(plot_info, data)
+
+    return
+
+
+def usage():
+    print "usage: ", sys.argv[0]
+    print "\t DATAFILE: hdf5 file of fitted data [REQUIRED]"
+    print "\t PLOTDIR: directory to place plots in [OPTIONAL]"
+
+    sys.exit(2)
+
+if __name__ == "__main__":
+
+    from datetime import datetime
+    import sys
+
+    # Parse input
+    data_file = sys.argv[1]
+
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        usage()
+    elif len(sys.argv) == 2:
+        plots_dir = './plots'
+    else:
+        plots_dir = sys.argv[2]
+
+    # Check if the output plot directory exists
+    if not os.path.exists(plots_dir):
+        # If it doesn't, make it.
+        try:
+            os.mkdir(plots_dir)
+        except OSError:
+            print("Problem making the output plotting directory, exiting...")
+            sys.exit(1)
+
+    # Make the plots
+    now = datetime.now()
+    replot_pcolor_all(data_file,saveplots=1,opath=plots_dir) #,clims=clims)
+    print('It took %d seconds to plot the data.' % (datetime.now()-now).total_seconds())
