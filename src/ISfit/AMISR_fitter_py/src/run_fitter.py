@@ -1718,10 +1718,10 @@ class Run_Fitter:
 
             if self.FITOPTS['MOTION_TYPE']==1: 
                 replot_pcolor_antenna_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],
-                                          clim=clim,nonfitted_ylim=nonfitted_ylim,fitted_ylim=fitted_ylim)
+                                          clims=clim,nonfitted_ylim=nonfitted_ylim,fitted_ylim=fitted_ylim)
             else:
                 replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],
-                                  clim=clim,nonfitted_ylim=nonfitted_ylim,fitted_ylim=fitted_ylim)
+                                  clims=clim,nonfitted_ylim=nonfitted_ylim,fitted_ylim=fitted_ylim)
         return 0
 
 #######
