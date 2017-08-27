@@ -29,6 +29,11 @@ from constants import *
 #we need to add a Calibration record
 from add_calibration_record import *
 
+from make_summary_plots_sondre import replot_pcolor_antenna_all
+from make_summary_plots_amisr import replot_pcolor_all
+
+
+
 MAXFEV_C=20
 
 ##############################
@@ -1699,15 +1704,24 @@ class Run_Fitter:
 
         # make some final color plots
         if (self.OPTS['plotson']>0):
-            if len(self.OPTS['pcolClims'])>0 and len(self.OPTS['pcolYlims'])>0:
-                plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],clims=self.OPTS['pcolClims'],ylim=self.OPTS['pcolYlims'])
-            elif len(self.OPTS['pcolYlims'])>0:
-                plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],ylim=self.OPTS['pcolYlims'])
-            elif len(self.OPTS['pcolClims'])>0:
-                plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],clims=self.OPTS['pcolClims'])
+            # Set colour and range limits
+            if len(self.OPTS['pcolClims']) > 0:
+                clim = self.OPTS['pcolClims']
             else:
-                plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'])
+                clim = [[10,12],[0,1500],[0,3000],[0,4],[-500,500]]
+            if len(self.OPTS['pcolYlims']) > 0:
+                nonfitted_ylim = self.OPTS['pcolYlims']
+                fitted_ylim = self.OPTS['pcolYlims']
+            else:
+                nonfitted_ylim = []
+                fitted_ylim = []
 
+            if self.FITOPTS['MOTION_TYPE']==1: 
+                replot_pcolor_antenna_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],
+                                          clim=clim,nonfitted_ylim=nonfitted_ylim,fitted_ylim=fitted_ylim)
+            else:
+                replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],
+                                  clim=clim,nonfitted_ylim=nonfitted_ylim,fitted_ylim=fitted_ylim)
         return 0
 
 #######
