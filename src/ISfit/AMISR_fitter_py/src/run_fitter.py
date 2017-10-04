@@ -443,7 +443,8 @@ class Run_Fitter:
                     ### Number of gates to sum as a function of lag
                     htI=htI+NSUM[0]
 
-                    if Altitude[Ibm,htI]>=self.FITOPTS['GroupHt'][IfitIndex]:
+                    #if Altitude[Ibm,htI]>=self.FITOPTS['GroupHt'][IfitIndex]:
+                    if Altitude[Ibm,int(htI)]>=self.FITOPTS['GroupHt'][int(IfitIndex)]:
                         if IfitIndex<(self.FITOPTS['Ngroup']-1):
                             IfitIndex=IfitIndex+1
                             Ifit=scipy.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
@@ -452,13 +453,14 @@ class Run_Fitter:
                             SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
                             NSUM=SummationRule[1,:]-SummationRule[0,:]+1
 
-                    RngAll=S['Acf']['Range'][0,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]
+                    #RngAll=S['Acf']['Range'][0,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]
+                    RngAll=S['Acf']['Range'][0,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]
                     RngMean=scipy.mean(RngAll)
                     SumFactor=scipy.squeeze(RngMean**2.0/scipy.power(RngAll,2.0))
 
                     # sum using the summation rule
 
-                    pulses_integrated = scipy.sum(S['Acf']['PulsesIntegrated'][Ibm][:,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)],axis=1)
+                    pulses_integrated = scipy.sum(S['Acf']['PulsesIntegrated'][Ibm][:,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)],axis=1)
 
                     K=pulses_integrated*S['Acf']['Kint']
                     tAcf=scipy.zeros(Nlags,dtype='Complex64')
@@ -466,9 +468,9 @@ class Run_Fitter:
                     Psc=scipy.zeros(Nlags,dtype='Float64')
                     for aa in range(Nlags):
                         # Acf
-                        tAcf[aa]=scipy.mean(S['Acf']['Data'][Ibm,aa,(htI+SummationRule[0,aa]):(htI+SummationRule[1,aa]+1)])
+                        tAcf[aa]=scipy.mean(S['Acf']['Data'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
                         # scaling factor for power
-                        Psc[aa]=scipy.mean(S['Acf']['Psc'][Ibm,aa,(htI+SummationRule[0,aa]):(htI+SummationRule[1,aa]+1)])
+                        Psc[aa]=scipy.mean(S['Acf']['Psc'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
 
                     ### compute variance
                     # Whether to use first or 0 lag
@@ -477,7 +479,7 @@ class Run_Fitter:
                     else:
                         sig=scipy.absolute(tAcf[0]) # 0 lag
                     # Signal to noise ratio
-                    tSnr=scipy.mean(S['Power']['SNR'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
+                    tSnr=scipy.mean(S['Power']['SNR'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]*SumFactor)
 
                     # Variance
                     tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
@@ -485,12 +487,12 @@ class Run_Fitter:
                     tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2/Noise['Power']['PulsesIntegrated'][Ibm].astype('Float64')
 
                     # Height and range
-                    HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)])
+                    HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
                     RNG[Ibm,Iht]=RngMean
                     print sstr + 'Alt ' + str(scipy.asarray(HT[Ibm,Iht]/1000.).round(decimals=2)) + ', Rng ' + str(scipy.asarray(RNG[Ibm,Iht]/1000.).round(decimals=2))
 
                     # using guess for Ne from density profile
-                    tNe=scipy.absolute(scipy.mean(S['Power']['Ne_Mod'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]))
+                    tNe=scipy.absolute(scipy.mean(S['Power']['Ne_Mod'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]))
 
                     if len(self.FITOPTS['Lags2fit'])==0:
                         Iy=range(Nlags)
