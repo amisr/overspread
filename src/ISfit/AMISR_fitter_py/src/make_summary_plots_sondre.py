@@ -83,8 +83,8 @@ def pcolor_plot_antenna(x,y,data,clim,xlim,ylim,xl,yl,title,text,az,el,trimmed_u
     figsz = (14,10)
 
     fig = pyplot.figure(figsize=figsz, facecolor=figBG)
-    ax1 = fig.add_axes([0.1,0.3,0.75,0.6], facecolor=axesBG)
-    ax2 = fig.add_axes([0.1,0.1,0.75,0.15], facecolor=axesBG)
+    ax1 = fig.add_axes([0.1,0.3,0.75,0.6], axis_bgcolor=axesBG)
+    ax2 = fig.add_axes([0.1,0.1,0.75,0.15], axis_bgcolor=axesBG)
     cax = fig.add_axes([0.87,0.3,0.03,0.6])
     
 
