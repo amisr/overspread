@@ -9,6 +9,7 @@ from amisr_py.constants.constants import *
 import scipy
 import matplotlib
 matplotlib.use('Agg')
+matplotlib.rcParams.update({'figure.max_open_warning': 0})
 import pylab
 
 import plot_utils
@@ -56,7 +57,7 @@ class tratePlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=cax[0],vmax=cax[1])
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -79,7 +80,7 @@ class tratePlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=0.0,vmax=0.5)
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -100,7 +101,7 @@ class tratePlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=cax[0],vmax=cax[1])
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -116,7 +117,7 @@ class tratePlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=0.0,vmax=0.5)
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -131,7 +132,7 @@ class tratePlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=cax[0],vmax=cax[1])
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -147,7 +148,7 @@ class tratePlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=0.0,vmax=0.5)
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -234,8 +235,8 @@ class condPlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        #pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=cax[0],vmax=cax[1])
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',norm=LogNorm(vmin=cax[0], vmax=cax[1]))
+        #pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',norm=LogNorm(vmin=cax[0], vmax=cax[1]))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -251,8 +252,8 @@ class condPlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        #pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=cax[0],vmax=cax[1])
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',norm=LogNorm(vmin=cax[0], vmax=cax[1]))
+        #pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',norm=LogNorm(vmin=cax[0], vmax=cax[1]))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -274,7 +275,7 @@ class condPlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=0.0,vmax=0.5)
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -289,7 +290,7 @@ class condPlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),shading='flat',vmin=0.0,vmax=0.5)
+        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -501,7 +502,7 @@ class vvelsPlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(lat),scipy.nanmax(lat)]
-        pc=ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=cax[0],vmax=cax[1],cmap=pylab.get_cmap(CMAP))
+        pc=ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pylab.get_cmap(CMAP))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -524,7 +525,7 @@ class vvelsPlot:
         dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=cax[0],vmax=cax[1],cmap=pylab.get_cmap(CMAP))
+        ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pylab.get_cmap(CMAP))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         #	pylab.colorbar()
@@ -545,7 +546,7 @@ class vvelsPlot:
             dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
             x=matplotlib.dates.epoch2num(x)
             xlim=[x[0],x[-1]]	
-            ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=cax[0],vmax=cax[1],cmap=pylab.get_cmap(CMAP))
+            ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pylab.get_cmap(CMAP))
             ax[ii].set_xlim(xlim)
             ax[ii].set_ylim(ylim)
             #	pylab.colorbar()
@@ -565,7 +566,7 @@ class vvelsPlot:
         dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        pc2=ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=0,vmax=cax[1]/5)
+        pc2=ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
@@ -585,7 +586,7 @@ class vvelsPlot:
         dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=0,vmax=cax[1]/5)
+        ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
@@ -608,7 +609,7 @@ class vvelsPlot:
             dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
             x=matplotlib.dates.epoch2num(x)
             xlim=[x[0],x[-1]]	
-            ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=0,vmax=cax[1]/5)
+            ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
             ax[ii].set_xlim(xlim)
             ax[ii].set_ylim(ylim)
             ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
@@ -825,7 +826,7 @@ class vvelsMagPlot:
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
         ylim=[scipy.nanmin(lat),scipy.nanmax(lat)]
-        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=cax1[0],vmax=cax1[1]))
+        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax1[0],vmax=cax1[1]))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -842,7 +843,7 @@ class vvelsMagPlot:
         dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=0.0,vmax=cax1[1]/5))
+        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=cax1[1]/5))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         #	pylab.colorbar()
@@ -859,7 +860,7 @@ class vvelsMagPlot:
         dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=cax2[0],vmax=cax2[1],cmap=pylab.get_cmap('hsv')))
+        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax2[0],vmax=cax2[1],cmap=pylab.get_cmap('hsv')))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         labels = pylab.getp(ax[ii], 'xticklabels')
@@ -875,7 +876,7 @@ class vvelsMagPlot:
         dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),shading='flat',vmin=0,vmax=cax2[1]/5))
+        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0,vmax=cax2[1]/5))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
