@@ -696,7 +696,7 @@ class vvelsAlt:
             dtimeout.append([dtime1[Irecs[0],0],dtime1[Irecs[-1],1]])
             MLTtime1.append([MLT[Irecs[0],0],MLT[Irecs[-1],1]])
             if IIrec>0:
-                if MLTtime1[IIrec][0]<MLTtime1[IIrec-1][0]:
+                while MLTtime1[IIrec][0]<MLTtime1[IIrec-1][0]:
                     MLTtime1[IIrec][0]=MLTtime1[IIrec][0]+24.0
                     MLTtime1[IIrec][1]=MLTtime1[IIrec][1]+24.0
 
