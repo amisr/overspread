@@ -598,7 +598,7 @@ class vvelsLat:
             dtimeout.append([dtime1[Irecs[0],0],dtime1[Irecs[-1],1]])
             MLTtime1.append([MLT[Irecs[0],0],MLT[Irecs[-1],1]])
             if IIrec>0:
-                if MLTtime1[IIrec][0]<MLTtime1[IIrec-1][0]:
+                while MLTtime1[IIrec][0]<MLTtime1[IIrec-1][0]:
                     MLTtime1[IIrec][0]=MLTtime1[IIrec][0]+24.0
                     MLTtime1[IIrec][1]=MLTtime1[IIrec][1]+24.0
 
@@ -615,7 +615,6 @@ class vvelsLat:
                 evec1=scipy.concatenate((evec1,Eest[scipy.newaxis,:,:]),axis=0)
                 devec1=scipy.concatenate((devec1,dEest[scipy.newaxis,:,:]),axis=0)
 
-            print IIrec
             IIrec=IIrec+1       
             
         MLTtime1=scipy.array(MLTtime1)
@@ -648,30 +647,6 @@ class vvelsLat:
         self.VectorVels['Emag'] = Emag; self.VectorVels['errEmag'] = dEmag
         self.VectorVels['Edir'] = Edir; self.VectorVels['errEdir'] = dEdir
 
-            
-        # if self.makeplot: 
-        #     # velocity vector
-        #     figg=plot_vvels1(timeout,scipy.mean(MLTtime1,axis=1),PLAT_OUT,vvels1[:,:,1],vvels1[:,:,0],dvvels1[:,:,1],dvvels1[:,:,0],
-        #         title='Vector Velocities' + title,p=self.ppp,sc=self.sc,cax=self.clim,ncols=3,vz=vvels1[:,:,2],dvz=dvvels1[:,:,2],vzsc=10.0)
-        #     if self.saveout:
-        #         figg.savefig(os.path.join(odir,ofname+'-vvec.png'))
-        #     # velocity magnitude
-        #     figg=plot_vvels1_mag(timeout,scipy.mean(MLTtime1,axis=1),PLAT_OUT,Vmag,Vdir,dVmag,dVdir,
-        #         title='Vector Velocities' + title,cax1=[0.0,self.clim[1]],cax2=[-180.0,180.0])
-        #     if self.saveout:
-        #         figg.savefig(os.path.join(odir,ofname+'-vmag.png'))
-                
-        #     # electric field
-        #     figg=plot_vvels1(timeout,scipy.mean(MLTtime1,axis=1),PLAT_OUT,evec1[:,:,1]*1e3,evec1[:,:,0]*1e3,devec1[:,:,1]*1e3,devec1[:,:,0]*1e3,
-        #         title='Electric Fields' + title,p=[self.pppE[0]*1e3,self.pppE[1],self.pppE[2]*1e3,self.pppE[3]*1e3],sc=self.sc*5e-2,cax=[self.clim[0]*5e-2,self.clim[1]*5e-2],ncols=2,units='mV/m',parm='E')
-        #     if self.saveout:
-        #         figg.savefig(os.path.join(odir,ofname+'-evec.png'))
-        #     # electric field magnitude
-        #     figg=plot_vvels1_mag(timeout,scipy.mean(MLTtime1,axis=1),PLAT_OUT,Emag*1e3,Edir,dEmag*1e3,dEdir,
-        #         title='Electric Fields' + title,cax1=[0.0,self.clim[1]*5e-2],cax2=[-180.0,180.0],units='mV/m',parm='E')
-        #     if self.saveout:
-        #         figg.savefig(os.path.join(odir,ofname+'-emag.png'))
-            
         ### Output file
         if self.saveout:
             self.createOutputFile(ofname)
