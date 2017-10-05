@@ -43,13 +43,13 @@ class tratePlot:
         for aa in range(nrows):
             for bb in range(ncols):
                 rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2],POS[3]]
-                ax.append(figg.add_axes(rect, facecolor=axesBG))
+                ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
             bb+=1
             rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2]/10,POS[3]]
-            ax.append(figg.add_axes(rect, facecolor=axesBG))        
+            ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))        
         bb=0; aa+=1;
         rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2]*2+dx,POS[3]]
-        ax.append(figg.add_axes(rect, facecolor=axesBG))
+        ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
 
         ii=0
         x,dat=plot_utils.timegaps(time,JdotE*sc)
@@ -226,13 +226,13 @@ class condPlot:
         for aa in range(nrows):
             for bb in range(ncols):
                 rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2],POS[3]]
-                ax.append(figg.add_axes(rect, facecolor=axesBG))
+                ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
             bb+=1
             rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2]/10,POS[3]]
-            ax.append(figg.add_axes(rect, facecolor=axesBG))        
+            ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))        
         bb=0; aa+=1;
         rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2]*2+dx,POS[3]]
-        ax.append(figg.add_axes(rect, facecolor=axesBG))
+        ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
 
         ii=0
         x,dat=plot_utils.timegaps(time,sp*sc)
@@ -377,7 +377,7 @@ class efieldPlot:
         for aa in range(nrows):
             for bb in range(ncols):
                 rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2],POS[3]]
-                ax.append(figg.add_axes(rect, facecolor=axesBG))
+                ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
         ax.append(ax[-1].twinx())    
             
         mtime = matplotlib.dates.epoch2num(scipy.mean(time,axis=1))
@@ -510,19 +510,19 @@ class vvelsPlot:
         pos_col2 = [0.91  ,0.395 ,0.02,0.225]
         pos_col3 = [0.91  ,0.07 ,0.02,0.225]
 
-        ax.append(figg.add_axes(pos11, facecolor=axesBG))
-        ax.append(figg.add_axes(pos21, facecolor=axesBG))
-        ax.append(figg.add_axes(pos31, facecolor=axesBG))
+        ax.append(figg.add_axes(pos11, axis_bgcolor=axesBG))
+        ax.append(figg.add_axes(pos21, axis_bgcolor=axesBG))
+        ax.append(figg.add_axes(pos31, axis_bgcolor=axesBG))
 
-        ax.append(figg.add_axes(pos12, facecolor=axesBG))
-        ax.append(figg.add_axes(pos22, facecolor=axesBG))
-        ax.append(figg.add_axes(pos32, facecolor=axesBG))
+        ax.append(figg.add_axes(pos12, axis_bgcolor=axesBG))
+        ax.append(figg.add_axes(pos22, axis_bgcolor=axesBG))
+        ax.append(figg.add_axes(pos32, axis_bgcolor=axesBG))
 
-        ax.append(figg.add_axes(pos13, facecolor=axesBG))
+        ax.append(figg.add_axes(pos13, axis_bgcolor=axesBG))
 
-        ax.append(figg.add_axes(pos_col1, facecolor=axesBG))
-        ax.append(figg.add_axes(pos_col2, facecolor=axesBG))
-        ax.append(figg.add_axes(pos_col3, facecolor=axesBG))
+        ax.append(figg.add_axes(pos_col1, axis_bgcolor=axesBG))
+        ax.append(figg.add_axes(pos_col2, axis_bgcolor=axesBG))
+        ax.append(figg.add_axes(pos_col3, axis_bgcolor=axesBG))
 
 
         ii=0
@@ -762,7 +762,7 @@ class vvelsMagPlot:
         for aa in range(nrows):
             for bb in range(ncols):
                 rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2],POS[3]]
-                ax.append(figg.add_axes(rect, facecolor=axesBG))
+                ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))
         
         pc=[]
         
@@ -842,7 +842,7 @@ class vvelsMagPlot:
             bb=1
             for aa in range(len(pc)):
                 rect=[POS[0]+(POS[2]+dx)*bb,POS[1]-(POS[3]+dy)*aa,POS[2]/20,POS[3]]
-                ax.append(figg.add_axes(rect, facecolor=axesBG))	
+                ax.append(figg.add_axes(rect, axis_bgcolor=axesBG))	
                 cl=pyplot.colorbar(pc[aa],ax[ii])
                 if aa<2:
                     cl.set_label(units,fontsize=labsize)
