@@ -477,9 +477,9 @@ class vvelsLat:
                 plong=dat1['/Geomag']['plong']
         Bn=dat1['/Geomag']['Bx']; Be=dat1['/Geomag']['By']; Bz=dat1['/Geomag']['Bz']; 
         Babs=dat1['/Geomag']['Babs']
-        Bmed = scipy.stats.nanmedian(Babs)
+        Bmed = scipy.nanmedian(Babs)
         for i in range(Bmed.ndim):
-            Bmed=scipy.stats.nanmedian(Bmed)		
+            Bmed=scipy.nanmedian(Bmed)		
         self.pppE=(scipy.array(self.ppp).copy()).tolist(); self.pppE[0]*=Bmed; self.pppE[2]*=Bmed; self.pppE[3]*=Bmed
         self.covarE=(scipy.array(self.covar).copy()).tolist(); self.covarE[0]*=Bmed*Bmed; self.covarE[1]*=Bmed*Bmed; self.covarE[2]*=Bmed*Bmed
 
@@ -591,7 +591,7 @@ class vvelsLat:
 
                 # compute vectors
                 (plat_out1,Vest,dVest,xx,Nmeas)=vvels.compute_velvec2(PLAT_OUT,vlosin,dvlosin,kin,platin,plongin,htin,htmin=self.minAlt*1000,htmax=self.maxAlt*1000,covar=self.covar,p=self.ppp)
-                (plat_out1,Eest,dEest,xx,Nmeas1)=vvels.compute_velvec2(PLAT_OUT,vlosin,dvlosin,ekin,platin,plongin,htin,htmin=self.minAlt*1000,htmax=self.maxAlt*1000,covar=self.covarE,p=self.pppE)
+                (plat_out1,Eest,dEest,xx,Nmeas1)=vvels.compute_velvec2(PLAT_OUT,vlosin,dvlosin,ekin,platin,plongin,htin,htmin=self.minAlt*1000,htmax=self.maxAlt*1000,covar=self.covarE,p=self.ppp)
                 Eest[:,-1]*=-1
                     
                 timeout.append([time1[Irecs[0],0],time1[Irecs[-1],1]])
