@@ -804,6 +804,8 @@ class Run_Fitter:
                         ERRS_out[Ibm,Iht,:,:]=scipy.nan
                         ne_out[Ibm,Iht,:]=scipy.nan
                         noise_out[Ibm,Iht,:]=scipy.nan
+                        fitinfo['nfev'][Ibm,Iht]=scipy.nan
+                        fitinfo['chi2'][Ibm,Iht]=scipy.nan
 
                     Ihtbm[Ibm]=Iht
 
