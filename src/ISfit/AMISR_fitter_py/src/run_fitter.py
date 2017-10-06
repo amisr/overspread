@@ -4,7 +4,7 @@
 xxxxx
 
 ~M. Nicolls
-last revised: xx/xx/2007
+last revised: xx/xx/2017
 
 """
 import matplotlib
@@ -32,9 +32,9 @@ from add_calibration_record import *
 from make_summary_plots_sondre import replot_pcolor_antenna_all
 from make_summary_plots_amisr import replot_pcolor_all
 
-
-
 MAXFEV_C=20
+
+
 
 ##############################
 
@@ -1029,6 +1029,48 @@ class Run_Fitter:
 
         return expname
 
+    def write_config_info(self,h5fhandle):
+        import platform
+        import getpass
+
+        # Configuration Information
+        #Fitter Version Number: Follows convention: major.minor.year.month
+        version='1.0.2017.10'
+
+        # Computer information:
+        PythonVersion   = platform.python_version()
+        Type            = platform.machine()
+        System          = "%s %s %s" % (platform.system(),platform.release(),platform.version())
+        User            = getpass.getuser()
+
+        io_utils.createh5groups(h5fhandle,[('/ProcessingParams/ComputerInfo','Processing Computer Information')])
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonVersion',PythonVersion)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/Type',Type)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/System',System)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/User',User)
+
+
+        # Fitter configuration information
+        Version = version  # Eventually replaced by self.__version__
+
+        io_utils.createh5groups(h5fhandle,[('/ProcessingParams/FittingInfo','Fitter Configuration Information'),('/ProcessingParams/FittingInfo/ConfigFiles','Configuration Files Used')])
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/FittingInfo/Version',Version)
+
+        # Get all the configuration files
+        for cf in self.options.conffile.split(','):
+            Path = os.path.abspath(cf)
+            Name = os.path.basename(cf)
+
+            with open(cf,'r') as f:
+                Contents = "".join(f.readlines())
+
+            h5path = '/ProcessingParams/FittingInfo/ConfigFiles/%s' % (Name)
+            io_utils.createh5groups(h5fhandle,[(h5path,'Config File Information')])
+            io_utils.createStaticArray(h5fhandle,h5path +'/Path',Path)
+            io_utils.createStaticArray(h5fhandle,h5path +'/Contents',Contents)
+
+
+
     # run
     def run(self):
     # main routine that runs the fitting loop.
@@ -1131,19 +1173,18 @@ class Run_Fitter:
             except:
                 raise IOError, 'Unable to continue from locked file: ' + self.OPTS['outfileLocked']
         else:
-            #try:
             NrecsToSkip=0
-            outh5file=tables.open_file(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File")
-            io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
-            if self.FITOPTS['DO_FITS']:
-                io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
-                if self.OPTS['saveACFs']:
-                    io_utils.createh5groups(outh5file,[self.h5Paths['ACFs']])
-            if self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                io_utils.createh5groups(outh5file,[self.h5Paths['Antenna']])
-            outh5file.close()
-            #except:
-            #    raise IOError, 'Cannot create output file: ' + self.OPTS['outfileLocked']
+            with tables.open_file(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File") as outh5file:
+                io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
+                if self.FITOPTS['DO_FITS']:
+                    io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
+                    if self.OPTS['saveACFs']:
+                        io_utils.createh5groups(outh5file,[self.h5Paths['ACFs']])
+                if self.FITOPTS['MOTION_TYPE']==1: # Az,El
+                    io_utils.createh5groups(outh5file,[self.h5Paths['Antenna']])
+
+                # Add fitter version number and config files (fit, io, system defaults)
+                self.write_config_info(outh5file)
 
 
         # initialize some vars
