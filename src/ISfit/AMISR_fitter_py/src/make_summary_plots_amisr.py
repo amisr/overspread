@@ -75,8 +75,9 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,save_fig_name=No
     sc=1.0
 
     # Set some font sizes
-    textsize=8
-    labsize=12
+    textsize=8.0
+    labsize=12.0
+    axlabsize=10.0
 
     # Label alignment adjustment values
     xxx=0.0
@@ -182,6 +183,8 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,save_fig_name=No
             ax[ii].set_ylim(ylim)
             if np.mod(ii,ncols)==0:
                 ax[ii].set_ylabel(yl, fontsize=labsize)
+            else:
+                ax[ii].set_yticklabels([])
 
             ax[ii].tick_params(axis='both',labelsize=textsize)
 
@@ -191,7 +194,7 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,save_fig_name=No
                 ax[ii].set_xlabel(xl, fontsize=labsize)
 
             tt=r"$%d \ (%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (iiB+1,bmcodes[iiB,1],bmcodes[iiB,2])
-            ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
+            ax[ii].set_title(tt, fontsize=axlabsize, horizontalalignment='center')
             if ii==0:
                 ax[ii].text(xlim[0]+(xlim[1]-xlim[0])/2+xxx,(ylim[1]-ylim[0])*0.05*nrows+ylim[1]+yyy,title,fontsize=labsize, horizontalalignment='left')
 
@@ -512,214 +515,6 @@ def pcolor_plot_all(plot_info, data):
 
             pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
                         title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
-
-
-
-def pcolor_plot_all_mot1(RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],ylim=[],tlim=[],ylim0=[],doAlt=1,txMax=24.0,mi=[]):
-
-    if len(ylim)==0:
-        ylim=[RF.NePower['Range'][scipy.where(scipy.isfinite(RF.NePower['Range']))].min()/1000,RF.NePower['Range'][scipy.where(scipy.isfinite(RF.NePower['Range']))].max()/1000]
-
-    ttime=RF.Time['UnixTime']
-
-    title= "%d-%d-%d %.3f UT - %d-%d-%d %.3f UT" % (RF.Time['Month'][0,0],RF.Time['Day'][0,0],RF.Time['Year'][0,0],RF.Time['dtime'][0,0],RF.Time['Month'][-1,1],RF.Time['Day'][-1,1],RF.Time['Year'][-1,1],RF.Time['dtime'][-1,1])
-
-    Ttotal=(ttime[-1,-1]-ttime[0,0])/3600.0
-    Ntrecs=scipy.ceil(Ttotal/txMax)
-
-    iStart=0;
-    for iTime in range(Ntrecs):
-        iEnd=scipy.where(ttime[:,-1]<=(ttime[iStart,0]+txMax*3600.0))[0]
-        iEnd=iEnd[-1]
-        tlim=[iStart,iEnd]
-        iStart=iEnd+1
-        if Ntrecs>1:
-            txtra=' ' + str(iTime)
-        else:
-            txtra=''
-
-        title2= "%d-%d-%d %.3f UT - %d-%d-%d %.3f UT" % (RF.Time['Month'][tlim[0],0],RF.Time['Day'][tlim[0],0],RF.Time['Year'][tlim[0],0],RF.Time['dtime'][tlim[0],0],RF.Time['Month'][tlim[-1],1],RF.Time['Day'][tlim[-1],1],RF.Time['Year'][tlim[-1],1],RF.Time['dtime'][tlim[-1],1])
-
-        dt=RF.NePower['Ne_NoTr'][tlim[0]:(tlim[1]+1)]
-        I=scipy.where(dt<0)
-
-        AZ=RF.Antenna['Azimuth'][tlim[0]:(tlim[1]+1)]
-        EL=RF.Antenna['Elevation'][tlim[0]:(tlim[1]+1)]
-
-        rng=scipy.squeeze(RF.NePower['Range'][0,:])
-        ytxt='Range (km)'
-
-        xlim=[ttime[tlim[0],0],ttime[tlim[1],1]]
-        tttime=ttime[tlim[0]:(tlim[1]+1)]
-
-        # plot density, No Te/Ti
-        clim=clims[0]
-        txt=r'$\rm{Ne - no Tr} \ (\rm{m}^{-3})$'
-        dat=scipy.real(scipy.log10(RF.NePower['Ne_NoTr']))[tlim[0]:(tlim[1]+1)]
-        dat[I]=scipy.nan
-        time,dat=timegaps(tttime,scipy.squeeze(dat))
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-        (figg,ax)=pcolor_plot_mot1(time[:,scipy.newaxis],rng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=1)
-
-        if RF.OPTS['saveplots']==1:
-            if os.path.exists(RF.OPTS['plotsdir']):
-                oname=title + '_NePower_NoTr' + txtra + '.png'
-                figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-
-        pyplot.close('all')
-
-        # plot density, SNR
-        clim=[-20.0,10.0]
-        txt=r'$\rm{SNR} \ (\rm{dB})$'
-        dat=10.0*scipy.real(scipy.log10(RF.NePower['SNR']))[tlim[0]:(tlim[1]+1)]
-        dat[I]=scipy.nan
-        time,dat=timegaps(tttime,scipy.squeeze(dat))
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-        (figg,ax)=pcolor_plot_mot1(time[:,scipy.newaxis],rng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
-        if RF.OPTS['saveplots']==1:
-            if os.path.exists(RF.OPTS['plotsdir']):
-                oname=title + '_NePower_SNR' + txtra + '.png'
-                figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-
-        pyplot.close('all')
-
-        if RF.FITOPTS['DO_FITS']:
-
-            alt=scipy.squeeze(RF.FITS['Altitude'][tlim[0]:(tlim[1]+1)])
-            rng=scipy.squeeze(RF.FITS['Range'][tlim[0]:(tlim[1]+1)])
-
-            dt=RF.FITS['Ne'][tlim[0]:(tlim[1]+1)]
-            dNe = RF.FITS['dNe'][tlim[0]:(tlim[1]+1)]/RF.FITS['Ne'][tlim[0]:(tlim[1]+1)]
-            dTi = RF.FITS['Errors'][tlim[0]:(tlim[1]+1),:,:,0,1]/RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,1]
-            dTe = RF.FITS['Errors'][tlim[0]:(tlim[1]+1),:,:,-1,1]/RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,-1,1]
-
-            I=scipy.where((dt<0) | (scipy.absolute(dNe)>1.0) | (scipy.absolute(dTi)>1.0) | (scipy.absolute(dTe)>1.0))
-
-            if doAlt==1:
-                dr=scipy.diff(alt,axis=1)
-                dr=scipy.concatenate((dr,dr[:,[-1]]),axis=1)/2.0
-                rng=scipy.concatenate((alt-dr,alt[:,[-1]]+dr[:,[-1]]),axis=1)
-                ytxt='Altitude (km)'
-                if len(ylim0)==0:
-                    ylim=[alt[scipy.where(scipy.isfinite(alt))].min()/1000,alt[scipy.where(scipy.isfinite(alt))].max()/1000]
-            else:
-                dr=scipy.diff(rng,axis=1)
-                dr=scipy.concatenate((dr,dr[:,[-1]]),axis=1)/2.0
-                rng=scipy.concatenate((rng-dr,rng[:,[-1]]+dr[:,[-1]]),axis=1)
-                ytxt='Range (km)'
-                if len(ylim0)==0:
-                    ylim=[rng[scipy.where(scipy.isfinite(rng))].min()/1000,rng[scipy.where(scipy.isfinite(rng))].max()/1000]
-
-            # plot density
-            clim=clims[0]
-            txt=r'$\rm{Ne} \ (\rm{m}^{-3})$'
-            dat=scipy.real(scipy.log10(RF.FITS['Ne']))[tlim[0]:(tlim[1]+1)]
-            dat[I]=scipy.nan
-            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
-            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
-            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=1)
-            if RF.OPTS['saveplots']==1:
-                if os.path.exists(RF.OPTS['plotsdir']):
-                    oname=title + '_Ne' + txtra + '.png'
-                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pyplot.close('all')
-
-            # plot ion temp
-            clim=clims[1]
-            txt=r'$\rm{Ti} \ (\rm{K})$'
-            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,1]
-            dat[I]=scipy.nan
-            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
-            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
-            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
-            if RF.OPTS['saveplots']==1:
-                if os.path.exists(RF.OPTS['plotsdir']):
-                    oname=title + '_Ti' + txtra + '.png'
-                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pyplot.close('all')
-
-            # plot elec temp
-            clim=clims[2]
-            txt=r'$\rm{Te} \ (\rm{K})$'
-            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,-1,1]
-            dat[I]=scipy.nan
-            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
-            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
-            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
-            if RF.OPTS['saveplots']==1:
-                if os.path.exists(RF.OPTS['plotsdir']):
-                    oname=title + '_Te' + txtra + '.png'
-                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pyplot.close('all')
-
-            # plot te/ti
-            clim=clims[3]
-            txt=r'$\rm{Te/Ti}$'
-            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,-1,1]/RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,1]
-            dat[I]=scipy.nan
-            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
-            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
-            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
-            if RF.OPTS['saveplots']==1:
-                if os.path.exists(RF.OPTS['plotsdir']):
-                    oname=title + '_Tr' + txtra + '.png'
-                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pyplot.close('all')
-
-            # plot drift
-            clim=clims[4]
-            txt=r'$\rm{Vlos} \ (\rm{m/s})$'
-            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,3]
-            dat[I]=scipy.nan
-            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
-            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
-            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
-            if RF.OPTS['saveplots']==1:
-                if os.path.exists(RF.OPTS['plotsdir']):
-                    oname=title + '_Vlos' + txtra + '.png'
-                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pyplot.close('all')
-
-            # plot M+
-            if len(clims)>5:
-                clim=clims[5]
-            else:
-                clim=[0,1]
-            txt=r'$\rm{O^+ frac}$'
-            dat=RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,0]
-            dat[I]=scipy.nan
-            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
-            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
-            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=0)
-            if RF.OPTS['saveplots']==1:
-                if os.path.exists(RF.OPTS['plotsdir']):
-                    oname=title + '_OpFrac' + txtra + '.png'
-                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pyplot.close('all')
-
-            # plot nu_in
-            clim=[-2,5]
-            txt=r'$\rm{\nu_{in}} \ \ (\rm{s^{-1}})$'
-            dat=scipy.log10(RF.FITS['Fits'][tlim[0]:(tlim[1]+1),:,:,0,2])
-            dat[I]=scipy.nan
-            time,dat,trng=timegaps_wrng(tttime,scipy.squeeze(dat),rng)
-            time=scipy.repeat(time[:,scipy.newaxis],dat.shape[1]+1,axis=1)
-            dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
-            (figg,ax)=pcolor_plot_mot1(time,trng/1000,dat,tttime,AZ,EL,clim,xlim,ylim,'Time (UT)',ytxt,title2,txt,log=1)
-            if RF.OPTS['saveplots']==1:
-                if os.path.exists(RF.OPTS['plotsdir']):
-                    oname=title + '_nuin' + txtra + '.png'
-                    figg.savefig(os.path.join(RF.OPTS['plotsdir'],oname))
-                    pyplot.close('all')
-
-
-    return figg,ax
 
 
 def has_fitted_params(fname):
