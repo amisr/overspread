@@ -7,6 +7,9 @@ xxxxx
 last revised: xx/xx/2017
 
 """
+
+version='0.1.2017.10'   #1.0 to be released when fitter is made public
+
 import matplotlib
 matplotlib.use('agg')
 print matplotlib.get_backend()
@@ -1040,7 +1043,7 @@ class Run_Fitter:
 
         # Configuration Information
         #Fitter Version Number: Follows convention: major.minor.year.month
-        version='1.0.2017.10'
+        #version='1.0.2017.10' Get this variable from the global variable defined at the top of the file
 
         # Computer information:
         PythonVersion   = platform.python_version()
