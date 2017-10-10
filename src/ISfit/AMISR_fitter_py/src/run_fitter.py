@@ -804,7 +804,6 @@ class Run_Fitter:
                         ERRS_out[Ibm,Iht,:,:]=scipy.nan
                         ne_out[Ibm,Iht,:]=scipy.nan
                         noise_out[Ibm,Iht,:]=scipy.nan
-                        fitinfo['nfev'][Ibm,Iht]=scipy.nan
                         fitinfo['chi2'][Ibm,Iht]=scipy.nan
 
                     Ihtbm[Ibm]=Iht
@@ -975,6 +974,10 @@ class Run_Fitter:
                 raise ValueError, 'Ifit must have size (Ngroup) x (NION+1) x 4'
             if (self.FITOPTS['GroupHt'][-1]<self.FITOPTS['htmax']):
                 raise ValueError, 'GroupHt must go up to htmax!'
+
+        if self.FITOPTS['PERTURBATION_NOISE'] == 1:
+            if self.FITOPTS['fit0lag'] == 0:
+                raise ValueError, 'Perturbation noise fitting cannot work without fitlag0=1!'
 
         self.config = config
 
