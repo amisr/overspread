@@ -1167,12 +1167,19 @@ class Run_Fitter:
             if len(files[ii])!=len(files[0]): # abort! they need to be the same number of files
                 raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'
             files[ii]=sorted(files[ii],key=os.path.basename)
-            #files[ii].sort() # sort the file sequence
-        nfiles=len(files[0]) # number of files to process
+
+
+        nfiles = 0
+        for file_list in files:
+            nfiles += len(file_list) # number of files to process
+        
+        print('Found %s raw files to process...' % nfiles)
 
         if nfiles==0: # abort!
-            print 'Nothing to do...'
+            print('Nothing to do...')
             return
+
+
 
 
         # make plot directory
