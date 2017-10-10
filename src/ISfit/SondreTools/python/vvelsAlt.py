@@ -3,16 +3,21 @@
 """
 
 """
+import os
+import sys
+fitter_path = os.environ['AMISR_FITTER_PATH'].split('AMISR_fitter_py')[0]
+sys.path.append(fitter_path)
+
 
 from amisr_py.constants.constants import *
 from amisr_py.io import *
 from amisr_py.plotting import plotVvels
-import vvels
+import amisr_py.derivedParams.vvels as vvels
 
-import os
 import scipy, scipy.stats
 import time
 import ConfigParser
+import datetime
 
 class vvelsAltFile(ioclass.outputFileClass):
 
@@ -80,7 +85,10 @@ class vvelsAlt:
     
     def __init__(self,inifiles,sec):
     
-        self.DefaultIni = '/Users/mnicolls/Documents/Work/ISfit/AMISR_fitter_py/config_vvelsAlt-default.ini'
+        #self.DefaultIni = '/Users/mnicolls/Documents/Work/ISfit/AMISR_fitter_py/config_vvelsAlt-default.ini'
+
+        print inifiles
+        print sec
 
         # parse ini file
         self.ini_parse(inifiles,sec)
@@ -92,6 +100,9 @@ class vvelsAlt:
         if not os.path.exists(os.path.dirname(self.outputFname)):
             os.makedirs(os.path.dirname(self.outputFname))
 
+        # create output names
+        self.setOutPutNames()
+
         return
         
     def ini_parse(self,inifile,sec):        
@@ -100,9 +111,9 @@ class vvelsAlt:
         config=ConfigParser.ConfigParser()
         
         # read default ini file
-        fn = config.read(self.DefaultIni)
-        if len(fn)!=1 or fn[0]!=self.DefaultIni:
-            raise IOError, 'Unable to read default ini file %s', self.DefaultIni
+        # fn = config.read(self.DefaultIni)
+        # if len(fn)!=1 or fn[0]!=self.DefaultIni:
+        #     raise IOError, 'Unable to read default ini file %s', self.DefaultIni
 
         # read supplied ini file
         config.read(inifile.split(','))
@@ -228,7 +239,7 @@ class vvelsAlt:
         Vdir = self.VectorVels['Vdir']; dVdir = self.VectorVels['errVdir']
         Eavg = self.VectorVels['Eavg']; dEavg = self.VectorVels['errEavg']
         
-        talt=scipy.stats.stats.nanmedian(self.VectorVels['Altitude'],axis=0)
+        talt=scipy.nanmedian(self.VectorVels['Altitude'],axis=0)
         timeout = self.Time['UnixTime']
         MLTtime1 = self.Time['MagneticLocalTime']
 
@@ -254,14 +265,23 @@ class vvelsAlt:
             efieldPlot.figg.savefig(self.outputFname+'-efield.png')
 
         return
+
+    def setOutPutNames(self,extraApp=''):
+        self.outputFnames=[self.outputFname]
+        return
                           
     def dovelsAlt(self):
 
         # read data
         dat1 = self.h5file.readWholeh5file()
 
-        # beamcodes
-        BeamCodes=dat1['/']['BeamCodes']
+        # antenna
+        AvgAzimuth=dat1['/Antenna']['AvgAzimuth']
+        AvgElevation=dat1['/Antenna']['AvgElevation']
+        Azimuth=dat1['/Antenna']['Azimuth']
+        Elevation=dat1['/Antenna']['Elevation']
+        Event=dat1['/Antenna']['Event']
+        Mode=dat1['/Antenna']['Mode']
 
         # geomag
         kpn=(dat1['/Geomag']['kpn'])
@@ -271,9 +291,9 @@ class vvelsAlt:
         plong=(dat1['/Geomag']['MagneticLongitude'])
         RangeGmag=(dat1['/Geomag']['Range'])
         Babs=dat1['/Geomag']['Babs']
-        Bmed = scipy.stats.nanmedian(Babs)
+        Bmed = scipy.nanmedian(Babs)
         for i in range(Bmed.ndim):
-            Bmed=scipy.stats.nanmedian(Bmed)
+            Bmed=scipy.nanmedian(Bmed)
         dec1=dat1['/Geomag']['Declination']
         dip1=dat1['/Geomag']['Dip']
 
@@ -287,12 +307,13 @@ class vvelsAlt:
         nu1=dat1['/FittedParams']['Fits'][:,:,:,:,2]
         frac1=dat1['/FittedParams']['Fits'][:,:,:,:,0]
         mass=dat1['/FittedParams']['IonMass']
-        
+
         # low densities
         I=scipy.where((ne1<self.neMin))
         ne1[I]=scipy.nan
-        vlos1[I]=scipy.nan; dvlos1[I]=scipy.nan
-        
+        vlos1[I]=scipy.nan
+        dvlos1[I]=scipy.nan
+
         # conductivity
         sp1 = scipy.zeros(ne1.shape); dsp1 = scipy.zeros(ne1.shape)
         sh1 = scipy.zeros(ne1.shape); dsh1 = scipy.zeros(ne1.shape)
@@ -313,12 +334,14 @@ class vvelsAlt:
             tsp = scipy.power(tnu,2.0)/(scipy.power(tnu,2.0) + scipy.power(wci,2.0))
             tdsp = scipy.absolute(tsp) * v_elemcharge**2.0 * tdn / tm / tnu   
             tsp = tsp * v_elemcharge**2.0 * tn / tm / tnu            
-            sp1 += tsp; dsp1 += tdsp            
+            sp1 += scipy.array(tsp,dtype=scipy.float64)
+            dsp1 += tdsp            
             # hall
             tsh = -1.0*tnu*wci/(scipy.power(tnu,2.0) + scipy.power(wci,2.0))
             tdsh = scipy.absolute(tsh) * v_elemcharge**2.0 * tdn / tm / tnu
             tsh = tsh * v_elemcharge**2.0 * tn / tm / tnu
-            sh1 += tsh; dsh1 += tdsh
+            sh1 += scipy.array(tsh,dtype=scipy.float64)
+            dsh1 += tdsh
         
         # time
         time1=dat1['/Time']['UnixTime']
@@ -331,19 +354,21 @@ class vvelsAlt:
     
         # just do a portion of data
         if len(self.zoomWhole)!=0:
-            I=scipy.where((dtime1[:,0]>=self.zoomWhole[0]) & (dtime1[:,1]<=self.zoomWhole[1]))[0]	
+            I=scipy.where((dtime1[:,0]>=self.zoomWhole[0]) & (dtime1[:,1]<=self.zoomWhole[1]))[0]   
             vlos1=vlos1[I]
             dvlos1=dvlos1[I]
             time1=time1[I]
-            doy1=doy1[I]		
-            dtime1=dtime1[I]		
+            doy1=doy1[I]        
+            dtime1=dtime1[I]        
             MLT=MLT[I]
             yr=yr[I]
             mon=mon[I]
             day=day[I]
     
         # title str
-        yr=yr[0,0]; mon=mon[0,0]; day=day[0,0]
+        yr=yr[0,0]
+        mon=mon[0,0]
+        day=day[0,0]
         self.titleString=' %d-%d-%d' % (mon, day, yr)
     
         (Nrecs,Nrngs)=ht.shape
@@ -351,7 +376,7 @@ class vvelsAlt:
         timeout=[]
         dtimeout=[]
         MLTtime1=[]
-        
+
         done=0 # flag to say when we are done
         Irec=0 # record counter
         IIrec=0 # record counter
@@ -371,7 +396,7 @@ class vvelsAlt:
             else:
                 IrecsScan=range(Irec,time1.shape[0])
                 done=1
-            Irecs.extend(IrecsScan)	
+            Irecs.extend(IrecsScan) 
         
             # get scan 3 records
             Irect=Irecs[-1]+1
@@ -380,8 +405,8 @@ class vvelsAlt:
                 IrecsScan=range(Irect,Irect+I[0])
             else:
                 IrecsScan=range(Irect,time1.shape[0])
-                done=1			
-            Irecs.extend(IrecsScan)	
+                done=1          
+            Irecs.extend(IrecsScan) 
             
             els = AvgElevation[Irecs]; Iel = scipy.argmin(els)
             
@@ -406,7 +431,7 @@ class vvelsAlt:
                         Iht=Ihts[Iht]
                         htin.append(ht[Irecs[ism],Iht])
                         vlosin.append(vlos1[Irecs[ism],0,Iht])
-                        dvlosin.append(dvlos1[Irecs[ism],0,Iht])					
+                        dvlosin.append(dvlos1[Irecs[ism],0,Iht])                    
                         kin.append([kpn[Irecs[ism],0,Iht],kpe[Irecs[ism],0,Iht],kpar[Irecs[ism],0,Iht]])
                         bin.append(Babs[Irecs[ism],0,Iht])
                         nein.append(ne1[Irecs[ism],0,Iht]); dnein.append(dne1[Irecs[ism],0,Iht])
@@ -416,21 +441,29 @@ class vvelsAlt:
                         decin.append(dec1[Irecs[ism],0,Iht]); dipin.append(dip1[Irecs[ism],0,Iht]);
                     htin=scipy.array(htin); vlosin=scipy.array(vlosin); dvlosin=scipy.array(dvlosin); kin=scipy.array(kin); bin=scipy.array(bin)
                     (tAlt_out,tVest,tdVest,xx,tNmeas)=vvels.compute_velvec2([[0.0*1000,2000.0*1000]],vlosin,dvlosin,kin,htin,[],htin,\
-                        htmin=0.0*1000,htmax=2000.0*1000,covar=self.covar,p=self.ppp)		
-                    Vest[irng,:]=tVest; dVest[irng,:]=tdVest
-                    Nmeas[irng]=tNmeas; Alts[irng]=scipy.mean(htin)
-                    ne[irng],s = scipy.average(scipy.array(nein),weights=1.0/scipy.array(dnein)**2.0,returned=True); dne[irng] = scipy.sqrt(1.0/s)
-                    sp[irng],s = scipy.average(scipy.array(spin),weights=1.0/scipy.array(dspin)**2.0,returned=True); dsp[irng] = scipy.sqrt(1.0/s)
-                    sh[irng],s = scipy.average(scipy.array(shin),weights=1.0/scipy.array(dshin)**2.0,returned=True); dsh[irng] = scipy.sqrt(1.0/s)
-                    nu[irng] = scipy.mean(nuin); wci[irng] = scipy.mean(wciin)
-                    dec[irng] = scipy.mean(decin); dip[irng] = scipy.mean(dipin); Bavg[irng]=scipy.mean(bin)
-                                        
+                        htmin=0.0*1000,htmax=2000.0*1000,covar=self.covar,p=self.ppp)       
+                    Vest[irng,:]=tVest
+                    dVest[irng,:]=tdVest
+                    Nmeas[irng]=tNmeas
+                    Alts[irng]=scipy.mean(htin)
+                    ne[irng],s = scipy.average(scipy.array(nein),weights=1.0/scipy.array(dnein)**2.0,returned=True)
+                    dne[irng] = scipy.sqrt(1.0/s)
+                    sp[irng],s = scipy.average(scipy.array(spin),weights=1.0/scipy.array(dspin)**2.0,returned=True)
+                    dsp[irng] = scipy.sqrt(1.0/s)
+                    sh[irng],s = scipy.average(scipy.array(shin),weights=1.0/scipy.array(dshin)**2.0,returned=True)
+                    dsh[irng] = scipy.sqrt(1.0/s)
+                    nu[irng] = scipy.mean(nuin)
+                    wci[irng] = scipy.mean(wciin)
+                    dec[irng] = scipy.mean(decin)
+                    dip[irng] = scipy.mean(dipin)
+                    Bavg[irng]=scipy.mean(bin)
+
             # save time
             timeout.append([time1[Irecs[0],0],time1[Irecs[-1],1]])
             dtimeout.append([dtime1[Irecs[0],0],dtime1[Irecs[-1],1]])
             MLTtime1.append([MLT[Irecs[0],0],MLT[Irecs[-1],1]])
             if IIrec>0:
-                if MLTtime1[IIrec][0]<MLTtime1[IIrec-1][0]:
+                while MLTtime1[IIrec][0]<MLTtime1[IIrec-1][0]:
                     MLTtime1[IIrec][0]=MLTtime1[IIrec][0]+24.0
                     MLTtime1[IIrec][1]=MLTtime1[IIrec][1]+24.0
 
@@ -459,7 +492,7 @@ class vvelsAlt:
                 DecAll1=scipy.concatenate((DecAll1,dec[scipy.newaxis,:]),axis=0); DipAll1=scipy.concatenate((DipAll1,dip[scipy.newaxis,:]),axis=0);
             if scipy.mod(IIrec,100)==0 or done==1:
                 print 'Record %d of %d' % (IIrec,Nrecs)
-            IIrec=IIrec+1		
+            IIrec=IIrec+1       
 
         # Electric field
         Eavg=scipy.zeros((Ball1.shape[0],1,2))*scipy.nan
@@ -467,7 +500,7 @@ class vvelsAlt:
         Bavg=scipy.zeros((Ball1.shape[0]))*scipy.nan        
         for itime in range(Eavg.shape[0]):
             Ialt=scipy.where((Alt1[itime,:]>=self.minAlt*1000.0) & (Alt1[itime,:]<=self.maxAlt*1000.0))[0]
-            Bavg[itime] = scipy.stats.nanmean(Ball1[itime,Ialt])            
+            Bavg[itime] = scipy.nanmean(Ball1[itime,Ialt])            
             Eavg[itime,0,0]=-1.0*scipy.nansum(Ball1[itime,Ialt]*vvels1[itime,Ialt,1]/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,1],2.0))/scipy.nansum(1.0/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,1],2.0))
             Eavg[itime,0,1]=1.0*scipy.nansum(Ball1[itime,Ialt]*vvels1[itime,Ialt,0]/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,0],2.0))/scipy.nansum(1.0/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,0],2.0))
             dEavg[itime,0,0]=scipy.sqrt(1.0/scipy.nansum(1.0/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,1],2.0)))
@@ -480,7 +513,7 @@ class vvelsAlt:
         Vmag = scipy.sqrt( scipy.power(vvels1[:,:,0],2.0) + scipy.power(vvels1[:,:,1],2.0) ).real
         dVmag = scipy.sqrt( scipy.power(dvvels1[:,:,0],2.0)*scipy.power(vvels1[:,:,0]/Vmag,2.0) + scipy.power(dvvels1[:,:,1],2.0)*scipy.power(vvels1[:,:,1]/Vmag,2.0) ).real
         Vdir = 180.0/pi*scipy.arctan2(vvels1[:,:,1],vvels1[:,:,0]).real
-        dVdir=180.0/pi*((1.0/scipy.absolute(vvels1[:,:,0]))*(1.0/(1.0+scipy.power(vvels1[:,:,1]/vvels1[:,:,0],2.0)))*scipy.sqrt(scipy.power(dvvels1[:,:,1],2.0)+scipy.power(vvels1[:,:,1]/vvels1[:,:,0]*dvvels1[:,:,0],2.0))).real
+        dVdir = 180.0/pi*((1.0/scipy.absolute(vvels1[:,:,0]))*(1.0/(1.0+scipy.power(vvels1[:,:,1]/vvels1[:,:,0],2.0)))*scipy.sqrt(scipy.power(dvvels1[:,:,1],2.0)+scipy.power(vvels1[:,:,1]/vvels1[:,:,0]*dvvels1[:,:,0],2.0))).real
         
         ### Set up output dicts
         self.setOutDicts(dat1)
@@ -512,6 +545,7 @@ class vvelsAlt:
             self.createOutputFile()
             
         ### Plot output
+        if self.makeplot:
             self.createPlots()
         
         return
@@ -537,9 +571,9 @@ class vvelsAlt:
         plong=(dat1['/Geomag']['MagneticLongitude'])
         RangeGmag=(dat1['/Geomag']['Range'])
         Babs=dat1['/Geomag']['Babs']
-        Bmed = scipy.stats.nanmedian(Babs)
+        Bmed = scipy.nanmedian(Babs)
         for i in range(Bmed.ndim):
-            Bmed=scipy.stats.nanmedian(Bmed)
+            Bmed=scipy.nanmedian(Bmed)
         dec1=dat1['/Geomag']['Declination']
         dip1=dat1['/Geomag']['Dip']
 
@@ -597,12 +631,12 @@ class vvelsAlt:
     
         # just do a portion of data
         if len(self.zoomWhole)!=0:
-            I=scipy.where((dtime1[:,0]>=self.zoomWhole[0]) & (dtime1[:,1]<=self.zoomWhole[1]))[0]	
+            I=scipy.where((dtime1[:,0]>=self.zoomWhole[0]) & (dtime1[:,1]<=self.zoomWhole[1]))[0]   
             vlos1=vlos1[I]
             dvlos1=dvlos1[I]
             time1=time1[I]
-            doy1=doy1[I]		
-            dtime1=dtime1[I]		
+            doy1=doy1[I]        
+            dtime1=dtime1[I]        
             MLT=MLT[I]
             yr=yr[I]
             mon=mon[I]
@@ -637,7 +671,7 @@ class vvelsAlt:
             else:
                 IrecsScan=range(Irec,time1.shape[0])
                 done=1
-            Irecs.extend(IrecsScan)	
+            Irecs.extend(IrecsScan) 
         
             # get scan 3 records
             Irect=Irecs[-1]+1
@@ -646,8 +680,8 @@ class vvelsAlt:
                 IrecsScan=range(Irect,Irect+I[0])
             else:
                 IrecsScan=range(Irect,time1.shape[0])
-                done=1			
-            Irecs.extend(IrecsScan)	
+                done=1          
+            Irecs.extend(IrecsScan) 
             
             els = AvgElevation[Irecs]; Iel = scipy.argmin(els)
             
@@ -672,7 +706,7 @@ class vvelsAlt:
                         Iht=Ihts[Iht]
                         htin.append(ht[Irecs[ism],Iht])
                         vlosin.append(vlos1[Irecs[ism],0,Iht])
-                        dvlosin.append(dvlos1[Irecs[ism],0,Iht])					
+                        dvlosin.append(dvlos1[Irecs[ism],0,Iht])                    
                         kin.append([kpn[Irecs[ism],0,Iht],kpe[Irecs[ism],0,Iht],kpar[Irecs[ism],0,Iht]])
                         bin.append(Babs[Irecs[ism],0,Iht])
                         nein.append(ne1[Irecs[ism],0,Iht]); dnein.append(dne1[Irecs[ism],0,Iht])
@@ -682,7 +716,7 @@ class vvelsAlt:
                         decin.append(dec1[Irecs[ism],0,Iht]); dipin.append(dip1[Irecs[ism],0,Iht]);
                     htin=scipy.array(htin); vlosin=scipy.array(vlosin); dvlosin=scipy.array(dvlosin); kin=scipy.array(kin); bin=scipy.array(bin)
                     (tAlt_out,tVest,tdVest,xx,tNmeas)=vvels.compute_velvec2([[0.0*1000,2000.0*1000]],vlosin,dvlosin,kin,htin,[],htin,\
-                        htmin=0.0*1000,htmax=2000.0*1000,covar=self.covar,p=self.ppp)		
+                        htmin=0.0*1000,htmax=2000.0*1000,covar=self.covar,p=self.ppp)       
                     Vest[irng,:]=tVest; dVest[irng,:]=tdVest
                     Nmeas[irng]=tNmeas; Alts[irng]=scipy.mean(htin)
                     ne[irng],s = scipy.average(scipy.array(nein),weights=1.0/scipy.array(dnein)**2.0,returned=True); dne[irng] = scipy.sqrt(1.0/s)
@@ -696,7 +730,7 @@ class vvelsAlt:
             dtimeout.append([dtime1[Irecs[0],0],dtime1[Irecs[-1],1]])
             MLTtime1.append([MLT[Irecs[0],0],MLT[Irecs[-1],1]])
             if IIrec>0:
-                while MLTtime1[IIrec][0]<MLTtime1[IIrec-1][0]:
+                if MLTtime1[IIrec][0]<MLTtime1[IIrec-1][0]:
                     MLTtime1[IIrec][0]=MLTtime1[IIrec][0]+24.0
                     MLTtime1[IIrec][1]=MLTtime1[IIrec][1]+24.0
 
@@ -725,7 +759,7 @@ class vvelsAlt:
                 DecAll1=scipy.concatenate((DecAll1,dec[scipy.newaxis,:]),axis=0); DipAll1=scipy.concatenate((DipAll1,dip[scipy.newaxis,:]),axis=0);
             if scipy.mod(IIrec,100)==0 or done==1:
                 print 'Record %d of %d' % (IIrec,Nrecs)
-            IIrec=IIrec+1		
+            IIrec=IIrec+1       
 
         # Electric field
         Eavg=scipy.zeros((Ball1.shape[0],1,2))*scipy.nan
@@ -733,7 +767,7 @@ class vvelsAlt:
         Bavg=scipy.zeros((Ball1.shape[0]))*scipy.nan        
         for itime in range(Eavg.shape[0]):
             Ialt=scipy.where((Alt1[itime,:]>=self.minAlt*1000.0) & (Alt1[itime,:]<=self.maxAlt*1000.0))[0]
-            Bavg[itime] = scipy.stats.nanmean(Ball1[itime,Ialt])            
+            Bavg[itime] = scipy.nanmean(Ball1[itime,Ialt])            
             Eavg[itime,0,0]=-1.0*scipy.nansum(Ball1[itime,Ialt]*vvels1[itime,Ialt,1]/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,1],2.0))/scipy.nansum(1.0/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,1],2.0))
             Eavg[itime,0,1]=1.0*scipy.nansum(Ball1[itime,Ialt]*vvels1[itime,Ialt,0]/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,0],2.0))/scipy.nansum(1.0/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,0],2.0))
             dEavg[itime,0,0]=scipy.sqrt(1.0/scipy.nansum(1.0/scipy.power(Ball1[itime,Ialt]*dvvels1[itime,Ialt,1],2.0)))

@@ -13,11 +13,11 @@ import os
 
 def read_whole_h5file(fname):
 
-    h5file=tables.openFile(fname)
+    h5file=tables.open_file(fname)
     output={}
-    for group in h5file.walkGroups("/"):
+    for group in h5file.walk_groups("/"):
         output[group._v_pathname]={}
-        for array in h5file.listNodes(group, classname = 'Array'):
+        for array in h5file.list_nodes(group, classname = 'Array'):
             output[group._v_pathname][array.name]=array.read()
     h5file.close()
 
@@ -72,20 +72,20 @@ def write_outputfile(fhandle,dict2do,keys2do=[],groupname='',name='',grouploc='/
             group='/'+groupname
         else:
 			#fhandle.root
-            group=fhandle.createGroup(grouploc, groupname, 'Dataset')
+            group=fhandle.create_group(grouploc, groupname, 'Dataset')
 
     if len(keys2do)==0:
         try:
-            fhandle.removeNode(group,name)
+            fhandle.remove_node(group,name)
         except:
             ''
-        fhandle.createArray(group,name, dict2do, "Dataset")
+        fhandle.create_array(group,name, dict2do, "Dataset")
     else:
         for key in keys2do:
             if type(dict2do[key]) is dict:
                 write_outputfile(fhandle,dict2do[key],keys2do=dict2do[key].keys(),groupname=key,grouploc='/'+group._v_name)
             else:
-                fhandle.createArray(group, key, dict2do[key], "Dataset")
+                fhandle.create_array(group, key, dict2do[key], "Dataset")
 
     return
 
@@ -93,17 +93,17 @@ def createh5groups(fhandle,h5Groups):
     # creates groups
     for group in h5Groups:
         gp,gn = os.path.split(group[0])
-        fhandle.createGroup(gp,gn,group[1])
+        fhandle.create_group(gp,gn,group[1])
     return
 
 def createStaticArray(fhandle,path,data,keys2do=[]):
     # creates a static array
     if len(keys2do)==0:
         dp,dn = os.path.split(path)
-        fhandle.createArray(dp,dn,data,'Static array')
+        fhandle.create_array(dp,dn,data,'Static array')
     else:
         for key in keys2do:
-            fhandle.createArray(path,key,data[key],'Static array')
+            fhandle.create_array(path,key,data[key],'Static array')
     return
 
 def createDynamicArray(fhandle,path,rec,keys2do=[]):
@@ -116,9 +116,9 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
             shape = list(data.shape)
             shape[0] = 0
             atom = tables.Atom.from_dtype(data.dtype)
-            arr = fhandle.createEArray(dp,dn,atom,shape)
+            arr = fhandle.create_earray(dp,dn,atom,shape)
             arr.flavor='numpy'
-        arr = fhandle.getNode(path)
+        arr = fhandle.get_node(path)
         if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
             if data.shape[2] > arr.shape[2]:
                 # read array
@@ -131,9 +131,9 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                 shape = list(tarr.shape)
                 shape[0] = 0
                 atom = tables.Atom.from_dtype(tarr.dtype)
-                arr = fhandle.createEArray(dp,dn,atom,shape)
+                arr = fhandle.create_earray(dp,dn,atom,shape)
                 arr.flavor='numpy'
-                arr = fhandle.getNode(path)
+                arr = fhandle.get_node(path)
                 # dump data
                 arr.append(tarr)
             else:
@@ -149,9 +149,9 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                 shape = list(data.shape)
                 shape[0] = 0
                 atom = tables.Atom.from_dtype(data.dtype)
-                arr = fhandle.createEArray(path,key,atom,shape)
+                arr = fhandle.create_earray(path,key,atom,shape)
                 arr.flavor='numpy'
-            arr = fhandle.getNode(path+'/'+key)
+            arr = fhandle.get_node(path+'/'+key)
             if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
                 if data.shape[2] > arr.shape[2]:
                     # read array
@@ -164,9 +164,9 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                     shape = list(tarr.shape)
                     shape[0] = 0
                     atom = tables.Atom.from_dtype(tarr.dtype)
-                    arr = fhandle.createEArray(path,key,atom,shape)
+                    arr = fhandle.create_earray(path,key,atom,shape)
                     arr.flavor='numpy'
-                    arr = fhandle.getNode(path+'/'+key)
+                    arr = fhandle.get_node(path+'/'+key)
                     # dump data
                     arr.append(tarr)
                 else:
@@ -179,7 +179,7 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
 def setAtrributes(fhandle,data):
     for key in data.keys():
         for attr in data[key]:
-            try:  fhandle.setNodeAttr(key,attr[0],attr[1])
+            try:  fhandle.set_node_attr(key,attr[0],attr[1])
             except: ''
     return
 
@@ -194,9 +194,9 @@ def createDynamicArray2(fhandle,path,rec,keys2do=[]):
             shape = list(data.shape)
             shape[0] = 0
             atom = tables.Atom.from_dtype(data.dtype)
-            arr = fhandle.createEArray(dp,dn,atom,shape)
+            arr = fhandle.create_earray(dp,dn,atom,shape)
             arr.flavor='numpy'
-        arr = fhandle.getNode(path)
+        arr = fhandle.get_node(path)
         if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
             if data.shape[2] > arr.shape[2]:
                 # read array
@@ -209,9 +209,9 @@ def createDynamicArray2(fhandle,path,rec,keys2do=[]):
                 shape = list(tarr.shape)
                 shape[0] = 0
                 atom = tables.Atom.from_dtype(tarr.dtype)
-                arr = fhandle.createEArray(dp,dn,atom,shape)
+                arr = fhandle.create_earray(dp,dn,atom,shape)
                 arr.flavor='numpy'
-                arr = fhandle.getNode(path)
+                arr = fhandle.get_node(path)
                 # dump data
                 arr.append(tarr)
             else:
@@ -227,9 +227,9 @@ def createDynamicArray2(fhandle,path,rec,keys2do=[]):
                 shape = list(data.shape)
                 shape[0] = 0
                 atom = tables.Atom.from_dtype(data.dtype)
-                arr = fhandle.createEArray(path,key,atom,shape)
+                arr = fhandle.create_earray(path,key,atom,shape)
                 arr.flavor='numpy'
-            arr = fhandle.getNode(path+'/'+key)
+            arr = fhandle.get_node(path+'/'+key)
             if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
                 if data.shape[2] > arr.shape[2]:
                     # read array
@@ -242,9 +242,9 @@ def createDynamicArray2(fhandle,path,rec,keys2do=[]):
                     shape = list(tarr.shape)
                     shape[0] = 0
                     atom = tables.Atom.from_dtype(tarr.dtype)
-                    arr = fhandle.createEArray(path,key,atom,shape)
+                    arr = fhandle.create_earray(path,key,atom,shape)
                     arr.flavor='numpy'
-                    arr = fhandle.getNode(path+'/'+key)
+                    arr = fhandle.get_node(path+'/'+key)
                     # dump data
                     arr.append(tarr)
                 else:

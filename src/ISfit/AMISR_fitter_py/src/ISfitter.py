@@ -284,9 +284,6 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
 
     sc=1 # always scaled parameters for fitting
 
-    noise_power = parameter[0]  # first fitting parameter is always perturbation noise power
-    ne=parameter[1]*p_N0        # second fitting parameter is always Ne
-
     # Molecular model ion parameters    
     tni=ni.copy()
     tti=ti.copy()
@@ -294,7 +291,15 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     tpsi=psi.copy()
     tvi=vi.copy()
         
-    ii=2
+    if scipy.isfinite(pertubation_noise_acf[0]):
+        noise_power = parameter[0]  # first fitting parameter is always perturbation noise power
+        ne=parameter[1]*p_N0        # second fitting parameter is always Ne
+        ii=2
+    else:
+        noise_power = scipy.nan     # first fitting parameter is always perturbation noise power
+        ne=parameter[0]*p_N0        # second fitting parameter is always Ne
+        ii=1
+
     # are we fitting for  fraction?
     I=scipy.where(Ifit[:,0]==1)[0]
     if I.size != 0: 
@@ -365,7 +370,10 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
         # ax.plot(pertubation_noise_acf,'k')
         # pyplot.show()
 
-        m.real = m.real + scaled_pertubation_noise_acf
+        # If we didn't want perturbation noise fitting, the perturbation_noise_acf will be all nans
+        if scipy.isfinite(noise_power):
+            m.real = m.real + scaled_pertubation_noise_acf
+
         return m,m2[0],tni,tti,tpsi,tvi
                 
     # if we want to fit spectra, transform
@@ -374,7 +382,10 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
         m=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
         y=(data-m)/scipy.sqrt(var)
     else:
-        real_diff = (data.real-m.real-scaled_pertubation_noise_acf)/scipy.sqrt(var)
+        if scipy.isfinite(noise_power):
+            real_diff = (data.real-m.real-scaled_pertubation_noise_acf)/scipy.sqrt(var)
+        else:
+            real_diff = (data.real-m.real)/scipy.sqrt(var)
         imag_diff = (data.imag-m.imag)/scipy.sqrt(var)
         y=scipy.concatenate((real_diff, imag_diff))
 

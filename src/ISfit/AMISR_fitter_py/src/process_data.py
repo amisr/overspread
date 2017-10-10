@@ -8,7 +8,7 @@ last revised: xx/xx/2007
 
 """
 
-import scipy, scipy.io, scipy.stats, scipy.interpolate
+import scipy, scipy.io, scipy.interpolate
 import pylab
 
 import io_utils
@@ -93,7 +93,7 @@ def check_noise(noise, power, noise_pulses_integrated, power_pulses_integrated):
 def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None,h5PwrPath='/S/ZeroLags'):
     
     # function to use for data combining
-    funcname='scipy.stats.stats.nanmean'
+    funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
     			    
@@ -224,7 +224,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     # Ambiguity function path
     if doamb:
         try:
-            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[h5DataPath]['Ambiguity']])
+            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5DataPath]['Ambiguity'])])
             if uselag1: # here the power is being set by the first lag of the ACF
                 S['Power']['Ambiguity']=S['Acf']['Ambiguity'].copy()
                 S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][1,:] 
@@ -232,7 +232,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         except:
             print 'Unable to load ambiguity function'
         try:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[h5PwrPath]['Ambiguity']])
+            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5PwrPath]['Ambiguity'])])
             # for the alternating code, set the ambiguity of the 0 lag to that of the S mode
             S['Acf']['Ambiguity']['Wlag'][0,:]=scipy.interpolate.interp1d(S['Power']['Ambiguity']['Delay'], S['Power']['Ambiguity']['Wlag'],bounds_error=0,fill_value=0.0)(S['Acf']['Ambiguity']['Delay']) # linear interpolation
             S['Acf']['Ambiguity']['Wrange'][0,:]=scipy.interpolate.interp1d(S['Power']['Ambiguity']['Range'], S['Power']['Ambiguity']['Wrange'],bounds_error=0,fill_value=0.0)(S['Acf']['Ambiguity']['Range']) # linear interpolation
@@ -303,18 +303,22 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
 
     elif acfopts['MOTION_TYPE']==1:
-        S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
+        try:
+            S['Ksys']=fconts['/Rx']['SysConst']
+        except KeyError:
+            print("/Rx/SysConst not found, using hardcoded default: %s" % str(S['Ksys']))
+            S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
         Ksys=S['Ksys']
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])                
 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data'],axis=2)/N['Power']['PulsesIntegrated'],axis=0)
+    N['Power']['Data']=scipy.nanmean(complex_median(N['Power']['Data'],axis=2)/N['Power']['PulsesIntegrated'],axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
         C['Power']['Data']=C['Power']['Data']-N['Power']['Data']
     elif extCal==1:
-        C['Power']['NoiseData']=scipy.stats.stats.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
+        C['Power']['NoiseData']=scipy.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
         C['Power']['Data']=C['Power']['Data']-C['Power']['NoiseData']
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:
@@ -378,7 +382,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
 def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None,h5PwrPath='/S/ZeroLags'):
 
     # function to use for data combining
-    funcname='scipy.stats.stats.nanmean'
+    funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
     			    
@@ -612,7 +616,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     # Ambiguity function path
     if doamb:
         try:
-            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[h5DataPath]['Ambiguity']])
+            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5DataPath]['Ambiguity'])])
             if uselag1: # here the power is being set by the first lag of the ACF
                 S['Power']['Ambiguity']=S['Acf']['Ambiguity'].copy()
                 S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][1,:] 
@@ -620,7 +624,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         except:
             print 'Unable to load ambiguity function'
         try:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[h5PwrPath]['Ambiguity']])
+            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5PwrPath]['Ambiguity'])])
             # for the alternating code, set the ambiguity of the 0 lag to that of the S mode
             S['Acf']['Ambiguity']['Wlag'][0,:]=scipy.interpolate.interp1d(S['Power']['Ambiguity']['Delay'], S['Power']['Ambiguity']['Wlag'],bounds_error=0,fill_value=0.0)(S['Acf']['Ambiguity']['Delay']) # linear interpolation
             S['Acf']['Ambiguity']['Wrange'][0,:]=scipy.interpolate.interp1d(S['Power']['Ambiguity']['Range'], S['Power']['Ambiguity']['Wrange'],bounds_error=0,fill_value=0.0)(S['Acf']['Ambiguity']['Range']) # linear interpolation
@@ -704,18 +708,22 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
 
     elif acfopts['MOTION_TYPE']==1:
-        S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
+        try:
+            S['Ksys']=fconts['/Rx']['SysConst']
+        except KeyError:
+            print("/Rx/SysConst not found, using hardcoded default: %s" % str(S['Ksys']))
+            S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
         Ksys=S['Ksys']
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])                
 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
+    N['Power']['Data']=scipy.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
         C['Power']['Data']=C['Power']['Data']-N['Power']['Data']
     elif extCal==1:
-        C['Power']['NoiseData']=scipy.stats.stats.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
+        C['Power']['NoiseData']=scipy.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
         C['Power']['Data']=C['Power']['Data']-C['Power']['NoiseData']
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:
@@ -866,7 +874,7 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
 
 def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None):
     
-    funcname='scipy.stats.stats.nanmean'
+    funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
 
@@ -1030,14 +1038,14 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     
     # Ambiguity function path
     if doamb:
-        try:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts['/S/Data']['Ambiguity']])
-            S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts['/S/Data']['Ambiguity']])
-            # for the power, we are dealing only with the zero lags
-            S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:] 
-            S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:] 
-        except:
-            print 'Unable to load ambiguity function'
+        # try:
+        S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts['/S/Data']['Ambiguity'])])
+        S['Acf']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts['/S/Data']['Ambiguity'])])
+        # for the power, we are dealing only with the zero lags
+        S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:] 
+        S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:] 
+        # except:
+        #     print 'Unable to load ambiguity function'
                 
     if acfopts['MOTION_TYPE']==0:
         # Deal the data
@@ -1099,19 +1107,23 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
         
     elif acfopts['MOTION_TYPE']==1:
-        S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
+        try:
+            S['Ksys']=fconts['/Rx']['SysConst']
+        except KeyError:
+            print("/Rx/SysConst not found, using hardcoded default: %s" % str(S['Ksys']))
+            S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
         Ksys=S['Ksys']
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])
                                 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
-    N['Acf']['Data']=scipy.stats.stats.nanmean(complex_median(N['Acf']['Data']/N['Acf']['PulsesIntegrated'],axis=3),axis=0)
+    N['Power']['Data']=scipy.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
+    N['Acf']['Data']=scipy.nanmean(complex_median(N['Acf']['Data']/N['Acf']['PulsesIntegrated'],axis=3),axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
         C['Power']['Data']=C['Power']['Data']-N['Power']['Data']
     elif extCal==1:
-        C['Power']['NoiseData']=scipy.stats.stats.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
+        C['Power']['NoiseData']=scipy.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
         C['Power']['Data']=C['Power']['Data']-C['Power']['NoiseData']
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:
@@ -1237,7 +1249,7 @@ def process_longpulse_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5Data
 
 def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None):
                 
-    funcname='scipy.stats.stats.nanmean'
+    funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
         
@@ -1328,7 +1340,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     if doamb:
         try:
             #if 1==1:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[fconts[gname]['Ambiguity']])
+            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[gname]['Ambiguity'])])
             # for the power, we are dealing only with the zero lags
             S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:][scipy.newaxis,:]
             S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:][scipy.newaxis,:]
@@ -1392,19 +1404,23 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
             S['BMCODES']=BeamCodes
         
     elif acfopts['MOTION_TYPE']==1:
-        S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
+        try:
+            S['Ksys']=fconts['/Rx']['SysConst']
+        except KeyError:
+            print("/Rx/SysConst not found, using hardcoded default: %s" % str(S['Ksys']))
+            S['Ksys']=acfopts['DEFOPTS']['KSYS_DEF']
         Ksys=S['Ksys']
         S['BMCODES']=scipy.array([[-1,S['AvgAzimuth'],S['AvgElevation'],Ksys]])
         
                                                 
     # Average the noise and cal power samples
-    N['Power']['Data']=scipy.stats.stats.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
+    N['Power']['Data']=scipy.nanmean(complex_median(N['Power']['Data']/N['Power']['PulsesIntegrated'],axis=2),axis=0)
     if extCal!=2:
         C['Power']['Data']=scipy.mean(complex_median(C['Power']['Data'],axis=2)/C['Power']['PulsesIntegrated'],axis=0)
     if extCal==0:
         C['Power']['Data']=C['Power']['Data']-N['Power']['Data']
     elif extCal==1:
-        C['Power']['NoiseData']=scipy.stats.stats.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
+        C['Power']['NoiseData']=scipy.nanmean(complex_median(C['Power']['NoiseData'],axis=2)/C['Power']['NoisePulsesIntegrated'],axis=0)
         C['Power']['Data']=C['Power']['Data']-C['Power']['NoiseData']
         C['Power']['Data']=(C['Power']['Data']/C['Power']['NoiseData'])*N['Power']['Data'] # (C/Ncal)*N
     elif extCal==2:

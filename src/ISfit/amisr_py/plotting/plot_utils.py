@@ -232,7 +232,7 @@ def pcolor_plot_dual(x,y,y2,data,cax,xlim,ylim,xl,yl,yl2,title,text,bmcodes,log=
     
     for ii in range(Nbeams):
         ax[ii].clear()
-        pc=ax[ii].pcolor(x,y[ii,:],scipy.transpose(data[:,ii,:]),shading='flat',vmin=cax[0],vmax=cax[1])    
+        pc=ax[ii].pcolor(x,y[ii,:],scipy.transpose(data[:,ii,:]),edgecolors='none',vmin=cax[0],vmax=cax[1])    
         ax[ii].xaxis.set_major_locator(locator)
         ax[ii].xaxis.set_major_formatter(formatter)
         ax[ii].set_xlim(xlim)

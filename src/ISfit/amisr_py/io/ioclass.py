@@ -25,12 +25,12 @@ class outputFileClass:
             distutils.dir_util.mkpath(os.path.dirname(self.fname))
         except:
             raise IOError, 'Unable to create output path %s' % os.path.dirname(self.fname)
-        self.fhandle=tables.openFile(self.fname, mode = "w", title = self.title)
+        self.fhandle=tables.open_file(self.fname, mode = "w", title = self.title)
         return
     
     def openFile(self):
         """ open file self.fname """
-        self.fhandle = tables.openFile(self.fname, mode = "a")
+        self.fhandle = tables.open_file(self.fname, mode = "a")
         return
         
     def closeFile(self):
@@ -42,17 +42,17 @@ class outputFileClass:
         tvals = sorted(self.h5Paths.values())
         for v0,v1 in tvals:
             gp,gn = os.path.split(v0)      
-            self.fhandle.createGroup(gp,gn,v1)
+            self.fhandle.create_group(gp,gn,v1)
         return
     
     def createStaticArray(self,path,data,keys2do=[]):  
         """ creates a static array """
         if len(keys2do)==0:
             dp,dn = os.path.split(path)
-            self.fhandle.createArray(dp,dn,data,'Static array')
+            self.fhandle.create_array(dp,dn,data,'Static array')
         else:
             for key in keys2do:
-                self.fhandle.createArray(path,key,scipy.array(data[key]),'Static array')
+                self.fhandle.create_array(path,key,scipy.array(data[key]),'Static array')
         return
     
     def createDynamicArray(self,fhandle,path,rec,keys2do=[]):  
@@ -65,7 +65,7 @@ class outputFileClass:
                 shape = list(data.shape)
                 shape[0] = 0
                 atom = tables.Atom.from_dtype(data.dtype)
-                arr = fhandle.createEArray(dp,dn,atom,shape)
+                arr = fhandle.create_earray(dp,dn,atom,shape)
                 arr.flavor='numpy'
             arr = fhandle.getNode(path)
             if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
@@ -80,7 +80,7 @@ class outputFileClass:
                     shape = list(tarr.shape)
                     shape[0] = 0
                     atom = tables.Atom.from_dtype(tarr.dtype)
-                    arr = fhandle.createEArray(dp,dn,atom,shape)
+                    arr = fhandle.create_earray(dp,dn,atom,shape)
                     arr.flavor='numpy'
                     arr = fhandle.getNode(path)
                     # dump data
@@ -97,7 +97,7 @@ class outputFileClass:
                     shape = list(data.shape)
                     shape[0] = 0
                     atom = tables.Atom.from_dtype(data.dtype)
-                    arr = fhandle.createEArray(path,key,atom,shape)
+                    arr = fhandle.create_earray(path,key,atom,shape)
                     arr.flavor='numpy'
                 arr = fhandle.getNode(path+'/'+key)
                 if (len(arr.shape)>2) and (data.shape[2] != arr.shape[2]):
@@ -112,7 +112,7 @@ class outputFileClass:
                         shape = list(tarr.shape)
                         shape[0] = 0
                         atom = tables.Atom.from_dtype(tarr.dtype)
-                        arr = fhandle.createEArray(path,key,atom,shape)
+                        arr = fhandle.create_earray(path,key,atom,shape)
                         arr.flavor='numpy'
                         arr = fhandle.getNode(path+'/'+key)
                         # dump data
@@ -126,6 +126,6 @@ class outputFileClass:
     def setAtrributes(self):
         for key in self.h5Attribs.keys():
             for attr in self.h5Attribs[key]:
-                try:  self.fhandle.setNodeAttr(key,attr[0],attr[1])
+                try:  self.fhandle.set_node_attr(key,attr[0],attr[1])
                 except: ''
         return
