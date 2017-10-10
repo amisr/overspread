@@ -179,11 +179,11 @@ class tratePlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=scipy.ceil(dx/7.0)
+                interval=int(scipy.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=scipy.ceil(dx*60.0/7.0)
+                interval=int(scipy.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
@@ -328,11 +328,11 @@ class condPlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=scipy.ceil(dx/7.0)
+                interval=int(scipy.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=scipy.ceil(dx*60.0/7.0)
+                interval=int(scipy.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
@@ -426,11 +426,11 @@ class efieldPlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=scipy.ceil(dx/7.0)
+                interval=int(scipy.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=scipy.ceil(dx*60.0/7.0)
+                interval= int(scipy.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
@@ -746,11 +746,11 @@ class vvelsPlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=scipy.ceil(dx/7.0)
+                interval=int(scipy.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=scipy.ceil(dx*60.0/7.0)
+                interval=int(scipy.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
@@ -913,11 +913,11 @@ class vvelsMagPlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=scipy.ceil(dx/7.0)
+                interval=int(scipy.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=scipy.ceil(dx*60.0/7.0)
+                interval=int(scipy.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 

@@ -14,11 +14,12 @@ import scipy, scipy.fftpack, scipy.interpolate, scipy.optimize, scipy.signal
 import io_utils
 from constants import *
 
-import pylab
+from matplotlib import pyplot
 
 DEBUG=0 # turn on debugging
 if DEBUG==1:
-    import pylab
+    from matplotlib import pyplot
+
 
 def print_timing(func):
     def wrapper(*arg):
@@ -271,6 +272,121 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
 #   pylab.show()
 
     y=y[scipy.where(scipy.isfinite(y))]
+
+    return y
+
+
+def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,ti,mi,psi,vi,k_radar0,pertubation_noise_acf,noise_var,p_N0=1.0e11,p_T0=1000.0,p_M0=16,fitSpectra=0,tn=0.0,L=[0.0,0.0],scat_fac=1,mode=0):
+    # INPUTS:
+    #   x
+    # OUTPUTS:
+    #   x
+
+    sc=1 # always scaled parameters for fitting
+
+    noise_power = parameter[0]  # first fitting parameter is always perturbation noise power
+    ne=parameter[1]*p_N0        # second fitting parameter is always Ne
+
+    # Molecular model ion parameters    
+    tni=ni.copy()
+    tti=ti.copy()
+    tmi=mi.copy()
+    tpsi=psi.copy()
+    tvi=vi.copy()
+        
+    ii=2
+    # are we fitting for  fraction?
+    I=scipy.where(Ifit[:,0]==1)[0]
+    if I.size != 0: 
+        tni[I]=parameter[ii:ii+I.size]
+        ii=ii+I.size
+        I1=scipy.where(Ifit[:,0]==-1)[0]
+        tni[I1]=1.0-tni[I[0]]
+    # are we fitting for temperature?
+    I=scipy.where(Ifit[:,1]==1)[0]
+    if I.size != 0: 
+        tti[I]=parameter[ii:ii+I.size]
+        ii=ii+I.size
+        I1=scipy.where(Ifit[:,1]==-1)[0]
+        tti[I1]=tti[I[0]]
+    # are we fitting for collision frequency?
+    I=scipy.where(Ifit[:,2]==1)[0]
+    if I.size != 0: 
+        tpsi[I]=parameter[ii:ii+I.size]
+        ii=ii+I.size
+        I1=scipy.where(Ifit[:,2]==-1)[0]
+        tpsi[I1]=tpsi[I[0]]
+        if Ifit[-1,2]==-1:
+            tpsi[-1]=tpsi[-1]*0.35714
+    # are we fitting for velocity?
+    I=scipy.where(Ifit[:,3]==1)[0]
+    if I.size != 0: 
+        tvi[I]=parameter[ii:ii+I.size]
+        ii=ii+I.size
+        I1=scipy.where(Ifit[:,3]==-1)[0]
+        tvi[I1]=tvi[I[0]]
+    
+    tni=tni/p_N0
+    
+
+    # Compute the model spectrum and compute acf from the model spectrum
+    s=compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,tni,tti,mi,tpsi,tvi,k_radar0,sc,p_N0,p_T0,p_M0)
+    (tau,acf)=spec2acf(freq,s)
+
+    # Interpolate the modeled Acf
+    m2=scipy.zeros(dtau.size,dtype='Complex64');
+    m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
+    m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
+        
+    # Apply the lag ambiguity function - weighted average to the modeled Acf
+    m=scipy.zeros(Wl.shape[1],dtype='Complex64')
+    for i in range(Wl.shape[1]):  
+        m[i]=scipy.sum(Wl[:,i]*m2)
+
+    # scaling factor
+    m=m*Psc
+    scaled_pertubation_noise_acf = pertubation_noise_acf * noise_power
+
+    if mode==1:
+        # fig = pyplot.figure()
+        # ax = fig.add_subplot(311)
+        # ax.plot(data.real,'b--')
+        # ax.plot(data.imag,'g--')
+        # ax.plot(m.real+scaled_pertubation_noise_acf,'r')
+        # ax.plot(m.imag,'k')
+
+        # # fig = pyplot.figure()
+        # ax = fig.add_subplot(312)
+        # ax.plot(dtau,m2.real,'r')
+        # ax.plot(dtau,m2.imag,'k')
+
+        # ax = fig.add_subplot(313)
+        # ax.plot(scipy.sum(Wl,axis=0),'r')
+        # ax.plot(pertubation_noise_acf,'k')
+        # pyplot.show()
+
+        m.real = m.real + scaled_pertubation_noise_acf
+        return m,m2[0],tni,tti,tpsi,tvi
+                
+    # if we want to fit spectra, transform
+    if fitSpectra==1:
+        tmp=scipy.concatenate((m,scipy.conjugate(m[:0:-1])),axis=0) # hermitian extension
+        m=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
+        y=(data-m)/scipy.sqrt(var)
+    else:
+        real_diff = (data.real-m.real-scaled_pertubation_noise_acf)/scipy.sqrt(var)
+        imag_diff = (data.imag-m.imag)/scipy.sqrt(var)
+        y=scipy.concatenate((real_diff, imag_diff))
+
+    # Add constraint for ion/electron temps > neutral temps
+    y = scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
+
+    # Density can't be negative...
+    y = scipy.concatenate((y,[scipy.sqrt(L[2]*scipy.exp(-max([0.0,((ne-1e8)/1e9)])))]))
+
+    # Intended to remove NaNs caused by variance = 0 (such as for the imaginary component of lag0)
+    y = y.astype('float64')
+    y = y[scipy.where(scipy.isfinite(y))]
 
     return y
 

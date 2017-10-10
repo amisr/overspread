@@ -7,21 +7,27 @@ xxxxx
 last revised: xx/xx/2007
 
 """
+import matplotlib
+matplotlib.use('agg')
+print matplotlib.get_backend()
 
 import sys, os.path, glob, datetime, time, copy
 import optparse, ConfigParser
 import tables, ctypes
 import scipy, scipy.interpolate
-import matplotlib
-matplotlib.use('Agg')
 from matplotlib import pyplot
 
 import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_data
 from ISfitter import *
 from constants import *
 
-from loggerinit.LoggerInit import *
-from amisrplotting import amisrwrapper
+#Leftover from amisrwrapper code
+#from loggerinit.LoggerInit import *
+#from amisrplotting import amisrwrapper
+
+#For fitcal files (files that are calibrated and fitted at the same time)
+#we need to add a Calibration record
+from add_calibration_record import *
 
 MAXFEV_C=20
 
@@ -160,7 +166,7 @@ class Run_Fitter:
         # parse the ini file
         self.ini_parse(options.conffile)
 
-        self.ct_spec=load_ct_spec(self.LIB_SPEC) # spectra library
+        self.ct_spec=ctypes.CDLL(self.LIB_SPEC) # spectra library
         self.ct_msis=ctypes.CDLL(self.LIB_MSIS) # MSIS library
 #            self.ct_aacgm=ctypes.CDLL(self.LIB_AACGM) # AACGM library
 #            self.ct_igrf=ctypes.CDLL(self.LIB_IGRF) # IGRF library
@@ -335,7 +341,7 @@ class Run_Fitter:
             xxx
 
     #
-    def call_fitter(self,S,Noise,sstr=''):
+    def call_fitter(self,S,Noise,perturbation_noise_acf,sstr=''):
 
         ### Beams, Lags, Ranges
         Nbeams=self.Nbeams # number of beams
@@ -351,6 +357,7 @@ class Run_Fitter:
         HT=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan # Altitude
         RNG=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan # Range
         ne_out=scipy.zeros((Nbeams,Nranges,2),dtype='Float64')*scipy.nan # Fitted densities
+        noise_out = scipy.zeros((Nbeams,Nranges,3),dtype='Float64')*scipy.nan # Fitted noise
         FITS_out=scipy.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*scipy.nan # Fitted parameters
         ERRS_out=scipy.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*scipy.nan # Errors from fits
         mod_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')*scipy.nan # model ACFs
@@ -445,7 +452,10 @@ class Run_Fitter:
                     SumFactor=scipy.squeeze(RngMean**2.0/scipy.power(RngAll,2.0))
 
                     # sum using the summation rule
-                    K=NSUM*S['Acf']['PulsesIntegrated'][Ibm]*S['Acf']['Kint']
+
+                    pulses_integrated = scipy.sum(S['Acf']['PulsesIntegrated'][Ibm][:,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)],axis=1)
+
+                    K=pulses_integrated*S['Acf']['Kint']
                     tAcf=scipy.zeros(Nlags,dtype='Complex64')
                     tAcfVar=scipy.zeros(Nlags,dtype='Float64')
                     Psc=scipy.zeros(Nlags,dtype='Float64')
@@ -463,8 +473,12 @@ class Run_Fitter:
                         sig=scipy.absolute(tAcf[0]) # 0 lag
                     # Signal to noise ratio
                     tSnr=scipy.mean(S['Power']['SNR'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
+
                     # Variance
                     tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
+                    # Additional variance due to noise subtraction
+                    tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2/Noise['Power']['PulsesIntegrated'][Ibm].astype('Float64')
+
                     # Height and range
                     HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)])
                     RNG[Ibm,Iht]=RngMean
@@ -534,6 +548,7 @@ class Run_Fitter:
                     psi[-1]=psi[-1]*0.35714
 
                     terr=scipy.transpose(scipy.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*scipy.nan
+
                     try:
                     #if 1==1:
                         nloops=0
@@ -635,7 +650,18 @@ class Run_Fitter:
                                     ii=ii+I.size
                             iparams0=params0.copy()
 
-                            #print iparams0
+
+                            # get initial guess for additional noise as 1% of measured noise
+                            # Then add it to the param0 and scaler arrays, but at the beginning.
+                            if nloops == 1:
+                                noise0 = float(Noise['Power']['Data'][Ibm]) * 0.01
+                            params0 = scipy.concatenate((scipy.array([noise0]),params0))
+                            scaler = scipy.concatenate((scipy.array([1]),scaler))
+
+                            # The variance of the measured noise will be used to weight the amount of allowed
+                            # perturbation noise ACF. 
+                            K_noise = Noise['Power']['PulsesIntegrated'][Ibm]
+                            noise_var = float(Noise['Power']['Data'][Ibm]) / K_noise
 
                             # do the fit
                             if self.FITOPTS['fitSpectra']==1:
@@ -647,13 +673,13 @@ class Run_Fitter:
                                 #tSpcVar=scipy.power(scipy.sum(tSpc)*tSpc/tSpc*scipy.sqrt(tAcfVar[0])/tAcf[0],2.0); tSpcVar=tSpcVar.astype('float64')
                                 tSpcVar=scipy.power(tSpc,2.0)/Kmed*scipy.power(1.0+scipy.absolute(1.0/tSn),2.0)
 
-                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun,params0,(tSpc,tSpcVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
-                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
+                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tSpc,tSpcVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=100,diag=None)
                             else:
-                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
-                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
-                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
+                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
+                                    Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
+                                    full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=100,diag=None)
 
                             # record termination parameter of fitter
                             fitinfo['fitcode'][Ibm,Iht]=ier
@@ -664,7 +690,8 @@ class Run_Fitter:
                                     fitinfo['fitcode'][Ibm,Iht]=-45
                             else:
                                 cov_x=scipy.sqrt(scipy.diag(cov_x))*scaler
-                                terr[IfitMR]=cov_x[1:]
+                                #print scipy.shape(terr[IfitMR]),scipy.shape(cov_x)
+                                terr[IfitMR]=cov_x[2:]
 
                             infodict['fvec']=infodict['fvec'][:-len(self.FITOPTS['LagrangeParams'])]
 
@@ -673,8 +700,8 @@ class Run_Fitter:
                             fitinfo['chi2'][Ibm,Iht]=scipy.real(scipy.sum(scipy.power(scipy.real(infodict['fvec']),2.0))/fitinfo['dof'][Ibm,Iht])
 
                             # get model ACF and parameter arrays
-                            (m,m0,ni,ti,psi,vi)=fit_fun(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
-                                f,ni,ti,mi,psi,vi,self.k_radar0,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
+                            (m,m0,ni,ti,psi,vi)=fit_fun_with_noise(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
+                                f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
                             mod_ACF[Ibm,Iy,Iht]=m[Iy]
                             meas_ACF[Ibm,Iy,Iht]=tAcf[Iy]
                             errs_ACF[Ibm,Iy,Iht]=tAcfVar[Iy]
@@ -688,7 +715,8 @@ class Run_Fitter:
                             ti=ti*self.FITOPTS['p_T0']
                             psi=psi*self.FITOPTS['p_om0']
                             vi=vi*self.FITOPTS['p_om0']/self.k_radar0
-                            tNe=x[0]
+                            tNe=x[1]
+                            noise0 = x[0]
 
                             # re-evaluate FLIP ion chemistry
                             if self.FITOPTS['molecularModel']==1:
@@ -699,12 +727,14 @@ class Run_Fitter:
                                 if tte<ttn:  tte=ttn
                                 tOXPLUS=OXPLUS
                                 LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT=flipchem.call_flip(self.ct_flipchem,int(self.Time['Year'][0]),int(self.Time['doy'][0]),self.Time['dtime'][0],HT[Ibm,Iht]/1000.0,
-                                    self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,x[0]*1.0e-6)
+                                    self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
 
                                 # break loop or continue
-                                if scipy.absolute(OXPLUS-tOXPLUS)<0.02: # break loop
+                                if (scipy.absolute(OXPLUS-tOXPLUS)<0.02): # break loop
                                     break
-                                elif nloops>=5:
+                                elif nloops>=10:            # Increased from 5 to 10. Empirically found 
+                                                            # that this helps prevent too many BadComposition
+                                                            # errors when SNR is low.
                                     raise BadComposition()  # throw an invalid fit error
                             elif mi[1]==mi[0] and nloops==1:
                                 continue
@@ -713,6 +743,8 @@ class Run_Fitter:
 
                         # store output
                         ne_out[Ibm,Iht,0]=tNe
+                        noise_out[Ibm,Iht,0]=noise0
+                        noise_out[Ibm,Iht,2]=float(Noise['Power']['Data'][Ibm])
                         FITS_out[Ibm,Iht,:,0]=ni
                         FITS_out[Ibm,Iht,:,1]=ti
                         FITS_out[Ibm,Iht,:,2]=psi
@@ -720,7 +752,8 @@ class Run_Fitter:
 
                         # compute errors if the Jacobian was able to be inverted
                         if cov_x is not None:
-                            ne_out[Ibm,Iht,1]=cov_x[0]
+                            noise_out[Ibm,Iht,1]=cov_x[0]
+                            ne_out[Ibm,Iht,1]=cov_x[1]
                             ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
 
                         # make some plots if we are supposed to
@@ -738,15 +771,16 @@ class Run_Fitter:
                         fitinfo['fitcode'][Ibm,Iht]=-500
                         print exc
 
-                    except: # an unknown error in the fit
+                    except Exception,e: # an unknown error in the fit
                         fitinfo['fitcode'][Ibm,Iht]=-100
-                        print "Fit failed!! Unexpected error"
+                        print "Fit failed!! Unexpected error: " + str(e)
 
                     # bad records
                     if (fitinfo['fitcode'][Ibm,Iht]<1) or (fitinfo['fitcode'][Ibm,Iht]>4):
                         FITS_out[Ibm,Iht,:,:]=scipy.nan
                         ERRS_out[Ibm,Iht,:,:]=scipy.nan
                         ne_out[Ibm,Iht,:]=scipy.nan
+                        noise_out[Ibm,Iht,:]=scipy.nan
 
                     Ihtbm[Ibm]=Iht
 
@@ -759,6 +793,7 @@ class Run_Fitter:
         HT=HT[:,0:(Ihtbm+1)]
         RNG=RNG[:,0:(Ihtbm+1)]
         ne_out=ne_out[:,0:(Ihtbm+1),:]
+        noise_out=noise_out[:,0:(Ihtbm+1),:]
         FITS_out=FITS_out[:,0:(Ihtbm+1),:,:]
         ERRS_out=ERRS_out[:,0:(Ihtbm+1),:,:]
         mod_ACF=mod_ACF[:,:,0:(Ihtbm+1)]
@@ -781,7 +816,7 @@ class Run_Fitter:
         if self.OPTS['plotson']>2:
             pyplot.close(gf)
 
-        return RNG,HT,ne_out,FITS_out,ERRS_out,mod_ACF,meas_ACF,errs_ACF,fitinfo,models,gmag
+        return RNG,HT,ne_out,noise_out,FITS_out,ERRS_out,mod_ACF,meas_ACF,errs_ACF,fitinfo,models,gmag
 
     # This function parses the configuration files
     def ini_parse(self,inifile):
@@ -833,11 +868,16 @@ class Run_Fitter:
         self.DEFOPTS['CAL_TEMP_DEF']=eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','CAL_TEMP_DEF',required=0,defaultParm='100.0'))
 
         # Input section
+        # Get filelist or list of filelists
         self.OPTS['FILELIST']=io_utils.ini_tool(config,'INPUT','FILELIST',required=1,defaultParm='')
-
         try: self.OPTS['FILELIST']=eval(self.OPTS['FILELIST'])
         except: ''
+        
+        # Get input rawfile paths or list of them
         self.OPTS['ipath']=io_utils.ini_tool(config,'INPUT','FILE_PATH',required=0,defaultParm='')
+        try: self.OPTS['ipath'] = eval(self.OPTS['ipath'])
+        except: pass
+        
         self.OPTS['AMB_PATH']=io_utils.ini_tool(config,'INPUT','AMB_PATH',required=0,defaultParm='')
         try: self.OPTS['AMB_PATH']=eval(self.OPTS['AMB_PATH'])
         except: ''
@@ -866,6 +906,7 @@ class Run_Fitter:
         self.FITOPTS['CalToNoiseRatio']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','CalToNoiseRatio',required=0,defaultParm='1.0'))
         self.FITOPTS['beamMapScale']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','beamMapScale',required=0,defaultParm='0'))
         self.FITOPTS['beamMapScaleFile']=io_utils.ini_tool(config,'INPUT','beamMapScaleFile',required=0,defaultParm='')
+        self.FITOPTS['fitcal'] =eval(io_utils.ini_tool(config,'FIT_OPTIONS','fitcal',required=0,defaultParm='0'))
         self.FITOPTS['fit0lag']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','fit0lag',required=0,defaultParm='1'))
         self.FITOPTS['uselag1']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','uselag1',required=0,defaultParm='0'))
         self.FITOPTS['Recs2Integrate']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Recs2Integrate',required=1,defaultParm='')))
@@ -873,7 +914,9 @@ class Run_Fitter:
         self.FITOPTS['p_N0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_N0',required=0,defaultParm='1.0e11'))
         self.FITOPTS['p_T0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_T0',required=0,defaultParm='1000.0'))
         self.FITOPTS['p_M0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_M0',required=0,defaultParm='16.0'))
-        self.FITOPTS['LagrangeParams']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','LagrangeParams',required=0,defaultParm='[1.0e4,1.0e4]'))
+        self.FITOPTS['LagrangeParams']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','LagrangeParams',required=0,defaultParm='[1.0e4,1.0e4,1.0e2]'))
+        if len(self.FITOPTS['LagrangeParams']) != 3:
+            raise ValueError, "LagrangeParams must be a list of length 3. Te, Ti, and Ne penalties."
         self.FITOPTS['procMedian']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','procMedian',required=0,defaultParm='0'))
         self.FITOPTS['molecularModel']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','molecularModel',required=0,defaultParm='0')))
         self.FITOPTS['molmodFile']=io_utils.ini_tool(config,'FIT_OPTIONS','molmodFile',required=0,defaultParm='')
@@ -906,6 +949,8 @@ class Run_Fitter:
             if (self.FITOPTS['GroupHt'][-1]<self.FITOPTS['htmax']):
                 raise ValueError, 'GroupHt must go up to htmax!'
 
+        self.config = config
+
         return 0
 
     def read_a_datafile(self,files,frec,output=[],Irec=-1,nrecs=-1):
@@ -917,11 +962,11 @@ class Run_Fitter:
         print 'Reading file ' + fname
 
         # make sure the file exists
-        if os.path.exists(os.path.join(self.OPTS['ipath'],fname))==False:
+        if os.path.exists(fname)==False:
             raise IOError, 'The input file does not exist.'
 
         # read the entire file
-        h5file=tables.openFile(os.path.join(self.OPTS['ipath'],fname))
+        h5file=tables.openFile(fname)
         if len(output)==0 or Irec==-1 or nrecs==-1: # we dont need to worry about preserving records
             output={}
             for group in h5file.walkGroups("/"):
@@ -963,12 +1008,23 @@ class Run_Fitter:
     def run(self):
     # main routine that runs the fitting loop.
     # call after instantiating a run_fitter instance
-        figg = None
-        figg2 = None
-        figg3 = None
-        figg4 = None
-        figg5 = None
-        figg6 = None
+        print "***************************************"
+        print self.FITOPTS['fitcal']
+        if (self.FITOPTS['fitcal'] == 1):
+            print("Appending -fitcal to file names.")
+
+            #Now change the output file name so it has the -fitcal string appended to it
+            temp = self.OPTS['outfile']
+            temp2 = temp[:-3]+'-fitcal'+temp[-3:]
+            print("Changing output filename to " + temp2)
+            self.OPTS['outfile'] = temp2
+
+            #Finally, change the output directory name for the plots directory
+            temp = self.OPTS['plotsdir']+'-fitcal'
+            print("Changing plotting dirname to " + temp)
+            self.OPTS['plotsdir'] = temp
+
+        #Initialize figure handles
         self.ContinueFromLocked = 1
 
         # close all figures
@@ -983,14 +1039,23 @@ class Run_Fitter:
             print 'Problem understanding filelist'
             return
 
+        # check out the raw file paths
+        try:
+            if (type(self.OPTS['ipath'])!=tuple):
+                self.OPTS['ipath']=tuple([self.OPTS['ipath']])
+        except:
+            print 'Problem understanding FILE_PATH'
+            return
+
         # read the file that contains the list of files to process
         files=[]
-        nfiles=[]
+        input_files = []
         for ii in range(NFREQ): # for each of the frequencies
             print self.OPTS['FILELIST'][ii]
             f=open(self.OPTS['FILELIST'][ii]) # open
             files.append(f.readlines()) # read list
             f.close() # close
+            input_files.append(list())
             #print files
             for ir in range(len(files[ii])):
                 files[ii][ir]=files[ii][ir].rstrip('\n')
@@ -1004,16 +1069,17 @@ class Run_Fitter:
             files2=copy.copy(files[ii])
             for ir in range(len(files2)):
                 if files2[ir].rfind('*') != -1:
-                    print(self.OPTS['ipath'],files2[ir])
-                    tfiles=glob.glob(os.path.join(self.OPTS['ipath'],files2[ir]))
+                    for path in self.OPTS['ipath']:
+                        tfiles=glob.glob(os.path.join(path,files2[ir]))
+                        print tfiles
+                        files[ii].extend(tfiles)
                     files[ii].remove(files2[ir])
-                    files[ii].extend(tfiles)
+
             if len(files[ii])!=len(files[0]): # abort! they need to be the same number of files
                 raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'
             files[ii]=sorted(files[ii],key=os.path.basename)
             #files[ii].sort() # sort the file sequence
         nfiles=len(files[0]) # number of files to process
-
 
         if nfiles==0: # abort!
             print 'Nothing to do...'
@@ -1073,7 +1139,7 @@ class Run_Fitter:
             if self.FITOPTS['MOTION_TYPE']==1: # Az,El
                 Ibad.append(scipy.where((outputAll[ii]['/Antenna']['Mode'][:,0] != outputAll[ii]['/Antenna']['Mode'][:,1]) | (outputAll[ii]['/Antenna']['Event'][:,0] != outputAll[ii]['/Antenna']['Event'][:,1]))[0])
         output=outputAll[0]
-        curexpname=self.get_expname(os.path.join(self.OPTS['ipath'],files[0][frec]))
+        curexpname=self.get_expname(files[0][frec])
         RecInt = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
 
         print 'Experiment: ' + curexpname
@@ -1120,7 +1186,7 @@ class Run_Fitter:
                     done=1
                 else:
                     # read another file
-                    expname=self.get_expname(os.path.join(self.OPTS['ipath'],files[0][frec]))
+                    expname=self.get_expname(files[0][frec])
                     if expname==curexpname:
                         Irec=0
                         for ifreq in range(NFREQ):
@@ -1367,7 +1433,7 @@ class Run_Fitter:
                 (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['BMCODES'][:,3])
             elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
                 (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['Ksys'])
-            S['Power']['dNeFrac']=1.0/scipy.sqrt(scipy.repeat(S['Power']['Kint']*S['Power']['PulsesIntegrated'][:,scipy.newaxis],S['Power']['SNR'].shape[1],axis=1))*(1.0+scipy.absolute(1.0/S['Power']['SNR'])+S['Power']['iSCR'])
+            S['Power']['dNeFrac']=1.0/scipy.sqrt(S['Power']['Kint']*S['Power']['PulsesIntegrated'])*(1.0+scipy.absolute(1.0/S['Power']['SNR'])+S['Power']['iSCR'])
             S['Power']['dNeFrac'][scipy.where(S['Power']['SNR']<0.0)]=scipy.nan
             if self.FITOPTS['uselag1']: # if we are using the 1st lag to estimate the density, then we need to scale it a bit
                 S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/scipy.sum(scipy.absolute(self.AMB['Wlag'][S['Acf']['Lag1Index'],:]))
@@ -1376,15 +1442,45 @@ class Run_Fitter:
                 S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
                 S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
 
+
+                
+
+            # A function to compute the perturbation noise acf based on the assumption that such noise
+            # is white and broadband (at least compared to the width of the filter)
+            def compute_noise_acf(num_lags,sample_time,impulse_response):
+
+                t_num_taps = impulse_response.size
+                t_times = scipy.arange(t_num_taps)*1e-6         # we have 1 us samples before decimating to final raw output
+                t_acf = scipy.convolve(impulse_response,impulse_response)[t_num_taps-1:]
+                t_acf = t_acf / t_acf[0]
+
+                t_lag_times = scipy.arange(num_lags)*sample_time
+                interp_func = scipy.interpolate.interp1d(t_times,t_acf,bounds_error=0, fill_value=0)
+                noise_acf = interp_func(t_lag_times)
+
+                return noise_acf
+
+
             ### start: DO_FITS
             if self.FITOPTS['DO_FITS']: # do the fits
+
+                # Parameters needed for calculating the perturbation noise_acf
+                sample_time = output['/Rx']['SampleTime']
+                temp = output['/Setup']['RxFilterfile']
+                filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
+
+                # Compute the perturbation noise acf
+                num_lags = self.Nlags
+                perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
+
                 if self.FITOPTS['FullProfile']:
                     (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo)=self.call_fitter_FP(S,Noise,sstr=fstr)
                 else:
-                    (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,sstr=fstr)
+                    (trng,tht,tne,tnoise,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,perturbation_noise_acf,sstr=fstr)
                 self.FITS['Range']=trng
                 self.FITS['Altitude']=tht
                 self.FITS['Ne']=tne[:,:,0]
+                self.FITS['Noise'] = tnoise
                 self.FITS['dNe']=tne[:,:,1]
                 self.FITS['Fits']=tfits
                 self.FITS['Errors']=terrs
@@ -1405,109 +1501,93 @@ class Run_Fitter:
 
                 # make the plots if we are supposed to
                 if (self.OPTS['plotson']>0) and (Iplot>=self.OPTS['nplots']):
+                    figg1 = None
+                    figg2 = None
+                    figg3 = None
+                    figg4 = None
+                    figg5 = None
+                    ax1 = None
+                    ax2 = None
+                    ax3 = None
+                    ax4 = None
+                    ax5 = None
+
                     Iplot=0
                     try:
                         IbPl=range(len(Ibeams))
                     except:
                         IbPl=[]
-                    #try:
-                    if 1==1:
-                        print "Making profile plots..."
-                        #try:
-                        if figg is not None:
-                            try:
-                                (figg,ax,title)=plot_utils.test_plot(self,IIrec,ax,figg,self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
-                            except Exception as e:
-                                print("Plotting failed: "+str(e))
-                                figg = None
+
+                    title= "%d-%d-%d %.3f-%.3f UT" % (self.Time['Month'][0],self.Time['Day'][0],self.Time['Year'][0],self.Time['dtime'][0],self.Time['dtime'][1])
+
+                    print "Making profile plots..."
+                    try:
+                        (figg1,ax1,_)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
+                    except Exception as e:
+                        print("Plotting failed: "+str(e))
+                        figg1 = None
+
+                    if (self.OPTS['saveplots']==1) and (figg1 is not None):
+                        if os.path.exists(self.OPTS['plotsdir']):
+                            oname=title + '.png'
+                            figg1.savefig(os.path.join(self.OPTS['plotsdir'],oname))
                         else:
-                        #except:
+                            print "Can't output plots, path doesn't exist"
+                            self.OPTS['saveplots']=0
+
+                    if self.OPTS['plotson']>1:
+                        print "Plotting ACFs..."
+                        try:
+                            (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
+                        except Exception as e:
+                            print("Plotting failed: "+str(e))
+                            figg2 = None
+
+                        if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg2 is not None):
+                            oname='acf ' + title + '.png'
+                            figg2.savefig(os.path.join(self.OPTS['plotsdir'],oname))
+
+                        if self.OPTS['dumpSpectra']>0:
+                            print "Plotting Spectra..."
                             try:
-                                (figg,ax,title)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
+                                (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                             except Exception as e:
                                 print("Plotting failed: "+str(e))
-                                figg = None
+                                figg6 = None
 
-                        if (self.OPTS['saveplots']==1) and (figg is not None):
-                            if os.path.exists(self.OPTS['plotsdir']):
-                                oname=title + '.png'
-                                figg.savefig(os.path.join(self.OPTS['plotsdir'],oname))
-                            else:
-                                print "Can't output plots, path doesn't exist"
-                                self.OPTS['saveplots']=0
-                        if self.OPTS['plotson']>1:
-                            print "Plotting ACFs..."
-                            #try:
-                            if figg2 is not None:
-                                try:
-                                    (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,ax2,figg2,Ibeams=IbPl)
-                                except Exception as e:
-                                    print("Plotting failed: "+str(e))
-                                    figg2 = None
-                            #except:
-                            else:
-                                try:
-                                    (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
-                                except Exception as e:
-                                    print("Plotting failed: "+str(e))
-                                    figg2 = None
-                            if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg2 is not None):
-                                oname='acf ' + title + '.png'
-                                figg2.savefig(os.path.join(self.OPTS['plotsdir'],oname))
-                            if self.OPTS['dumpSpectra']>0:
-                                print "Plotting Spectra..."
-                                #try:
-                                if figg6 is not None:
-                                    try:
-                                        (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,ax6,figg6,Ibeams=IbPl)
-                                    except Exception as e:
-                                        print("Plotting failed: "+str(e))
-                                        figg6 = None
-                                else:
-                                #except:
-                                    try:
-                                        (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
-                                    except Exception as e:
-                                        print("Plotting failed: "+str(e))
-                                        figg6 = None
-                                if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg6 is not None):
-                                    oname='spc ' + title + '.png'
-                                    figg6.savefig(os.path.join(self.OPTS['plotsdir'],oname))
-                    #except:
-                    #    print 'Plotting error...'
+                            if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg6 is not None):
+                                oname='spc ' + title + '.png'
+                                figg6.savefig(os.path.join(self.OPTS['plotsdir'],oname))
 
-                    #try:
-                    if 1==1:
-                        if self.OPTS['dumpSpectra']>1:
-                            #try:
-                            if figg3 is not None:
-                                try:
-                                    (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
-                                        self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0],figg1=figg3,ax1=ax3,figg2=figg4,ax2=ax4,figg3=figg5,ax3=ax5)
-                                except Exception as e:
-                                    print("Plotting failed: "+str(e))
-                                    figg3, figg4, figg5 = None, None, None
-                            else:
-                            #except:
-                                try:
-                                    (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
-                                        self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0])
-                                except Exception as e:
-                                    print("Plotting failed: "+str(e))
-                                    figg3, figg4, figg5 = None, None, None
 
-                            if (self.OPTS['saveplots']==1) and (os.path.exists(os.path.join(self.OPTS['plotsdir'],'Spectra'))) and (None not in [figg3, figg4, figg5]):
-                                figg3.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Measured.png'))
-                                figg4.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Modeled.png'))
-                                figg5.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Residual.png'))
-                    #except:
-                    #    print 'Plotting error...'
+                    if self.OPTS['dumpSpectra']>1:
+                        try:
+                            (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
+                                self.BMCODES,title=title,ylim=[self.FITOPTS['htmin']/1000.0,self.FITOPTS['htmax']/1000.0],clim=[-19.0,-16.0])
+                        except Exception as e:
+                            print("Plotting failed: "+str(e))
+                            figg3, figg4, figg5 = None, None, None
+
+                        if (self.OPTS['saveplots']==1) and (os.path.exists(os.path.join(self.OPTS['plotsdir'],'Spectra'))) and (None not in [figg3, figg4, figg5]):
+                            figg3.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Measured.png'))
+                            figg4.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Modeled.png'))
+                            figg5.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Residual.png'))
+
+                    pyplot.close('all')
+                    del figg1
+                    del figg2
+                    del figg3
+                    del figg4
+                    del figg5
+                    del ax1
+                    del ax2
+                    del ax3
+                    del ax4
+                    del ax5
 
             # Output data to file
-            #try:
-            if 1==1:
-                # open file
-                outh5file=tables.openFile(self.OPTS['outfileLocked'], mode = "a")
+            # open file
+            with tables.openFile(self.OPTS['outfileLocked'], mode = "a") as outh5file:
                 # Processing params
                 if IIrec==0:
                     io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/ProcessingTimeStamp',scipy.array(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())))
@@ -1555,9 +1635,9 @@ class Run_Fitter:
                 if self.FITOPTS['DO_FITS']:
                     io_utils.createDynamicArray(outh5file,self.h5Paths['FitInfo'][0],self.FITS['FitInfo'],self.FITS['FitInfo'].keys())
                     if self.FITOPTS['MOTION_TYPE']==1 or self.OPTS['dynamicAlts']==1: # Az,El or case when we want to include entire array
-                        io_utils.createDynamicArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Errors','Fits','Ne','dNe','Range','Altitude'])
+                        io_utils.createDynamicArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Errors','Fits','Ne','dNe','Range','Altitude','Noise'])
                     else: # beamcodes
-                        io_utils.createDynamicArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Errors','Fits','Ne','dNe'])
+                        io_utils.createDynamicArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Errors','Fits','Ne','dNe','Noise'])
                         if IIrec==0:
                             io_utils.createStaticArray(outh5file,self.h5Paths['Fitted'][0],self.FITS,['Altitude','Range'])
                     if IIrec==0:
@@ -1567,12 +1647,6 @@ class Run_Fitter:
                 # set attributes
                 if IIrec==0:
                     io_utils.setAtrributes(outh5file,self.h5Attribs)
-                # close file
-                outh5file.close()
-            #except:
-            #    raise IOError, 'Error writing to output file: ' + self.OPTS['outfileLocked']
-
-            ### end: DO_FITS
 
             # increment counters
             Irec=Irecs[0][-1]+1
@@ -1584,6 +1658,14 @@ class Run_Fitter:
             Iplot=Iplot+1
 
         ### end: main loop
+
+        if (self.FITOPTS['fitcal'] == 1):
+            print("Adding calibration information.")
+
+            fname = self.OPTS['outfileLocked']
+            calFname = self.FITOPTS['beamMapScaleFile']
+            calMethodIndex = 0  #Plasma Line! Need to change this so there is a test done to determine which method was used!!!
+            add_calibration_info(fname,calFname,calMethodIndex)
 
         # rename output file
         try:
@@ -1604,16 +1686,7 @@ class Run_Fitter:
                 plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],clims=self.OPTS['pcolClims'])
             else:
                 plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'])
-        """
 
-        if (self.OPTS['plotson']>0):
-            # Load logging module
-            logger = LoggerInit(config=os.path.join('/Users/fitter/Documents/amisr-src/src/calibration/',
-                            "config",
-                            "log.ini") ).logger
-            inst = amisrwrapper.amisrwrapper(configpath="/opt/amisr-plotting/amisrplotting/config/*.ini",logger=logger)
-            inst.pcolor_plot(self.OPTS['outfile'],self.OPTS['plotsdir'])
-        """
         return 0
 
 #######
