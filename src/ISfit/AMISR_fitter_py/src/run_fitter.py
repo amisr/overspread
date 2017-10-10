@@ -975,9 +975,9 @@ class Run_Fitter:
             if (self.FITOPTS['GroupHt'][-1]<self.FITOPTS['htmax']):
                 raise ValueError, 'GroupHt must go up to htmax!'
 
-        if self.FITOPTS['PERTURBATION_NOISE'] == 1:
-            if self.FITOPTS['fit0lag'] == 0:
-                raise ValueError, 'Perturbation noise fitting cannot work without fitlag0=1!'
+            if self.FITOPTS['PERTURBATION_NOISE'] == 1:
+                if self.FITOPTS['fit0lag'] == 0:
+                    raise ValueError, 'Perturbation noise fitting cannot work without fitlag0=1!'
 
         self.config = config
 
@@ -1034,7 +1034,7 @@ class Run_Fitter:
 
         return expname
 
-    def write_config_info(self,h5fhandle):
+    def write_config_info(self,h5fhandle,raw_files):
         import platform
         import getpass
 
@@ -1062,17 +1062,34 @@ class Run_Fitter:
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/FittingInfo/Version',Version)
 
         # Get all the configuration files
+        i = 1
         for cf in self.options.conffile.split(','):
-            Path = os.path.abspath(cf)
+            Path = os.path.dirname(os.path.abspath(cf))
             Name = os.path.basename(cf)
 
             with open(cf,'r') as f:
                 Contents = "".join(f.readlines())
 
-            h5path = '/ProcessingParams/FittingInfo/ConfigFiles/%s' % (Name)
+            h5path = '/ProcessingParams/FittingInfo/ConfigFiles/File%s' % (str(i))
             io_utils.createh5groups(h5fhandle,[(h5path,'Config File Information')])
+            io_utils.createStaticArray(h5fhandle,h5path +'/Name',Name)
             io_utils.createStaticArray(h5fhandle,h5path +'/Path',Path)
             io_utils.createStaticArray(h5fhandle,h5path +'/Contents',Contents)
+
+            i += 1
+
+        # Record the raw files used
+        # Make a string listing all the files
+        file_string = ''
+        for files in raw_files:
+            temp = "\n".join(files)
+            if len(file_string):
+                file_string = '\n' + file_string
+            else:
+                file_string += temp
+        # Write the string to the h5 file
+        h5path = '/ProcessingParams/FittingInfo'
+        io_utils.createStaticArray(h5fhandle,h5path +'/RawFiles',file_string)
 
 
 
@@ -1123,7 +1140,7 @@ class Run_Fitter:
         files=[]
         input_files = []
         for ii in range(NFREQ): # for each of the frequencies
-            print self.OPTS['FILELIST'][ii]
+            #print self.OPTS['FILELIST'][ii]
             f=open(self.OPTS['FILELIST'][ii]) # open
             files.append(f.readlines()) # read list
             f.close() # close
@@ -1143,7 +1160,7 @@ class Run_Fitter:
                 if files2[ir].rfind('*') != -1:
                     for path in self.OPTS['ipath']:
                         tfiles=glob.glob(os.path.join(path,files2[ir]))
-                        print tfiles
+                        # print tfiles
                         files[ii].extend(tfiles)
                     files[ii].remove(files2[ir])
 
@@ -1189,7 +1206,7 @@ class Run_Fitter:
                     io_utils.createh5groups(outh5file,[self.h5Paths['Antenna']])
 
                 # Add fitter version number and config files (fit, io, system defaults)
-                self.write_config_info(outh5file)
+                self.write_config_info(outh5file,files)
 
 
         # initialize some vars
