@@ -1037,6 +1037,7 @@ class Run_Fitter:
 
         return expname
 
+
     def write_config_info(self,h5fhandle,raw_files):
         import platform
         import getpass
@@ -1050,12 +1051,17 @@ class Run_Fitter:
         Type            = platform.machine()
         System          = "%s %s %s" % (platform.system(),platform.release(),platform.version())
         User            = getpass.getuser()
+        Hostname        = platform.node()
+        if len(Hostname) == 0:
+            import socket
+            Hostname = socket.gethostname()
 
         io_utils.createh5groups(h5fhandle,[('/ProcessingParams/ComputerInfo','Processing Computer Information')])
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonVersion',PythonVersion)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/Type',Type)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/System',System)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/User',User)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/Host',Hostname)
 
 
         # Fitter configuration information
