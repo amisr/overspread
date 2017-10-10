@@ -1101,7 +1101,7 @@ class Run_Fitter:
         io_utils.createStaticArray(h5fhandle,h5path +'/RawFiles',file_string)
 
         # Record the directory where fitted files can be found
-        outpath = os.abspath(self.OPTS['outputpath'])
+        outpath = os.path.abspath(self.OPTS['outputpath'])
         io_utils.createStaticArray(h5fhandle,h5path +'/OutputPath',outpath)
 
 
