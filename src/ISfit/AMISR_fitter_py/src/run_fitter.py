@@ -4,9 +4,12 @@
 xxxxx
 
 ~M. Nicolls
-last revised: xx/xx/2007
+last revised: xx/xx/2017
 
 """
+
+version='0.1.2017.10'   #1.0 to be released when fitter is made public
+
 import matplotlib
 matplotlib.use('agg')
 print matplotlib.get_backend()
@@ -29,7 +32,12 @@ from constants import *
 #we need to add a Calibration record
 from add_calibration_record import *
 
+from make_summary_plots_sondre import replot_pcolor_antenna_all
+from make_summary_plots_amisr import replot_pcolor_all
+
 MAXFEV_C=20
+
+
 
 ##############################
 
@@ -408,7 +416,7 @@ class Run_Fitter:
         for Ibm in range(Nbeams):
             if 1==1:
 
-                print '\nBeam ' + str(Ibm)
+                print('\nBeam %s' % str(Ibm))
 
                 AzAng = S['BMCODES'][Ibm,1]
                 ElAng = S['BMCODES'][Ibm,2]
@@ -416,7 +424,7 @@ class Run_Fitter:
                 IfitIndex=0
                 Ifit=scipy.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
                 IfitMR=scipy.where(scipy.transpose(Ifit)==1)
-                NFIT=self.FITOPTS['NFIT'][IfitIndex]+1
+                NFIT=int(self.FITOPTS['NFIT'][IfitIndex]+1)
                 SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
                 NSUM=SummationRule[1,:]-SummationRule[0,:]+1
 
@@ -438,22 +446,24 @@ class Run_Fitter:
                     ### Number of gates to sum as a function of lag
                     htI=htI+NSUM[0]
 
-                    if Altitude[Ibm,htI]>=self.FITOPTS['GroupHt'][IfitIndex]:
+                    #if Altitude[Ibm,htI]>=self.FITOPTS['GroupHt'][IfitIndex]:
+                    if Altitude[Ibm,int(htI)]>=self.FITOPTS['GroupHt'][int(IfitIndex)]:
                         if IfitIndex<(self.FITOPTS['Ngroup']-1):
                             IfitIndex=IfitIndex+1
                             Ifit=scipy.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
                             IfitMR=scipy.where(scipy.transpose(Ifit)==1)
-                            NFIT=self.FITOPTS['NFIT'][IfitIndex]+1
+                            NFIT=int(self.FITOPTS['NFIT'][IfitIndex]+1)
                             SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
                             NSUM=SummationRule[1,:]-SummationRule[0,:]+1
 
-                    RngAll=S['Acf']['Range'][0,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]
+                    #RngAll=S['Acf']['Range'][0,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]
+                    RngAll=S['Acf']['Range'][0,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]
                     RngMean=scipy.mean(RngAll)
                     SumFactor=scipy.squeeze(RngMean**2.0/scipy.power(RngAll,2.0))
 
                     # sum using the summation rule
 
-                    pulses_integrated = scipy.sum(S['Acf']['PulsesIntegrated'][Ibm][:,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)],axis=1)
+                    pulses_integrated = scipy.sum(S['Acf']['PulsesIntegrated'][Ibm][:,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)],axis=1)
 
                     K=pulses_integrated*S['Acf']['Kint']
                     tAcf=scipy.zeros(Nlags,dtype='Complex64')
@@ -461,9 +471,9 @@ class Run_Fitter:
                     Psc=scipy.zeros(Nlags,dtype='Float64')
                     for aa in range(Nlags):
                         # Acf
-                        tAcf[aa]=scipy.mean(S['Acf']['Data'][Ibm,aa,(htI+SummationRule[0,aa]):(htI+SummationRule[1,aa]+1)])
+                        tAcf[aa]=scipy.mean(S['Acf']['Data'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
                         # scaling factor for power
-                        Psc[aa]=scipy.mean(S['Acf']['Psc'][Ibm,aa,(htI+SummationRule[0,aa]):(htI+SummationRule[1,aa]+1)])
+                        Psc[aa]=scipy.mean(S['Acf']['Psc'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
 
                     ### compute variance
                     # Whether to use first or 0 lag
@@ -472,7 +482,7 @@ class Run_Fitter:
                     else:
                         sig=scipy.absolute(tAcf[0]) # 0 lag
                     # Signal to noise ratio
-                    tSnr=scipy.mean(S['Power']['SNR'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]*SumFactor)
+                    tSnr=scipy.mean(S['Power']['SNR'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]*SumFactor)
 
                     # Variance
                     tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
@@ -480,12 +490,12 @@ class Run_Fitter:
                     tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2/Noise['Power']['PulsesIntegrated'][Ibm].astype('Float64')
 
                     # Height and range
-                    HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)])
+                    HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
                     RNG[Ibm,Iht]=RngMean
-                    print sstr + 'Alt ' + str(scipy.asarray(HT[Ibm,Iht]/1000.).round(decimals=2)) + ', Rng ' + str(scipy.asarray(RNG[Ibm,Iht]/1000.).round(decimals=2))
+                    print(sstr + 'Alt ' + str(scipy.asarray(HT[Ibm,Iht]/1000.).round(decimals=2)) + ', Rng ' + str(scipy.asarray(RNG[Ibm,Iht]/1000.).round(decimals=2)))
 
                     # using guess for Ne from density profile
-                    tNe=scipy.absolute(scipy.mean(S['Power']['Ne_Mod'][Ibm,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]))
+                    tNe=scipy.absolute(scipy.mean(S['Power']['Ne_Mod'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]))
 
                     if len(self.FITOPTS['Lags2fit'])==0:
                         Iy=range(Nlags)
@@ -550,7 +560,7 @@ class Run_Fitter:
                     terr=scipy.transpose(scipy.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*scipy.nan
 
                     try:
-                    #if 1==1:
+                    # if 1==1:
                         nloops=0
                         while 1==1:
                             nloops+=1
@@ -616,7 +626,10 @@ class Run_Fitter:
                             if Iht>0 and iparams0.size==NFIT and 1==0:
                                 tmp=scipy.transpose(scipy.squeeze(FITS_out[Ibm,Iht-1,:,:]))
                                 params0=scipy.zeros(NFIT,dtype='Float64')
-                                params0[1:]=tmp[IfitMR]
+                                if self.FITOPTS['PERTURBATION_NOISE']:
+                                    params0[1:]=tmp[IfitMR]
+                                else:
+                                    params0=tmp[IfitMR]
                                 params0=params0/scaler
                                 I=scipy.where((params0>1.0*iparams0) | (params0<iparams0/1.0) | (params0<0))[0]
                                 params0[I]=iparams0[I]
@@ -655,8 +668,10 @@ class Run_Fitter:
                             # Then add it to the param0 and scaler arrays, but at the beginning.
                             if nloops == 1:
                                 noise0 = float(Noise['Power']['Data'][Ibm]) * 0.01
-                            params0 = scipy.concatenate((scipy.array([noise0]),params0))
-                            scaler = scipy.concatenate((scipy.array([1]),scaler))
+
+                            if self.FITOPTS['PERTURBATION_NOISE']:
+                                params0 = scipy.concatenate((scipy.array([noise0]),params0))
+                                scaler = scipy.concatenate((scipy.array([1]),scaler))
 
                             # The variance of the measured noise will be used to weight the amount of allowed
                             # perturbation noise ACF. 
@@ -691,7 +706,10 @@ class Run_Fitter:
                             else:
                                 cov_x=scipy.sqrt(scipy.diag(cov_x))*scaler
                                 #print scipy.shape(terr[IfitMR]),scipy.shape(cov_x)
-                                terr[IfitMR]=cov_x[2:]
+                                if self.FITOPTS['PERTURBATION_NOISE']:
+                                    terr[IfitMR]=cov_x[2:]
+                                else:
+                                    terr[IfitMR]=cov_x[1:]
 
                             infodict['fvec']=infodict['fvec'][:-len(self.FITOPTS['LagrangeParams'])]
 
@@ -715,8 +733,12 @@ class Run_Fitter:
                             ti=ti*self.FITOPTS['p_T0']
                             psi=psi*self.FITOPTS['p_om0']
                             vi=vi*self.FITOPTS['p_om0']/self.k_radar0
-                            tNe=x[1]
-                            noise0 = x[0]
+                            if self.FITOPTS['PERTURBATION_NOISE']:
+                                tNe=x[1]
+                                noise0 = x[0]
+                            else:
+                                tNe=x[0]
+                                noise0 = scipy.nan
 
                             # re-evaluate FLIP ion chemistry
                             if self.FITOPTS['molecularModel']==1:
@@ -752,8 +774,12 @@ class Run_Fitter:
 
                         # compute errors if the Jacobian was able to be inverted
                         if cov_x is not None:
-                            noise_out[Ibm,Iht,1]=cov_x[0]
-                            ne_out[Ibm,Iht,1]=cov_x[1]
+                            if self.FITOPTS['PERTURBATION_NOISE']:
+                                noise_out[Ibm,Iht,1]=cov_x[0]
+                                ne_out[Ibm,Iht,1]=cov_x[1]
+                            else:
+                                noise_out[Ibm,Iht,1]=scipy.nan
+                                ne_out[Ibm,Iht,1]=cov_x[0]
                             ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
 
                         # make some plots if we are supposed to
@@ -781,6 +807,7 @@ class Run_Fitter:
                         ERRS_out[Ibm,Iht,:,:]=scipy.nan
                         ne_out[Ibm,Iht,:]=scipy.nan
                         noise_out[Ibm,Iht,:]=scipy.nan
+                        fitinfo['chi2'][Ibm,Iht]=scipy.nan
 
                     Ihtbm[Ibm]=Iht
 
@@ -790,6 +817,7 @@ class Run_Fitter:
             ii=scipy.where(Ihtbm==Ihtbm.max())[0][0]
             Ihtbm=Ihtbm.max()
 
+        Ihtbm = int(Ihtbm)
         HT=HT[:,0:(Ihtbm+1)]
         RNG=RNG[:,0:(Ihtbm+1)]
         ne_out=ne_out[:,0:(Ihtbm+1),:]
@@ -902,6 +930,7 @@ class Run_Fitter:
 
         # Fit Options section
         self.FITOPTS['DO_FITS']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','DO_FITS',required=1,defaultParm=''))
+        self.FITOPTS['PERTURBATION_NOISE']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','PERTURBATION_NOISE',required=1,defaultParm=''))
         self.FITOPTS['useExternalCal']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','useExternalCal',required=0,defaultParm='0'))
         self.FITOPTS['CalToNoiseRatio']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','CalToNoiseRatio',required=0,defaultParm='1.0'))
         self.FITOPTS['beamMapScale']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','beamMapScale',required=0,defaultParm='0'))
@@ -949,6 +978,10 @@ class Run_Fitter:
             if (self.FITOPTS['GroupHt'][-1]<self.FITOPTS['htmax']):
                 raise ValueError, 'GroupHt must go up to htmax!'
 
+            if self.FITOPTS['PERTURBATION_NOISE'] == 1:
+                if self.FITOPTS['fit0lag'] == 0:
+                    raise ValueError, 'Perturbation noise fitting cannot work without fitlag0=1!'
+
         self.config = config
 
         return 0
@@ -966,23 +999,23 @@ class Run_Fitter:
             raise IOError, 'The input file does not exist.'
 
         # read the entire file
-        h5file=tables.openFile(fname)
+        h5file=tables.open_file(fname)
         if len(output)==0 or Irec==-1 or nrecs==-1: # we dont need to worry about preserving records
             output={}
-            for group in h5file.walkGroups("/"):
+            for group in h5file.walk_groups("/"):
                 if 'RAW' in group._v_pathname.upper():
                     continue
                 output[group._v_pathname]={}
-                for array in h5file.listNodes(group, classname = 'Array'):
+                for array in h5file.list_nodes(group, classname = 'Array'):
                     output[group._v_pathname][array.name]=array.read()
         else: # we do need to worry about preserving records
             output_cp=output
             output={}
-            for group in h5file.walkGroups("/"):
+            for group in h5file.walk_groups("/"):
                 if 'RAW' in group._v_pathname.upper():
                     continue
                 output[group._v_pathname]={}
-                for array in h5file.listNodes(group, classname = 'Array'):
+                for array in h5file.list_nodes(group, classname = 'Array'):
                     output[group._v_pathname][array.name]=array.read()
                     if (scipy.ndim(scipy.asarray(output_cp[group._v_pathname][array.name]))>0) and (scipy.asarray(output_cp[group._v_pathname][array.name]).shape[0]==nrecs): # it is a record we should preserve
                         output[group._v_pathname][array.name]=scipy.concatenate((output_cp[group._v_pathname][array.name][Irec:],output[group._v_pathname][array.name]),axis=0)
@@ -993,8 +1026,8 @@ class Run_Fitter:
 
     def get_expname(self,fname):
         try:
-            h5file=tables.openFile(fname)
-            expname=h5file.getNode('/Setup/Experimentfile').read()
+            h5file=tables.open_file(fname)
+            expname=h5file.get_node('/Setup/Experimentfile').read()
             h5file.close()
             if type(expname)==scipy.ndarray:
                 expname=expname[0]
@@ -1003,6 +1036,74 @@ class Run_Fitter:
             expname=''
 
         return expname
+
+
+    def write_config_info(self,h5fhandle,raw_files):
+        import platform
+        import getpass
+
+        # Configuration Information
+        #Fitter Version Number: Follows convention: major.minor.year.month
+        #version='1.0.2017.10' Get this variable from the global variable defined at the top of the file
+
+        # Computer information:
+        PythonVersion   = platform.python_version()
+        Type            = platform.machine()
+        System          = "%s %s %s" % (platform.system(),platform.release(),platform.version())
+        User            = getpass.getuser()
+        Hostname        = platform.node()
+        if len(Hostname) == 0:
+            import socket
+            Hostname = socket.gethostname()
+
+        io_utils.createh5groups(h5fhandle,[('/ProcessingParams/ComputerInfo','Processing Computer Information')])
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonVersion',PythonVersion)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/Type',Type)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/System',System)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/User',User)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/Host',Hostname)
+
+
+        # Fitter configuration information
+        Version = version  # Eventually replaced by self.__version__
+
+        io_utils.createh5groups(h5fhandle,[('/ProcessingParams/FittingInfo','Fitter Configuration Information'),('/ProcessingParams/FittingInfo/ConfigFiles','Configuration Files Used')])
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/FittingInfo/Version',Version)
+
+        # Get all the configuration files
+        i = 1
+        for cf in self.options.conffile.split(','):
+            Path = os.path.dirname(os.path.abspath(cf))
+            Name = os.path.basename(cf)
+
+            with open(cf,'r') as f:
+                Contents = "".join(f.readlines())
+
+            h5path = '/ProcessingParams/FittingInfo/ConfigFiles/File%s' % (str(i))
+            io_utils.createh5groups(h5fhandle,[(h5path,'Config File Information')])
+            io_utils.createStaticArray(h5fhandle,h5path +'/Name',Name)
+            io_utils.createStaticArray(h5fhandle,h5path +'/Path',Path)
+            io_utils.createStaticArray(h5fhandle,h5path +'/Contents',Contents)
+
+            i += 1
+
+        # Record the raw files used
+        # Make a string listing all the files
+        file_string = ''
+        for files in raw_files:
+            temp = "\n".join(files)
+            if len(file_string):
+                file_string = '\n' + file_string
+            else:
+                file_string += temp
+        # Write the string to the h5 file
+        h5path = '/ProcessingParams/FittingInfo'
+        io_utils.createStaticArray(h5fhandle,h5path +'/RawFiles',file_string)
+
+        # Record the directory where fitted files can be found
+        outpath = os.path.abspath(self.OPTS['outputpath'])
+        io_utils.createStaticArray(h5fhandle,h5path +'/OutputPath',outpath)
+
 
     # run
     def run(self):
@@ -1051,7 +1152,7 @@ class Run_Fitter:
         files=[]
         input_files = []
         for ii in range(NFREQ): # for each of the frequencies
-            print self.OPTS['FILELIST'][ii]
+            #print self.OPTS['FILELIST'][ii]
             f=open(self.OPTS['FILELIST'][ii]) # open
             files.append(f.readlines()) # read list
             f.close() # close
@@ -1071,18 +1172,23 @@ class Run_Fitter:
                 if files2[ir].rfind('*') != -1:
                     for path in self.OPTS['ipath']:
                         tfiles=glob.glob(os.path.join(path,files2[ir]))
-                        print tfiles
+                        # print tfiles
                         files[ii].extend(tfiles)
                     files[ii].remove(files2[ir])
 
             if len(files[ii])!=len(files[0]): # abort! they need to be the same number of files
                 raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'
             files[ii]=sorted(files[ii],key=os.path.basename)
-            #files[ii].sort() # sort the file sequence
-        nfiles=len(files[0]) # number of files to process
+
+
+        nfiles = 0
+        for file_list in files:
+            nfiles += len(file_list) # number of files to process
+        
+        print('Found %s raw files to process...' % nfiles)
 
         if nfiles==0: # abort!
-            print 'Nothing to do...'
+            print('Nothing to do...')
             return
 
 
@@ -1106,19 +1212,18 @@ class Run_Fitter:
             except:
                 raise IOError, 'Unable to continue from locked file: ' + self.OPTS['outfileLocked']
         else:
-            #try:
             NrecsToSkip=0
-            outh5file=tables.openFile(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File")
-            io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
-            if self.FITOPTS['DO_FITS']:
-                io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
-                if self.OPTS['saveACFs']:
-                    io_utils.createh5groups(outh5file,[self.h5Paths['ACFs']])
-            if self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                io_utils.createh5groups(outh5file,[self.h5Paths['Antenna']])
-            outh5file.close()
-            #except:
-            #    raise IOError, 'Cannot create output file: ' + self.OPTS['outfileLocked']
+            with tables.open_file(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File") as outh5file:
+                io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
+                if self.FITOPTS['DO_FITS']:
+                    io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
+                    if self.OPTS['saveACFs']:
+                        io_utils.createh5groups(outh5file,[self.h5Paths['ACFs']])
+                if self.FITOPTS['MOTION_TYPE']==1: # Az,El
+                    io_utils.createh5groups(outh5file,[self.h5Paths['Antenna']])
+
+                # Add fitter version number and config files (fit, io, system defaults)
+                self.write_config_info(outh5file,files)
 
 
         # initialize some vars
@@ -1142,7 +1247,7 @@ class Run_Fitter:
         curexpname=self.get_expname(files[0][frec])
         RecInt = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
 
-        print 'Experiment: ' + curexpname
+        print('Experiment: %s' % curexpname)
 
         ### start: main loop
         while not done:
@@ -1162,9 +1267,6 @@ class Run_Fitter:
                     if len(trecs)==0:
                         trecs=[min([Irec,uTime.shape[0]-1])]
                     Irecs.append(trecs)
-
-                    print trecs
-                    print uTime.shape
 
                     if self.FITOPTS['MOTION_TYPE']==1: # Az,El
                         I=scipy.where((outputAll[ii]['/Antenna']['Mode'][Irecs[ii],0] != AntennaMode) | (outputAll[ii]['/Antenna']['Mode'][Irecs[ii],1] != AntennaMode) |
@@ -1236,9 +1338,9 @@ class Run_Fitter:
                 break;
 
             # print the record numbers
-            print '\nFile ' + str(frec) + ' of ' + str(nfiles)
+            print '\nFile ' + str(frec+1) + ' of ' + str(nfiles)
             print 'Integration Number: ' + str(IIrec) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1])
-            fstr='File %d of %d, Rec %d, ' % (frec,nfiles,IIrec)
+            fstr='File %d of %d, Rec %d, ' % (frec+1,nfiles,IIrec+1)
 
             # skip records
             if NrecsToSkip>0:
@@ -1259,7 +1361,7 @@ class Run_Fitter:
             try:
                 output['/Rx']['CalTemp']
             except:
-                print self.DEFOPTS['CAL_TEMP_DEF']
+                print('Using default CalTemp %s' % str(self.DEFOPTS['CAL_TEMP_DEF']))
                 output['/Rx']['CalTemp']=self.DEFOPTS['CAL_TEMP_DEF']
 
             # process a record
@@ -1330,7 +1432,7 @@ class Run_Fitter:
             self.Time['doy']=scipy.array([int(r1.strftime('%j')),int(r2.strftime('%j'))])
 
             # get some standard info the first time through
-            if self.BMCODES==None or newexp:
+            if self.BMCODES is None or newexp:
 
                 self.BMCODES=S['BMCODES'] # beamcodes
                 self.BMCODES[:,2]=scipy.absolute(self.BMCODES[:,2])
@@ -1465,13 +1567,16 @@ class Run_Fitter:
             if self.FITOPTS['DO_FITS']: # do the fits
 
                 # Parameters needed for calculating the perturbation noise_acf
-                sample_time = output['/Rx']['SampleTime']
-                temp = output['/Setup']['RxFilterfile']
+                sample_time = float(output['/Rx']['SampleTime'])
+                temp = str(output['/Setup']['RxFilterfile'])
                 filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
 
                 # Compute the perturbation noise acf
                 num_lags = self.Nlags
-                perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
+                if self.FITOPTS['PERTURBATION_NOISE']:
+                    perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
+                else:
+                    perturbation_noise_acf = scipy.nan * scipy.zeros(num_lags)
 
                 if self.FITOPTS['FullProfile']:
                     (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo)=self.call_fitter_FP(S,Noise,sstr=fstr)
@@ -1587,7 +1692,7 @@ class Run_Fitter:
 
             # Output data to file
             # open file
-            with tables.openFile(self.OPTS['outfileLocked'], mode = "a") as outh5file:
+            with tables.open_file(self.OPTS['outfileLocked'], mode = "a") as outh5file:
                 # Processing params
                 if IIrec==0:
                     io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/ProcessingTimeStamp',scipy.array(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())))
@@ -1678,15 +1783,24 @@ class Run_Fitter:
 
         # make some final color plots
         if (self.OPTS['plotson']>0):
-            if len(self.OPTS['pcolClims'])>0 and len(self.OPTS['pcolYlims'])>0:
-                plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],clims=self.OPTS['pcolClims'],ylim=self.OPTS['pcolYlims'])
-            elif len(self.OPTS['pcolYlims'])>0:
-                plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],ylim=self.OPTS['pcolYlims'])
-            elif len(self.OPTS['pcolClims'])>0:
-                plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],clims=self.OPTS['pcolClims'])
+            # Set colour and range limits
+            if len(self.OPTS['pcolClims']) > 0:
+                clim = self.OPTS['pcolClims']
             else:
-                plot_utils.replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'])
+                clim = [[10,12],[0,1500],[0,3000],[0,4],[-500,500]]
+            if len(self.OPTS['pcolYlims']) > 0:
+                nonfitted_ylim = self.OPTS['pcolYlims']
+                fitted_ylim = self.OPTS['pcolYlims']
+            else:
+                nonfitted_ylim = []
+                fitted_ylim = []
 
+            if self.FITOPTS['MOTION_TYPE']==1: 
+                replot_pcolor_antenna_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],
+                                          clims=clim,nonfitted_ylim=nonfitted_ylim,fitted_ylim=fitted_ylim)
+            else:
+                replot_pcolor_all(self.OPTS['outfile'],saveplots=1,opath=self.OPTS['plotsdir'],
+                                  clims=clim,nonfitted_ylim=nonfitted_ylim,fitted_ylim=fitted_ylim)
         return 0
 
 #######

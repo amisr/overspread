@@ -16,7 +16,6 @@ import ctypes
 import scipy.fftpack
 import scipy.interpolate
 import scipy.optimize
-import scipy.stats
 
 import struct
 import time
@@ -28,8 +27,16 @@ import matplotlib
 matplotlib.use('Agg')
 import pylab
 
-sys.path.append('/Volumes/mnicolls/Documents/Work/ISfit/AMISRtools/python')
-sys.path.append('/Users/mnicolls/Documents/Work/ISfit/AMISR_fitter_py/src')
+
+import os
+fitter_base_path = os.environ['AMISR_FITTER_PATH'].split('AMISR_fitter_py')[0]
+amisr_tools_path = os.path.join(fitter_base_path,'AMISRtools/python')
+fitter_path = os.path.join(fitter_base_path,'AMISR_fitter_py/src')
+sys.path.append(amisr_tools_path)
+sys.path.append(fitter_path)
+
+#sys.path.append('/Volumes/mnicolls/Documents/Work/ISfit/AMISRtools/python')
+#sys.path.append('/Users/mnicolls/Documents/Work/ISfit/AMISR_fitter_py/src')
 
 import vvels
 import plot_utils
@@ -120,11 +127,11 @@ def getmlt(time,plong):
     
 def readafile(fname):
 
-    h5file=tables.openFile(fname)
+    h5file=tables.open_file(fname)
     output={}
-    for group in h5file.walkGroups("/"):
+    for group in h5file.walk_groups("/"):
         output[group._v_pathname]={}
-        for array in h5file.listNodes(group, classname = 'Array'):						
+        for array in h5file.list_nodes(group, classname = 'Array'):						
             output[group._v_pathname][array.name]=array.read()		
     h5file.close()
     
@@ -138,24 +145,24 @@ def write_outputfile(fhandle,dict2do,keys2do=[],groupname='',name=''):
         if fhandle.__contains__('/'+groupname):
             group='/'+groupname
         else:
-            group=fhandle.createGroup(fhandle.root, groupname, 'Dataset')
+            group=fhandle.create_group(fhandle.root, groupname, 'Dataset')
 
     if len(keys2do)==0:
         try:
-            fhandle.removeNode(group,name)
+            fhandle.remove_node(group,name)
         except:
             ''
-        fhandle.createArray(group,name, dict2do, "Dataset")
+        fhandle.create_array(group,name, dict2do, "Dataset")
     else:
         for key in keys2do:
             try:
-                fhandle.removeNode(group,key)
+                fhandle.remove_node(group,key)
             except:
                 ''		
             if type(dict2do[key]) is long:
-                fhandle.createArray(group, key, int(dict2do[key]), "Dataset")
+                fhandle.create_array(group, key, int(dict2do[key]), "Dataset")
             else:
-                fhandle.createArray(group, key, dict2do[key], "Dataset")
+                fhandle.create_array(group, key, dict2do[key], "Dataset")
 
 def dovelsAlt(fnameIn='',makeplot=1,plot2=0,zoom=[],saveout=1,clim=[-1000,1000], \
     sc=[15.0,15.0],swaphr=0,MinAlt=175.0,MaxAlt=450.0,PPP=[200.0,0.5,2000.0,100.0],COVAR=[3000.*3000.,3000.*3000.,15.*15.], \
@@ -189,9 +196,9 @@ def dovelsAlt(fnameIn='',makeplot=1,plot2=0,zoom=[],saveout=1,clim=[-1000,1000],
     plong=(dat1['/Geomag']['MagneticLongitude'])
     RangeGmag=(dat1['/Geomag']['Range'])
     Babs=dat1['/Geomag']['Babs']
-    Bmed = scipy.stats.nanmedian(Babs)
+    Bmed = scipy.nanmedian(Babs)
     for i in range(Bmed.ndim):
-        Bmed=scipy.stats.nanmedian(Bmed)		
+        Bmed=scipy.nanmedian(Bmed)		
 
     # fitted params
     ht=scipy.squeeze(dat1['/FittedParams']['Altitude'])
@@ -359,7 +366,7 @@ def dovelsAlt(fnameIn='',makeplot=1,plot2=0,zoom=[],saveout=1,clim=[-1000,1000],
         
     if saveout==1:
         print 'Writing output to ' + os.path.join(odir,ofname+'.h5')
-        outh5file=tables.openFile(os.path.join(odir,ofname+'.h5'), mode = "a", title = "Fit File")
+        outh5file=tables.open_file(os.path.join(odir,ofname+'.h5'), mode = "a", title = "Fit File")
         # Time
         write_outputfile(outh5file,timeout,groupname='Time',name='UnixTime')
         write_outputfile(outh5file,dtimeout,groupname='Time',name='dtime')
@@ -380,7 +387,7 @@ def dovelsAlt(fnameIn='',makeplot=1,plot2=0,zoom=[],saveout=1,clim=[-1000,1000],
         outh5file.close()
         
     if makeplot==1:	
-        talt=scipy.stats.stats.nanmedian(Alt1,axis=0)
+        talt=scipy.nanmedian(Alt1,axis=0)
         # velocity vector
         figg=plot_vvels1(timeout,scipy.mean(MLTtime1,axis=1),talt/1e3,vvels1[:,:,1],vvels1[:,:,0],dvvels1[:,:,1],dvvels1[:,:,0],
             title='Vector Velocities' + title,p=PPP,sc=sc[0],cax=clim,ncols=3,vz=vvels1[:,:,2],dvz=dvvels1[:,:,2],vzsc=10.0,label='Altitude (km)')
@@ -435,9 +442,9 @@ def dovels(fnameIn='',makeplot=1,plot2=0,zoom=[],saveout=1,plats=[[70.0,80.0,0.2
     plong=(dat1['/Geomag']['MagneticLongitude'])
     RangeGmag=(dat1['/Geomag']['Range'])
     Babs=dat1['/Geomag']['Babs']
-    Bmed = scipy.stats.nanmedian(Babs)
+    Bmed = scipy.nanmedian(Babs)
     for i in range(Bmed.ndim):
-        Bmed=scipy.stats.nanmedian(Bmed)		
+        Bmed=scipy.nanmedian(Bmed)		
     PPPe=(scipy.array(PPP).copy()).tolist(); PPPe[0]*=Bmed; PPPe[2]*=Bmed; PPPe[3]*=Bmed
     COVARe=(scipy.array(COVAR).copy()).tolist(); COVARe[0]*=Bmed*Bmed; COVARe[1]*=Bmed*Bmed; COVARe[2]*=Bmed*Bmed
     
@@ -611,7 +618,7 @@ def dovels(fnameIn='',makeplot=1,plot2=0,zoom=[],saveout=1,plats=[[70.0,80.0,0.2
         
     if saveout==1:
         print 'Writing output to ' + os.path.join(odir,ofname+'.h5')
-        outh5file=tables.openFile(os.path.join(odir,ofname+'.h5'), mode = "a", title = "Fit File")
+        outh5file=tables.open_file(os.path.join(odir,ofname+'.h5'), mode = "a", title = "Fit File")
         # Time
         write_outputfile(outh5file,timeout,groupname='Time',name='UnixTime')
         write_outputfile(outh5file,dtimeout,groupname='Time',name='dtime')
@@ -672,7 +679,7 @@ def plot_vvels1(time,MLTtime,lat,vx,vy,dvx,dvy,title='Vector Vels',units='m/s',p
         dvz=dvz.copy()*vzsc
     
     if lat.ndim==2:
-        lat2=scipy.stats.stats.nanmean(lat,axis=1)
+        lat2=scipy.nanmean(lat,axis=1)
         lat=scipy.concatenate((lat[:,0],lat[[-1],1]))
     else:
         lat2=lat
@@ -979,7 +986,7 @@ def plot_vvels1_mag(time,MLTtime,lat,vx,vy,dvx,dvy,title='Vector Vels',units='m/
     dvy=dvy.copy()
     
     if lat.ndim==2:
-        lat2=scipy.stats.stats.nanmean(lat,axis=1)
+        lat2=scipy.nanmean(lat,axis=1)
         lat=scipy.concatenate((lat[:,0],lat[[-1],1]))
     else:
         lat2=lat

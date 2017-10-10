@@ -169,7 +169,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
         else:
             #try:
             NrecsToSkip=0
-            outh5file=tables.openFile(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File")
+            outh5file=tables.open_file(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File")
             io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
             if self.FITOPTS['DO_FITS']:
                 io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
@@ -653,7 +653,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
             
             # Output data to file
             # open file
-            with tables.openFile(self.OPTS['outfileLocked'], mode = "a") as outh5file:
+            with tables.open_file(self.OPTS['outfileLocked'], mode = "a") as outh5file:
                 # Processing params
                 if IIrec==self.IIrec_first:
                     io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/ProcessingTimeStamp',scipy.array(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())))
