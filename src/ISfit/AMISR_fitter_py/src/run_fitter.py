@@ -413,7 +413,7 @@ class Run_Fitter:
         for Ibm in range(Nbeams):
             if 1==1:
 
-                print '\nBeam ' + str(Ibm)
+                print('\nBeam %s' % str(Ibm))
 
                 AzAng = S['BMCODES'][Ibm,1]
                 ElAng = S['BMCODES'][Ibm,2]
@@ -489,7 +489,7 @@ class Run_Fitter:
                     # Height and range
                     HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
                     RNG[Ibm,Iht]=RngMean
-                    print sstr + 'Alt ' + str(scipy.asarray(HT[Ibm,Iht]/1000.).round(decimals=2)) + ', Rng ' + str(scipy.asarray(RNG[Ibm,Iht]/1000.).round(decimals=2))
+                    print(sstr + 'Alt ' + str(scipy.asarray(HT[Ibm,Iht]/1000.).round(decimals=2)) + ', Rng ' + str(scipy.asarray(RNG[Ibm,Iht]/1000.).round(decimals=2)))
 
                     # using guess for Ne from density profile
                     tNe=scipy.absolute(scipy.mean(S['Power']['Ne_Mod'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]))
@@ -1180,8 +1180,6 @@ class Run_Fitter:
             return
 
 
-
-
         # make plot directory
         if self.OPTS['saveplots']==1:
             if not os.path.exists(self.OPTS['plotsdir']):
@@ -1237,7 +1235,7 @@ class Run_Fitter:
         curexpname=self.get_expname(files[0][frec])
         RecInt = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
 
-        print 'Experiment: ' + curexpname
+        print('Experiment: %s' % curexpname)
 
         ### start: main loop
         while not done:
@@ -1257,9 +1255,6 @@ class Run_Fitter:
                     if len(trecs)==0:
                         trecs=[min([Irec,uTime.shape[0]-1])]
                     Irecs.append(trecs)
-
-                    print trecs
-                    print uTime.shape
 
                     if self.FITOPTS['MOTION_TYPE']==1: # Az,El
                         I=scipy.where((outputAll[ii]['/Antenna']['Mode'][Irecs[ii],0] != AntennaMode) | (outputAll[ii]['/Antenna']['Mode'][Irecs[ii],1] != AntennaMode) |
@@ -1331,9 +1326,9 @@ class Run_Fitter:
                 break;
 
             # print the record numbers
-            print '\nFile ' + str(frec) + ' of ' + str(nfiles)
+            print '\nFile ' + str(frec+1) + ' of ' + str(nfiles)
             print 'Integration Number: ' + str(IIrec) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1])
-            fstr='File %d of %d, Rec %d, ' % (frec,nfiles,IIrec)
+            fstr='File %d of %d, Rec %d, ' % (frec+1,nfiles,IIrec+1)
 
             # skip records
             if NrecsToSkip>0:
@@ -1354,7 +1349,7 @@ class Run_Fitter:
             try:
                 output['/Rx']['CalTemp']
             except:
-                print self.DEFOPTS['CAL_TEMP_DEF']
+                print('Using default CalTemp %s' % str(self.DEFOPTS['CAL_TEMP_DEF']))
                 output['/Rx']['CalTemp']=self.DEFOPTS['CAL_TEMP_DEF']
 
             # process a record
