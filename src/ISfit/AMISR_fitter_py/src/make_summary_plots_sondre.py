@@ -165,9 +165,7 @@ def pcolor_plot_antenna(x,y,data,clim,xlim,ylim,xl,yl,title,text,az,el,trimmed_u
 
 
 def pcolor_plot_antenna_all(plot_info, data):
-    nionPlot = 0
-    mi = data['FittedParams']['mi']
-    ion = 0
+
     #RF,clims=[[10,12],[0,1500],[0,3000],[0,4],[-500,500]],ylim=[],ylim0=[],tlim=[],txMax=1.0e6,mi=[],nionPlot=0):
 
     # get required time information
@@ -271,6 +269,11 @@ def pcolor_plot_antenna_all(plot_info, data):
 
     # Now plot the fitted data if we need to.   
     if plot_info['is_fitted']:
+        # number of ions related information
+        nionPlot = 0
+        mi = data['FittedParams']['mi']
+        ion = 0
+
         # First make the plots of the NeFromPower parameters
         altitude        = data['FittedParams']['alt'] / 1000.0
         inds            = np.where(~np.isfinite(altitude))     # set all non finite values nan
