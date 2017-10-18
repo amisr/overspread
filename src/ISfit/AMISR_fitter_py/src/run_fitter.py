@@ -1180,17 +1180,19 @@ class Run_Fitter:
                 raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'
             files[ii]=sorted(files[ii],key=os.path.basename)
 
-
+        # Get number of raw files
         nfiles = 0
         for file_list in files:
             nfiles += len(file_list) # number of files to process
-        
-        print('Found %s raw files to process...' % nfiles)
+        print('Found %s raw files and on %s frequencies...' % (nfiles,NFREQ))
 
         if nfiles==0: # abort!
             print('Nothing to do...')
             return
 
+        # Announce number of file groups (essentially the number of files per frequency)
+        num_file_groups = nfiles/NFREQ
+        print('There are %s file groups to process...' % (num_file_groups))
 
         # make plot directory
         if self.OPTS['saveplots']==1:
@@ -1275,7 +1277,7 @@ class Run_Fitter:
                             Irecs[ii]=Irecs[ii][:I[0]]
 
             """
-            except:
+            except:  # this handles cases where there are big time gaps between raw files or records?
                 Irecs=[]
                 for ii in range(NFREQ):
                     Irecs.append([-1])
@@ -1284,7 +1286,7 @@ class Run_Fitter:
             breakout=0
             while (Irec>=output['/Time']['UnixTime'].shape[0] or Irecs[0][-1]==(output['/Time']['UnixTime'].shape[0]-1)) and done==0 and breakout==0: # it has read the last record, so try to read another file
                 frec+=1
-                if frec>=nfiles:
+                if frec>=num_file_groups:
                     done=1
                 else:
                     # read another file
@@ -1338,9 +1340,9 @@ class Run_Fitter:
                 break;
 
             # print the record numbers
-            print '\nFile ' + str(frec+1) + ' of ' + str(nfiles)
-            print 'Integration Number: ' + str(IIrec) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1])
-            fstr='File %d of %d, Rec %d, ' % (frec+1,nfiles,IIrec+1)
+            print '\nFile Group ' + str(frec) + ' of ' + str(num_file_groups)
+            print 'Integration Number: ' + str(IIrec+1) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1])
+            fstr='File Group %d of %d, Rec %d, ' % (frec,num_file_groups,IIrec+1)
 
             # skip records
             if NrecsToSkip>0:
