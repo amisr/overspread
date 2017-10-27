@@ -4,4 +4,11 @@
 *.log*
 *.log
 *.*~
+*.o
+*.so
+*.so.*
+*.tar
+*.gz
+*.a
+*.la
 .DS_Store
