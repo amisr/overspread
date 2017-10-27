@@ -1,6 +1,5 @@
 
 import os
-import scipy
 import numpy as np
 import tables
 import matplotlib
@@ -20,26 +19,26 @@ def timegaps(time,data,rngOpt=[]):
         rng2=[]
 
     time2=[]
-    if scipy.ndim(data)==3:
-        concnan=scipy.zeros((1,data.shape[1],data.shape[2]),dtype=data.dtype)*scipy.nan
-    elif scipy.ndim(data)==2:
-        concnan=scipy.zeros((1,data.shape[1]),dtype=data.dtype)*scipy.nan
+    if np.ndim(data)==3:
+        concnan=np.zeros((1,data.shape[1],data.shape[2]),dtype=data.dtype)*np.nan
+    elif np.ndim(data)==2:
+        concnan=np.zeros((1,data.shape[1]),dtype=data.dtype)*np.nan
     data2=data.copy()
-    dt=scipy.median(scipy.diff(scipy.mean(time,axis=1)))
+    dt=np.median(np.diff(np.mean(time,axis=1)))
     for aa in range(time.shape[0]-1):
         time2.append(time[aa,0])
         if ( (time[aa+1,1]-time[aa,0]) > (dt*2.0) ):
             time2.append(time[aa,1])
             #print datetime.datetime.utcfromtimestamp(time[aa,1])
-            if scipy.ndim(data)==3:
-                data2=scipy.concatenate((data2[0:len(time2)-1,:,:],concnan,data2[len(time2)-1:,:,:]),axis=0)
-            elif scipy.ndim(data)==2:
-                data2=scipy.concatenate((data2[0:len(time2)-1,:],concnan,data2[len(time2)-1:,:]),axis=0)
+            if np.ndim(data)==3:
+                data2=np.concatenate((data2[0:len(time2)-1,:,:],concnan,data2[len(time2)-1:,:,:]),axis=0)
+            elif np.ndim(data)==2:
+                data2=np.concatenate((data2[0:len(time2)-1,:],concnan,data2[len(time2)-1:,:]),axis=0)
 
     time2.append(time[-1,0])
     time2.append(time[-1,1])
 
-    return scipy.array(time2), data2
+    return np.array(time2), data2
 
 
 def pcolor_plot_antenna(x,y,data,clim,xlim,ylim,xl,yl,title,text,az,el,trimmed_unix_time,save_fig_name=None,log=0):
@@ -83,8 +82,8 @@ def pcolor_plot_antenna(x,y,data,clim,xlim,ylim,xl,yl,title,text,az,el,trimmed_u
     figsz = (14,10)
 
     fig = pyplot.figure(figsize=figsz, facecolor=figBG)
-    ax1 = fig.add_axes([0.1,0.3,0.75,0.6], axis_bgcolor=axesBG)
-    ax2 = fig.add_axes([0.1,0.1,0.75,0.15], axis_bgcolor=axesBG)
+    ax1 = fig.add_axes([0.1,0.3,0.75,0.6], facecolor=axesBG)
+    ax2 = fig.add_axes([0.1,0.1,0.75,0.15], facecolor=axesBG)
     cax = fig.add_axes([0.87,0.3,0.03,0.6])
     
 
@@ -177,7 +176,7 @@ def pcolor_plot_antenna_all(plot_info, data):
 
     # Determine how many time groups of plots we should make
     total_time = (unix_time[-1,-1] - unix_time[0,0]) / 3600.0
-    num_time_groups = scipy.ceil(total_time / max_time)
+    num_time_groups = np.ceil(total_time / max_time)
 
     # Check if the output path exists
     print plot_info['plotsdir']
@@ -211,7 +210,7 @@ def pcolor_plot_antenna_all(plot_info, data):
 
     start_ind=0;
     for time_ind in range(int(num_time_groups)):
-        end_ind = scipy.where(unix_time[:,-1] <= (unix_time[start_ind,0] + max_time * 3600.0))[0]
+        end_ind = np.where(unix_time[:,-1] <= (unix_time[start_ind,0] + max_time * 3600.0))[0]
         end_ind = end_ind[-1]
         tlim = [start_ind,end_ind]
         start_ind = end_ind+1
@@ -239,7 +238,7 @@ def pcolor_plot_antenna_all(plot_info, data):
         txt  = r'$\rm{Ne - no Tr} \ (\rm{m}^{-3})$'
 
         plot_times, plot_datas = timegaps(trimmed_unix_time,ne_notr[tlim[0]:tlim[1]+1])
-        plot_datas = np.ma.masked_where(scipy.isnan(plot_datas),plot_datas)
+        plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
 
         if plot_info['saveplots']==1:
             oname = title + '_NePower_NoTr' + txtra + '.png'
@@ -255,7 +254,7 @@ def pcolor_plot_antenna_all(plot_info, data):
         txt  = r'$\rm{SNR} \ (\rm{dB})$'
 
         plot_times, plot_datas = timegaps(trimmed_unix_time,snr[tlim[0]:tlim[1]+1])
-        plot_datas = np.ma.masked_where(scipy.isnan(plot_datas),plot_datas)
+        plot_datas = np.ma.masked_where(np.isnan(plot_datas),plot_datas)
 
         if plot_info['saveplots']==1:
             oname = title + '_SNR' + txtra + '.png'
@@ -306,7 +305,7 @@ def pcolor_plot_antenna_all(plot_info, data):
 
         start_ind=0;
         for time_ind in range(int(num_time_groups)):
-            end_ind = scipy.where(unix_time[:,-1] <= (unix_time[start_ind,0] + max_time * 3600.0))[0]
+            end_ind = np.where(unix_time[:,-1] <= (unix_time[start_ind,0] + max_time * 3600.0))[0]
             end_ind = end_ind[-1]
             tlim = [start_ind,end_ind]
             start_ind = end_ind+1
