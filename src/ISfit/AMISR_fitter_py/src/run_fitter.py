@@ -12,8 +12,8 @@ version='0.1.2017.10'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
-print matplotlib.get_backend()
 
+import numpy as np
 import sys, os.path, glob, datetime, time, copy
 import optparse, ConfigParser
 import tables, ctypes
@@ -174,60 +174,50 @@ class Run_Fitter:
         # parse the ini file
         self.ini_parse(options.conffile)
 
-        self.ct_spec=ctypes.CDLL(self.LIB_SPEC) # spectra library
-        self.ct_msis=ctypes.CDLL(self.LIB_MSIS) # MSIS library
-#            self.ct_aacgm=ctypes.CDLL(self.LIB_AACGM) # AACGM library
-#            self.ct_igrf=ctypes.CDLL(self.LIB_IGRF) # IGRF library
-        self.ct_geolib=ctypes.CDLL(self.LIB_GEOLIB) # GEOLIB library
-        self.ct_flipchem=ctypes.CDLL(self.LIB_FLIPCHEM) # FLIP chemistry library
         # load libraries
         try:
-
-            self.ct_msis=ctypes.CDLL(self.LIB_MSIS) # MSIS library
-#            self.ct_aacgm=ctypes.CDLL(self.LIB_AACGM) # AACGM library
-#            self.ct_igrf=ctypes.CDLL(self.LIB_IGRF) # IGRF library
-            self.ct_geolib=ctypes.CDLL(self.LIB_GEOLIB) # GEOLIB library
-            self.ct_flipchem=ctypes.CDLL(self.LIB_FLIPCHEM) # FLIP chemistry library
-            #self.igrf=ct.CDLL(self.IRI_LIBPATH) # iri
-        except:
-            raise IOError, 'Problem loading libraries'
+            self.ct_spec     = ctypes.CDLL(self.LIB_SPEC)       # spectra library
+            self.ct_msis     = ctypes.CDLL(self.LIB_MSIS)       # MSIS library
+            self.ct_geolib   = ctypes.CDLL(self.LIB_GEOLIB)     # GEOLIB library
+            self.ct_flipchem = ctypes.CDLL(self.LIB_FLIPCHEM)   # FLIP chemistry library
+        except Exception as e:
+            raise IOError,'Problem loading libraries: %s' % (str(e))
 
         # set some environment variables
-        os.putenv('AACGM_DAT_PREFIX',self.AACGM_DAT_PREFIX)
-        os.putenv('IGRF_PATH',self.IGRF_PATH)
+        # os.putenv('AACGM_DAT_PREFIX',self.AACGM_DAT_PREFIX)
+        # os.putenv('IGRF_PATH',self.IGRF_PATH)
 
-        # load data files
-        (self.pldfvvr,self.pldfvvi)=load_disp_table(self.DAT_PLDFVV)
+        # load ISR spectrum model data files
+        (self.pldfvvr,self.pldfvvi) = load_disp_table(self.DAT_PLDFVV)
 
         # load the lag ambiguity function
         try:
-            if type(self.OPTS['AMB_PATH'])!=tuple:
+            if type(self.OPTS['AMB_PATH']) != tuple:
                 if os.path.exists(self.OPTS['AMB_PATH']):
                     self.AMB=io_utils.load_amb_func(self.OPTS['AMB_PATH'],full=self.FITOPTS['FullProfile'])
                     self.AMB['Loaded']=1
-                    print 'Read ambiguity function from external file - ' + self.OPTS['AMB_PATH']
+                    print('Read ambiguity function from external file - %s' % (self.OPTS['AMB_PATH']))
             else:
-                if len(self.OPTS['AMB_PATH'])!=2:
-                   print 'Ambiguity Function as tuple must be length 2'
+                if len(self.OPTS['AMB_PATH']) != 2:
+                   print('Ambiguity Function as tuple must be length 2')
                 else:
-                    tmp=io_utils.load_amb_func(self.OPTS['AMB_PATH'][0],full=self.FITOPTS['FullProfile'])
-                    self.AMB=io_utils.load_amb_func(self.OPTS['AMB_PATH'][1],full=self.FITOPTS['FullProfile'])
-                    self.AMB['Wlag'][0,:]=scipy.interpolate.interp1d(tmp['Delay'], tmp['Wlag'],bounds_error=0,fill_value=0.0)(self.AMB['Delay']) # linear interpolation
-                    self.AMB['Wrange'][0,:]=scipy.interpolate.interp1d(tmp['Range'], tmp['Wrange'],bounds_error=0,fill_value=0.0)(self.AMB['Range']) # linear interpolation
-                    self.AMB['WlagSum'][0]=tmp['WlagSum'][0]
-                    self.AMB['WrangeSum'][0]=tmp['WrangeSum'][0]
+                    tmp      = io_utils.load_amb_func(self.OPTS['AMB_PATH'][0],full=self.FITOPTS['FullProfile'])
+                    self.AMB = io_utils.load_amb_func(self.OPTS['AMB_PATH'][1],full=self.FITOPTS['FullProfile'])
+                    self.AMB['Wlag'][0,:]    = scipy.interpolate.interp1d(tmp['Delay'],tmp['Wlag'],bounds_error=0,fill_value=0.0)(self.AMB['Delay']) # linear interpolation
+                    self.AMB['Wrange'][0,:]  = scipy.interpolate.interp1d(tmp['Range'], tmp['Wrange'],bounds_error=0,fill_value=0.0)(self.AMB['Range']) # linear interpolation
+                    self.AMB['WlagSum'][0]   = tmp['WlagSum'][0]
+                    self.AMB['WrangeSum'][0] = tmp['WrangeSum'][0]
                     self.AMB['Loaded']=1
-                    print 'Read ambiguity function from external file - ' + self.OPTS['AMB_PATH'][0]
-                    print 'Read ambiguity function from external file - ' + self.OPTS['AMB_PATH'][1]
+                    print('Read ambiguity function from external file - %s' % (self.OPTS['AMB_PATH'][0]))
+                    print('Read ambiguity function from external file - %s' % (self.OPTS['AMB_PATH'][1]))
         except:
-            raise IOError,'Problem reading ambiguity function from file %s even though file exists' % self.OPTS['AMB_PATH']
+            raise IOError,'Problem reading ambiguity function from file %s even though file exists' % (self.OPTS['AMB_PATH'])
 
         # set some other variables
         if self.FITOPTS['DO_FITS']:
             self.FITOPTS['NFIT']=scipy.zeros(self.FITOPTS['Ngroup'])
             for i in range(self.FITOPTS['Ngroup']):
                 self.FITOPTS['NFIT'][i]=scipy.where(self.FITOPTS['Ifit'][i,:,:]==1)[0].shape[0]
-
 
         return
 
@@ -352,13 +342,13 @@ class Run_Fitter:
     def call_fitter(self,S,Noise,perturbation_noise_acf,sstr=''):
 
         ### Beams, Lags, Ranges
-        Nbeams=self.Nbeams # number of beams
-        Nlags=self.Nlags # number of lags
-        Nranges=self.Nranges # number of ranges
+        Nbeams  = self.Nbeams  # number of beams
+        Nlags   = self.Nlags   # number of lags
+        Nranges = self.Nranges # number of ranges
 
         ### frequency array for computation of theoretical spectra
-        NFFT=self.DEFOPTS['NFFT']
-        f=scipy.linspace(-self.DEFOPTS['FREQ_EVAL'],self.DEFOPTS['FREQ_EVAL'],NFFT+1)
+        NFFT = self.DEFOPTS['NFFT']
+        f    = scipy.linspace(-self.DEFOPTS['FREQ_EVAL'],self.DEFOPTS['FREQ_EVAL'],NFFT+1)
 
         ### Output variables
         Ihtbm=scipy.zeros(Nbeams)
@@ -848,17 +838,14 @@ class Run_Fitter:
 
     # This function parses the configuration files
     def ini_parse(self,inifile):
-        #
-        #
-        #
 
+        print("Using the following configuration files: %s" % (str(inifile.split(','))))
+        
         # setup ConfigParser object
-        config=ConfigParser.ConfigParser()
-        print inifile.split(',')
+        config = ConfigParser.ConfigParser()
         config.read(inifile.split(','))
 
         # make sure all necessary sections exist
-        print(inifile)
         if (not config.has_section('GENERAL')):
             raise IOError, 'Configuration files must contain at least section: GENERAL'
         if (not config.has_section('FIT_OPTIONS')):
@@ -872,8 +859,6 @@ class Run_Fitter:
         self.FITTER_PATH=io_utils.ini_tool(config,'DEFAULT','FITTER_PATH',required=1,defaultParm='')
         self.FITOPTS['MOTION_TYPE']=eval(io_utils.ini_tool(config,'DEFAULT','MOTION_TYPE',required=0,defaultParm='0'))
         self.LIB_SPEC=io_utils.ini_tool(config,'GENERAL','LIB_SPEC',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/spec/spec.1'))
-#        self.LIB_AACGM=io_utils.ini_tool(config,'GENERAL','LIB_AACGM',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/aacgm/aacgm.1'))
-#        self.LIB_IGRF=io_utils.ini_tool(config,'GENERAL','LIB_IGRF',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/igrf/igrf.1'))
         self.LIB_FLIPCHEM=io_utils.ini_tool(config,'GENERAL','LIB_FLIPCHEM',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/FLIPCHEM/FLIPCHEM'))
         self.LIB_GEOLIB=io_utils.ini_tool(config,'GENERAL','LIB_GEOLIB',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/GEOLIB/GEOLIB'))
         self.LIB_IRI=io_utils.ini_tool(config,'GENERAL','LIB_IRI',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/iri/iri'))
@@ -984,7 +969,8 @@ class Run_Fitter:
 
         self.config = config
 
-        return 0
+        return
+
 
     def read_a_datafile(self,files,frec,output=[],Irec=-1,nrecs=-1):
 
@@ -999,40 +985,41 @@ class Run_Fitter:
             raise IOError, 'The input file does not exist.'
 
         # read the entire file
-        h5file=tables.open_file(fname)
-        if len(output)==0 or Irec==-1 or nrecs==-1: # we dont need to worry about preserving records
-            output={}
-            for group in h5file.walk_groups("/"):
-                if 'RAW' in group._v_pathname.upper():
-                    continue
-                output[group._v_pathname]={}
-                for array in h5file.list_nodes(group, classname = 'Array'):
-                    output[group._v_pathname][array.name]=array.read()
-        else: # we do need to worry about preserving records
-            output_cp=output
-            output={}
-            for group in h5file.walk_groups("/"):
-                if 'RAW' in group._v_pathname.upper():
-                    continue
-                output[group._v_pathname]={}
-                for array in h5file.list_nodes(group, classname = 'Array'):
-                    output[group._v_pathname][array.name]=array.read()
-                    if (scipy.ndim(scipy.asarray(output_cp[group._v_pathname][array.name]))>0) and (scipy.asarray(output_cp[group._v_pathname][array.name]).shape[0]==nrecs): # it is a record we should preserve
-                        output[group._v_pathname][array.name]=scipy.concatenate((output_cp[group._v_pathname][array.name][Irec:],output[group._v_pathname][array.name]),axis=0)
-
-        h5file.close()
+        with tables.open_file(fname) as h5file:
+            if len(output)==0 or Irec==-1 or nrecs==-1: # we dont need to worry about preserving records
+                output={}
+                for group in h5file.walk_groups("/"):
+                    if 'RAW' in group._v_pathname.upper():
+                        continue
+                    output[group._v_pathname]={}
+                    for array in h5file.list_nodes(group, classname = 'Array'):
+                        output[group._v_pathname][array.name]=array.read()
+            else: # we do need to worry about preserving records
+                output_cp=output
+                output={}
+                for group in h5file.walk_groups("/"):
+                    if 'RAW' in group._v_pathname.upper():
+                        continue
+                    output[group._v_pathname]={}
+                    for array in h5file.list_nodes(group, classname = 'Array'):
+                        output[group._v_pathname][array.name]=array.read()
+                        if (scipy.ndim(scipy.asarray(output_cp[group._v_pathname][array.name]))>0) and (scipy.asarray(output_cp[group._v_pathname][array.name]).shape[0]==nrecs): # it is a record we should preserve
+                            output[group._v_pathname][array.name]=scipy.concatenate((output_cp[group._v_pathname][array.name][Irec:],output[group._v_pathname][array.name]),axis=0)
 
         return output
 
+
     def get_expname(self,fname):
         try:
-            h5file=tables.open_file(fname)
-            expname=h5file.get_node('/Setup/Experimentfile').read()
-            h5file.close()
+            with tables.open_file(fname) as h5file:
+                expname = h5file.get_node('/Setup/Experimentfile').read()
+
             if type(expname)==scipy.ndarray:
                 expname=expname[0]
             expname=expname.splitlines()[1].split('=')[1]
-        except:
+        except Exception as e:
+            print("Could not determine Experiment Name because: %s" % (str(e)))
+            print("Defaulting to blank name.")
             expname=''
 
         return expname
@@ -1062,7 +1049,6 @@ class Run_Fitter:
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/System',System)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/User',User)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/Host',Hostname)
-
 
         # Fitter configuration information
         Version = version  # Eventually replaced by self.__version__
@@ -1133,9 +1119,9 @@ class Run_Fitter:
 
         # check out the FILELIST
         try:
-            if (type(self.OPTS['FILELIST'])!=tuple):
-                self.OPTS['FILELIST']=tuple([self.OPTS['FILELIST']])
-            NFREQ=len(self.OPTS['FILELIST'])
+            if (type(self.OPTS['FILELIST']) != tuple):
+                self.OPTS['FILELIST'] = tuple([self.OPTS['FILELIST']])
+            NFREQ = len(self.OPTS['FILELIST'])
         except:
             print 'Problem understanding filelist'
             return
@@ -1184,7 +1170,7 @@ class Run_Fitter:
         nfiles = 0
         for file_list in files:
             nfiles += len(file_list) # number of files to process
-        print('Found %s raw files and %s frequencies...' % (nfiles,NFREQ))
+        print('Found %s raw files and %s frequency band(s)...' % (nfiles,NFREQ))
 
         if nfiles==0: # abort!
             print('Nothing to do...')
@@ -1200,23 +1186,28 @@ class Run_Fitter:
                 try:
                     os.mkdir(self.OPTS['plotsdir'])
                 except:
-                    print 'Cant make plots dir'
+                    print('Cant make plots dir.')
 
         # create the output file
         self.OPTS['outfileLocked'] = self.OPTS['outfile']+'.lock'
         if os.path.exists(self.OPTS['outfileLocked']) and self.ContinueFromLocked:
             try:
-                output=io_utils.read_whole_h5file(self.OPTS['outfileLocked'])
-                print output.keys()
-                NrecsToSkip=output['/Time']['UnixTime'].shape[0]
+                output      = io_utils.read_whole_h5file(self.OPTS['outfileLocked'])
+                NrecsToSkip = output['/Time']['UnixTime'].shape[0]
                 del output
-                print "Continuing using " + self.OPTS['outfileLocked'] + " from record " + str(NrecsToSkip)
+                print("Continuing using %s from record %s." % (self.OPTS['outfileLocked'],str(NrecsToSkip)))
             except:
                 raise IOError, 'Unable to continue from locked file: ' + self.OPTS['outfileLocked']
         else:
-            NrecsToSkip=0
-            with tables.open_file(self.OPTS['outfileLocked'], mode = "w", title = "Fitted Output File") as outh5file:
-                io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],self.h5Paths['Geomag'],self.h5Paths['RawPower'],self.h5Paths['Params'],self.h5Paths['Site'],self.h5Paths['Time']])
+            NrecsToSkip = 0
+            with tables.open_file(self.OPTS['outfileLocked'], mode = "w",
+                                  title = "Fitted Output File") as outh5file:
+                io_utils.createh5groups(outh5file,[self.h5Paths['MSIS'],
+                                                   self.h5Paths['Geomag'],
+                                                   self.h5Paths['RawPower'],
+                                                   self.h5Paths['Params'],
+                                                   self.h5Paths['Site'],
+                                                   self.h5Paths['Time']])
                 if self.FITOPTS['DO_FITS']:
                     io_utils.createh5groups(outh5file,[self.h5Paths['Fitted'],self.h5Paths['FitInfo']])
                     if self.OPTS['saveACFs']:
@@ -1227,29 +1218,29 @@ class Run_Fitter:
                 # Add fitter version number and config files (fit, io, system defaults)
                 self.write_config_info(outh5file,files)
 
-
         # initialize some vars
-        done=0 # flag to say when we are done
-        IIrec=0 # record counter
-        Irec=0 # record counter within a file
-        frec=0 # file counter
-        newexp=0 # experiment switch
-        read_new=1 # flag that says to read a new file
-        Iplot=self.OPTS['nplots'] # plot counter
-        Ibeams=None
+        done     = 0 # flag to say when we are done
+        IIrec    = 0 # record counter
+        Irec     = 0 # record counter within a file
+        frec     = 0 # file counter
+        newexp   = 0 # experiment switch
+        read_new = 1 # flag that says to read a new file
+        Iplot    = self.OPTS['nplots'] # plot counter
+        Ibeams   = None
 
         # read the first file
-        Ibad=[]
-        outputAll=[]
+        Ibad      = list()
+        outputAll = list()
         for ii in range(NFREQ):
             outputAll.append(self.read_a_datafile(files[ii],frec)) # read the first data files
-            if self.FITOPTS['MOTION_TYPE']==1: # Az,El
+            if self.FITOPTS['MOTION_TYPE'] == 1: # Az,El
                 Ibad.append(scipy.where((outputAll[ii]['/Antenna']['Mode'][:,0] != outputAll[ii]['/Antenna']['Mode'][:,1]) | (outputAll[ii]['/Antenna']['Event'][:,0] != outputAll[ii]['/Antenna']['Event'][:,1]))[0])
-        output=outputAll[0]
-        curexpname=self.get_expname(files[0][frec])
-        RecInt = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
 
-        print('Experiment: %s' % curexpname)
+        output      = outputAll[0]
+        curexpname  = self.get_expname(files[0][frec])
+        RecInt      = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
+
+        print('Experiment: %s' % (curexpname))
 
         ### start: main loop
         while not done:
