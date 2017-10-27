@@ -1184,7 +1184,7 @@ class Run_Fitter:
         nfiles = 0
         for file_list in files:
             nfiles += len(file_list) # number of files to process
-        print('Found %s raw files and on %s frequencies...' % (nfiles,NFREQ))
+        print('Found %s raw files and %s frequencies...' % (nfiles,NFREQ))
 
         if nfiles==0: # abort!
             print('Nothing to do...')
