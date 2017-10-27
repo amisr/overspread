@@ -10,7 +10,7 @@ from amisr_py.plotting import plotVvels
 import vvels
 
 import os
-import scipy, scipy.stats
+import numpy as np
 import time
 import ConfigParser
 import datetime
@@ -249,8 +249,8 @@ class vvelsLat:
                 self.covarE
             except:
                 Bmed=5e-5
-                self.pppE=(scipy.array(self.ppp).copy()).tolist(); self.pppE[0]*=Bmed; self.pppE[2]*=Bmed; self.pppE[3]*=Bmed
-                self.covarE=(scipy.array(self.covar).copy()).tolist(); self.covarE[0]*=Bmed*Bmed; self.covarE[1]*=Bmed*Bmed; self.covarE[2]*=Bmed*Bmed
+                self.pppE=(np.array(self.ppp).copy()).tolist(); self.pppE[0]*=Bmed; self.pppE[2]*=Bmed; self.pppE[3]*=Bmed
+                self.covarE=(np.array(self.covar).copy()).tolist(); self.covarE[0]*=Bmed*Bmed; self.covarE[1]*=Bmed*Bmed; self.covarE[2]*=Bmed*Bmed
             
             
             if (timeout[-1,-1]-timeout[0,0])/3600.0>36.0:
@@ -291,7 +291,7 @@ class vvelsLat:
             mths.append([dates[i][0].month,dates[i][1].month])
             days.append([dates[i][0].day,dates[i][1].day])
             dtime.append([dates[i][0].hour+dates[i][0].minute/60.0+dates[i][0].second/3600.0,dates[i][1].hour+dates[i][1].minute/60.0+dates[i][1].second/3600.0])
-        yrs=scipy.array(yrs); mths=scipy.array(mths); days=scipy.array(days); dtime=scipy.array(dtime);
+        yrs=np.array(yrs); mths=np.array(mths); days=np.array(days); dtime=np.array(dtime);
                
         if binByDay:
             r1=datetime.date(dates[0][0].year,dates[0][0].month,dates[0][0].day)
@@ -306,7 +306,7 @@ class vvelsLat:
             tplus='byDay'
         else:
             Ttotal=(timeout[-1,-1]-timeout[0,0])/3600.0
-            Ntrecs=scipy.ceil(Ttotal/txMax)
+            Ntrecs=np.ceil(Ttotal/txMax)
             tplus='by' + str(txMax) + 'hr'
                    
         iStart=0; 
@@ -315,10 +315,10 @@ class vvelsLat:
                 break;
                         
             if binByDay:
-                iEnd=scipy.where((yrs[:,0]==yrs[iStart,0]) & (mths[:,0]==mths[iStart,0]) & (days[:,0]==days[iStart,0]))[0]
+                iEnd=np.where((yrs[:,0]==yrs[iStart,0]) & (mths[:,0]==mths[iStart,0]) & (days[:,0]==days[iStart,0]))[0]
                 iEnd=iEnd[-1]
             else:
-                iEnd=scipy.where(timeout[:,-1]<=(timeout[iStart,0]+txMax*3600.0))[0]
+                iEnd=np.where(timeout[:,-1]<=(timeout[iStart,0]+txMax*3600.0))[0]
                 iEnd=iEnd[-1]
             tlim=[iStart,iEnd]
             iStart=iEnd+1
@@ -333,7 +333,7 @@ class vvelsLat:
             # velocity vector
             vecPlot = plotVvels.vvelsPlot()
             tvv = vvels1[tlim[0]:(tlim[1]+1)]; dtvv = dvvels1[tlim[0]:(tlim[1]+1)]
-            vecPlot.makePlot(timeout[tlim[0]:(tlim[1]+1)],scipy.mean(MLTtime1[tlim[0]:(tlim[1]+1)],axis=1),lat,tvv[:,:,1],tvv[:,:,0],dtvv[:,:,1],dtvv[:,:,0],\
+            vecPlot.makePlot(timeout[tlim[0]:(tlim[1]+1)],np.mean(MLTtime1[tlim[0]:(tlim[1]+1)],axis=1),lat,tvv[:,:,1],tvv[:,:,0],dtvv[:,:,1],dtvv[:,:,0],\
                 title='Vector Velocities' + title,p=self.ppp,sc=self.sc,cax=self.clim,ncols=3,\
                 vz=tvv[:,:,2],dvz=dtvv[:,:,2],vzsc=10.0,label=label,geo=self.byGeo)
             if self.saveout:
@@ -343,7 +343,7 @@ class vvelsLat:
                 
             # velocity magnitude
             magPlot = plotVvels.vvelsMagPlot()            
-            magPlot.makePlot(timeout[tlim[0]:(tlim[1]+1)],scipy.mean(MLTtime1[tlim[0]:(tlim[1]+1)],axis=1),lat,Vmag[tlim[0]:(tlim[1]+1)],Vdir[tlim[0]:(tlim[1]+1)],dVmag[tlim[0]:(tlim[1]+1)],dVdir[tlim[0]:(tlim[1]+1)],
+            magPlot.makePlot(timeout[tlim[0]:(tlim[1]+1)],np.mean(MLTtime1[tlim[0]:(tlim[1]+1)],axis=1),lat,Vmag[tlim[0]:(tlim[1]+1)],Vdir[tlim[0]:(tlim[1]+1)],dVmag[tlim[0]:(tlim[1]+1)],dVdir[tlim[0]:(tlim[1]+1)],
                     title='Vector Velocities' + title,cax1=[0.0,self.clim[1]],cax2=[-180.0,180.0],label=label)
             if self.saveout:
                 magPlot.figg.savefig(outputFname+'-vmag' +txtra +'.png')
@@ -352,7 +352,7 @@ class vvelsLat:
             # electric field vector
             vecPlot = plotVvels.vvelsPlot()
             tvv = evec1[tlim[0]:(tlim[1]+1)]; dtvv = devec1[tlim[0]:(tlim[1]+1)]
-            vecPlot.makePlot(timeout[tlim[0]:(tlim[1]+1)],scipy.mean(MLTtime1[tlim[0]:(tlim[1]+1)],axis=1),lat,tvv[:,:,1]*1e3,tvv[:,:,0]*1e3,dtvv[:,:,1]*1e3,dtvv[:,:,0]*1e3,\
+            vecPlot.makePlot(timeout[tlim[0]:(tlim[1]+1)],np.mean(MLTtime1[tlim[0]:(tlim[1]+1)],axis=1),lat,tvv[:,:,1]*1e3,tvv[:,:,0]*1e3,dtvv[:,:,1]*1e3,dtvv[:,:,0]*1e3,\
                 title='Electric Fields' + title,p=[self.pppE[0]*1e3,self.pppE[1],self.pppE[2]*1e3,self.pppE[3]*1e3],sc=self.sc*5e-2,\
                 cax=[self.clim[0]*5e-2,self.clim[1]*5e-2],ncols=3,\
                 vz=tvv[:,:,2]*1e3,dvz=dtvv[:,:,2]*1e3,vzsc=10.0,label=label,geo=self.byGeo,units='mV/m',parm='E')
@@ -362,7 +362,7 @@ class vvelsLat:
             
             # electric field magnitude
             magPlot = plotVvels.vvelsMagPlot()
-            magPlot.makePlot(timeout[tlim[0]:(tlim[1]+1)],scipy.mean(MLTtime1[tlim[0]:(tlim[1]+1)],axis=1),lat,Emag[tlim[0]:(tlim[1]+1)]*1e3,Edir[tlim[0]:(tlim[1]+1)],dEmag[tlim[0]:(tlim[1]+1)]*1e3,dEdir[tlim[0]:(tlim[1]+1)],
+            magPlot.makePlot(timeout[tlim[0]:(tlim[1]+1)],np.mean(MLTtime1[tlim[0]:(tlim[1]+1)],axis=1),lat,Emag[tlim[0]:(tlim[1]+1)]*1e3,Edir[tlim[0]:(tlim[1]+1)],dEmag[tlim[0]:(tlim[1]+1)]*1e3,dEdir[tlim[0]:(tlim[1]+1)],
                     title='Electric Fields' + title,cax1=[0.0,self.clim[1]*5e-2],cax2=[-180.0,180.0],label=label,units='mV/m',parm='E')
             if self.saveout:
                 magPlot.figg.savefig(outputFname+'-emag' +txtra +'.png')  
@@ -392,7 +392,7 @@ class vvelsLat:
 
         # velocity vector
         vecPlot = plotVvels.vvelsPlot()
-        vecPlot.makePlot(timeout,scipy.mean(MLTtime1,axis=1),lat,vvels1[:,:,1],vvels1[:,:,0],dvvels1[:,:,1],dvvels1[:,:,0],\
+        vecPlot.makePlot(timeout,np.mean(MLTtime1,axis=1),lat,vvels1[:,:,1],vvels1[:,:,0],dvvels1[:,:,1],dvvels1[:,:,0],\
             title='Vector Velocities' + self.titleString,p=self.ppp,sc=self.sc,cax=self.clim,ncols=3,\
             vz=vvels1[:,:,2],dvz=dvvels1[:,:,2],vzsc=10.0,label=label,geo=self.byGeo)
         if self.saveout:
@@ -402,7 +402,7 @@ class vvelsLat:
         
         # velocity magnitude
         magPlot = plotVvels.vvelsMagPlot()
-        magPlot.makePlot(timeout,scipy.mean(MLTtime1,axis=1),lat,Vmag,Vdir,dVmag,dVdir,
+        magPlot.makePlot(timeout,np.mean(MLTtime1,axis=1),lat,Vmag,Vdir,dVmag,dVdir,
                 title='Vector Velocities' + self.titleString,cax1=[0.0,self.clim[1]],cax2=[-180.0,180.0],label=label)
         if self.saveout:
             magPlot.figg.savefig(outputFname+'-vmag.png')
@@ -410,7 +410,7 @@ class vvelsLat:
             
         # electric field vector
         vecPlot = plotVvels.vvelsPlot()
-        vecPlot.makePlot(timeout,scipy.mean(MLTtime1,axis=1),lat,evec1[:,:,1]*1e3,evec1[:,:,0]*1e3,devec1[:,:,1]*1e3,devec1[:,:,0]*1e3,\
+        vecPlot.makePlot(timeout,np.mean(MLTtime1,axis=1),lat,evec1[:,:,1]*1e3,evec1[:,:,0]*1e3,devec1[:,:,1]*1e3,devec1[:,:,0]*1e3,\
             title='Electric Fields' + self.titleString,p=[self.pppE[0]*1e3,self.pppE[1],self.pppE[2]*1e3,self.pppE[3]*1e3],sc=self.sc*5e-2,\
             cax=[self.clim[0]*5e-2,self.clim[1]*5e-2],ncols=3,\
             vz=evec1[:,:,2]*1e3,dvz=devec1[:,:,2]*1e3,vzsc=10.0,label=label,geo=self.byGeo,units='mV/m',parm='E')
@@ -420,7 +420,7 @@ class vvelsLat:
         
         # electric field magnitude
         magPlot = plotVvels.vvelsMagPlot()
-        magPlot.makePlot(timeout,scipy.mean(MLTtime1,axis=1),lat,Emag*1e3,Edir,dEmag*1e3,dEdir,
+        magPlot.makePlot(timeout,np.mean(MLTtime1,axis=1),lat,Emag*1e3,Edir,dEmag*1e3,dEdir,
                 title='Electric Fields' + self.titleString,cax1=[0.0,self.clim[1]*5e-2],cax2=[-180.0,180.0],label=label,units='mV/m',parm='E')
         if self.saveout:
             magPlot.figg.savefig(outputFname+'-emag.png')            
@@ -441,18 +441,18 @@ class vvelsLat:
         dat1 = self.h5file.readWholeh5file()
 
         # output latitude
-        x=scipy.arange(self.plats[0][0],self.plats[0][1],self.plats[0][3])[:,scipy.newaxis]
-        PLAT_OUT=scipy.concatenate((x,x+self.plats[0][2]),axis=1)
+        x=np.arange(self.plats[0][0],self.plats[0][1],self.plats[0][3])[:,np.newaxis]
+        PLAT_OUT=np.concatenate((x,x+self.plats[0][2]),axis=1)
         if len(self.plats[1])>0:
-            x=scipy.arange(self.plats[1][0],self.plats[1][1],self.plats[1][3])[:,scipy.newaxis]
-            x=scipy.concatenate((x,x+self.plats[1][2]),axis=1)
-            PLAT_OUT=scipy.concatenate((PLAT_OUT,x),axis=0)
+            x=np.arange(self.plats[1][0],self.plats[1][1],self.plats[1][3])[:,np.newaxis]
+            x=np.concatenate((x,x+self.plats[1][2]),axis=1)
+            PLAT_OUT=np.concatenate((PLAT_OUT,x),axis=0)
 
         # beamcodes
         BeamCodes=dat1['/']['BeamCodes']
         if self.CorrectVap:
-            IupB=scipy.where(BeamCodes[:,0]==upBcode)[0]
-            InotUpB=scipy.where(BeamCodes[:,0]!=upBcode)[0]
+            IupB=np.where(BeamCodes[:,0]==upBcode)[0]
+            InotUpB=np.where(BeamCodes[:,0]!=upBcode)[0]
 
         # geomag
         if self.byGeo>0: # geographic
@@ -477,11 +477,11 @@ class vvelsLat:
                 plong=dat1['/Geomag']['plong']
         Bn=dat1['/Geomag']['Bx']; Be=dat1['/Geomag']['By']; Bz=dat1['/Geomag']['Bz']; 
         Babs=dat1['/Geomag']['Babs']
-        Bmed = scipy.nanmedian(Babs)
+        Bmed = np.nanmedian(Babs)
         for i in range(Bmed.ndim):
-            Bmed=scipy.nanmedian(Bmed)		
-        self.pppE=(scipy.array(self.ppp).copy()).tolist(); self.pppE[0]*=Bmed; self.pppE[2]*=Bmed; self.pppE[3]*=Bmed
-        self.covarE=(scipy.array(self.covar).copy()).tolist(); self.covarE[0]*=Bmed*Bmed; self.covarE[1]*=Bmed*Bmed; self.covarE[2]*=Bmed*Bmed
+            Bmed=np.nanmedian(Bmed)		
+        self.pppE=(np.array(self.ppp).copy()).tolist(); self.pppE[0]*=Bmed; self.pppE[2]*=Bmed; self.pppE[3]*=Bmed
+        self.covarE=(np.array(self.covar).copy()).tolist(); self.covarE[0]*=Bmed*Bmed; self.covarE[1]*=Bmed*Bmed; self.covarE[2]*=Bmed*Bmed
 
         # fitted params
         ht=dat1['/FittedParams']['Altitude']
@@ -499,12 +499,12 @@ class vvelsLat:
         day=dat1['/Time']['Day']
         
         # low densities
-        I=scipy.where((ne1<self.neMin))
-        vlos1[I]=scipy.nan; dvlos1[I]=scipy.nan
+        I=np.where((ne1<self.neMin))
+        vlos1[I]=np.nan; dvlos1[I]=np.nan
     
         # just do a portion of data
         if len(self.zoomWhole)!=0:
-            I=scipy.where((dtime1[:,0]>=self.zoomWhole[0]) & (dtime1[:,1]<=self.zoomWhole[1]))[0]	
+            I=np.where((dtime1[:,0]>=self.zoomWhole[0]) & (dtime1[:,1]<=self.zoomWhole[1]))[0]	
             vlos1=vlos1[I]
             dvlos1=dvlos1[I]
             time1=time1[I]
@@ -551,7 +551,7 @@ class vvelsLat:
             Irec=0 # record counter
             IIrec=0 # record counter
             while not done:
-                Irecs=scipy.where((time1[:,0]>=time1[Irec,0]) & (time1[:,0]<=(time1[Irec,0]+Time2Integrate)))[0]
+                Irecs=np.where((time1[:,0]>=time1[Irec,0]) & (time1[:,0]<=(time1[Irec,0]+Time2Integrate)))[0]
             
                 tvlos=vlos1[Irecs,:,:]
                 tdvlos=dvlos1[Irecs,:,:]
@@ -560,34 +560,34 @@ class vvelsLat:
                     vUpB=vlos1upB[Irecs]
                     dvUpB=dvlos1upB[Irecs]
                     for i in range(Nbeams):
-                        tupB=scipy.interpolate.interp1d(scipy.squeeze(htupB),vUpB,bounds_error=0,fill_value=0.0)(ht[i,:])
+                        tupB=np.interpolate.interp1d(np.squeeze(htupB),vUpB,bounds_error=0,fill_value=0.0)(ht[i,:])
                         tvlos[:,i,:]=tvlos[:,i,:]-tupB*kpar[i,:]
-                        tdvlos[:,i,:]=scipy.sqrt(scipy.power(tdvlos[:,i,:],2.0)+scipy.power(dvUpB*kpar[i,:],2.0))	
+                        tdvlos[:,i,:]=np.sqrt(np.power(tdvlos[:,i,:],2.0)+np.power(dvUpB*kpar[i,:],2.0))	
                 
                 # line of sight velocities and errors
-                vlosin=scipy.reshape(scipy.squeeze(tvlos),(Nhts*Nbeams*len(Irecs)))
-                dvlosin=scipy.reshape(scipy.squeeze(tdvlos),(Nhts*Nbeams*len(Irecs)))
+                vlosin=np.reshape(np.squeeze(tvlos),(Nhts*Nbeams*len(Irecs)))
+                dvlosin=np.reshape(np.squeeze(tdvlos),(Nhts*Nbeams*len(Irecs)))
 
                 # k vector (this is in mag coords)
-                kin=scipy.zeros((Nbeams,Nhts,3),dtype=kpn.dtype)
+                kin=np.zeros((Nbeams,Nhts,3),dtype=kpn.dtype)
                 kin[:,:,0]=kpn
                 kin[:,:,1]=kpe
                 kin[:,:,2]=kpar
-                kin=scipy.reshape(scipy.repeat(kin[scipy.newaxis,:,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams,3))
+                kin=np.reshape(np.repeat(kin[np.newaxis,:,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams,3))
 
-                ekin=scipy.zeros((Nbeams,Nhts,3),dtype=kpn.dtype)
+                ekin=np.zeros((Nbeams,Nhts,3),dtype=kpn.dtype)
                 ekin[:,:,0]=(-Be*kpar-Bz*kpe)/Babs**2.0
                 ekin[:,:,1]=(Bz*kpn+Bn*kpar)/Babs**2.0
                 ekin[:,:,2]=(Bn*kpe-Be*kpn)/Babs**2.0
-                ekin=scipy.reshape(scipy.repeat(ekin[scipy.newaxis,:,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams,3))
+                ekin=np.reshape(np.repeat(ekin[np.newaxis,:,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams,3))
                 
                 # magnetic field
-                bin=scipy.reshape(scipy.repeat(Babs[scipy.newaxis,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams))
+                bin=np.reshape(np.repeat(Babs[np.newaxis,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams))
                 
                 # mag lat and long, altitude
-                platin=scipy.reshape(scipy.repeat(plat[scipy.newaxis,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams))
-                plongin=scipy.reshape(scipy.repeat(plong[scipy.newaxis,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams))
-                htin=scipy.reshape(scipy.repeat(ht[scipy.newaxis,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams))
+                platin=np.reshape(np.repeat(plat[np.newaxis,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams))
+                plongin=np.reshape(np.repeat(plong[np.newaxis,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams))
+                htin=np.reshape(np.repeat(ht[np.newaxis,:,:],len(Irecs),axis=0),(len(Irecs)*Nhts*Nbeams))
 
                 # compute vectors
                 (plat_out1,Vest,dVest,xx,Nmeas)=vvels.compute_velvec2(PLAT_OUT,vlosin,dvlosin,kin,platin,plongin,htin,htmin=self.minAlt*1000,htmax=self.maxAlt*1000,covar=self.covar,p=self.ppp)
@@ -603,17 +603,17 @@ class vvelsLat:
                         MLTtime1[IIrec][1]=MLTtime1[IIrec][1]+24.0
 
                 if IIrec==0:
-                    vvels1=Vest[scipy.newaxis,:,:]
-                    dvvels1=dVest[scipy.newaxis,:,:]
-                    Nall1=Nmeas[scipy.newaxis,:]
-                    evec1=Eest[scipy.newaxis,:,:]
-                    devec1=dEest[scipy.newaxis,:,:]
+                    vvels1=Vest[np.newaxis,:,:]
+                    dvvels1=dVest[np.newaxis,:,:]
+                    Nall1=Nmeas[np.newaxis,:]
+                    evec1=Eest[np.newaxis,:,:]
+                    devec1=dEest[np.newaxis,:,:]
                 else:
-                    vvels1=scipy.concatenate((vvels1,Vest[scipy.newaxis,:,:]),axis=0)
-                    dvvels1=scipy.concatenate((dvvels1,dVest[scipy.newaxis,:,:]),axis=0)
-                    Nall1=scipy.concatenate((Nall1,Nmeas[scipy.newaxis,:]),axis=0)
-                    evec1=scipy.concatenate((evec1,Eest[scipy.newaxis,:,:]),axis=0)
-                    devec1=scipy.concatenate((devec1,dEest[scipy.newaxis,:,:]),axis=0)
+                    vvels1=np.concatenate((vvels1,Vest[np.newaxis,:,:]),axis=0)
+                    dvvels1=np.concatenate((dvvels1,dVest[np.newaxis,:,:]),axis=0)
+                    Nall1=np.concatenate((Nall1,Nmeas[np.newaxis,:]),axis=0)
+                    evec1=np.concatenate((evec1,Eest[np.newaxis,:,:]),axis=0)
+                    devec1=np.concatenate((devec1,dEest[np.newaxis,:,:]),axis=0)
 
                 Irec=Irecs[-1]+1 # increment counters
                 IIrec=IIrec+1
@@ -623,20 +623,20 @@ class vvelsLat:
 
 
 
-            MLTtime1=scipy.array(MLTtime1)
-            timeout=scipy.array(timeout)
-            dtimeout=scipy.array(dtimeout)
+            MLTtime1=np.array(MLTtime1)
+            timeout=np.array(timeout)
+            dtimeout=np.array(dtimeout)
             
             # magnitude and direction
-            Vmag = scipy.sqrt( scipy.power(vvels1[:,:,0],2.0) + scipy.power(vvels1[:,:,1],2.0) ).real
-            dVmag = scipy.sqrt( scipy.power(dvvels1[:,:,0],2.0)*scipy.power(vvels1[:,:,0]/Vmag,2.0) + scipy.power(dvvels1[:,:,1],2.0)*scipy.power(vvels1[:,:,1]/Vmag,2.0) ).real
-            Vdir = 180.0/pi*scipy.arctan2(vvels1[:,:,1],vvels1[:,:,0]).real
-            dVdir=180.0/pi*((1.0/scipy.absolute(vvels1[:,:,0]))*(1.0/(1.0+scipy.power(vvels1[:,:,1]/vvels1[:,:,0],2.0)))*scipy.sqrt(scipy.power(dvvels1[:,:,1],2.0)+scipy.power(vvels1[:,:,1]/vvels1[:,:,0]*dvvels1[:,:,0],2.0))).real		
+            Vmag = np.sqrt( np.power(vvels1[:,:,0],2.0) + np.power(vvels1[:,:,1],2.0) ).real
+            dVmag = np.sqrt( np.power(dvvels1[:,:,0],2.0)*np.power(vvels1[:,:,0]/Vmag,2.0) + np.power(dvvels1[:,:,1],2.0)*np.power(vvels1[:,:,1]/Vmag,2.0) ).real
+            Vdir = 180.0/pi*np.arctan2(vvels1[:,:,1],vvels1[:,:,0]).real
+            dVdir=180.0/pi*((1.0/np.absolute(vvels1[:,:,0]))*(1.0/(1.0+np.power(vvels1[:,:,1]/vvels1[:,:,0],2.0)))*np.sqrt(np.power(dvvels1[:,:,1],2.0)+np.power(vvels1[:,:,1]/vvels1[:,:,0]*dvvels1[:,:,0],2.0))).real		
             
-            Emag = scipy.sqrt( scipy.power(evec1[:,:,0],2.0) + scipy.power(evec1[:,:,1],2.0) ).real
-            dEmag = scipy.sqrt( scipy.power(devec1[:,:,0],2.0)*scipy.power(evec1[:,:,0]/Emag,2.0) + scipy.power(devec1[:,:,1],2.0)*scipy.power(evec1[:,:,1]/Emag,2.0) ).real
-            Edir = 180.0/pi*scipy.arctan2(evec1[:,:,1],evec1[:,:,0]).real
-            dEdir=180.0/pi*((1.0/scipy.absolute(evec1[:,:,0]))*(1.0/(1.0+scipy.power(evec1[:,:,1]/evec1[:,:,0],2.0)))*scipy.sqrt(scipy.power(devec1[:,:,1],2.0)+scipy.power(evec1[:,:,1]/evec1[:,:,0]*devec1[:,:,0],2.0))).real		
+            Emag = np.sqrt( np.power(evec1[:,:,0],2.0) + np.power(evec1[:,:,1],2.0) ).real
+            dEmag = np.sqrt( np.power(devec1[:,:,0],2.0)*np.power(evec1[:,:,0]/Emag,2.0) + np.power(devec1[:,:,1],2.0)*np.power(evec1[:,:,1]/Emag,2.0) ).real
+            Edir = 180.0/pi*np.arctan2(evec1[:,:,1],evec1[:,:,0]).real
+            dEdir=180.0/pi*((1.0/np.absolute(evec1[:,:,0]))*(1.0/(1.0+np.power(evec1[:,:,1]/evec1[:,:,0],2.0)))*np.sqrt(np.power(devec1[:,:,1],2.0)+np.power(evec1[:,:,1]/evec1[:,:,0]*devec1[:,:,0],2.0))).real		
             
             ### Set up output dicts
             self.setOutDicts(dat1)

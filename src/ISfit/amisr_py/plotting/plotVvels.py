@@ -6,7 +6,7 @@
 
 from amisr_py.constants.constants import *
 
-import scipy
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot
@@ -53,11 +53,11 @@ class tratePlot:
 
         ii=0
         x,dat=plot_utils.timegaps(time,JdotE*sc)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -76,12 +76,12 @@ class tratePlot:
         ax[ii].set_yticklabels(labels, fontsize=textsize)
 
         ii=4
-        x,dat=plot_utils.timegaps(time,scipy.absolute(dJdotE/JdotE))
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        x,dat=plot_utils.timegaps(time,np.absolute(dJdotE/JdotE))
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -99,11 +99,11 @@ class tratePlot:
 
         ii=1
         x,dat=plot_utils.timegaps(time,JdotEp*sc)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -115,12 +115,12 @@ class tratePlot:
         ax[ii].set_title(r"$q_j = {\bf J} \cdot {\bf E^\prime}$", fontsize=labsize)
 
         ii=5
-        x,dat=plot_utils.timegaps(time,scipy.absolute(dJdotEp/JdotEp))
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        x,dat=plot_utils.timegaps(time,np.absolute(dJdotEp/JdotEp))
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -132,11 +132,11 @@ class tratePlot:
           
         ii=2
         x,dat=plot_utils.timegaps(time,SpE2*sc)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -148,12 +148,12 @@ class tratePlot:
         ax[ii].set_title(r"$q_j^E = \sigma_P |E|^2$", fontsize=labsize)
             
         ii=6
-        x,dat=plot_utils.timegaps(time,scipy.absolute(dSpE2/SpE2))
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        x,dat=plot_utils.timegaps(time,np.absolute(dSpE2/SpE2))
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -164,7 +164,7 @@ class tratePlot:
         ax[ii].set_yticklabels([])
                                                                     
         ii=8
-        mtime = matplotlib.dates.epoch2num(scipy.mean(time,axis=1))
+        mtime = matplotlib.dates.epoch2num(np.mean(time,axis=1))
         ax[ii].errorbar(mtime,intJdotE*1e3,yerr=dintJdotE*1e3,fmt='-k.',label=r"$Q=\int{{\bf J} \cdot {\bf E}}$")        
         ax[ii].errorbar(mtime,intJdotEp*1e3,yerr=dintJdotEp*1e3,fmt='-b.',label=r"$Q_j=\int{{\bf J} \cdot {\bf E^\prime}}$")
         ax[ii].errorbar(mtime,intSpE2*1e3,yerr=dintSpE2*1e3,fmt='-r.',label=r"$Q_j^E=\int{\sigma_P |E|^2}$")
@@ -185,11 +185,11 @@ class tratePlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=int(scipy.ceil(dx/7.0))
+                interval=int(np.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=int(scipy.ceil(dx*60.0/7.0))
+                interval=int(np.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
@@ -236,12 +236,12 @@ class condPlot:
 
         ii=0
         x,dat=plot_utils.timegaps(time,sp*sc)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        #pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',norm=LogNorm(vmin=cax[0], vmax=cax[1]))
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        #pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',norm=LogNorm(vmin=cax[0], vmax=cax[1]))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -254,12 +254,12 @@ class condPlot:
 
         ii+=1
         x,dat=plot_utils.timegaps(time,sh*sc)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        #pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',norm=LogNorm(vmin=cax[0], vmax=cax[1]))
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        #pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1])
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',norm=LogNorm(vmin=cax[0], vmax=cax[1]))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -278,11 +278,11 @@ class condPlot:
 
         ii+=1
         x,dat=plot_utils.timegaps(time,dsp/sp)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -294,11 +294,11 @@ class condPlot:
 
         ii+=1
         x,dat=plot_utils.timegaps(time,dsh/sh)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(alt),scipy.nanmax(alt)]
-        pc=ax[ii].pcolor(x,alt,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
+        ylim=[np.nanmin(alt),np.nanmax(alt)]
+        pc=ax[ii].pcolor(x,alt,np.transpose(dat),edgecolors='none',vmin=0.0,vmax=0.5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -315,7 +315,7 @@ class condPlot:
         ax[ii].set_yticklabels(labels, fontsize=textsize)   
                                 
         ii+=1
-        mtime = matplotlib.dates.epoch2num(scipy.mean(time,axis=1))
+        mtime = matplotlib.dates.epoch2num(np.mean(time,axis=1))
         ax[ii].semilogy(mtime,intSp,'-k.',label='Ped. Cond.')        
         ax[ii].semilogy(mtime,intSh,'-b.',label='Hall Cond.')        
         #ax[ii].errorbar(mtime,intSp,yerr=dintSp,fmt='-k.',label='Ped. Cond.')        
@@ -337,11 +337,11 @@ class condPlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=int(scipy.ceil(dx/7.0))
+                interval=int(np.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=int(scipy.ceil(dx*60.0/7.0))
+                interval=int(np.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
@@ -380,23 +380,23 @@ class efieldPlot:
                 ax.append(figg.add_axes(rect, facecolor=axesBG))
         ax.append(ax[-1].twinx())    
             
-        mtime = matplotlib.dates.epoch2num(scipy.mean(time,axis=1))
+        mtime = matplotlib.dates.epoch2num(np.mean(time,axis=1))
         xlims=[mtime[0],mtime[-1]]
 
-        Emag = scipy.sqrt(ex**2.0+ey**2.0)
-        dEmag = scipy.sqrt( scipy.power(dex,2.0)*scipy.power(ex/Emag,2.0) + scipy.power(dey,2.0)*scipy.power(ey/Emag,2.0) ).real
+        Emag = np.sqrt(ex**2.0+ey**2.0)
+        dEmag = np.sqrt( np.power(dex,2.0)*np.power(ex/Emag,2.0) + np.power(dey,2.0)*np.power(ey/Emag,2.0) ).real
         
-        Edir = 180.0/pi*scipy.arctan2(ex,ey).real
-        dEdir=180.0/pi*((1.0/scipy.absolute(ex))*(1.0/(1.0+scipy.power(ey/ex,2.0)))*scipy.sqrt(scipy.power(dey,2.0)+scipy.power(ey/ex*dex,2.0))).real
+        Edir = 180.0/pi*np.arctan2(ex,ey).real
+        dEdir=180.0/pi*((1.0/np.absolute(ex))*(1.0/(1.0+np.power(ey/ex,2.0)))*np.sqrt(np.power(dey,2.0)+np.power(ey/ex*dex,2.0))).real
 
-        yy1=scipy.array([ex.min(),ey.min()]).min()*1e3-10.0
-        yy2=scipy.array([ex.max(),ey.max()]).max()*1e3+10.0
+        yy1=np.array([ex.min(),ey.min()]).min()*1e3-10.0
+        yy2=np.array([ex.max(),ey.max()]).max()*1e3+10.0
         ylims=[yy1,yy2]
         ylims2=[0.0,Emag.max()*1e3+10.0]
 
         iax=0
-        ax[iax].errorbar(mtime,scipy.squeeze(ex*1e3),scipy.squeeze(dex*1e3),fmt='-k.',label='Perp-East')        
-        ax[iax].errorbar(mtime,scipy.squeeze(ey*1e3),scipy.squeeze(dey*1e3),fmt='-b.',label='Perp-North')        
+        ax[iax].errorbar(mtime,np.squeeze(ex*1e3),np.squeeze(dex*1e3),fmt='-k.',label='Perp-East')        
+        ax[iax].errorbar(mtime,np.squeeze(ey*1e3),np.squeeze(dey*1e3),fmt='-b.',label='Perp-North')        
         ax[iax].set_xlim(xlims)        
         ax[iax].set_ylim(ylims)        
         ax[iax].set_ylabel('Electric Field (mV/m)', fontsize=labsize);
@@ -409,7 +409,7 @@ class efieldPlot:
         ax[iax].text(xlims[0],(ylims[1]-ylims[0])*0.05+ylims[1],title,fontsize=labsize, horizontalalignment='left')
 
         iax+=1
-        ax[iax].errorbar(mtime,scipy.squeeze(Emag*1e3),yerr=scipy.squeeze(dEmag*1e3),fmt='-k.',label='|E|')        
+        ax[iax].errorbar(mtime,np.squeeze(Emag*1e3),yerr=np.squeeze(dEmag*1e3),fmt='-k.',label='|E|')        
         ax[iax].set_ylim(ylims2)
         ax[iax].set_xlim(xlims)        
         ax[iax].set_ylabel('Magnitude (mV/m)', fontsize=labsize);
@@ -421,7 +421,7 @@ class efieldPlot:
         ax[iax].tick_params(axis='both',labelsize=textsize)
 
         iax+=1
-        ax[iax].errorbar(mtime,scipy.squeeze(Edir),yerr=scipy.squeeze(dEdir),fmt='-b.',label='Edir')
+        ax[iax].errorbar(mtime,np.squeeze(Edir),yerr=np.squeeze(dEdir),fmt='-b.',label='Edir')
         ax[iax].set_ylim([-180.0,180.0])        
         ax[iax].set_xlim(xlims)                
         ax[iax].set_ylabel('Direction (deg)', fontsize=labsize, color='blue');
@@ -438,11 +438,11 @@ class efieldPlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=int(scipy.ceil(dx/7.0))
+                interval=int(np.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval= int(scipy.ceil(dx*60.0/7.0))
+                interval= int(np.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
@@ -479,12 +479,12 @@ class vvelsPlot:
         dvz=dvz.copy()*vzsc
         
         if lat.ndim==2:
-            lat2=scipy.nanmean(lat,axis=1)
-            lat=scipy.concatenate((lat[:,0],lat[[-1],1]))
+            lat2=np.nanmean(lat,axis=1)
+            lat=np.concatenate((lat[:,0],lat[[-1],1]))
         else:
             lat2=lat
         
-        time2=scipy.mean(time,axis=1)
+        time2=np.mean(time,axis=1)
 
         textsize = 8        # size for axes text
         labsize = 10
@@ -527,11 +527,11 @@ class vvelsPlot:
 
         ii=0
         x,dat=plot_utils.timegaps(time,vx)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(lat),scipy.nanmax(lat)]
-        pc=ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pyplot.get_cmap(CMAP))
+        ylim=[np.nanmin(lat),np.nanmax(lat)]
+        pc=ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pyplot.get_cmap(CMAP))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].tick_params(axis='both',labelsize=textsize)
@@ -548,10 +548,10 @@ class vvelsPlot:
 
         ii=ii+1
         x,dat=plot_utils.timegaps(time,vy)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pyplot.get_cmap(CMAP))
+        ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pyplot.get_cmap(CMAP))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].tick_params(axis='both',labelsize=textsize)
@@ -563,10 +563,10 @@ class vvelsPlot:
 
         ii=ii+1
         x,dat=plot_utils.timegaps(time,vz)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pyplot.get_cmap(CMAP))
+        ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=cax[0],vmax=cax[1],cmap=pyplot.get_cmap(CMAP))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].tick_params(axis='both',labelsize=textsize)
@@ -578,10 +578,10 @@ class vvelsPlot:
         
         ii=ii+1
         x,dat=plot_utils.timegaps(time,dvx)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        pc2=ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
+        pc2=ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
@@ -594,10 +594,10 @@ class vvelsPlot:
 
         ii=ii+1
         x,dat=plot_utils.timegaps(time,dvy)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
+        ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
@@ -610,10 +610,10 @@ class vvelsPlot:
                 
         ii=ii+1
         x,dat=plot_utils.timegaps(time,dvz)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
+        ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=0,vmax=cax[1]/5)
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
@@ -626,33 +626,33 @@ class vvelsPlot:
         
         # quiver plot
         ii=ii+1
-        I=scipy.where(scipy.isnan(vx))
+        I=np.where(np.isnan(vx))
         vx[I]=0
         vy[I]=0
-        I=scipy.where(scipy.isnan(vy))
+        I=np.where(np.isnan(vy))
         vx[I]=0
         vy[I]=0
         
-        I=scipy.where(scipy.absolute(dvx)/(scipy.absolute(vx)+p[0])>p[1])
+        I=np.where(np.absolute(dvx)/(np.absolute(vx)+p[0])>p[1])
         vx[I]=0
         vy[I]=0
-        I=scipy.where(scipy.absolute(dvy)/(scipy.absolute(vy)+p[0])>p[1])
+        I=np.where(np.absolute(dvy)/(np.absolute(vy)+p[0])>p[1])
         vx[I]=0
         vy[I]=0
         
 
-        I=scipy.where(scipy.sqrt(vx*vx+vy*vy)>p[2])
+        I=np.where(np.sqrt(vx*vx+vy*vy)>p[2])
         vx[I]=0
         vy[I]=0
     
-        I=scipy.where((scipy.absolute(dvx)>p[3]) | (scipy.absolute(dvy)>p[3]))
+        I=np.where((np.absolute(dvx)>p[3]) | (np.absolute(dvy)>p[3]))
         vx[I]=0
         vy[I]=0
         
-        C=scipy.ones(scipy.transpose(vx).shape)-scipy.sign(scipy.transpose(vx))
+        C=np.ones(np.transpose(vx).shape)-np.sign(np.transpose(vx))
         x=matplotlib.dates.epoch2num(time2)
-        [X,Y]=scipy.meshgrid(x,lat2)
-        Q=ax[ii].quiver(X,Y,scipy.transpose(vx),scipy.transpose(vy),C,clim=[0,2],scale=900.0*sc,width=0.3*0.005,cmap=pyplot.get_cmap(rCMAP))
+        [X,Y]=np.meshgrid(x,lat2)
+        Q=ax[ii].quiver(X,Y,np.transpose(vx),np.transpose(vy),C,clim=[0,2],scale=900.0*sc,width=0.3*0.005,cmap=pyplot.get_cmap(rCMAP))
         ax[ii].quiverkey(Q, 1.06, 1.15, cax[1], str(cax[1]) + ' ' + units,fontproperties={'size' : labsize},labelpos='S')
         ax[ii].xaxis.tick_bottom()
         ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
@@ -660,16 +660,16 @@ class vvelsPlot:
         ax[ii].tick_params(axis='both',labelsize=textsize)
         ax[ii].set_ylabel(label, fontsize=labsize)
         ax[ii].set_xlim((x[0],x[-1]))
-        ax[ii].set_ylim((scipy.nanmin(lat2),scipy.nanmax(lat2)))	
+        ax[ii].set_ylim((np.nanmin(lat2),np.nanmax(lat2)))	
         
         ax22 = figg.add_axes(ax[ii].get_position(), sharey=ax[ii], frameon=False)
-        ax22.plot(MLTtime,scipy.nan*scipy.array(MLTtime),'k')
+        ax22.plot(MLTtime,np.nan*np.array(MLTtime),'k')
         ax22.set_xlim([MLTtime[0],MLTtime[-1]])
         ax22.xaxis.tick_top()
         ax22.set_xlabel('Magnetic Local Time', fontsize=labsize)
         ax22.xaxis.set_label_position('top')
         ax22.tick_params(axis='both',labelsize=textsize)
-        ax22.set_ylim((scipy.nanmin(lat2),scipy.nanmax(lat2)))
+        ax22.set_ylim((np.nanmin(lat2),np.nanmax(lat2)))
 
         # Colorbar top
         ii=ii+1
@@ -689,7 +689,7 @@ class vvelsPlot:
         ii=ii+1
         cl=pyplot.colorbar(Q,ax[ii])
         ax[ii].invert_yaxis()
-        cl.set_ticks(scipy.linspace(0,2, 5))
+        cl.set_ticks(np.linspace(0,2, 5))
         cl.set_ticklabels(['','East', '', 'West',''])
 
         # Set time formatting
@@ -704,11 +704,11 @@ class vvelsPlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=int(scipy.ceil(dx/7.0))
+                interval=int(np.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=int(scipy.ceil(dx*60.0/7.0))
+                interval=int(np.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
@@ -737,12 +737,12 @@ class vvelsMagPlot:
         dvy=dvy.copy()
         
         if lat.ndim==2:
-            lat2=scipy.nanmean(lat,axis=1)
-            lat=scipy.concatenate((lat[:,0],lat[[-1],1]))
+            lat2=np.nanmean(lat,axis=1)
+            lat=np.concatenate((lat[:,0],lat[[-1],1]))
         else:
             lat2=lat
         
-        time2=scipy.mean(time,axis=1)
+        time2=np.mean(time,axis=1)
 
         textsize = 8        # size for axes text
         labsize = 10
@@ -768,11 +768,11 @@ class vvelsMagPlot:
         
         ii=0
         x,dat=plot_utils.timegaps(time,vx)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        ylim=[scipy.nanmin(lat),scipy.nanmax(lat)]
-        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax1[0],vmax=cax1[1]))
+        ylim=[np.nanmin(lat),np.nanmax(lat)]
+        pc.append(ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=cax1[0],vmax=cax1[1]))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -787,10 +787,10 @@ class vvelsMagPlot:
         ii=ii+1
         
         x,dat=plot_utils.timegaps(time,dvx)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0.0,vmax=cax1[1]/5))
+        pc.append(ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=0.0,vmax=cax1[1]/5))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -804,10 +804,10 @@ class vvelsMagPlot:
         ii=ii+1
         
         x,dat=plot_utils.timegaps(time,vy)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=cax2[0],vmax=cax2[1],cmap=pyplot.get_cmap('hsv')))
+        pc.append(ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=cax2[0],vmax=cax2[1],cmap=pyplot.get_cmap('hsv')))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         # labels = ax[ii].get_xticklabels()
@@ -821,10 +821,10 @@ class vvelsMagPlot:
         ii=ii+1
         
         x,dat=plot_utils.timegaps(time,dvy)
-        dat=scipy.ma.masked_where(scipy.isnan(dat),dat)
+        dat=np.ma.masked_where(np.isnan(dat),dat)
         x=matplotlib.dates.epoch2num(x)
         xlim=[x[0],x[-1]]	
-        pc.append(ax[ii].pcolor(x,lat,scipy.transpose(dat),edgecolors='none',vmin=0,vmax=cax2[1]/5))
+        pc.append(ax[ii].pcolor(x,lat,np.transpose(dat),edgecolors='none',vmin=0,vmax=cax2[1]/5))
         ax[ii].set_xlim(xlim)
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlabel('Time (UT)', fontsize=labsize)
@@ -862,11 +862,11 @@ class vvelsMagPlot:
         for rr in range(len(ax)):
         
             if dx2>0.5:
-                interval=int(scipy.ceil(dx/7.0))
+                interval=int(np.ceil(dx/7.0))
                 locator = matplotlib.dates.HourLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
             elif dx2<0.5:
-                interval=int(scipy.ceil(dx*60.0/7.0))
+                interval=int(np.ceil(dx*60.0/7.0))
                 locator = matplotlib.dates.MinuteLocator(interval=interval)
                 formatter = matplotlib.dates.DateFormatter("%H:%M")
                 
