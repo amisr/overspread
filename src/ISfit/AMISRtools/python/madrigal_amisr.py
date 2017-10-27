@@ -33,8 +33,6 @@ import scipy
 
 import tables
 
-import matplotlib.numerix
-
 import madrigal.metadata
 import madrigal.cedar
 import madrigal.admin
