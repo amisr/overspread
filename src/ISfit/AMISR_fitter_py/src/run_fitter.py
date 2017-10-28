@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version='0.1.2017.10'   #1.0 to be released when fitter is made public
+version='0.1.2017.10.27'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
@@ -1030,7 +1030,7 @@ class Run_Fitter:
         import getpass
 
         # Configuration Information
-        #Fitter Version Number: Follows convention: major.minor.year.month
+        #Fitter Version Number: Follows convention: major.minor.year.month.day
         #version='1.0.2017.10' Get this variable from the global variable defined at the top of the file
 
         # Computer information:
@@ -1214,6 +1214,15 @@ class Run_Fitter:
                         io_utils.createh5groups(outh5file,[self.h5Paths['ACFs']])
                 if self.FITOPTS['MOTION_TYPE']==1: # Az,El
                     io_utils.createh5groups(outh5file,[self.h5Paths['Antenna']])
+
+                # Add calibration information
+                if (self.FITOPTS['fitcal'] == 1):
+                    print("Adding calibration information.")
+
+                    fname = self.OPTS['outfileLocked']
+                    calFname = self.FITOPTS['beamMapScaleFile']
+                    calMethodIndex = 0  #Plasma Line! Need to change this so there is a test done to determine which method was used!!!
+                    add_calibration_info(fname,calFname,calMethodIndex)
 
                 # Add fitter version number and config files (fit, io, system defaults)
                 self.write_config_info(outh5file,files)
@@ -1756,14 +1765,6 @@ class Run_Fitter:
             Iplot=Iplot+1
 
         ### end: main loop
-
-        if (self.FITOPTS['fitcal'] == 1):
-            print("Adding calibration information.")
-
-            fname = self.OPTS['outfileLocked']
-            calFname = self.FITOPTS['beamMapScaleFile']
-            calMethodIndex = 0  #Plasma Line! Need to change this so there is a test done to determine which method was used!!!
-            add_calibration_info(fname,calFname,calMethodIndex)
 
         # rename output file
         try:
