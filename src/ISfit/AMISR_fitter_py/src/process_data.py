@@ -756,7 +756,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     # Subtract the modeled noise ACF scaled by the estimated lag0 noise power from the data ACF
     # Parameters needed for calculating the perturbation noise_acf
     sample_time = fconts['/Rx']['SampleTime']
-    temp = fconts['/Setup']['RxFilterfile']
+    temp = str(fconts['/Setup']['RxFilterfile'])
     filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
     noise_acf = compute_noise_acf(Nlags,sample_time,filter_coefficients)
     noise_acfs = scipy.repeat(noise_acf[scipy.newaxis,:],Nbeams,axis=0)
