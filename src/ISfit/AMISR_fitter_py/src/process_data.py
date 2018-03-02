@@ -267,7 +267,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
             C['Power']['NoisePulsesIntegrated']=deal_data(C['Power']['NoiseBeamcodes'],C['Power']['NoisePulsesIntegrated'],beamcodes)  
 
         # get the beamcodes
-        if BeamCodes==None:
+        if BeamCodes is None:
             if scipy.sum(fconts['/Setup']['BeamcodeMap'][:,3])==0.0:
                 try:
                     f=open(acfopts['DEFOPTS']['BMCODEMAP_DEF'])
@@ -672,7 +672,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
                 C['Power']['NoisePulsesIntegrated']=deal_data(C['Power']['NoiseBeamcodes'],C['Power']['NoisePulsesIntegrated'],beamcodes)  
 
         # get the beamcodes
-        if BeamCodes==None:
+        if BeamCodes is None:
             if scipy.sum(fconts['/Setup']['BeamcodeMap'][:,3])==0.0:
                 try:
                     f=open(acfopts['DEFOPTS']['BMCODEMAP_DEF'])
@@ -1037,7 +1037,7 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
         C['Power']['Beamcodes']=fconts['/S/Cal']['Beamcodes'][Irecs,:]
     elif extCal==1:
         C['Power']['Beamcodes']=fcontsCal['/S/Cal']['Beamcodes'][Irecs,:]
-        C['Power']['NoiseBeamcodes']=fcontsCal['/S/Noise']['Beamcodes'][Irecs,:]s
+        C['Power']['NoiseBeamcodes']=fcontsCal['/S/Noise']['Beamcodes'][Irecs,:]
     
     # Ambiguity function path
     if doamb:
@@ -1072,7 +1072,7 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
             C['Power']['NoisePulsesIntegrated']=deal_data(C['Power']['NoiseBeamcodes'],C['Power']['NoisePulsesIntegrated'],beamcodes)  
         
         # get the beamcodes
-        if BeamCodes==None:
+        if BeamCodes is None:
             if scipy.sum(fconts['/Setup']['BeamcodeMap'][:,3])==0.0:
                 try:
                     f=open(acfopts['DEFOPTS']['BMCODEMAP_DEF'])
@@ -1370,7 +1370,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
             C['Power']['NoisePulsesIntegrated']=deal_data(C['Power']['NoiseBeamcodes'],C['Power']['NoisePulsesIntegrated'],beamcodes)      
         
         # get the beamcodes
-        if BeamCodes==None:
+        if BeamCodes is None:
             a=fconts['/Setup']['BeamcodeMap']
             #print fconts['/Setup']
             #print fconts['/Setup']['BeamcodeMap'][:,3]
