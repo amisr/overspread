@@ -872,7 +872,7 @@ def process_altcode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPa
     
     return S,N,C
 
-def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None):
+def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,BeamCodes=None):
     
     funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
@@ -884,7 +884,10 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
             fconts=fconts[0]
         except:
             print 'External cal problem'
-            
+
+    if h5DataPath is None:
+        h5DataPath = '/S/Data'
+     
     # initialize signal 
     S={} 
     S['Acf']={}
@@ -902,10 +905,10 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
 
     # some generic stuff
     try:
-        S['Power']['Pulsewidth']=fconts['/S/Data']['Pulsewidth']
-        S['Power']['TxBaud']=fconts['/S/Data']['TxBaud']
-        S['Acf']['Pulsewidth']=fconts['/S/Data']['Pulsewidth']
-        S['Acf']['TxBaud']=fconts['/S/Data']['TxBaud']
+        S['Power']['Pulsewidth']=fconts[h5DataPath]['Pulsewidth']
+        S['Power']['TxBaud']=fconts[h5DataPath]['TxBaud']
+        S['Acf']['Pulsewidth']=fconts[h5DataPath]['Pulsewidth']
+        S['Acf']['TxBaud']=fconts[h5DataPath]['TxBaud']
     except: # to handle older data where PW and TXBAUD weren't recorded
         S['Power']['Pulsewidth']=acfopts['DEFOPTS']['PW_DEF']
         S['Power']['TxBaud']=acfopts['DEFOPTS']['TXBAUD_DEF']
@@ -925,18 +928,18 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         S['Elevation']=scipy.array([el[0,0],el[-1,-1]])
                 
     # ACF
-    S['Acf']['Data']=fconts['/S/Data/Acf']['Data'][Irecs,:,:,:,0].astype('complex64')
-    S['Acf']['Data'].imag=fconts['/S/Data/Acf']['Data'][Irecs,:,:,:,1]
+    S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,0].astype('complex64')
+    S['Acf']['Data'].imag=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,1]
     N['Acf']['Data']=fconts['/S/Noise/Acf']['Data'][Irecs,:,:,:,0].astype('complex64')
     N['Acf']['Data'].imag=fconts['/S/Noise/Acf']['Data'][Irecs,:,:,:,1]
     (Nrecs,Nbeams,Nlags,Nranges)=S['Acf']['Data'].shape; NbeamsIn=Nbeams
-    S['Acf']['Range']=fconts['/S/Data/Acf']['Range'][[0]];
-    S['Acf']['Lags']=fconts['/S/Data/Acf']['Lags']
+    S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][[0]];
+    S['Acf']['Lags']=fconts[h5DataPath+'/Acf']['Lags']
     S['Acf']['Kint']=scipy.ones(Nlags,dtype='float64')
     S['Acf']['iSCR']=scipy.zeros(Nlags,dtype='float64')
 
 
-    input_power = fconts['/S/Data/Power']['Data'][Irecs,:,:]
+    input_power = fconts[h5DataPath+'/Power']['Data'][Irecs,:,:]
     input_noise = fconts['/S/Noise/Power']['Data'][Irecs,:,:]
     noise_Nranges = input_noise.shape[2]
 
@@ -946,9 +949,9 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
 
     # ACF pulses integrated
     try:
-        acf_pulses_integrated = fconts['/S/Data/Acf']['PulsesIntegrated']
+        acf_pulses_integrated = fconts[h5DataPath+'/Acf']['PulsesIntegrated']
     except KeyError:
-        acf_pulses_integrated = fconts['/S/Data']['PulsesIntegrated']
+        acf_pulses_integrated = fconts[h5DataPath]['PulsesIntegrated']
     if scipy.ndim(acf_pulses_integrated) == 2:
         acf_pulses_integrated = scipy.repeat(acf_pulses_integrated[:,:,scipy.newaxis],Nlags,axis=2)
     if scipy.ndim(acf_pulses_integrated) == 3:
@@ -970,9 +973,9 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
 
     # Power pulses integrated
     try:
-        power_pulses_integrated = fconts['/S/Data/Power']['PulsesIntegrated']
+        power_pulses_integrated = fconts[h5DataPath+'/Power']['PulsesIntegrated']
     except KeyError:
-        power_pulses_integrated = fconts['/S/Data']['PulsesIntegrated']
+        power_pulses_integrated = fconts[h5DataPath]['PulsesIntegrated']
     if scipy.ndim(power_pulses_integrated) == 2:
         power_pulses_integrated = scipy.repeat(power_pulses_integrated[:,:,scipy.newaxis],Nranges,axis=2)
     power_pulses_integrated = power_pulses_integrated[Irecs,:,:]
@@ -1005,7 +1008,7 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     # Power
     S['Power']['Data']  = input_power
     N['Power']['Data']  = output_noise
-    S['Power']['Range'] = fconts['/S/Data/Power']['Range'][[0]]; 
+    S['Power']['Range'] = fconts[h5DataPath+'/Power']['Range'][[0]]; 
     if extCal==0:
         C['Power']['Data']      = fconts['/S/Cal/Power']['Data'][Irecs,:,:]
     elif extCal==1:
@@ -1026,15 +1029,15 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         C['Power']['NoisePulsesIntegrated']=fcontsCal['/S/Noise']['PulsesIntegrated'][Irecs,:]        
 
     # Beamcodes
-    S['Power']['Beamcodes']=fconts['/S/Data']['Beamcodes'][Irecs,:]
-    S['Acf']['Beamcodes']=fconts['/S/Data']['Beamcodes'][Irecs,:]
+    S['Power']['Beamcodes']=fconts[h5DataPath]['Beamcodes'][Irecs,:]
+    S['Acf']['Beamcodes']=fconts[h5DataPath]['Beamcodes'][Irecs,:]
     N['Power']['Beamcodes']=fconts['/S/Noise']['Beamcodes'][Irecs,:]
     N['Acf']['Beamcodes']=fconts['/S/Noise']['Beamcodes'][Irecs,:]
     if extCal==0:
         C['Power']['Beamcodes']=fconts['/S/Cal']['Beamcodes'][Irecs,:]
     elif extCal==1:
         C['Power']['Beamcodes']=fcontsCal['/S/Cal']['Beamcodes'][Irecs,:]
-        C['Power']['NoiseBeamcodes']=fcontsCal['/S/Noise']['Beamcodes'][Irecs,:]
+        C['Power']['NoiseBeamcodes']=fcontsCal['/S/Noise']['Beamcodes'][Irecs,:]s
     
     # Ambiguity function path
     if doamb:
