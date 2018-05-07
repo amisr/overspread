@@ -1262,10 +1262,20 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
 		gname='/CohCode/ZeroLags'
 	else:
 		 raise IOError, 'Cannot find data group in file'
-		
+
     # initialize signal 
     S={} 
     S['Power']={}
+
+
+    # Ambiguity function path
+    if doamb:
+        S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[gname]['Ambiguity'])])
+        # for the power, we are dealing only with the zero lags
+        S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:][scipy.newaxis,:]
+        S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:][scipy.newaxis,:]
+    else:
+        S['Power']['Ambiguity']=Amb
 
     # initialize noise 
     N={}
@@ -1275,6 +1285,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     C={}
     C['Power']={}
     C['Pcal']=fconts['/Rx']['Bandwidth']*fconts['/Rx']['CalTemp']*v_Boltzmann # Cal power in Watts
+    C['Pcal']=C['Pcal']/fconts['/Rx']['Bandwidth']*S['Power']['Ambiguity']['Bandwidth'] # adjust for BC bandwidth.
 
     # Antenna if necessary
     if acfopts['MOTION_TYPE']==1:   
@@ -1339,19 +1350,6 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     N['Power']['Beamcodes']=fconts['/CohCode/Noise']['Beamcodes'][Irecs,:]
     C['Power']['Beamcodes']=fconts['/CohCode/Cal']['Beamcodes'][Irecs,:]
 
-    # Ambiguity function path
-    if doamb:
-        try:
-            #if 1==1:
-            S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[gname]['Ambiguity'])])
-            # for the power, we are dealing only with the zero lags
-            S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:][scipy.newaxis,:]
-            S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:][scipy.newaxis,:]
-            #C['Pcal']=C['Pcal']/fconts['/Rx']['Bandwidth']*S['Power']['Ambiguity']['Bandwidth'] # adjust for BC bandwidth.
-        except:
-            print 'Unable to load ambiguity function'
-            xxxxxxx
-    
     if acfopts['MOTION_TYPE']==0:
         # Deal the data
         beamcodes=scipy.sort(S['Power']['Beamcodes'][0,:])
