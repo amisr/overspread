@@ -1271,6 +1271,9 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     # Ambiguity function path
     if doamb:
         S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[gname]['Ambiguity'])])
+        # Check for Bandwidth in Ambiguity function. If not there, throw exception
+        if not'Bandwidth' in S['Power']['Ambiguity'].keys():
+            raise KeyError('No Bandwidth found in the ambiguity function file! This is needed to calibrate Barker Code electron densities.')
         # for the power, we are dealing only with the zero lags
         S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:][scipy.newaxis,:]
         S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:][scipy.newaxis,:]
