@@ -57,6 +57,8 @@ def copyAmbDict(inAmb):
         outAmb['Lags']=inAmb['Lags']
         outAmb['Wlag']=inAmb['Wlag']
         outAmb['Wrange']=inAmb['Wrange']
+        if 'Bandwidth' in inAmb.keys():
+            outAmb['Bandwidth']=inAmb['Bandwidth']
     except:
         print 'Dont understand format of Ambiguity in data file.'
 
