@@ -129,15 +129,18 @@ def compute_collfreq(d,Tn, Te=1000.0, mj=30.0):
     Tr = (Tn+Ti)/2.0
     nu_in = 0.0
     if mj==16.0: # O
+        # Schunk and Nagy (2000) page 99, table 4.5
         nu_in = nu_in + d[1]*3.67e-11*scipy.sqrt(Tr)*(1.0-0.064*scipy.log10(Tr))**2.0
     else:
         nu_in = nu_in + 1.0e6*d[1]*9.14e-15/scipy.sqrt(mj*(mj+16.0)) 
     if mj==28.0: # N2
+        # Schunk and Nagy (2000) page 99, table 4.5
         nu_in = nu_in + d[2]*5.14e-11*scipy.sqrt(Tr)*(1.0-0.069*scipy.log10(Tr))**2.0
     else:
         nu_in = nu_in + 1.0e6*d[2]*1.80e-14/scipy.sqrt(mj*(mj+28.0)) 
-    if mj==32.0 and Tn>800.0: # O2
-        nu_in = nu_in + d[2]*2.59e-11*scipy.sqrt(Tr)*(1.0-0.073*scipy.log10(Tr))**2.0
+    if mj==32.0 and Tr>800.0: # O2
+        # Schunk and Nagy (2000) page 99, table 4.5
+        nu_in = nu_in + d[3]*2.59e-11*scipy.sqrt(Tr)*(1.0-0.073*scipy.log10(Tr))**2.0
     else:
         nu_in = nu_in + 1.0e6*d[3]*1.83e-14/scipy.sqrt(mj*(mj+32.0)) 
     
