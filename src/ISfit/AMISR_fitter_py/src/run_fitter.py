@@ -1573,9 +1573,14 @@ class Run_Fitter:
             if self.FITOPTS['DO_FITS']: # do the fits
 
                 # Parameters needed for calculating the perturbation noise_acf
-                sample_time = float(output['/Rx']['SampleTime'])
-                temp = str(output['/Setup']['RxFilterfile'])
+                temp = output['/Rx'].get('SampleTime',output['/Rx']['Sampletime'])
+                sample_time = float(temp)
+                temp = output['/Setup']['RxFilterfile']
+                if not isinstance(temp,str):
+                    temp = str(temp[0]).replace('\r','')
+                
                 filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
+		print sample_time,temp,filter_coefficients
 
                 # Compute the perturbation noise acf
                 num_lags = self.Nlags
