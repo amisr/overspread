@@ -1572,7 +1572,7 @@ class Run_Fitter:
             if self.FITOPTS['DO_FITS']: # do the fits
 
                 # Parameters needed for calculating the perturbation noise_acf
-                temp = output['/Rx'].get('SampleTime',output['/Rx']['Sampletime'])
+                temp = output['/Rx'].get('SampleTime',output['/Rx'].get('Sampletime',None))
                 sample_time = float(temp)
                 temp = output['/Setup']['RxFilterfile']
                 if not isinstance(temp,str):

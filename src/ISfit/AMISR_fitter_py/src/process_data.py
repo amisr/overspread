@@ -756,7 +756,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     # Subtract the modeled noise ACF scaled by the estimated lag0 noise power from the data ACF
     # Parameters needed for calculating the perturbation noise_acf
     
-    sample_time = fconts['/Rx'].get('SampleTime',fconts['/Rx']['Sampletime'])
+    sample_time = fconts['/Rx'].get('SampleTime',fconts['/Rx'].get('Sampletime',None))
     temp = fconts['/Setup']['RxFilterfile']
     if not isinstance(temp,str):
         temp = str(temp[0]).replace('\r','')
