@@ -1568,7 +1568,6 @@ class Run_Fitter:
 
                 return noise_acf
 
-
             ### start: DO_FITS
             if self.FITOPTS['DO_FITS']: # do the fits
 
@@ -1580,7 +1579,6 @@ class Run_Fitter:
                     temp = str(temp[0]).replace('\r','')
                 
                 filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
-		print sample_time,temp,filter_coefficients
 
                 # Compute the perturbation noise acf
                 num_lags = self.Nlags
