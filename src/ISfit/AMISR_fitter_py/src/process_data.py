@@ -271,7 +271,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
             if scipy.sum(fconts['/Setup']['BeamcodeMap'][:,3])==0.0:
                 try:
                     f=open(acfopts['DEFOPTS']['BMCODEMAP_DEF'])
-                    fconts['/Setup']['BeamcodeMap']=scipy.io.loadtxt(f)
+                    fconts['/Setup']['BeamcodeMap']=scipy.loadtxt(f)
                     f.close()
                 except:
                     raise IOError, 'BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF']
@@ -676,7 +676,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
             if scipy.sum(fconts['/Setup']['BeamcodeMap'][:,3])==0.0:
                 try:
                     f=open(acfopts['DEFOPTS']['BMCODEMAP_DEF'])
-                    fconts['/Setup']['BeamcodeMap']=scipy.io.loadtxt(f)
+                    fconts['/Setup']['BeamcodeMap']=scipy.loadtxt(f)
                     f.close()
                 except:
                     raise IOError, 'BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF']
@@ -755,8 +755,12 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
 
     # Subtract the modeled noise ACF scaled by the estimated lag0 noise power from the data ACF
     # Parameters needed for calculating the perturbation noise_acf
-    sample_time = fconts['/Rx']['SampleTime']
-    temp = str(fconts['/Setup']['RxFilterfile'])
+    
+    sample_time = fconts['/Rx'].get('SampleTime',fconts['/Rx'].get('Sampletime',None))
+    temp = fconts['/Setup']['RxFilterfile']
+    if not isinstance(temp,str):
+        temp = str(temp[0]).replace('\r','')
+
     filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
     noise_acf = compute_noise_acf(Nlags,sample_time,filter_coefficients)
     noise_acfs = scipy.repeat(noise_acf[scipy.newaxis,:],Nbeams,axis=0)
