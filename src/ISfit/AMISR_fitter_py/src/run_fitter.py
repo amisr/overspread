@@ -1016,10 +1016,8 @@ class Run_Fitter:
     def get_expname(self,fname):
         try:
             with tables.open_file(fname) as h5file:
-                expname = h5file.get_node('/Setup/Experimentfile').read()
+                expname = str(h5file.get_node('/Setup/Experimentfile').read())
 
-            if type(expname)==scipy.ndarray:
-                expname=expname[0]
             expname=expname.splitlines()[1].split('=')[1]
         except Exception as e:
             print("Could not determine Experiment Name because: %s" % (str(e)))
@@ -1574,10 +1572,8 @@ class Run_Fitter:
                 # Parameters needed for calculating the perturbation noise_acf
                 temp = output['/Rx'].get('SampleTime',output['/Rx'].get('Sampletime',None))
                 sample_time = float(temp)
-                temp = output['/Setup']['RxFilterfile']
-                if not isinstance(temp,str):
-                    temp = str(temp[0]).replace('\r','')
-                
+                temp = str(output['/Setup']['RxFilterfile'])
+               
                 filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
 
                 # Compute the perturbation noise acf
