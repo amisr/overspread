@@ -757,9 +757,8 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     # Parameters needed for calculating the perturbation noise_acf
     
     sample_time = fconts['/Rx'].get('SampleTime',fconts['/Rx'].get('Sampletime',None))
-    temp = fconts['/Setup']['RxFilterfile']
-    if not isinstance(temp,str):
-        temp = str(temp[0]).replace('\r','')
+    temp = str(fconts['/Setup']['RxFilterfile'])
+    temp = temp.replace('\r','')
 
     filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
     noise_acf = compute_noise_acf(Nlags,sample_time,filter_coefficients)
