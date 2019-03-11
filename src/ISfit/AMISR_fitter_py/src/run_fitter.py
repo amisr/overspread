@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version='0.1.2018.06.11'   #1.0 to be released when fitter is made public
+version='0.1.2019.03.11'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
@@ -1508,14 +1508,14 @@ class Run_Fitter:
             # get altitude using geodetic conversion
             if S.has_key('Power'):
                 if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Power']['Range'])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Power']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
                 elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Power']['Range'])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Power']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
             if S.has_key('Acf'):
                 if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Acf']['Range'])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Acf']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
                 elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Acf']['Range'])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Acf']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
 
             # Trim data based on beam
             if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
@@ -1536,9 +1536,9 @@ class Run_Fitter:
             # compute density profile using apriori model for temperatures
             S['Power']['SNR']=scipy.real(S['Power']['SNR'])
             if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['BMCODES'][:,3])
+                (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'][0,:],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['BMCODES'][:,3])
             elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['Ksys'])
+                (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'][0,:],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['Ksys'])
             S['Power']['dNeFrac']=1.0/scipy.sqrt(S['Power']['Kint']*S['Power']['PulsesIntegrated'])*(1.0+scipy.absolute(1.0/S['Power']['SNR'])+S['Power']['iSCR'])
             S['Power']['dNeFrac'][scipy.where(S['Power']['SNR']<0.0)]=scipy.nan
             if self.FITOPTS['uselag1']: # if we are using the 1st lag to estimate the density, then we need to scale it a bit
@@ -1735,6 +1735,8 @@ class Run_Fitter:
                         io_utils.createStaticArray(outh5file,self.h5Paths['Geomag'][0],Gmag,Gmag.keys())
                     self.Gmag=Gmag
                 # Raw Power
+                S['Power']['Range']=S['Power']['Range'][0,:]
+                S['Power']['Range']=np.reshape(S['Power']['Range'],(1,S['Power']['Range'].size))
                 if self.FITOPTS['MOTION_TYPE']==1 or self.OPTS['dynamicAlts']==1: # Az,El or case when we want to include entire array
                     io_utils.createDynamicArray(outh5file,self.h5Paths['RawPower'][0],S['Power'],['Ne_NoTr','Ne_Mod','SNR','dNeFrac','Altitude','Range'])
                 else: # Beamcodes

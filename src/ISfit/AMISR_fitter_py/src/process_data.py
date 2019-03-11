@@ -771,7 +771,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
 
     # scaling constant
     Ksys=scipy.repeat(scipy.repeat(S['BMCODES'][:,3][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
-    Range=scipy.repeat(scipy.repeat(scipy.squeeze(S['Acf']['Range'])[scipy.newaxis,scipy.newaxis,:],Nbeams,axis=0),Nlags,axis=1)
+    Range=scipy.repeat(scipy.repeat(scipy.squeeze(S['Acf']['Range'][0,:])[scipy.newaxis,scipy.newaxis,:],Nbeams,axis=0),Nlags,axis=1)
     S['Acf']['Psc']=S['Acf']['Pulsewidth']*Ksys/(Range*Range)
     
 	# Clutter to Noise ratio
