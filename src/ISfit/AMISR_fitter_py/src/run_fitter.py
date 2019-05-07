@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version='0.1.2019.03.11'   #1.0 to be released when fitter is made public
+version='0.1.2019.05.06'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
@@ -914,6 +914,7 @@ class Run_Fitter:
         self.OPTS['saveACFs']=eval(io_utils.ini_tool(config,'OUTPUT','saveACFs',required=0,defaultParm='0'))
 
         # Fit Options section
+        self.FITOPTS['txpow']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','txpow',required=0,defaultParm=None))
         self.FITOPTS['DO_FITS']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','DO_FITS',required=1,defaultParm=''))
         self.FITOPTS['PERTURBATION_NOISE']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','PERTURBATION_NOISE',required=1,defaultParm=''))
         self.FITOPTS['useExternalCal']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','useExternalCal',required=0,defaultParm='0'))
@@ -1410,6 +1411,8 @@ class Run_Fitter:
             except: Tx['Aeu']=-1
             try: S['Acf']['Psc']=S['Acf']['Psc']*Tx['Power'];
             except: '' # Power scaling factor
+            if self.FITOPTS['txpow'] is not None:
+                Tx['Power'] = self.FITOPTS['txpow']
             if Tx['Power']==0.0:
                 Tx['Power']=self.DEFOPTS['TX_POWER_DEF']
             self.k_radar0=4.0*pi*Tx['Frequency']/v_lightspeed
