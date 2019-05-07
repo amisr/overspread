@@ -914,7 +914,7 @@ class Run_Fitter:
         self.OPTS['saveACFs']=eval(io_utils.ini_tool(config,'OUTPUT','saveACFs',required=0,defaultParm='0'))
 
         # Fit Options section
-        self.FITOPTS['txpow']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','txpow',required=0,defaultParm=None))
+        self.FITOPTS['txpow']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','txpow',required=0,defaultParm='None'))
         self.FITOPTS['DO_FITS']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','DO_FITS',required=1,defaultParm=''))
         self.FITOPTS['PERTURBATION_NOISE']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','PERTURBATION_NOISE',required=1,defaultParm=''))
         self.FITOPTS['useExternalCal']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','useExternalCal',required=0,defaultParm='0'))
