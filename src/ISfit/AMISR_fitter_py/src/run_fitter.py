@@ -1405,16 +1405,17 @@ class Run_Fitter:
                 if Tx['Frequency']<1.0e6:
                     raise ValueError, "Tx Frequency Not Set, Using Default"
             except: Tx['Frequency']=self.DEFOPTS['TX_FREQ_DEF']
-            try: Tx['Power']=scipy.median(scipy.mean(output['/Tx']['Power'][Irecs[0],:],axis=1))
-            except: Tx['Power']=self.DEFOPTS['TX_POWER_DEF']
+            if self.FITOPTS['txpow'] is not None:
+                Tx['Power'] = self.FITOPTS['txpow']
+            else:
+                try: Tx['Power']=scipy.median(scipy.mean(output['/Tx']['Power'][Irecs[0],:],axis=1))
+                except: Tx['Power']=self.DEFOPTS['TX_POWER_DEF']
+            if Tx['Power']==0.0:
+                Tx['Power']=self.DEFOPTS['TX_POWER_DEF']
             try: Tx['Aeu']=scipy.median(scipy.mean(output['/Tx']['AeuTx'][Irecs[0],:],axis=1))
             except: Tx['Aeu']=-1
             try: S['Acf']['Psc']=S['Acf']['Psc']*Tx['Power'];
             except: '' # Power scaling factor
-            if self.FITOPTS['txpow'] is not None:
-                Tx['Power'] = self.FITOPTS['txpow']
-            if Tx['Power']==0.0:
-                Tx['Power']=self.DEFOPTS['TX_POWER_DEF']
             self.k_radar0=4.0*pi*Tx['Frequency']/v_lightspeed
             self.FITOPTS['p_om0']=self.k_radar0*scipy.sqrt(2.0*v_Boltzmann*self.FITOPTS['p_T0']/(self.FITOPTS['p_M0']*v_amu))
 
