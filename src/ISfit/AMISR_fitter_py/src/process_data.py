@@ -61,12 +61,12 @@ def check_noise(noise, power, noise_pulses_integrated, power_pulses_integrated):
     num_noise_rng = noise.shape[2]
 
     # Get the average noise for each time and beam
-    temp_noise = noise/(noise_pulses_integrated + num_noise_rng)
+    temp_noise = noise/(noise_pulses_integrated)
     temp_noise = scipy.median(temp_noise,axis=2) #(time,beams)
     output_noise_pulses_integrated = noise_pulses_integrated
 
     # Now get and estimate of the noise from the data power measurement
-    noise_long_rng_data = power/(power_pulses_integrated + num_rng_data_noise)
+    noise_long_rng_data = power/(power_pulses_integrated)
     noise_long_rng_data = scipy.median(noise_long_rng_data[:,:,-num_rng_data_noise:],axis=2)
     temp_power_pulses_integrated = scipy.sum(power_pulses_integrated,axis=2)
 
@@ -75,7 +75,8 @@ def check_noise(noise, power, noise_pulses_integrated, power_pulses_integrated):
     std_noise_long_rng_data = noise_long_rng_data/scipy.sqrt(scipy.sum(power_pulses_integrated,axis=2) + num_rng_data_noise)
 
     # Sometimes, pulses integrated is 0, so the power is 0. We need to make sure our long range noise estimate isn't too small
-    ind1, ind2 = scipy.where((scipy.absolute(noise_long_rng_data-temp_noise) > std_noise_long_rng_data + std_temp_noise)
+    # compare within 3 sigma (only replace if noise samples are way off)
+    ind1, ind2 = scipy.where((scipy.absolute(noise_long_rng_data-temp_noise) > 3*(std_noise_long_rng_data + std_temp_noise))
                        & (temp_noise > noise_long_rng_data) & (noise_long_rng_data > 100.))
 
     # Replace any bad noise estimates with power based noise estimates
