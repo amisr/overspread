@@ -490,7 +490,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
 
 
 
-    input_power = fconts[h5PwrPath + '/Power']['Data'][Irecs,:,:]
+    input_power = fconts[h5PwrPath + '/Power']['Data'][Irecs,:,:Nranges]
     input_noise = fconts['/S/Noise/Power']['Data'][Irecs,:,:]
     noise_Nranges = input_noise.shape[2]
 
