@@ -761,7 +761,8 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     temp = fconts['/Setup']['RxFilterfile']
     # old files, from 2007 require this check
     if isinstance(temp,scipy.ndarray):
-        temp = temp[0]
+        if len(temp.shape) > 0:
+            temp = temp[0]
     temp = str(temp)
     temp = temp.replace('\r','')
     filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
