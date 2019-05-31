@@ -1576,8 +1576,12 @@ class Run_Fitter:
                 # Parameters needed for calculating the perturbation noise_acf
                 temp = output['/Rx'].get('SampleTime',output['/Rx'].get('Sampletime',None))
                 sample_time = float(temp)
-                temp = str(output['/Setup']['RxFilterfile'])
-               
+                temp = output['/Setup']['RxFilterfile']
+                # old files, from 2007 require this check
+                if isinstance(temp,scipy.ndarray):
+                    temp = temp[0]
+                temp = str(temp)
+                temp = temp.replace('\r','') 
                 filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
 
                 # Compute the perturbation noise acf

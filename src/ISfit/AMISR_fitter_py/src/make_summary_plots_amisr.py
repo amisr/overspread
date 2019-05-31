@@ -290,7 +290,6 @@ def pcolor_plot_all(plot_info, data):
         end_ind = np.where(unix_time[:,-1] <= (unix_time[start_ind,0] + max_time * 3600.0))[0]
         end_ind = end_ind[-1]
         tlim = [start_ind,end_ind]
-        start_ind = end_ind+1
 
         if num_time_groups>1:
             txtra='_day' + str(time_ind)
@@ -340,6 +339,9 @@ def pcolor_plot_all(plot_info, data):
         pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,nonfitted_ylim,'Time (UT)','Altitude (km)',
                     title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
 
+        start_ind = end_ind+1
+        if start_ind >= unix_time.shape[0]:
+            break
 
     # Now plot the fitted data if we need to.   
     if plot_info['is_fitted']:
@@ -383,7 +385,6 @@ def pcolor_plot_all(plot_info, data):
             end_ind = np.where(unix_time[:,-1] <= (unix_time[start_ind,0] + max_time * 3600.0))[0]
             end_ind = end_ind[-1]
             tlim = [start_ind,end_ind]
-            start_ind = end_ind+1
 
             if num_time_groups>1:
                 txtra='_day' + str(time_ind)
@@ -517,6 +518,11 @@ def pcolor_plot_all(plot_info, data):
 
             pcolor_plot(plot_times,altitude,plot_datas,clim,xlim,fitted_ylim,'Time (UT)','Altitude (km)',
                         title,txt,data['BeamCodes'],save_fig_name=output_fig_name,max_beams=plot_info['max_beams'],log=0)
+
+            start_ind = end_ind+1
+            if start_ind >= unix_time.shape[0]:
+                break
+      
 
 
 def has_fitted_params(fname):
