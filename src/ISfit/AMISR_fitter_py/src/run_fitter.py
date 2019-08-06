@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version='0.1.2019.05.07'   #1.0 to be released when fitter is made public
+version='0.1.2019.08.05'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
@@ -1158,12 +1158,11 @@ class Run_Fitter:
             #print files
             files2=copy.copy(files[ii])
             for ir in range(len(files2)):
-                if files2[ir].rfind('*') != -1:
-                    for path in self.OPTS['ipath']:
-                        tfiles=glob.glob(os.path.join(path,files2[ir]))
+                for path in self.OPTS['ipath']:
+                    tfiles=glob.glob(os.path.join(path,files2[ir]))
                         # print tfiles
-                        files[ii].extend(tfiles)
-                    files[ii].remove(files2[ir])
+                    files[ii].extend(tfiles)
+                files[ii].remove(files2[ir])
 
             if len(files[ii])!=len(files[0]): # abort! they need to be the same number of files
                 raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'
