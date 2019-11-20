@@ -28,7 +28,7 @@ def print_timing(func):
         t1 = time.time()
         res = func(*arg)
         t2 = time.time()
-        print '%s took %0.3f ms' % (func.func_name, (t2-t1)*1000.0)
+        print('%s took %0.3f ms' % (func.func_name, (t2-t1)*1000.0))
         return res
     return wrapper
 
@@ -197,11 +197,11 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     tni=tni/p_N0
 
     if DEBUG:
-        print ne
-        print tni*p_N0
-        print tpsi
-        print tvi
-        print tti
+        print(ne)
+        print(tni*p_N0)
+        print(tpsi)
+        print(tvi)
+        print(tti)
     
     s=compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,tni,tti,mi,tpsi,tvi,k_radar0,sc,p_N0,p_T0,p_M0)
 
@@ -220,7 +220,7 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     # lag ambiguity function - weighted average
     m=scipy.zeros(Wl.shape[1],dtype='Complex64')
     for i in range(Wl.shape[1]):  
-        #print Wl[:,i]
+        #print(Wl[:,i])
         m[i]=scipy.sum(Wl[:,i]*m2)
 #        tmp=scipy.sum(Wl[:,i])
 #        tmp=(15.0-i)/16.0
@@ -245,7 +245,7 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     
     if DEBUG:
     
-        print scipy.sum(scipy.power(y,2.0))
+        print(scipy.sum(scipy.power(y,2.0)))
     
         pylab.figure(10)
         pylab.clf()
@@ -416,9 +416,9 @@ def load_disp_table(path):
     pldfvv=scipy.fromfile(path,dtype=scipy.float32)
     if sys.byteorder=='little':
         pldfvv=pldfvv.byteswap()
-    pldfvvr=pldfvv[0:pldfvv.size/2]
+    pldfvvr=pldfvv[0:int(pldfvv.size/2)]
     pldfvvr=pldfvvr.astype('float64')
-    pldfvvi=pldfvv[pldfvv.size/2:]
+    pldfvvi=pldfvv[int(pldfvv.size/2):]
     pldfvvi=pldfvvi.astype('float64')
 
     return pldfvvr,pldfvvi
@@ -552,11 +552,11 @@ def test_fit():
     params0=scipy.array([1.0,1.0,1.0,0.01]);
     (x, cov_x, infodict, mesg, ier) = scipy.optimize.leastsq(fit_fun,params0,(acfdata,acfvar,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,f,ni,ti,mi,psi,vi,k_radar0,p_N0,p_T0,p_M0),full_output=1,epsfcn=1.0e-6)
     
-    print x[0]*p_N0
-    print x[1]*p_T0
-    print x[2]*p_T0
-    print x[3]*(p_om0/k_radar0)
-    print scipy.sqrt(cov_x)
+    print(x[0]*p_N0)
+    print(x[1]*p_T0)
+    print(x[2]*p_T0)
+    print(x[3]*(p_om0/k_radar0))
+    print(scipy.sqrt(cov_x))
 
     pylab.figure()
     pylab.errorbar(tauf,acfdata,scipy.sqrt(acfvar))
@@ -604,7 +604,7 @@ def test_spec():
     (tau2,acf2)=spec2acf(f2,res2)
     
     # they should be equal -fractional error
-#   print scipy.sum((res-res2)*(res-res2))/scipy.sum((res)*(res))
+#   print(scipy.sum((res-res2)*(res-res2))/scipy.sum((res)*(res)))
     
     # plot
     pylab.figure()
@@ -645,15 +645,15 @@ def test_acoustic():
 
     ti=scipy.array([1000.0,1000.0,1000.0])
     ac=ti[0]*3/2+ti[-1]
-    print ac
-    print ti
+    print(ac)
+    print(ti)
     res=compute_spec(ct_spec,pldfvvr,pldfvvi,f,ne,ni,ti,mi,psi,vi,k_radar0)
     
     ti=scipy.array([800.0,800.0,1000.0])    
     ti[-1]=ac-ti[0]*3/2
     ac=ti[0]*3/2+ti[-1]
-    print ti[0]*3/2+ti[-1]
-    print ti
+    print(ti[0]*3/2+ti[-1])
+    print(ti)
     res2=compute_spec(ct_spec,pldfvvr,pldfvvi,f,ne,ni,ti,mi,psi,vi,k_radar0)
     
     # compute the acfs
@@ -702,10 +702,10 @@ def dreg():
     
         res=compute_spec(ct_spec,pldfvvr,pldfvvi,f,ne,ni,ti,mi,psi,vi,k_radar0,sc=0,p_N0=1.0e10,p_T0=300.0,p_M0=30.5,scat_fac=1)
         maxres=res.max()
-        print maxres
+        print(maxres)
     
         tPow=scipy.trapz(res,dx=df)
-        print tPow/ne
+        print(tPow/ne)
         
         # plot
         pylab.semilogy(f/1000.0,res)

@@ -17,24 +17,24 @@ from constants import *
 
 def trim_Ibeams(inDict,Ibeams,Nbeams):
 
-	keyz=inDict.keys()
-	for ik in range(len(keyz)):
-	
-		if type(inDict[keyz[ik]])==dict:
-			keyz2=inDict[keyz[ik]].keys()
-			for ik2 in range(len(keyz2)):
-				nd=scipy.ndim(inDict[keyz[ik]][keyz2[ik2]])
-				if nd>0:
-					if inDict[keyz[ik]][keyz2[ik2]].shape[0]==Nbeams:
-						inDict[keyz[ik]][keyz2[ik2]]=inDict[keyz[ik]][keyz2[ik2]][Ibeams]
+    keyz=inDict.keys()
+    for ik in range(len(keyz)):
+    
+        if type(inDict[keyz[ik]])==dict:
+            keyz2=inDict[keyz[ik]].keys()
+            for ik2 in range(len(keyz2)):
+                nd=scipy.ndim(inDict[keyz[ik]][keyz2[ik2]])
+                if nd>0:
+                    if inDict[keyz[ik]][keyz2[ik2]].shape[0]==Nbeams:
+                        inDict[keyz[ik]][keyz2[ik2]]=inDict[keyz[ik]][keyz2[ik2]][Ibeams]
 
-		else:
-			nd=scipy.ndim(inDict[keyz[ik]])
-			if nd>0:
-				if inDict[keyz[ik]].shape[0]==Nbeams:
-					inDict[keyz[ik]]=inDict[keyz[ik]][Ibeams]
+        else:
+            nd=scipy.ndim(inDict[keyz[ik]])
+            if nd>0:
+                if inDict[keyz[ik]].shape[0]==Nbeams:
+                    inDict[keyz[ik]]=inDict[keyz[ik]][Ibeams]
 
-	return inDict
+    return inDict
 
 
 # A function to compute the perturbation noise acf based on the assumption that such noise
@@ -97,14 +97,14 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
-    			    
+                    
     # external calibration 1 means to use cal from another pulse
     if extCal==1:
         try:
             fcontsCal=fconts[1]
             fconts=fconts[0]
         except:
-            print 'External cal problem'        
+            print('External cal problem'        )
 
     # whether to use 1st lag for power estimates
     uselag1=acfopts['uselag1']
@@ -231,7 +231,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
                 S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][1,:] 
                 S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][1,:]
         except:
-            print 'Unable to load ambiguity function'
+            print('Unable to load ambiguity function')
         try:
             S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5PwrPath]['Ambiguity'])])
             # for the alternating code, set the ambiguity of the 0 lag to that of the S mode
@@ -275,29 +275,29 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
                     fconts['/Setup']['BeamcodeMap']=scipy.loadtxt(f)
                     f.close()
                 except:
-                    raise IOError, 'BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF']
+                    raise IOError('BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF'])
             S['BMCODES']=scipy.zeros((Nbeams,4),dtype='Float64')-1 # beamcode table (beamcode,az,el,ksys)
             for i in range(Nbeams):
                 I=scipy.where(fconts['/Setup']['BeamcodeMap'][:,0]==beamcodes[i])[0]
                 S['BMCODES'][i,:]=fconts['/Setup']['BeamcodeMap'][I,:]
                 if S['BMCODES'][i,3]==0.0:
-                    print 'Using default system constant, %4.4e' % (acfopts['DEFOPTS']['KSYS_DEF'])
+                    print('Using default system constant, %4.4e' % (acfopts['DEFOPTS']['KSYS_DEF']))
                     S['BMCODES'][i,3]=acfopts['DEFOPTS']['KSYS_DEF']
             if acfopts['beamMapScale']:
                 try:
                     f=open(acfopts['beamMapScaleFile'])
                     BmScaler=scipy.loadtxt(f)
                     f.close()
-                    print 'Using Beam Code scaler from %s' % acfopts['beamMapScaleFile'] 
+                    print('Using Beam Code scaler from %s' % acfopts['beamMapScaleFile'] )
                 except:
-                    raise IOError, 'BeamCode error: Could not read %s' % acfopts['beamMapScaleFile']
+                    raise IOError('BeamCode error: Could not read %s' % acfopts['beamMapScaleFile'])
                 for i in range(Nbeams):
                     I=scipy.where(BmScaler[:,0]==beamcodes[i])[0]
                     if len(I)>0:
                         # replace
                         S['BMCODES'][i,3]=BmScaler[I,3]
                     else:
-                        raise IOError, 'No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile'])
+                        raise IOError('No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile']))
         else:
             S['BMCODES']=BeamCodes
                 
@@ -352,7 +352,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     # Signal to Noise ratio
     S['Power']['SNR']=scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))
     
-	# Clutter to Noise ratio
+    # Clutter to Noise ratio
     S['Acf']['iSCR']=(Nbauds-1.0)*scipy.ones(Nlags)
     S['Power']['iSCR']=0.0
 
@@ -379,21 +379,21 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         S['Acf']['Kint'][1:]=S['Acf']['Kint'][1:]/scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:]))**2.0
     
     return S,N,C
-	
+    
 def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',BeamCodes=None,h5PwrPath='/S/ZeroLags'):
 
     # function to use for data combining
     funcname='scipy.nanmean'
     if acfopts['procMedian']==1:
         funcname='complex_median'
-    			    
+                    
     # external calibration 1 means to use cal from another pulse
     if extCal==1:
         try:
             fcontsCal=fconts[1]
             fconts=fconts[0]
         except:
-            print 'External cal problem'        
+            print('External cal problem'        )
 
     # whether to use 1st lag for power estimates
     uselag1=acfopts['uselag1']
@@ -623,7 +623,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
                 S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][1,:] 
                 S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][1,:]
         except:
-            print 'Unable to load ambiguity function'
+            print('Unable to load ambiguity function')
         try:
             S['Power']['Ambiguity']=io_utils.copyAmbDict(fconts[str(fconts[h5PwrPath]['Ambiguity'])])
             # for the alternating code, set the ambiguity of the 0 lag to that of the S mode
@@ -680,29 +680,29 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
                     fconts['/Setup']['BeamcodeMap']=scipy.loadtxt(f)
                     f.close()
                 except:
-                    raise IOError, 'BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF']
+                    raise IOError('BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF'])
             S['BMCODES']=scipy.zeros((Nbeams,4),dtype='Float64')-1 # beamcode table (beamcode,az,el,ksys)
             for i in range(Nbeams):
                 I=scipy.where(fconts['/Setup']['BeamcodeMap'][:,0]==beamcodes[i])[0]
                 S['BMCODES'][i,:]=fconts['/Setup']['BeamcodeMap'][I,:]
                 if S['BMCODES'][i,3]==0.0:
-                    print 'Using default system constant, %4.4e' % (acfopts['DEFOPTS']['KSYS_DEF'])
+                    print('Using default system constant, %4.4e' % (acfopts['DEFOPTS']['KSYS_DEF']))
                     S['BMCODES'][i,3]=acfopts['DEFOPTS']['KSYS_DEF']
             if acfopts['beamMapScale']:
                 try:
                     f=open(acfopts['beamMapScaleFile'])
                     BmScaler=scipy.loadtxt(f)
                     f.close()
-                    print 'Using Beam Code scaler from %s' % acfopts['beamMapScaleFile'] 
+                    print('Using Beam Code scaler from %s' % acfopts['beamMapScaleFile'] )
                 except:
-                    raise IOError, 'BeamCode error: Could not read %s' % acfopts['beamMapScaleFile']
+                    raise IOError('BeamCode error: Could not read %s' % acfopts['beamMapScaleFile'])
                 for i in range(Nbeams):
                     I=scipy.where(BmScaler[:,0]==beamcodes[i])[0]
                     if len(I)>0:
                         # replace
                         S['BMCODES'][i,3]=BmScaler[I,3]
                     else:
-                        raise IOError, 'No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile'])
+                        raise IOError('No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile']))
         else:
             S['BMCODES']=BeamCodes
                 
@@ -780,7 +780,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     Range=scipy.repeat(scipy.repeat(scipy.squeeze(S['Acf']['Range'][0,:])[scipy.newaxis,scipy.newaxis,:],Nbeams,axis=0),Nlags,axis=1)
     S['Acf']['Psc']=S['Acf']['Pulsewidth']*Ksys/(Range*Range)
     
-	# Clutter to Noise ratio
+    # Clutter to Noise ratio
     S['Acf']['iSCR']=(Nbauds-1.0)*scipy.ones(Nlags)
     S['Power']['iSCR']=0.0
     
@@ -892,7 +892,7 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
             fcontsCal=fconts[1]
             fconts=fconts[0]
         except:
-            print 'External cal problem'
+            print('External cal problem')
 
     if h5DataPath is None:
         h5DataPath = '/S/Data'
@@ -1057,7 +1057,7 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
         S['Power']['Ambiguity']['Wlag']=S['Power']['Ambiguity']['Wlag'][0,:] 
         S['Power']['Ambiguity']['Wrange']=S['Power']['Ambiguity']['Wrange'][0,:] 
         # except:
-        #     print 'Unable to load ambiguity function'
+        #     print('Unable to load ambiguity function')
                 
     if acfopts['MOTION_TYPE']==0:
         # Deal the data
@@ -1088,22 +1088,22 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
                     fconts['/Setup']['BeamcodeMap']=scipy.loadtxt(f)
                     f.close()
                 except:
-                    raise IOError, 'BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF']
+                    raise IOError('BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF'])
             S['BMCODES']=scipy.zeros((Nbeams,4),dtype='Float64')-1 # beamcode table (beamcode,az,el,ksys)
             for i in range(Nbeams):
                 I=scipy.where(fconts['/Setup']['BeamcodeMap'][:,0]==beamcodes[i])[0]
                 S['BMCODES'][i,:]=fconts['/Setup']['BeamcodeMap'][I,:]
                 if S['BMCODES'][i,3]==0.0:
-                    print 'Using default system constant, %4.4e' % (acfopts['DEFOPTS']['KSYS_DEF'])
+                    print('Using default system constant, %4.4e' % (acfopts['DEFOPTS']['KSYS_DEF']))
                     S['BMCODES'][i,3]=acfopts['DEFOPTS']['KSYS_DEF']
             if acfopts['beamMapScale']:
                 try:
                     f=open(acfopts['beamMapScaleFile'])
                     BmScaler=scipy.loadtxt(f)
                     f.close()
-                    print 'Using Beam Code scaler from %s' % acfopts['beamMapScaleFile'] 
+                    print('Using Beam Code scaler from %s' % acfopts['beamMapScaleFile'] )
                 except:
-                    raise IOError, 'BeamCode error: Could not read %s' % acfopts['beamMapScaleFile']
+                    raise IOError('BeamCode error: Could not read %s' % acfopts['beamMapScaleFile'])
                 for i in range(Nbeams):
                     I=scipy.where(BmScaler[:,0]==beamcodes[i])[0]
                     
@@ -1112,7 +1112,7 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
                         
                         S['BMCODES'][i,3]=BmScaler[I,3]
                     else:
-                        raise IOError, 'No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile'])
+                        raise IOError('No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile']))
         else:
             S['BMCODES']=BeamCodes
             NbeamsIn = BeamCodes.shape[0]
@@ -1265,12 +1265,12 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
     if acfopts['procMedian']==1:
         funcname='complex_median'
         
-	if fconts.has_key('/CohCode/Data'):
-		gname='/CohCode/Data'
-	elif fconts.has_key('/CohCode/ZeroLags'):
-		gname='/CohCode/ZeroLags'
-	else:
-		 raise IOError, 'Cannot find data group in file'
+    if fconts.has_key('/CohCode/Data'):
+        gname='/CohCode/Data'
+    elif fconts.has_key('/CohCode/ZeroLags'):
+        gname='/CohCode/ZeroLags'
+    else:
+         raise IOError('Cannot find data group in file')
 
     # initialize signal 
     S={} 
@@ -1382,37 +1382,37 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
         # get the beamcodes
         if BeamCodes is None:
             a=fconts['/Setup']['BeamcodeMap']
-            #print fconts['/Setup']
-            #print fconts['/Setup']['BeamcodeMap'][:,3]
+            #print(fconts['/Setup'])
+            #print(fconts['/Setup']['BeamcodeMap'][:,3])
             if scipy.sum(fconts['/Setup']['BeamcodeMap'][:,3])==0.0:
                 try:
                     f=open(acfopts['DEFOPTS']['BMCODEMAP_DEF'])
                     fconts['/Setup']['BeamcodeMap']=scipy.loadtxt(f)
                     f.close()
                 except:
-                    raise IOError, 'BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF']
+                    raise IOError('BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF'])
             S['BMCODES']=scipy.zeros((Nbeams,4),dtype='Float64')-1 # beamcode table (beamcode,az,el,ksys)
             for i in range(Nbeams):
                 I=scipy.where(fconts['/Setup']['BeamcodeMap'][:,0]==beamcodes[i])[0]
                 S['BMCODES'][i,:]=fconts['/Setup']['BeamcodeMap'][I,:]
                 if S['BMCODES'][i,3]==0.0:
-                    print 'Using default system constant, %4.4e' % (acfopts['DEFOPTS']['KSYS_DEF'])
+                    print('Using default system constant, %4.4e' % (acfopts['DEFOPTS']['KSYS_DEF']))
                     S['BMCODES'][i,3]=acfopts['DEFOPTS']['KSYS_DEF']
             if acfopts['beamMapScale']:
                 try:
                     f=open(acfopts['beamMapScaleFile'])
                     BmScaler=scipy.loadtxt(f)
                     f.close()
-                    print 'Using Beam Code scaler from %s' % acfopts['beamMapScaleFile'] 
+                    print('Using Beam Code scaler from %s' % acfopts['beamMapScaleFile'] )
                 except:
-                    raise IOError, 'BeamCode error: Could not read %s' % acfopts['beamMapScaleFile']
+                    raise IOError('BeamCode error: Could not read %s' % acfopts['beamMapScaleFile'])
                 for i in range(Nbeams):
                     I=scipy.where(BmScaler[:,0]==beamcodes[i])[0]
                     if len(I)>0:
                         # replace
                         S['BMCODES'][i,3]=BmScaler[I,3]
                     else:
-                        raise IOError, 'No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile'])
+                        raise IOError('No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile']))
         else:
             S['BMCODES']=BeamCodes
         
@@ -1463,8 +1463,8 @@ def process_barkercode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5Dat
     for ii in range(Nfreqs):
         if len(Irecs[ii])>0:
             tS,tN,tC=process_barkercode(fconts[ii],Irecs[ii],acfopts,Amb,doamb=doamb,extCal=extCal,h5DataPath=h5DataPath,BeamCodes=BeamCodes)
-            print tN['Power']['PulsesIntegrated'].shape
-            print tN['Power']['Data'].shape
+            print(tN['Power']['PulsesIntegrated'].shape)
+            print(tN['Power']['Data'].shape)
             if ii==0:
                 S=tS.copy(); N=tN.copy(); C=tC.copy()
                 # Power

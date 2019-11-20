@@ -29,7 +29,7 @@ def timegaps(time,data,rngOpt=[]):
         time2.append(time[aa,0])
         if ( (time[aa+1,1]-time[aa,0]) > (dt*2.0) ):
             time2.append(time[aa,1])
-            #print datetime.datetime.utcfromtimestamp(time[aa,1])
+            #print(datetime.datetime.utcfromtimestamp(time[aa,1]))
             if np.ndim(data)==3:
                 data2=np.concatenate((data2[0:len(time2)-1,:,:],concnan,data2[len(time2)-1:,:,:]),axis=0)
             elif np.ndim(data)==2:
@@ -179,7 +179,7 @@ def pcolor_plot_antenna_all(plot_info, data):
     num_time_groups = np.ceil(total_time / max_time)
 
     # Check if the output path exists
-    print plot_info['plotsdir']
+    print(plot_info['plotsdir'])
     if not os.path.exists(plot_info['plotsdir']):
         raise IOError("Specified path: ''%s'' does not exist!" % plot_info['plotsdir'])
 
@@ -536,9 +536,9 @@ def replot_pcolor_antenna_all(fname,saveplots=0,opath='.',clims=[[10,12],[0,1500
 
 
 def usage():
-    print "usage: ", sys.argv[0]
-    print "\t DATAFILE: hdf5 file of fitted data [REQUIRED]"
-    print "\t PLOTDIR: directory to place plots in [OPTIONAL]"
+    print("usage: ", sys.argv[0])
+    print("\t DATAFILE: hdf5 file of fitted data [REQUIRED]")
+    print("\t PLOTDIR: directory to place plots in [OPTIONAL]")
 
     sys.exit(2)
 

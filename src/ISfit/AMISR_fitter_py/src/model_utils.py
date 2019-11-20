@@ -194,24 +194,24 @@ def iterate_MSIS(ct_msis,doy,hrUT,glat,glong,year,geophys_path,altkm=scipy.arang
     
 def read_geophys(year,doy,curtime,geophys_dir):
 
-    # Returns:	F107 - for previous day
-    #			F107a - 81 day average
-    #			AP - Array containing the following magnetic values:
-    #				*   0 : daily AP
-    #				*   1 : 3 hr AP index for current time
-    #				*   2 : 3 hr AP index for 3 hrs before current time
-    #				*   3 : 3 hr AP index for 6 hrs before current time
-    #				*   4 : 3 hr AP index for 9 hrs before current time
-    #				*   5 : Average of eight 3 hr AP indicies from 12 to 33 hrs 
-    #				*           prior to current time
-    #				*   6 : Average of eight 3 hr AP indicies from 36 to 57 hrs 
-    #				*           prior to current time 
+    # Returns: F107 - for previous day
+    #          F107a - 81 day average
+    #          AP - Array containing the following magnetic values:
+    #              *   0 : daily AP
+    #              *   1 : 3 hr AP index for current time
+    #              *   2 : 3 hr AP index for 3 hrs before current time
+    #              *   3 : 3 hr AP index for 6 hrs before current time
+    #              *   4 : 3 hr AP index for 9 hrs before current time
+    #              *   5 : Average of eight 3 hr AP indicies from 12 to 33 hrs 
+    #              *           prior to current time
+    #              *   6 : Average of eight 3 hr AP indicies from 36 to 57 hrs 
+    #              *           prior to current time 
     #
     
     if os.path.exists(os.path.join(geophys_dir,str(year)))==False:
         year=year-1
     if os.path.exists(os.path.join(geophys_dir,str(year)))==False:
-        raise IOError, 'Geophys param directory %s/%s does not exist.' % (geophys_dir, str(year))
+        raise IOError('Geophys param directory %s/%s does not exist.' % (geophys_dir, str(year)))
 
     year=str(year)
 
@@ -293,12 +293,12 @@ def read_geophys(year,doy,curtime,geophys_dir):
     lines2=[]
     for aa in range(imin,imax):
         try:
-			if aa<0:
-				lines2.append(lines_py[len(lines_py)+aa])
-			elif aa>=len(lines):		
-				lines2.append(lines_ny[aa-len(lines)])
-			else:
-				lines2.append(lines[aa])
+            if aa<0:
+                lines2.append(lines_py[len(lines_py)+aa])
+            elif aa>=len(lines):        
+                lines2.append(lines_ny[aa-len(lines)])
+            else:
+                lines2.append(lines[aa])
         except:
             ''
     

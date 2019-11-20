@@ -15,10 +15,16 @@ matplotlib.use('agg')
 
 import numpy as np
 import sys, os.path, glob, datetime, time, copy
-import optparse, ConfigParser
+import optparse
 import tables, ctypes
 import scipy, scipy.interpolate
 from matplotlib import pyplot
+
+#python 2 and 3 compatability
+try:
+    import ConfigParser
+except Exception:
+    import configparser as ConfigParser
 
 import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_data
 from ISfitter import *
@@ -181,7 +187,7 @@ class Run_Fitter:
             self.ct_geolib   = ctypes.CDLL(self.LIB_GEOLIB)     # GEOLIB library
             self.ct_flipchem = ctypes.CDLL(self.LIB_FLIPCHEM)   # FLIP chemistry library
         except Exception as e:
-            raise IOError,'Problem loading libraries: %s' % (str(e))
+            raise Exception('Problem loading libraries: %s' % (str(e)))
 
         # set some environment variables
         # os.putenv('AACGM_DAT_PREFIX',self.AACGM_DAT_PREFIX)
@@ -211,7 +217,7 @@ class Run_Fitter:
                     print('Read ambiguity function from external file - %s' % (self.OPTS['AMB_PATH'][0]))
                     print('Read ambiguity function from external file - %s' % (self.OPTS['AMB_PATH'][1]))
         except:
-            raise IOError,'Problem reading ambiguity function from file %s even though file exists' % (self.OPTS['AMB_PATH'])
+            raise Exception('Problem reading ambiguity function from file %s even though file exists' % (self.OPTS['AMB_PATH']))
 
         # set some other variables
         if self.FITOPTS['DO_FITS']:
@@ -303,7 +309,7 @@ class Run_Fitter:
             if I.size==1:
                 ni[I,:]=1.0-(scipy.sum(ni,axis=0)-2.0)
             elif I.size>1:
-                raise ValueError, "Can't have more than one ion -1"
+                raise ValueError("Can't have more than one ion -1")
 
             # set temperature
             tn=scipy.interpolate.interp1d(self.MSIS['ht'], self.MSIS['Tn'],bounds_error=0)(ht_knots/1000.0) # neutral temperature
@@ -592,7 +598,7 @@ class Run_Fitter:
                                     elif self.FITOPTS['molecularModel']==2:
                                         ni[I[a]]=scipy.interp(HT[Ibm,Iht]/1000.0,myfrac[:,0],myfrac[:,1])
                                         mi[I[a]]=scipy.interp(HT[Ibm,Iht]/1000.0,myfrac[:,0],myfrac[:,2])
-                                        print HT[Ibm,Iht]/1000.0, ni[I[a]], mi[I[a]]
+                                        print(HT[Ibm,Iht]/1000.0, ni[I[a]], mi[I[a]])
                                     elif self.FITOPTS['molecularModel']==1:
                                         if mi[I[a]]==16.0: # O+
                                             ni[I[a]]=OXPLUS
@@ -610,7 +616,7 @@ class Run_Fitter:
                             if I.size==1:
                                 ni[I]=1.0-(scipy.sum(ni)-2.0)
                             elif I.size>1:
-                                raise ValueError, "Can't have more than one ion -1"
+                                raise ValueError("Can't have more than one ion -1")
 
                             ### Initial guess
                             if Iht>0 and iparams0.size==NFIT and 1==0:
@@ -695,7 +701,7 @@ class Run_Fitter:
                                     fitinfo['fitcode'][Ibm,Iht]=-45
                             else:
                                 cov_x=scipy.sqrt(scipy.diag(cov_x))*scaler
-                                #print scipy.shape(terr[IfitMR]),scipy.shape(cov_x)
+                                #print(scipy.shape(terr[IfitMR]),scipy.shape(cov_x))
                                 if self.FITOPTS['PERTURBATION_NOISE']:
                                     terr[IfitMR]=cov_x[2:]
                                 else:
@@ -783,13 +789,13 @@ class Run_Fitter:
                             ax.set_title(str(HT[Ibm,Iht]/1000.)+' '+str(FITS_out[Ibm,Iht,-1,1]/FITS_out[Ibm,Iht,0,1]))
                             pyplot.show()
 
-                    except BadComposition, exc:
+                    except BadComposition as e:
                         fitinfo['fitcode'][Ibm,Iht]=-500
-                        print exc
+                        print(str(e))
 
-                    except Exception,e: # an unknown error in the fit
+                    except Exception as e: # an unknown error in the fit
                         fitinfo['fitcode'][Ibm,Iht]=-100
-                        print "Fit failed!! Unexpected error: " + str(e)
+                        print("Fit failed!! Unexpected error: " + str(e))
 
                     # bad records
                     if (fitinfo['fitcode'][Ibm,Iht]<1) or (fitinfo['fitcode'][Ibm,Iht]>4):
@@ -847,13 +853,13 @@ class Run_Fitter:
 
         # make sure all necessary sections exist
         if (not config.has_section('GENERAL')):
-            raise IOError, 'Configuration files must contain at least section: GENERAL'
+            raise Exception('Configuration files must contain at least section: GENERAL')
         if (not config.has_section('FIT_OPTIONS')):
-            raise IOError, 'Configuration files must contain at least section: FIT_OPTIONS'
+            raise Exception('Configuration files must contain at least section: FIT_OPTIONS')
         if (not config.has_section('INPUT')):
-            raise IOError, 'Configuration files must contain at least section: INPUT'
+            raise Exception('Configuration files must contain at least section: INPUT')
         if (not config.has_section('OUTPUT')):
-            raise IOError, 'Configuration files must contain at least section: OUTPUT'
+            raise Exception('Configuration files must contain at least section: OUTPUT')
 
         # General section
         self.FITTER_PATH=io_utils.ini_tool(config,'DEFAULT','FITTER_PATH',required=1,defaultParm='')
@@ -931,7 +937,7 @@ class Run_Fitter:
         self.FITOPTS['p_M0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_M0',required=0,defaultParm='16.0'))
         self.FITOPTS['LagrangeParams']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','LagrangeParams',required=0,defaultParm='[1.0e4,1.0e4,1.0e2]'))
         if len(self.FITOPTS['LagrangeParams']) != 3:
-            raise ValueError, "LagrangeParams must be a list of length 3. Te, Ti, and Ne penalties."
+            raise ValueError("LagrangeParams must be a list of length 3. Te, Ti, and Ne penalties.")
         self.FITOPTS['procMedian']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','procMedian',required=0,defaultParm='0'))
         self.FITOPTS['molecularModel']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','molecularModel',required=0,defaultParm='0')))
         self.FITOPTS['molmodFile']=io_utils.ini_tool(config,'FIT_OPTIONS','molmodFile',required=0,defaultParm='')
@@ -956,17 +962,17 @@ class Run_Fitter:
         # do some error checking
         if self.FITOPTS['DO_FITS']:
             if self.FITOPTS['GroupHt'].size != self.FITOPTS['Ngroup']:
-                raise ValueError, 'GroupHt must have length Ngroup'
+                raise ValueError('GroupHt must have length Ngroup')
             if self.FITOPTS['mi'].size != self.FITOPTS['NION']:
-                raise ValueError, 'mi must have length NION'
+                raise ValueError('mi must have length NION')
             if (self.FITOPTS['Ifit'].shape[0] != self.FITOPTS['Ngroup']) or (self.FITOPTS['Ifit'].shape[1] != self.FITOPTS['NION']+1) or (self.FITOPTS['Ifit'].shape[2] != 4):
-                raise ValueError, 'Ifit must have size (Ngroup) x (NION+1) x 4'
+                raise ValueError('Ifit must have size (Ngroup) x (NION+1) x 4')
             if (self.FITOPTS['GroupHt'][-1]<self.FITOPTS['htmax']):
-                raise ValueError, 'GroupHt must go up to htmax!'
+                raise ValueError('GroupHt must go up to htmax!')
 
             if self.FITOPTS['PERTURBATION_NOISE'] == 1:
                 if self.FITOPTS['fit0lag'] == 0:
-                    raise ValueError, 'Perturbation noise fitting cannot work without fitlag0=1!'
+                    raise ValueError('Perturbation noise fitting cannot work without fitlag0=1!')
 
         self.config = config
 
@@ -979,11 +985,11 @@ class Run_Fitter:
         fname=files[frec]
         if fname and fname[-1] == '\n':
             fname = fname[:-1]
-        print 'Reading file ' + fname
+        print('Reading file ' + fname)
 
         # make sure the file exists
         if os.path.exists(fname)==False:
-            raise IOError, 'The input file does not exist.'
+            raise IOError('The input file does not exist.')
 
         # read the entire file
         with tables.open_file(fname) as h5file:
@@ -1098,8 +1104,8 @@ class Run_Fitter:
     def run(self):
     # main routine that runs the fitting loop.
     # call after instantiating a run_fitter instance
-        print "***************************************"
-        print self.FITOPTS['fitcal']
+        print("***************************************")
+        print(self.FITOPTS['fitcal'])
         if (self.FITOPTS['fitcal'] == 1):
             print("Appending -fitcal to file names.")
 
@@ -1126,7 +1132,7 @@ class Run_Fitter:
                 self.OPTS['FILELIST'] = tuple([self.OPTS['FILELIST']])
             NFREQ = len(self.OPTS['FILELIST'])
         except:
-            print 'Problem understanding filelist'
+            print('Problem understanding filelist')
             return
 
         # check out the raw file paths
@@ -1134,38 +1140,38 @@ class Run_Fitter:
             if (type(self.OPTS['ipath'])!=tuple):
                 self.OPTS['ipath']=tuple([self.OPTS['ipath']])
         except:
-            print 'Problem understanding FILE_PATH'
+            print('Problem understanding FILE_PATH')
             return
 
         # read the file that contains the list of files to process
         files=[]
         input_files = []
         for ii in range(NFREQ): # for each of the frequencies
-            #print self.OPTS['FILELIST'][ii]
+            #print(self.OPTS['FILELIST'][ii])
             f=open(self.OPTS['FILELIST'][ii]) # open
             files.append(f.readlines()) # read list
             f.close() # close
             input_files.append(list())
-            #print files
+            #print(files)
             for ir in range(len(files[ii])):
                 files[ii][ir]=files[ii][ir].rstrip('\n')
                 files[ii][ir]=files[ii][ir].rstrip('\r')
-            #print files
+            #print(files)
             for ir in range(files[ii].count('')):
                 files[ii].remove('')
                 files[ii].remove('\n')
                 files[ii].remove('\r')
-            #print files
+            #print(files)
             files2=copy.copy(files[ii])
             for ir in range(len(files2)):
                 for path in self.OPTS['ipath']:
                     tfiles=glob.glob(os.path.join(path,files2[ir]))
-                        # print tfiles
+                        # print(tfiles)
                     files[ii].extend(tfiles)
                 files[ii].remove(files2[ir])
 
             if len(files[ii])!=len(files[0]): # abort! they need to be the same number of files
-                raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'
+                raise IOError('For multiple frequency/external cal, need the same number of files for each freq...')
             files[ii]=sorted(files[ii],key=os.path.basename)
 
         # Get number of raw files
@@ -1199,7 +1205,7 @@ class Run_Fitter:
                 del output
                 print("Continuing using %s from record %s." % (self.OPTS['outfileLocked'],str(NrecsToSkip)))
             except:
-                raise IOError, 'Unable to continue from locked file: ' + self.OPTS['outfileLocked']
+                raise IOError('Unable to continue from locked file: ' + self.OPTS['outfileLocked'])
         else:
             NrecsToSkip = 0
             with tables.open_file(self.OPTS['outfileLocked'], mode = "w",
@@ -1308,7 +1314,7 @@ class Run_Fitter:
                             frec-=-1
                             breakout=1
                     else: # we've transitioned to a new experiment
-                        print 'New experiment: ' + expname
+                        print('New experiment: ' + expname)
                         curexpname=expname
                         newexp=1
                         self.BMCODES=None
@@ -1341,9 +1347,9 @@ class Run_Fitter:
             if done==1 and Irecs[0][-1]==-1:
                 break;
 
-            # print the record numbers
-            print '\nFile Group ' + str(frec) + ' of ' + str(num_file_groups)
-            print 'Integration Number: ' + str(IIrec+1) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1])
+            # print(the record numbers)
+            print('\nFile Group ' + str(frec) + ' of ' + str(num_file_groups))
+            print('Integration Number: ' + str(IIrec+1) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1]))
             fstr='File Group %d of %d, Rec %d, ' % (frec,num_file_groups,IIrec+1)
 
             # skip records
@@ -1376,7 +1382,7 @@ class Run_Fitter:
             else:
                 [S,Noise,Cal]=eval('process_data.'+self.OPTS['proc_funcname']+"(outputAll,Irecs,self.FITOPTS,self.AMB,doamb=(not self.AMB['Loaded']),extCal=self.FITOPTS['useExternalCal'],h5DataPath=self.OPTS['h5DataPath'],BeamCodes=self.BMCODES)")
 #            except:
-#                raise RuntimeError, 'Error calling %s' % self.OPTS['proc_funcname']
+#                raise RuntimeError('Error calling %s' % self.OPTS['proc_funcname'])
             try:
                 (Nbeams,self.Nlags,self.Nranges)=S['Acf']['Data'].shape
             except:
@@ -1387,12 +1393,12 @@ class Run_Fitter:
             if (not self.AMB['Loaded']): # if it hasn't already been loaded, we need to try to get it from data files
                 if (not S.has_key('Acf')):
                     if (not S['Power'].has_key('Ambiguity')):
-                        raise RuntimeError, 'No valid ambiguity function in data files or specified external file.'
+                        raise RuntimeError('No valid ambiguity function in data files or specified external file.')
                     else:
                         self.AMB=S['Power']['Ambiguity']
                         self.AMB['Loaded']=1
                 elif (not S['Acf'].has_key('Ambiguity')): # this is the case where we needed to get it from the data file but unable to
-                    raise RuntimeError, 'No valid ambiguity function in data files or specified external file.'
+                    raise RuntimeError('No valid ambiguity function in data files or specified external file.')
                 else:
                     self.AMB=S['Acf']['Ambiguity']
                     self.AMB['Loaded']=1
@@ -1402,7 +1408,7 @@ class Run_Fitter:
             try:
                 Tx['Frequency']=scipy.median(scipy.mean(output['/Tx']['Frequency'][Irecs[0],:],axis=1))
                 if Tx['Frequency']<1.0e6:
-                    raise ValueError, "Tx Frequency Not Set, Using Default"
+                    raise ValueError("Tx Frequency Not Set, Using Default")
             except: Tx['Frequency']=self.DEFOPTS['TX_FREQ_DEF']
             if self.FITOPTS['txpow'] is not None:
                 Tx['Power'] = self.FITOPTS['txpow']
@@ -1470,7 +1476,7 @@ class Run_Fitter:
                                 try:
                                     Ibeams.append(int(scipy.where(self.BMCODES[:,0]==self.FITOPTS['Beams2do'][ii])[0]))
                                 except:
-                                    raise RuntimeError, 'No beamcode: %d!!' % (self.FITOPTS['Beams2do'][ii])
+                                    raise RuntimeError('No beamcode: %d!!' % (self.FITOPTS['Beams2do'][ii]))
                         elif len(Im1)!=Nbeams:
                             Ibeams=Im1
                         else:
@@ -1480,7 +1486,7 @@ class Run_Fitter:
 
 
                     # run the geomagnetic model
-                    #print self.ct_geolib,self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0
+                    #print(self.ct_geolib,self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
 
                     self.gmag=geomag.geomag(self.ct_geolib,self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0) # run the geomag model
 
@@ -1522,8 +1528,8 @@ class Run_Fitter:
 
             # Trim data based on beam
             if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                #print Cal
-                #print Noise
+                #print(Cal)
+                #print(Noise)
                 S=process_data.trim_Ibeams(S,Ibeams,Nbeams)
                 Noise=process_data.trim_Ibeams(Noise,Ibeams,Nbeams)
 
@@ -1611,10 +1617,10 @@ class Run_Fitter:
                     self.FITS['ACFs']['ModelACF']=tmod_ACF #ttmod
                     self.FITS['ACFs']['MeasACF']=tmeas_ACF #ttmeas
                     self.FITS['ACFs']['ErrsACF']=terrs_ACF
-                    #print tmeas_ACF[0,:,5]
-                    #print tmeas_ACF.imag[0,:,5]
-                    #print ttmeas[0,:,5]
-                    #print self.FITS['ACFs']['MeasACF'][0,:,5]
+                    #print(tmeas_ACF[0,:,5])
+                    #print(tmeas_ACF.imag[0,:,5])
+                    #print(ttmeas[0,:,5])
+                    #print(self.FITS['ACFs']['MeasACF'][0,:,5])
                     #xxxx
 
                 # make the plots if we are supposed to
@@ -1638,7 +1644,7 @@ class Run_Fitter:
 
                     title= "%d-%d-%d %.3f-%.3f UT" % (self.Time['Month'][0],self.Time['Day'][0],self.Time['Year'][0],self.Time['dtime'][0],self.Time['dtime'][1])
 
-                    print "Making profile plots..."
+                    print("Making profile plots...")
                     try:
                         (figg1,ax1,_)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
                     except Exception as e:
@@ -1650,11 +1656,11 @@ class Run_Fitter:
                             oname=title + '.png'
                             figg1.savefig(os.path.join(self.OPTS['plotsdir'],oname))
                         else:
-                            print "Can't output plots, path doesn't exist"
+                            print("Can't output plots, path doesn't exist")
                             self.OPTS['saveplots']=0
 
                     if self.OPTS['plotson']>1:
-                        print "Plotting ACFs..."
+                        print("Plotting ACFs...")
                         try:
                             (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                         except Exception as e:
@@ -1666,7 +1672,7 @@ class Run_Fitter:
                             figg2.savefig(os.path.join(self.OPTS['plotsdir'],oname))
 
                         if self.OPTS['dumpSpectra']>0:
-                            print "Plotting Spectra..."
+                            print("Plotting Spectra...")
                             try:
                                 (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                             except Exception as e:
@@ -1785,7 +1791,7 @@ class Run_Fitter:
                 os.remove(self.OPTS['outfile'])
             os.rename(self.OPTS['outfileLocked'],self.OPTS['outfile'])
         except:
-            raise IOError, 'Error renaming output file: ' + self.OPTS['outfileLocked'] + 'to ' + self.OPTS['outfile']
+            raise IOError('Error renaming output file: ' + self.OPTS['outfileLocked'] + 'to ' + self.OPTS['outfile'])
 
 
         # make some final color plots

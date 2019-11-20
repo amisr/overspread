@@ -29,11 +29,11 @@ def ini_tool(config,secName,parmName,required=0,defaultParm=''):
         if config.has_option(secName,parmName):
             parm=config.get(secName,parmName)
         elif required==1:
-            raise IOError, '%s must have parameter %s' % (secName,parmName)
+            raise IOError('%s must have parameter %s' % (secName,parmName))
         else:
             parm=defaultParm
     except:
-        raise IOError, 'Error reading %s from %s' % (parmName,secName)
+        raise IOError('Error reading %s from %s' % (parmName,secName))
 
     return parm
 
@@ -60,7 +60,7 @@ def copyAmbDict(inAmb):
         if 'Bandwidth' in inAmb.keys():
             outAmb['Bandwidth']=inAmb['Bandwidth']
     except:
-        print 'Dont understand format of Ambiguity in data file.'
+        print('Dont understand format of Ambiguity in data file.')
 
     return outAmb
 
@@ -81,6 +81,8 @@ def write_outputfile(fhandle,dict2do,keys2do=[],groupname='',name='',grouploc='/
             fhandle.remove_node(group,name)
         except:
             ''
+        if isinstance(dict2do,str):
+            dict2do = scipy.array(dict2do)
         fhandle.create_array(group,name, dict2do, "Dataset")
     else:
         for key in keys2do:
@@ -100,12 +102,20 @@ def createh5groups(fhandle,h5Groups):
 
 def createStaticArray(fhandle,path,data,keys2do=[]):
     # creates a static array
-    if len(keys2do)==0:
+    if len(keys2do) == 0:
         dp,dn = os.path.split(path)
-        fhandle.create_array(dp,dn,data,'Static array')
+        if isinstance(data,str):
+            dat = scipy.array(data)
+        else:
+            dat = data
+        fhandle.create_array(dp,dn,dat,'Static array')
     else:
         for key in keys2do:
-            fhandle.create_array(path,key,data[key],'Static array')
+            if isinstance(data[key],str):
+                dat = scipy.array(data[key])
+            else:
+                dat = data[key]
+            fhandle.create_array(path,key,dat,'Static array')
     return
 
 def createDynamicArray(fhandle,path,rec,keys2do=[]):
