@@ -104,7 +104,7 @@ def deal_data(beamcodes,data,BMCODES):
                     elif ndims==4:
                         output[j,i,:,:]=data[j,cols,:,:]
             except:
-                raise RuntimeError, 'Beamcode error in deal_data()...'
+                raise RuntimeError('Beamcode error in deal_data()...')
 
     return output
     

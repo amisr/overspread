@@ -105,8 +105,8 @@ def test_flip():
 
     for i in range(2):
         res=call_flip(ct,YYYY,DDD,TIME,ALT,LAT,LON,AP,F107D,F107A,TE,TI,TN,OXN,O2N,N2N,HEN,N4S,NE)
-        print YYYY,DDD, ALT,LAT,LON,AP,F107D,F107A,TE,TI,TN,OXN,O2N,N2N,HEN,N4S,NE
-        print res
+        print(YYYY,DDD, ALT,LAT,LON,AP,F107D,F107A,TE,TI,TN,OXN,O2N,N2N,HEN,N4S,NE)
+        print(res)
         
     return res
     
@@ -135,8 +135,8 @@ def test_flip2():
     TI=TN
     
     res=call_flip(ct,YYYY,DDD,TIME,ALT,LAT,LON,AP,F107D,F107A,TE,TI,TN,OXN,O2N,N2N,HEN,N4S,NE)
-    #print YYYY,DDD, ALT,LAT,LON,AP,F107D,F107A,TE,TI,TN,OXN,O2N,N2N,HEN,N4S,NE
-    #print res
+    #print(YYYY,DDD, ALT,LAT,LON,AP,F107D,F107A,TE,TI,TN,OXN,O2N,N2N,HEN,N4S,NE)
+    #print(res)
                 
     return res
 
@@ -175,7 +175,7 @@ def test_flip3():
         TI=TN
     
         LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT=call_flip(ct,YYYY,DDD,TIME,ALT,LAT,LON,AP,F107D,F107A,TE,TI,TN,OXN,O2N,N2N,HEN,N4S,NE)
-        print "%2.2f,%2.2f,%2.2f,%2.2f,%d" % (TIME,LTHRS,SZAD,OXPLUS,INEWT)
+        print("%2.2f,%2.2f,%2.2f,%2.2f,%d" % (TIME,LTHRS,SZAD,OXPLUS,INEWT))
         
         OpFrac[i]=OXPLUS
         SZA[i]=SZAD
