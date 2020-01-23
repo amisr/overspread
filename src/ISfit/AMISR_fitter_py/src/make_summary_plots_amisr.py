@@ -149,10 +149,11 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,save_fig_name=No
 
             ax[ii].clear()
 
-            data_plot = data[:,iiB,:]
+            inds = np.where(np.squeeze(np.isfinite(y[iiB,:])))[0]
+            data_plot = data[:,iiB,inds]
 
             num_x, num_y    = data_plot.shape
-            temp_y          = y[iiB,:]
+            temp_y          = y[iiB,inds]
             temp_y          = np.repeat(temp_y[np.newaxis,:],num_x,axis=0)
             temp_y_diff     = np.repeat(np.diff(temp_y[0,:])[np.newaxis,:],num_x,axis=0)
             y_diff          = np.zeros(temp_y.shape)

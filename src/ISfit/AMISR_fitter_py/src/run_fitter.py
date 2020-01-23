@@ -1011,6 +1011,8 @@ class Run_Fitter:
                         continue
                     if 'OLD' in group._v_pathname.upper():
                         continue
+                    if 'HISTORY' in group._v_pathname.upper():
+                        continue
                     output[group._v_pathname]={}
                     for array in h5file.list_nodes(group, classname = 'Array'):
                         output[group._v_pathname][array.name]=array.read()
