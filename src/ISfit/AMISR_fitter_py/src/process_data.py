@@ -464,7 +464,8 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,0].astype('complex64')
     S['Acf']['Data'].imag=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,1]
     (Nrecs,Nbeams,Nlags,_)=S['Acf']['Data'].shape
-    S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][:,0:Nranges];
+    S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][0,0:Nranges] # range assumed same for all beams
+    S['Acf']['Range'] = S['Acf']['Range'].reshape((1,Nranges))
     S['Acf']['Lags']=fconts[h5DataPath+'/Acf']['Lags']
     if Nlags==Nbauds:
         S['Acf']['Kint']=1.0/scipy.arange(Nbauds,0.0,-1.0)
