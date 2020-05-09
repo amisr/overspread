@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version='0.1.2019.08.05'   #1.0 to be released when fitter is made public
+version='0.1.2020.5.8'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
@@ -556,7 +556,7 @@ class Run_Fitter:
                     terr=scipy.transpose(scipy.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*scipy.nan
 
                     try:
-                    # if 1==1:
+                    #if 1==1:
                         nloops=0
                         while 1==1:
                             nloops+=1
@@ -714,7 +714,7 @@ class Run_Fitter:
                             fitinfo['chi2'][Ibm,Iht]=scipy.real(scipy.sum(scipy.power(scipy.real(infodict['fvec']),2.0))/fitinfo['dof'][Ibm,Iht])
 
                             # get model ACF and parameter arrays
-                            (m,m0,ni,ti,psi,vi)=fit_fun_with_noise(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
+                            (m,m0,ni,ti,psi,vi)=fit_fun_with_noise(x,tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
                                 f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
                             mod_ACF[Ibm,Iy,Iht]=m[Iy]
                             meas_ACF[Ibm,Iy,Iht]=tAcf[Iy]

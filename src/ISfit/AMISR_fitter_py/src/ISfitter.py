@@ -342,11 +342,11 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     m2=scipy.zeros(dtau.size,dtype='Complex64');
     m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
     m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
-        
     # Apply the lag ambiguity function - weighted average to the modeled Acf
     m=scipy.zeros(Wl.shape[1],dtype='Complex64')
+
     for i in range(Wl.shape[1]):  
-        m[i]=scipy.sum(Wl[:,i]*m2)
+        m[i]=scipy.nansum(Wl[:,i]*m2)
 
     # scaling factor
     m=m*Psc
