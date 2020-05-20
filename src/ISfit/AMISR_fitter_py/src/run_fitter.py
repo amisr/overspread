@@ -30,6 +30,10 @@ import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_
 from ISfitter import *
 from constants import *
 
+# flipchem: https://github.com/amisr/flipchem
+from flipchem import Flipchem, MSIS
+from flipchem import compute_ion_neutral_collfreq, compute_electron_neutral_collfreq
+
 #Leftover from amisrwrapper code
 #from loggerinit.LoggerInit import *
 #from amisrplotting import amisrwrapper
@@ -374,38 +378,45 @@ class Run_Fitter:
         fitinfo['chi2']=np.zeros((Nbeams,Nranges),dtype='Float32') # reduced chi2
         fitinfo['nfev']=np.zeros((Nbeams,Nranges),dtype='Int16') # number of function evals
         models={} # dict containing model params
-        models['nHe']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nO']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nN2']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nO2']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nAr']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nMass']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nH']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nN']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nOanom']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['Texo']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
-        models['Tn']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
-        models['SolarZen']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
-        models['LocalSolarTime']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
-        models['SolarDec']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
-        models['nNO']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['nN2D']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
-        models['qOp']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nHe'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nO'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nN2'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nO2'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nAr'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nMass'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nH'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nN'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nOanom'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['Texo'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
+        models['Tn'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
+        models['SolarZen'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
+        models['LocalSolarTime'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
+        models['SolarDec'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
+        models['nNO'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nN2D'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['qOp'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
         try:
             gmag=self.Gmag
         except:
             gmag=geomag.blankGmag(Nbeams,Nranges)
 
         ### geophys indices
-        decTime=self.Time['dtime'][0] #(self.Time['dtime'][0]+self.Time['dtime'][1]+24.0*(self.Time['doy'][1]-self.Time['doy'][0]))/2.0
-        (f107, f107a, ap)=model_utils.read_geophys(int(self.Time['Year'][0]),int(self.Time['doy'][0]),decTime,self.GEOPHYS_PATH)
-        models['f107']=f107; models['f107a']=f107a; models['AP']=ap
+        decTime = self.Time['dtime'][0] #(self.Time['dtime'][0]+self.Time['dtime'][1]+24.0*(self.Time['doy'][1]-self.Time['doy'][0]))/2.0
+        # (f107, f107a, ap)=model_utils.read_geophys(int(self.Time['Year'][0]),int(self.Time['doy'][0]),decTime,self.GEOPHYS_PATH)
+        # models['f107']=f107
+        # models['f107a']=f107a
+        # models['AP']=ap
+
+        f107, f107a, ap = flipchem.read_geophys(self.Time['datetime'])
+        models['f107'] = f107
+        models['f107a'] = f107a
+        models['AP'] = ap
 
         ### Debug
-        if self.OPTS['plotson']>2:
+        if self.OPTS['plotson'] > 2:
             gf=pyplot.figure()
 
-        if self.FITOPTS['molecularModel']==2:
+        if self.FITOPTS['molecularModel'] == 2:
             myfrac = np.loadtxt(self.FITOPTS['molmodFile'])
 
         ### Loop over beams
@@ -415,19 +426,19 @@ class Run_Fitter:
             AzAng = S['BMCODES'][Ibm,1]
             ElAng = S['BMCODES'][Ibm,2]
 
-            IfitIndex=0
-            Ifit=np.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
-            IfitMR=np.where(np.transpose(Ifit)==1)
-            NFIT=int(self.FITOPTS['NFIT'][IfitIndex]+1)
-            SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
-            NSUM=SummationRule[1,:]-SummationRule[0,:]+1
+            IfitIndex = 0
+            Ifit = np.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
+            IfitMR = np.where(np.transpose(Ifit) == 1)
+            NFIT = int(self.FITOPTS['NFIT'][IfitIndex]+1)
+            SummationRule = self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
+            NSUM = SummationRule[1,:]-SummationRule[0,:]+1
 
-            if self.FITOPTS['BinByRange']==1:
-                Ialt=np.where((S['Acf']['Range'][0,:]>=self.FITOPTS['rngmin']))[0]
+            if self.FITOPTS['BinByRange'] == 1:
+                Ialt=np.where((S['Acf']['Range'][0,:] >= self.FITOPTS['rngmin']))[0]
                 Nrs=self.FITOPTS['Nrngs']
                 Altitude=np.mean(S['Acf']['Altitude'],axis=0)[np.newaxis]
             else:
-                Ialt=np.where((S['Acf']['Altitude'][Ibm,:]>=self.FITOPTS['htmin'])&(S['Acf']['Altitude'][Ibm,:]<=self.FITOPTS['htmax']))[0]
+                Ialt=np.where((S['Acf']['Altitude'][Ibm,:] >= self.FITOPTS['htmin']) & (S['Acf']['Altitude'][Ibm,:] <= self.FITOPTS['htmax']))[0]
                 Nrs=1.0e6
                 Altitude=S['Acf']['Altitude']
 
@@ -513,30 +524,80 @@ class Run_Fitter:
                             gmag[key][Ibm,:]=tgmag[key]
 
                 # MSIS
-                tmp=self.FITOPTS['mi'].tolist(); tmp.extend([self.FITOPTS['p_M0']])
-                (HEdens,Odens,N2dens,O2dens,ARdens,MassDens,Hdens,Ndens,AnomOdens,Texo,tn,nui,nue,qOp) = model_utils.call_MSIS(self.ct_msis,self.Time['doy'][0],
-                    decTime,gmag['Latitude'][Ibm,Iht],gmag['Longitude'][Ibm,Iht],self.Time['Year'][0],HT[Ibm,Iht]/1000.0,ap,f107a,f107,self.FITOPTS['z50'],mass=tmp)
-                models['nHe'][Ibm,Iht]=HEdens*1.0e6
-                models['nO'][Ibm,Iht]=Odens*1.0e6
-                models['nN2'][Ibm,Iht]=N2dens*1.0e6
-                models['nO2'][Ibm,Iht]=O2dens*1.0e6
-                models['nAr'][Ibm,Iht]=ARdens*1.0e6
-                models['nMass'][Ibm,Iht]=MassDens*1.0e6/1.0e3
-                models['nH'][Ibm,Iht]=Hdens*1.0e6
-                models['nN'][Ibm,Iht]=Ndens*1.0e6
-                models['nOanom'][Ibm,Iht]=AnomOdens*1.0e6
-                models['Texo'][Ibm,Iht]=Texo
-                models['Tn'][Ibm,Iht]=tn
-                models['qOp'][Ibm,Iht]=qOp
+                # tmp=self.FITOPTS['mi'].tolist(); tmp.extend([self.FITOPTS['p_M0']])
+                # (HEdens,Odens,N2dens,O2dens,ARdens,MassDens,Hdens,Ndens,AnomOdens,Texo,tn,nui,nue,qOp) = model_utils.call_MSIS(self.ct_msis,self.Time['doy'][0],
+                #     decTime,gmag['Latitude'][Ibm,Iht],gmag['Longitude'][Ibm,Iht],self.Time['Year'][0],HT[Ibm,Iht]/1000.0,ap,f107a,f107,self.FITOPTS['z50'],mass=tmp)
+                # models['nHe'][Ibm,Iht]=HEdens*1.0e6
+                # models['nO'][Ibm,Iht]=Odens*1.0e6
+                # models['nN2'][Ibm,Iht]=N2dens*1.0e6
+                # models['nO2'][Ibm,Iht]=O2dens*1.0e6
+                # models['nAr'][Ibm,Iht]=ARdens*1.0e6
+                # models['nMass'][Ibm,Iht]=MassDens*1.0e6/1.0e3
+                # models['nH'][Ibm,Iht]=Hdens*1.0e6
+                # models['nN'][Ibm,Iht]=Ndens*1.0e6
+                # models['nOanom'][Ibm,Iht]=AnomOdens*1.0e6
+                # models['Texo'][Ibm,Iht]=Texo
+                # models['Tn'][Ibm,Iht]=tn
+                # models['qOp'][Ibm,Iht]=qOp
+
+                # common params for msis, flipchem, collfreqs
+                glat = gmag['Latitude'][Ibm,Iht]
+                glon = gmag['Longitude'][Ibm,Iht]
+                alt = HT[Ibm,Iht] / 1000.0
+
+                # MSIS
+                msis = MSIS(self.Time['datetime'])
+                outputs = msis.get_point(glat,glon,alt)
+                H,He,N,O,N2,O2,Ar,Mass,AnomO,Texo,tn = outputs
+
+                models['nH'][Ibm,Iht]     = H
+                models['nHe'][Ibm,Iht]    = He
+                models['nN'][Ibm,Iht]     = N
+                models['nO'][Ibm,Iht]     = O
+                models['nN2'][Ibm,Iht]    = N2
+                models['nO2'][Ibm,Iht]    = O2
+                models['nAr'][Ibm,Iht]    = Ar
+                models['nMass'][Ibm,Iht]  = Mass / 1000.0
+                models['nOanom'][Ibm,Iht] = AnomO
+                models['Texo'][Ibm,Iht]   = Texo
+                models['Tn'][Ibm,Iht]     = tn
+                models['qOp'][Ibm,Iht]    = np.nan
+
+                # collision frequencies, initial guess, Te=Ti=Tn
+                ion_masses = self.FITOPTS['mi'].tolist()
+                ion_masses.extend([self.FITOPTS['p_M0']])
+                nui = list()
+                neutral_densities = (H,He,N,O,N2,O2)
+                for mass in ion_masses:
+                    nui.append(compute_ion_neutral_collfreq(neutral_densities, tn, mass, tn))
+                nui = np.array(nui)
+                nue = compute_electron_neutral_collfreq(neutral_densities, tn)
+                nui[-1] = nue
+
 
                 # initial flip ion chemistry, with te=ti=tn and Ne = initial guess
-                LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT=flipchem.call_flip(self.ct_flipchem,int(self.Time['Year'][0]),int(self.Time['doy'][0]),decTime,HT[Ibm,Iht]/1000.0,
-                    gmag['Latitude'][Ibm,Iht],gmag['Longitude'][Ibm,Iht],ap,f107,f107a,tn,tn,tn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
+                # LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT=flipchem.call_flip(self.ct_flipchem,int(self.Time['Year'][0]),int(self.Time['doy'][0]),decTime,HT[Ibm,Iht]/1000.0,
+                #     gmag['Latitude'][Ibm,Iht],gmag['Longitude'][Ibm,Iht],ap,f107,f107a,tn,tn,tn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
+                # models['SolarZen'][Ibm,Iht]=SZAD
+                # models['LocalSolarTime'][Ibm,Iht]=LTHRS
+                # models['SolarDec'][Ibm,Iht]=DEC
+                # models['nNO'][Ibm,Iht]=NNO*1.0e6
+                # models['nN2D'][Ibm,Iht]=N2D*1.0e6
+
+
+                # initial flip ion chemistry, with te=ti=tn and Ne = initial guess
+
+                # check if altitude is above 300 km
+
+                fc = Flipchem(self.Time['datetime'])
+                outputs = fc.get_point(glat,glon,alt,tNe,tn,tn)
+                LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = outputs
                 models['SolarZen'][Ibm,Iht]=SZAD
                 models['LocalSolarTime'][Ibm,Iht]=LTHRS
                 models['SolarDec'][Ibm,Iht]=DEC
-                models['nNO'][Ibm,Iht]=NNO*1.0e6
-                models['nN2D'][Ibm,Iht]=N2D*1.0e6
+                models['nNO'][Ibm,Iht]=NNO
+                models['nN2D'][Ibm,Iht]=N2D
+
 
                 ### Set up parameter arrays
 
@@ -547,9 +608,9 @@ class Run_Fitter:
                 vi = np.zeros(self.FITOPTS['NION']+1,dtype='float64')
 
                 # set collision frequency
-                I=np.where(Ifit[:,2]==-2)[0]
+                I = np.where(Ifit[:,2] == -2)[0]
                 psi[I] = nui[I]
-                psi[-1]=psi[-1]*0.35714
+                psi[-1] = psi[-1] * 0.35714
 
                 terr=np.transpose(np.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*np.nan
 
@@ -599,15 +660,15 @@ class Run_Fitter:
                                     print(HT[Ibm,Iht]/1000.0, ni[I[a]], mi[I[a]])
                                 elif self.FITOPTS['molecularModel']==1:
                                     if mi[I[a]]==16.0: # O+
-                                        ni[I[a]]=OXPLUS
+                                        ni[I[a]] = OXPLUS / tNe
                                     elif mi[I[a]]==32.0: # O2+
-                                        ni[I[a]]=O2PLUS
+                                        ni[I[a]] = O2PLUS / tNe
                                     elif mi[I[a]]==30.0: # NO+
-                                        ni[I[a]]=NOPLUS
+                                        ni[I[a]] = NOPLUS / tNe
                                     elif mi[I[a]]==28.0: # N2+
-                                        ni[I[a]]=N2PLUS
+                                        ni[I[a]] = N2PLUS / tNe
                                     elif mi[I[a]]==14.0: # N+
-                                        ni[I[a]]=NPLUS
+                                        ni[I[a]] = NPLUS / tNe
                                     else:
                                         ni[I[a]]=0.0
                         I=np.where(Ifit[:,0]==-1)[0]
@@ -690,6 +751,7 @@ class Run_Fitter:
                                 Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
                                 full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=100,diag=None)
 
+
                         # record termination parameter of fitter
                         fitinfo['fitcode'][Ibm,Iht]=ier
                         if cov_x is None:
@@ -741,12 +803,19 @@ class Run_Fitter:
                             if ttn>tti: tti=ttn
                             tte=ti[-1] # te
                             if tte<ttn:  tte=ttn
-                            tOXPLUS=OXPLUS
-                            LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT=flipchem.call_flip(self.ct_flipchem,int(self.Time['Year'][0]),int(self.Time['doy'][0]),self.Time['dtime'][0],HT[Ibm,Iht]/1000.0,
-                                self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
+                            tOXPLUS = OXPLUS
+                            # LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = flipchem.call_flip(self.ct_flipchem,int(self.Time['Year'][0]),int(self.Time['doy'][0]),self.Time['dtime'][0],HT[Ibm,Iht]/1000.0,
+                            #     self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
+
+                            # check if altitude is above 300 km
+                            fc = Flipchem(self.Time['datetime'])
+                            # print(tNe,tte,tti)
+                            outputs = fc.get_point(glat,glon,alt,tNe,tte,tti)
+                            LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = outputs
 
                             # break loop or continue
-                            if (np.absolute(OXPLUS-tOXPLUS)<0.02): # break loop
+                            # print(OXPLUS,tOXPLUS,tNe,tte,tti,np.absolute(OXPLUS-tOXPLUS))
+                            if (np.absolute(OXPLUS-tOXPLUS) < 0.02e6): # break loop
                                 break
                             elif nloops>=10:            # Increased from 5 to 10. Empirically found 
                                                         # that this helps prevent too many BadComposition
@@ -1451,13 +1520,17 @@ class Run_Fitter:
 
             # Time
             self.Time['UnixTime']=np.array([output['/Time']['UnixTime'][Irecs[0][0],0],output['/Time']['UnixTime'][Irecs[0][-1],1]])
-            tmp1=datetime.datetime.utcfromtimestamp(self.Time['UnixTime'][0]); r1=datetime.date(tmp1.year,tmp1.month,tmp1.day)
-            tmp2=datetime.datetime.utcfromtimestamp(self.Time['UnixTime'][1]); r2=datetime.date(tmp2.year,tmp2.month,tmp2.day)
-            self.Time['Year']=np.array([tmp1.year,tmp2.year])
-            self.Time['Month']=np.array([tmp1.month,tmp2.month])
-            self.Time['Day']=np.array([tmp1.day,tmp2.day])
-            self.Time['dtime']=np.array([(float(tmp1.hour)+float(tmp1.minute)/60.0+float(tmp1.second)/3600.0),(float(tmp2.hour)+float(tmp2.minute)/60.0+float(tmp2.second)/3600.0)])
-            self.Time['doy']=np.array([int(r1.strftime('%j')),int(r2.strftime('%j'))])
+            tmp1 = datetime.datetime.utcfromtimestamp(self.Time['UnixTime'][0])
+            tmp2 = datetime.datetime.utcfromtimestamp(self.Time['UnixTime'][1])
+            diff = (tmp2-tmp1).total_seconds()
+            r1 = datetime.date(tmp1.year,tmp1.month,tmp1.day)
+            r2 = datetime.date(tmp2.year,tmp2.month,tmp2.day)
+            self.Time['datetime'] = tmp1 + datetime.timedelta(seconds = diff / 2.0)
+            self.Time['Year'] = np.array([tmp1.year,tmp2.year])
+            self.Time['Month'] = np.array([tmp1.month,tmp2.month])
+            self.Time['Day'] = np.array([tmp1.day,tmp2.day])
+            self.Time['dtime'] = np.array([(float(tmp1.hour)+float(tmp1.minute)/60.0+float(tmp1.second)/3600.0),(float(tmp2.hour)+float(tmp2.minute)/60.0+float(tmp2.second)/3600.0)])
+            self.Time['doy'] = np.array([int(r1.strftime('%j')),int(r2.strftime('%j'))])
 
             # get some standard info the first time through
             if self.BMCODES is None or newexp:
