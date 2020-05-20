@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version='0.1.2019.08.05'   #1.0 to be released when fitter is made public
+version='0.1.2020.05.19-dev0'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
@@ -17,7 +17,7 @@ import numpy as np
 import sys, os.path, glob, datetime, time, copy
 import optparse
 import tables, ctypes
-import scipy, scipy.interpolate
+import scipy.interpolate
 from matplotlib import pyplot
 
 #python 2 and 3 compatability
@@ -221,9 +221,9 @@ class Run_Fitter:
 
         # set some other variables
         if self.FITOPTS['DO_FITS']:
-            self.FITOPTS['NFIT']=scipy.zeros(self.FITOPTS['Ngroup'])
+            self.FITOPTS['NFIT']=np.zeros(self.FITOPTS['Ngroup'])
             for i in range(self.FITOPTS['Ngroup']):
-                self.FITOPTS['NFIT'][i]=scipy.where(self.FITOPTS['Ifit'][i,:,:]==1)[0].shape[0]
+                self.FITOPTS['NFIT'][i]=np.where(self.FITOPTS['Ifit'][i,:,:]==1)[0].shape[0]
 
         return
 
@@ -231,7 +231,7 @@ class Run_Fitter:
     def call_fitter_FP(self,S,Noise,sstr=''):
 
         KNOT_SP=5e3
-        ht_knots = scipy.arange(self.FITOPTS['htmin']-self.S['Power']['TxBaud']*v_lightspeed/4.0,self.FITOPTS['htmax']+self.S['Power']['TxBaud']*v_lightspeed/4.0,KNOT_SP)
+        ht_knots = np.arange(self.FITOPTS['htmin']-self.S['Power']['TxBaud']*v_lightspeed/4.0,self.FITOPTS['htmax']+self.S['Power']['TxBaud']*v_lightspeed/4.0,KNOT_SP)
         Nknots = ht_knots.shape[0]
         N_params = Nknots*4 # Ne, Te, Ti, Vlos
 
@@ -241,28 +241,28 @@ class Run_Fitter:
 
         # frequency array
         NFFT=2048.0/4.0
-        f=scipy.linspace(-30e3,30e3,NFFT+1)
+        f=np.linspace(-30e3,30e3,NFFT+1)
 
-        tnuin=scipy.interpolate.splrep(self.MSIS['ht'],scipy.log10(self.MSIS['nu_in']))
+        tnuin=scipy.interpolate.splrep(self.MSIS['ht'],np.log10(self.MSIS['nu_in']))
 
-        Ihtbm=scipy.zeros(Nbeams)
-        HT=scipy.zeros(S['Acf']['Altitude'].shape,dtype='Float64')*scipy.nan
-        RNG=scipy.zeros(S['Acf']['Altitude'].shape,dtype='Float64')*scipy.nan
-        ne_out=scipy.zeros((Nbeams,Nranges,2),dtype='Float64')*scipy.nan
-        FITS_out=scipy.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*scipy.nan
-        ERRS_out=scipy.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*scipy.nan
+        Ihtbm=np.zeros(Nbeams)
+        HT=np.zeros(S['Acf']['Altitude'].shape,dtype='Float64')*np.nan
+        RNG=np.zeros(S['Acf']['Altitude'].shape,dtype='Float64')*np.nan
+        ne_out=np.zeros((Nbeams,Nranges,2),dtype='Float64')*np.nan
+        FITS_out=np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*np.nan
+        ERRS_out=np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*np.nan
 
-        mod_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')
-        meas_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')
-        errs_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Float64')
-        fitcode=scipy.zeros((Nbeams,Nranges))
+        mod_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')
+        meas_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')
+        errs_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Float64')
+        fitcode=np.zeros((Nbeams,Nranges))
 
         for Ibm in range(Nbeams):
 
             if self.FITOPTS['BinByRange']==0:
-                Ialt=scipy.where((S['Acf']['Range'][Ibm,:]>=self.FITOPTS['rngmin']))[0]
+                Ialt=np.where((S['Acf']['Range'][Ibm,:]>=self.FITOPTS['rngmin']))[0]
             else:
-                Ialt=scipy.where((S['Acf']['Altitude'][Ibm,:]>=self.FITOPTS['htmin'])&(S['Acf']['Altitude'][Ibm,:]<=self.FITOPTS['htmax']))[0]
+                Ialt=np.where((S['Acf']['Altitude'][Ibm,:]>=self.FITOPTS['htmin'])&(S['Acf']['Altitude'][Ibm,:]<=self.FITOPTS['htmax']))[0]
 
             ht=S['Acf']['Altitude'][Ibm,Ialt]
             K=S['Acf']['PulsesIntegrated'][Ibm]
@@ -274,8 +274,8 @@ class Run_Fitter:
                 sig=tAcf[:,0].real # 0 lag
                 #nois=Noise['Power']['Data'][Ibm].real
 
-            snr=scipy.mean(S['Power']['SNR'][Ibm,Ialt])
-            tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0+1.0/snr,2) # theoretical variances
+            snr=np.mean(S['Power']['SNR'][Ibm,Ialt])
+            tAcfVar=np.power(sig,2)/K.astype('Float64')*np.power(1.0+1.0/snr,2) # theoretical variances
 
             tNe=S['Power']['Ne_Mod'][Ibm,:]; tNe=scipy.interpolate.interp1d(S['Acf']['Altitude'][Ibm,:], tNe, bounds_error=0)(ht_knots)
             tPsc=S['Acf']['Psc'][Ibm,0,:]; tPsc=scipy.interpolate.interp1d(S['Acf']['Altitude'][Ibm,:], tPsc, bounds_error=0)(ht_knots)
@@ -283,60 +283,60 @@ class Run_Fitter:
             ### Set up parameter arrays
 
             # Initialize
-            ni = scipy.ones((self.FITOPTS['NION']+1,Nknots),dtype='float64')
-            ti = scipy.ones((self.FITOPTS['NION']+1,Nknots),dtype='float64')
-            mi = scipy.concatenate((self.FITOPTS['mi'],[v_electronmass/v_amu]))
-            psi = scipy.zeros((self.FITOPTS['NION']+1,Nknots),dtype='float64')
-            vi = scipy.zeros((self.FITOPTS['NION']+1,Nknots),dtype='float64')
+            ni = np.ones((self.FITOPTS['NION']+1,Nknots),dtype='float64')
+            ti = np.ones((self.FITOPTS['NION']+1,Nknots),dtype='float64')
+            mi = np.concatenate((self.FITOPTS['mi'],[v_electronmass/v_amu]))
+            psi = np.zeros((self.FITOPTS['NION']+1,Nknots),dtype='float64')
+            vi = np.zeros((self.FITOPTS['NION']+1,Nknots),dtype='float64')
 
-            a=scipy.where(ht_knots[0]<=self.FITOPTS['GroupHt'])[0]
+            a=np.where(ht_knots[0]<=self.FITOPTS['GroupHt'])[0]
             a=a[0]
-            Ifit=scipy.squeeze(self.FITOPTS['Ifit'][a,:,:])
+            Ifit=np.squeeze(self.FITOPTS['Ifit'][a,:,:])
             NFIT=self.FITOPTS['NFIT'][a]+1
-            IfitMR=scipy.where(scipy.transpose(Ifit)==1)
+            IfitMR=np.where(np.transpose(Ifit)==1)
 
             ### set to model parameters if we are supposed to
 
             # set ion density
-            ni[scipy.where((Ifit[:-1,0]==0) | (Ifit[:-1,0]==1)),:]=0.0
-            I=scipy.where(Ifit[:,0]==-2)[0]
+            ni[np.where((Ifit[:-1,0]==0) | (Ifit[:-1,0]==1)),:]=0.0
+            I=np.where(Ifit[:,0]==-2)[0]
             if I.size != 0:
                 for a in range(I.size):
                     if mi[I[a]]>=28 and mi[I[a]]<=32: # its a molecular
                         tfrac=1.0-scipy.interpolate.interp1d(self.MSIS['ht'], self.MSIS['qOp'],bounds_error=0)(ht_knots/1000.0)
                         ni[I[a],:]=tfrac
-            I=scipy.where(Ifit[:,0]==-1)[0]
+            I=np.where(Ifit[:,0]==-1)[0]
             if I.size==1:
-                ni[I,:]=1.0-(scipy.sum(ni,axis=0)-2.0)
+                ni[I,:]=1.0-(np.sum(ni,axis=0)-2.0)
             elif I.size>1:
                 raise ValueError("Can't have more than one ion -1")
 
             # set temperature
             tn=scipy.interpolate.interp1d(self.MSIS['ht'], self.MSIS['Tn'],bounds_error=0)(ht_knots/1000.0) # neutral temperature
-            I=scipy.where(Ifit[:,1]==-2)[0]
+            I=np.where(Ifit[:,1]==-2)[0]
             if I.size != 0:
                 ''
             ti=ti*tn/self.FITOPTS['p_T0']
 
             # set collision frequency
-            I=scipy.where(Ifit[:,2]==-2)[0]
+            I=np.where(Ifit[:,2]==-2)[0]
             if I.size != 0:
                 tpsi=scipy.interpolate.splev(ht_knots/1000.0,tnuin)
-                tpsi=scipy.power(10.0,tpsi)
+                tpsi=np.power(10.0,tpsi)
                 psi[I,:]=tpsi/self.FITOPTS['p_om0']
                 psi[-1,:]=psi[-1,:]*0.35714
             # set velocity
-            I=scipy.where(Ifit[:,3]==-2)[0]
+            I=np.where(Ifit[:,3]==-2)[0]
             if I.size != 0:
                 ''
 
             # initial guess
-            params0=scipy.concatenate((tNe,tn,tn,tn*0.0),axis=0)
-            scaler=scipy.concatenate((tNe/tNe*self.FITOPTS['p_N0'],tn/tn*self.FITOPTS['p_T0'],tn/tn*self.FITOPTS['p_T0'],tn/tn*self.FITOPTS['p_om0']/self.k_radar0),axis=0)
+            params0=np.concatenate((tNe,tn,tn,tn*0.0),axis=0)
+            scaler=np.concatenate((tNe/tNe*self.FITOPTS['p_N0'],tn/tn*self.FITOPTS['p_T0'],tn/tn*self.FITOPTS['p_T0'],tn/tn*self.FITOPTS['p_om0']/self.k_radar0),axis=0)
             params0=params0/scaler
 
             (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_FP,params0,(tAcf,tAcfVar,ht,ht_knots,
-                scipy.squeeze(self.S['Acf']['Lags']),self.AMB['Delay'],self.AMB['Range']*scipy.sin(self.BMCODES[Ibm,2]*pi/180.0),self.AMB['WttAll'],tPsc,self.pldfvvr,self.pldfvvi,self.ct_spec,
+                np.squeeze(self.S['Acf']['Lags']),self.AMB['Delay'],self.AMB['Range']*np.sin(self.BMCODES[Ibm,2]*pi/180.0),self.AMB['WttAll'],tPsc,self.pldfvvr,self.pldfvvi,self.ct_spec,
                 Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0']),
                 full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
 
@@ -354,43 +354,43 @@ class Run_Fitter:
 
         ### frequency array for computation of theoretical spectra
         NFFT = self.DEFOPTS['NFFT']
-        f    = scipy.linspace(-self.DEFOPTS['FREQ_EVAL'],self.DEFOPTS['FREQ_EVAL'],NFFT+1)
+        f    = np.linspace(-self.DEFOPTS['FREQ_EVAL'],self.DEFOPTS['FREQ_EVAL'],NFFT+1)
 
         ### Output variables
-        Ihtbm=scipy.zeros(Nbeams)
-        HT=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan # Altitude
-        RNG=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan # Range
-        ne_out=scipy.zeros((Nbeams,Nranges,2),dtype='Float64')*scipy.nan # Fitted densities
-        noise_out = scipy.zeros((Nbeams,Nranges,3),dtype='Float64')*scipy.nan # Fitted noise
-        FITS_out=scipy.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*scipy.nan # Fitted parameters
-        ERRS_out=scipy.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*scipy.nan # Errors from fits
-        mod_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')*scipy.nan # model ACFs
-        meas_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')*scipy.nan # measured ACFs
-        #ind_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Int16') # measured ACFs
-        errs_ACF=scipy.zeros((Nbeams,Nlags,Nranges),dtype='Float64')*scipy.nan # errors on the ACFs
+        Ihtbm=np.zeros(Nbeams)
+        HT=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan # Altitude
+        RNG=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan # Range
+        ne_out=np.zeros((Nbeams,Nranges,2),dtype='Float64')*np.nan # Fitted densities
+        noise_out = np.zeros((Nbeams,Nranges,3),dtype='Float64')*np.nan # Fitted noise
+        FITS_out=np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*np.nan # Fitted parameters
+        ERRS_out=np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*np.nan # Errors from fits
+        mod_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')*np.nan # model ACFs
+        meas_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')*np.nan # measured ACFs
+        #ind_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Int16') # measured ACFs
+        errs_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Float64')*np.nan # errors on the ACFs
         fitinfo={} # dict containing information on fit
-        fitinfo['fitcode']=scipy.zeros((Nbeams,Nranges),dtype='Int16') # a fit code
-        fitinfo['dof']=scipy.zeros((Nbeams,Nranges),dtype='Int16') # degrees of freedom
-        fitinfo['chi2']=scipy.zeros((Nbeams,Nranges),dtype='Float32') # reduced chi2
-        fitinfo['nfev']=scipy.zeros((Nbeams,Nranges),dtype='Int16') # number of function evals
+        fitinfo['fitcode']=np.zeros((Nbeams,Nranges),dtype='Int16') # a fit code
+        fitinfo['dof']=np.zeros((Nbeams,Nranges),dtype='Int16') # degrees of freedom
+        fitinfo['chi2']=np.zeros((Nbeams,Nranges),dtype='Float32') # reduced chi2
+        fitinfo['nfev']=np.zeros((Nbeams,Nranges),dtype='Int16') # number of function evals
         models={} # dict containing model params
-        models['nHe']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nO']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nN2']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nO2']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nAr']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nMass']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nH']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nN']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nOanom']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['Texo']=scipy.zeros((Nbeams,Nranges),dtype='Float32')*scipy.nan
-        models['Tn']=scipy.zeros((Nbeams,Nranges),dtype='Float32')*scipy.nan
-        models['SolarZen']=scipy.zeros((Nbeams,Nranges),dtype='Float32')*scipy.nan
-        models['LocalSolarTime']=scipy.zeros((Nbeams,Nranges),dtype='Float32')*scipy.nan
-        models['SolarDec']=scipy.zeros((Nbeams,Nranges),dtype='Float32')*scipy.nan
-        models['nNO']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['nN2D']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
-        models['qOp']=scipy.zeros((Nbeams,Nranges),dtype='Float64')*scipy.nan
+        models['nHe']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nO']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nN2']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nO2']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nAr']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nMass']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nH']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nN']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nOanom']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['Texo']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
+        models['Tn']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
+        models['SolarZen']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
+        models['LocalSolarTime']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
+        models['SolarDec']=np.zeros((Nbeams,Nranges),dtype='Float32')*np.nan
+        models['nNO']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['nN2D']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
+        models['qOp']=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan
         try:
             gmag=self.Gmag
         except:
@@ -406,7 +406,7 @@ class Run_Fitter:
             gf=pyplot.figure()
 
         if self.FITOPTS['molecularModel']==2:
-            myfrac = scipy.loadtxt(self.FITOPTS['molmodFile'])
+            myfrac = np.loadtxt(self.FITOPTS['molmodFile'])
 
         ### Loop over beams
         for Ibm in range(Nbeams):
@@ -418,18 +418,18 @@ class Run_Fitter:
                 ElAng = S['BMCODES'][Ibm,2]
 
                 IfitIndex=0
-                Ifit=scipy.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
-                IfitMR=scipy.where(scipy.transpose(Ifit)==1)
+                Ifit=np.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
+                IfitMR=np.where(np.transpose(Ifit)==1)
                 NFIT=int(self.FITOPTS['NFIT'][IfitIndex]+1)
                 SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
                 NSUM=SummationRule[1,:]-SummationRule[0,:]+1
 
                 if self.FITOPTS['BinByRange']==1:
-                    Ialt=scipy.where((S['Acf']['Range'][0,:]>=self.FITOPTS['rngmin']))[0]
+                    Ialt=np.where((S['Acf']['Range'][0,:]>=self.FITOPTS['rngmin']))[0]
                     Nrs=self.FITOPTS['Nrngs']
-                    Altitude=scipy.mean(S['Acf']['Altitude'],axis=0)[scipy.newaxis]
+                    Altitude=np.mean(S['Acf']['Altitude'],axis=0)[np.newaxis]
                 else:
-                    Ialt=scipy.where((S['Acf']['Altitude'][Ibm,:]>=self.FITOPTS['htmin'])&(S['Acf']['Altitude'][Ibm,:]<=self.FITOPTS['htmax']))[0]
+                    Ialt=np.where((S['Acf']['Altitude'][Ibm,:]>=self.FITOPTS['htmin'])&(S['Acf']['Altitude'][Ibm,:]<=self.FITOPTS['htmax']))[0]
                     Nrs=1.0e6
                     Altitude=S['Acf']['Altitude']
 
@@ -446,57 +446,57 @@ class Run_Fitter:
                     if Altitude[Ibm,int(htI)]>=self.FITOPTS['GroupHt'][int(IfitIndex)]:
                         if IfitIndex<(self.FITOPTS['Ngroup']-1):
                             IfitIndex=IfitIndex+1
-                            Ifit=scipy.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
-                            IfitMR=scipy.where(scipy.transpose(Ifit)==1)
+                            Ifit=np.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
+                            IfitMR=np.where(np.transpose(Ifit)==1)
                             NFIT=int(self.FITOPTS['NFIT'][IfitIndex]+1)
                             SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
                             NSUM=SummationRule[1,:]-SummationRule[0,:]+1
 
                     #RngAll=S['Acf']['Range'][0,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]
                     RngAll=S['Acf']['Range'][0,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]
-                    RngMean=scipy.mean(RngAll)
-                    SumFactor=scipy.squeeze(RngMean**2.0/scipy.power(RngAll,2.0))
+                    RngMean=np.mean(RngAll)
+                    SumFactor=np.squeeze(RngMean**2.0/np.power(RngAll,2.0))
 
                     # sum using the summation rule
 
-                    pulses_integrated = scipy.sum(S['Acf']['PulsesIntegrated'][Ibm][:,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)],axis=1)
+                    pulses_integrated = np.sum(S['Acf']['PulsesIntegrated'][Ibm][:,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)],axis=1)
 
                     K=pulses_integrated*S['Acf']['Kint']
-                    tAcf=scipy.zeros(Nlags,dtype='Complex64')
-                    tAcfVar=scipy.zeros(Nlags,dtype='Float64')
-                    Psc=scipy.zeros(Nlags,dtype='Float64')
+                    tAcf=np.zeros(Nlags,dtype='Complex64')
+                    tAcfVar=np.zeros(Nlags,dtype='Float64')
+                    Psc=np.zeros(Nlags,dtype='Float64')
                     for aa in range(Nlags):
                         # Acf
-                        tAcf[aa]=scipy.mean(S['Acf']['Data'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
+                        tAcf[aa]=np.mean(S['Acf']['Data'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
                         # scaling factor for power
-                        Psc[aa]=scipy.mean(S['Acf']['Psc'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
+                        Psc[aa]=np.mean(S['Acf']['Psc'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
 
                     ### compute variance
                     # Whether to use first or 0 lag
                     if self.FITOPTS['uselag1']==1:
-                        sig=scipy.absolute(tAcf[S['Acf']['Lag1Index']]) # first lag
+                        sig=np.absolute(tAcf[S['Acf']['Lag1Index']]) # first lag
                     else:
-                        sig=scipy.absolute(tAcf[0]) # 0 lag
+                        sig=np.absolute(tAcf[0]) # 0 lag
                     # Signal to noise ratio
-                    tSnr=scipy.mean(S['Power']['SNR'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]*SumFactor)
+                    tSnr=np.mean(S['Power']['SNR'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]*SumFactor)
 
                     # Variance
-                    tAcfVar=scipy.power(sig,2)/K.astype('Float64')*scipy.power(1.0 + 1.0/scipy.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
+                    tAcfVar=np.power(sig,2)/K.astype('Float64')*np.power(1.0 + 1.0/np.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
                     # Additional variance due to noise subtraction
                     tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2/Noise['Power']['PulsesIntegrated'][Ibm].astype('Float64')
 
                     # Height and range
-                    HT[Ibm,Iht]=scipy.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
+                    HT[Ibm,Iht]=np.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
                     RNG[Ibm,Iht]=RngMean
-                    print(sstr + 'Alt ' + str(scipy.asarray(HT[Ibm,Iht]/1000.).round(decimals=2)) + ', Rng ' + str(scipy.asarray(RNG[Ibm,Iht]/1000.).round(decimals=2)))
+                    print(sstr + 'Alt ' + str(np.asarray(HT[Ibm,Iht]/1000.).round(decimals=2)) + ', Rng ' + str(np.asarray(RNG[Ibm,Iht]/1000.).round(decimals=2)))
 
                     # using guess for Ne from density profile
-                    tNe=scipy.absolute(scipy.mean(S['Power']['Ne_Mod'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]))
+                    tNe=np.absolute(np.mean(S['Power']['Ne_Mod'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]))
 
                     if len(self.FITOPTS['Lags2fit'])==0:
                         Iy=range(Nlags)
                     else:
-                        b=scipy.where(HT[Ibm,Iht]>=self.FITOPTS['Lags2fit'][:,0])[0]
+                        b=np.where(HT[Ibm,Iht]>=self.FITOPTS['Lags2fit'][:,0])[0]
                         b=b[-1]
                         Iy=self.FITOPTS['Lags2fit'][b,:].tolist()
 
@@ -506,8 +506,8 @@ class Run_Fitter:
                     ### Call MODELS
 
                     # geomag
-                    if scipy.isnan(gmag['Latitude'][Ibm,Iht]):
-                        tgmag=geomag.geomagTime(self.ct_geolib,self.Time['Year'][0],scipy.array([AzAng]),scipy.array([ElAng]),self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=scipy.array([RNG[Ibm,Iht]/1000.0])) # run the geomag model
+                    if np.isnan(gmag['Latitude'][Ibm,Iht]):
+                        tgmag=geomag.geomagTime(self.ct_geolib,self.Time['Year'][0],np.array([AzAng]),np.array([ElAng]),self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=np.array([RNG[Ibm,Iht]/1000.0])) # run the geomag model
                         for key in gmag.iterkeys():
                             if gmag[key].shape == (Nbeams,Nranges):
                                 gmag[key][Ibm,Iht]=tgmag[key]
@@ -543,17 +543,17 @@ class Run_Fitter:
                     ### Set up parameter arrays
 
                     # Initialize
-                    ti = scipy.ones(self.FITOPTS['NION']+1,dtype='float64')*tn*1.1; ti[-1]*=1.1
-                    mi = scipy.concatenate((self.FITOPTS['mi'],[v_electronmass/v_amu]))
-                    psi = scipy.zeros(self.FITOPTS['NION']+1,dtype='float64')
-                    vi = scipy.zeros(self.FITOPTS['NION']+1,dtype='float64')
+                    ti = np.ones(self.FITOPTS['NION']+1,dtype='float64')*tn*1.1; ti[-1]*=1.1
+                    mi = np.concatenate((self.FITOPTS['mi'],[v_electronmass/v_amu]))
+                    psi = np.zeros(self.FITOPTS['NION']+1,dtype='float64')
+                    vi = np.zeros(self.FITOPTS['NION']+1,dtype='float64')
 
                     # set collision frequency
-                    I=scipy.where(Ifit[:,2]==-2)[0]
+                    I=np.where(Ifit[:,2]==-2)[0]
                     psi[I] = nui[I]
                     psi[-1]=psi[-1]*0.35714
 
-                    terr=scipy.transpose(scipy.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*scipy.nan
+                    terr=np.transpose(np.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*np.nan
 
                     try:
                     # if 1==1:
@@ -567,16 +567,16 @@ class Run_Fitter:
                             vi=vi/self.FITOPTS['p_om0']*self.k_radar0
 
                             # set ion density
-                            ni = scipy.ones(self.FITOPTS['NION']+1,dtype='float64')
-                            ni[scipy.where((Ifit[:-1,0]==0) | (Ifit[:-1,0]==1))]=0.0
+                            ni = np.ones(self.FITOPTS['NION']+1,dtype='float64')
+                            ni[np.where((Ifit[:-1,0]==0) | (Ifit[:-1,0]==1))]=0.0
 
                             if mi[1]==mi[0]:
                                 if nloops == 1:
                                     ni[1]=0.0
                                     ti[1]=ti[0]*2.0
                                     vi[1]=-200.0/self.FITOPTS['p_om0']*self.k_radar0
-                                    Ifit = scipy.array([[-1,1,-2,1],[0,0,-2,0],[0,1,-2,0]])
-                                    IfitMR=scipy.where(scipy.transpose(Ifit)==1)
+                                    Ifit = np.array([[-1,1,-2,1],[0,0,-2,0],[0,1,-2,0]])
+                                    IfitMR=np.where(np.transpose(Ifit)==1)
                                     NFIT = 4
                                 elif nloops ==2:
                                     ni[1]=0.1
@@ -584,11 +584,11 @@ class Run_Fitter:
                                     if ti[-1]<tn:
                                         ti[-1] = tn*1.2/self.FITOPTS['p_T0']
                                     vi[1]=vi[0]-200.0/self.FITOPTS['p_om0']*self.k_radar0
-                                    Ifit = scipy.array([[-1,1,-2,0],[1,1,-2,1],[0,1,-2,0]])
-                                    IfitMR=scipy.where(scipy.transpose(Ifit)==1)
+                                    Ifit = np.array([[-1,1,-2,0],[1,1,-2,1],[0,1,-2,0]])
+                                    IfitMR=np.where(np.transpose(Ifit)==1)
                                     NFIT = 6
 
-                            I=scipy.where(Ifit[:,0]==-2)[0]
+                            I=np.where(Ifit[:,0]==-2)[0]
                             if I.size != 0:
                                 for a in range(I.size):
                                     if self.FITOPTS['molecularModel']==0:
@@ -596,8 +596,8 @@ class Run_Fitter:
                                             tfrac=1.0-models['qOp'][Ibm,Iht]
                                             ni[I[a]]=tfrac
                                     elif self.FITOPTS['molecularModel']==2:
-                                        ni[I[a]]=scipy.interp(HT[Ibm,Iht]/1000.0,myfrac[:,0],myfrac[:,1])
-                                        mi[I[a]]=scipy.interp(HT[Ibm,Iht]/1000.0,myfrac[:,0],myfrac[:,2])
+                                        ni[I[a]]=np.interp(HT[Ibm,Iht]/1000.0,myfrac[:,0],myfrac[:,1])
+                                        mi[I[a]]=np.interp(HT[Ibm,Iht]/1000.0,myfrac[:,0],myfrac[:,2])
                                         print(HT[Ibm,Iht]/1000.0, ni[I[a]], mi[I[a]])
                                     elif self.FITOPTS['molecularModel']==1:
                                         if mi[I[a]]==16.0: # O+
@@ -612,47 +612,47 @@ class Run_Fitter:
                                             ni[I[a]]=NPLUS
                                         else:
                                             ni[I[a]]=0.0
-                            I=scipy.where(Ifit[:,0]==-1)[0]
+                            I=np.where(Ifit[:,0]==-1)[0]
                             if I.size==1:
-                                ni[I]=1.0-(scipy.sum(ni)-2.0)
+                                ni[I]=1.0-(np.sum(ni)-2.0)
                             elif I.size>1:
                                 raise ValueError("Can't have more than one ion -1")
 
                             ### Initial guess
                             if Iht>0 and iparams0.size==NFIT and 1==0:
-                                tmp=scipy.transpose(scipy.squeeze(FITS_out[Ibm,Iht-1,:,:]))
-                                params0=scipy.zeros(NFIT,dtype='Float64')
+                                tmp=np.transpose(np.squeeze(FITS_out[Ibm,Iht-1,:,:]))
+                                params0=np.zeros(NFIT,dtype='Float64')
                                 if self.FITOPTS['PERTURBATION_NOISE']:
                                     params0[1:]=tmp[IfitMR]
                                 else:
                                     params0=tmp[IfitMR]
                                 params0=params0/scaler
-                                I=scipy.where((params0>1.0*iparams0) | (params0<iparams0/1.0) | (params0<0))[0]
+                                I=np.where((params0>1.0*iparams0) | (params0<iparams0/1.0) | (params0<0))[0]
                                 params0[I]=iparams0[I]
                                 params0[0]=tNe
                                 params0[0]=params0[0]/scaler[0]
                             else:
-                                params0=scipy.zeros(NFIT,dtype='Float64')
-                                scaler=scipy.zeros(NFIT,dtype='Float64')
+                                params0=np.zeros(NFIT,dtype='Float64')
+                                scaler=np.zeros(NFIT,dtype='Float64')
                                 params0[0]=tNe/self.FITOPTS['p_N0']
                                 scaler[0]=self.FITOPTS['p_N0']
                                 ii=1
-                                I=scipy.where(Ifit[:,0]==1)[0]
+                                I=np.where(Ifit[:,0]==1)[0]
                                 if I.size != 0:
                                     params0[ii:(ii+I.size)]=ni[I]
                                     scaler[ii:(ii+I.size)]=1.0
                                     ii=ii+I.size
-                                I=scipy.where(Ifit[:,1]==1)[0]
+                                I=np.where(Ifit[:,1]==1)[0]
                                 if I.size != 0:
                                     params0[ii:(ii+I.size)]=ti[I]
                                     scaler[ii:(ii+I.size)]=self.FITOPTS['p_T0']
                                     ii=ii+I.size
-                                I=scipy.where(Ifit[:,2]==1)[0]
+                                I=np.where(Ifit[:,2]==1)[0]
                                 if I.size != 0:
                                     params0[ii:(ii+I.size)]=nui[I]/self.FITOPTS['p_om0'] #????
                                     scaler[ii:(ii+I.size)]=self.FITOPTS['p_om0']
                                     ii=ii+I.size
-                                I=scipy.where(Ifit[:,3]==1)[0]
+                                I=np.where(Ifit[:,3]==1)[0]
                                 if I.size != 0:
                                     params0[ii:(ii+I.size)]=vi[I]
                                     scaler[ii:(ii+I.size)]=self.FITOPTS['p_om0']/self.k_radar0
@@ -666,8 +666,8 @@ class Run_Fitter:
                                 noise0 = float(Noise['Power']['Data'][Ibm]) * 0.01
 
                             if self.FITOPTS['PERTURBATION_NOISE']:
-                                params0 = scipy.concatenate((scipy.array([noise0]),params0))
-                                scaler = scipy.concatenate((scipy.array([1]),scaler))
+                                params0 = np.concatenate((np.array([noise0]),params0))
+                                scaler = np.concatenate((np.array([1]),scaler))
 
                             # The variance of the measured noise will be used to weight the amount of allowed
                             # perturbation noise ACF. 
@@ -676,19 +676,19 @@ class Run_Fitter:
 
                             # do the fit
                             if self.FITOPTS['fitSpectra']==1:
-                                tmp=scipy.concatenate((tAcf,scipy.conjugate(tAcf[Iy[-1]:0:-1])),axis=0) # hermitian extension
-                                tSpc=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
-                                tmp=scipy.concatenate((nAcf,scipy.conjugate(nAcf[Iy[-1]:0:-1])),axis=0)
-                                nSpc=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
+                                tmp=np.concatenate((tAcf,np.conjugate(tAcf[Iy[-1]:0:-1])),axis=0) # hermitian extension
+                                tSpc=np.fft.fftshift(np.fft.fft(tmp,axis=0),axes=[0]) # compute spectra
+                                tmp=np.concatenate((nAcf,np.conjugate(nAcf[Iy[-1]:0:-1])),axis=0)
+                                nSpc=np.fft.fftshift(np.fft.fft(tmp,axis=0),axes=[0]) # compute spectra
                                 tSn=tSpc/nSpc
                                 #tSpcVar=scipy.power(scipy.sum(tSpc)*tSpc/tSpc*scipy.sqrt(tAcfVar[0])/tAcf[0],2.0); tSpcVar=tSpcVar.astype('float64')
-                                tSpcVar=scipy.power(tSpc,2.0)/Kmed*scipy.power(1.0+scipy.absolute(1.0/tSn),2.0)
+                                tSpcVar=np.power(tSpc,2.0)/Kmed*np.power(1.0+np.absolute(1.0/tSn),2.0)
 
-                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tSpc,tSpcVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
+                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tSpc,tSpcVar,self.AMB['Delay'],np.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
                                     Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
                                     full_output=1,epsfcn=1.0e-5,ftol=1.0e-5,xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=100,diag=None)
                             else:
-                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],scipy.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
+                                (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tAcf[Iy],tAcfVar[Iy],self.AMB['Delay'],np.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
                                     Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],self.FITOPTS['fitSpectra'],0.75*tn/self.FITOPTS['p_T0'],self.FITOPTS['LagrangeParams']),
                                     full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=10*MAXFEV_C*params0.shape[0],factor=100,diag=None)
 
@@ -700,8 +700,8 @@ class Run_Fitter:
                                 except:
                                     fitinfo['fitcode'][Ibm,Iht]=-45
                             else:
-                                cov_x=scipy.sqrt(scipy.diag(cov_x))*scaler
-                                #print(scipy.shape(terr[IfitMR]),scipy.shape(cov_x))
+                                cov_x=np.sqrt(np.diag(cov_x))*scaler
+                                #print(np.shape(terr[IfitMR]),np.shape(cov_x))
                                 if self.FITOPTS['PERTURBATION_NOISE']:
                                     terr[IfitMR]=cov_x[2:]
                                 else:
@@ -711,10 +711,10 @@ class Run_Fitter:
 
                             fitinfo['nfev'][Ibm,Iht]=infodict['nfev']
                             fitinfo['dof'][Ibm,Iht]=infodict['fvec'].shape[0]-params0.shape[0]-1
-                            fitinfo['chi2'][Ibm,Iht]=scipy.real(scipy.sum(scipy.power(scipy.real(infodict['fvec']),2.0))/fitinfo['dof'][Ibm,Iht])
+                            fitinfo['chi2'][Ibm,Iht]=np.real(np.sum(np.power(np.real(infodict['fvec']),2.0))/fitinfo['dof'][Ibm,Iht])
 
                             # get model ACF and parameter arrays
-                            (m,m0,ni,ti,psi,vi)=fit_fun_with_noise(x,tAcf,tAcfVar,self.AMB['Delay'],scipy.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
+                            (m,m0,ni,ti,psi,vi)=fit_fun_with_noise(x,tAcf,tAcfVar,self.AMB['Delay'],np.transpose(self.AMB['Wlag']),Psc,self.pldfvvr,self.pldfvvi,self.ct_spec,Ifit,
                                 f,ni,ti,mi,psi,vi,self.k_radar0,perturbation_noise_acf,noise_var,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0'],mode=1)
                             mod_ACF[Ibm,Iy,Iht]=m[Iy]
                             meas_ACF[Ibm,Iy,Iht]=tAcf[Iy]
@@ -734,7 +734,7 @@ class Run_Fitter:
                                 noise0 = x[0]
                             else:
                                 tNe=x[0]
-                                noise0 = scipy.nan
+                                noise0 = np.nan
 
                             # re-evaluate FLIP ion chemistry
                             if self.FITOPTS['molecularModel']==1:
@@ -748,7 +748,7 @@ class Run_Fitter:
                                     self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
 
                                 # break loop or continue
-                                if (scipy.absolute(OXPLUS-tOXPLUS)<0.02): # break loop
+                                if (np.absolute(OXPLUS-tOXPLUS)<0.02): # break loop
                                     break
                                 elif nloops>=10:            # Increased from 5 to 10. Empirically found 
                                                             # that this helps prevent too many BadComposition
@@ -774,16 +774,16 @@ class Run_Fitter:
                                 noise_out[Ibm,Iht,1]=cov_x[0]
                                 ne_out[Ibm,Iht,1]=cov_x[1]
                             else:
-                                noise_out[Ibm,Iht,1]=scipy.nan
+                                noise_out[Ibm,Iht,1]=np.nan
                                 ne_out[Ibm,Iht,1]=cov_x[0]
-                            ERRS_out[Ibm,Iht,:,:]=scipy.transpose(terr)
+                            ERRS_out[Ibm,Iht,:,:]=np.transpose(terr)
 
                         # make some plots if we are supposed to
                         if self.OPTS['plotson']>2:
                             figgg = pyplot.figure()
                             axxx = figgg.add_subplot(111)
-                            ax.errorbar(range(tAcf.size),tAcf.imag,scipy.sqrt(tAcfVar),scipy.sqrt(tAcfVar),'r')
-                            ax.errorbar(range(tAcf.size),tAcf.real,scipy.sqrt(tAcfVar),scipy.sqrt(tAcfVar),'b')
+                            ax.errorbar(range(tAcf.size),tAcf.imag,np.sqrt(tAcfVar),np.sqrt(tAcfVar),'r')
+                            ax.errorbar(range(tAcf.size),tAcf.real,np.sqrt(tAcfVar),np.sqrt(tAcfVar),'b')
                             ax.plot(range(tAcf.size),m.real,'k')
                             ax.plot(range(tAcf.size),m.imag,'k')
                             ax.set_title(str(HT[Ibm,Iht]/1000.)+' '+str(FITS_out[Ibm,Iht,-1,1]/FITS_out[Ibm,Iht,0,1]))
@@ -799,18 +799,18 @@ class Run_Fitter:
 
                     # bad records
                     if (fitinfo['fitcode'][Ibm,Iht]<1) or (fitinfo['fitcode'][Ibm,Iht]>4):
-                        FITS_out[Ibm,Iht,:,:]=scipy.nan
-                        ERRS_out[Ibm,Iht,:,:]=scipy.nan
-                        ne_out[Ibm,Iht,:]=scipy.nan
-                        noise_out[Ibm,Iht,:]=scipy.nan
-                        fitinfo['chi2'][Ibm,Iht]=scipy.nan
+                        FITS_out[Ibm,Iht,:,:]=np.nan
+                        ERRS_out[Ibm,Iht,:,:]=np.nan
+                        ne_out[Ibm,Iht,:]=np.nan
+                        noise_out[Ibm,Iht,:]=np.nan
+                        fitinfo['chi2'][Ibm,Iht]=np.nan
 
                     Ihtbm[Ibm]=Iht
 
         if self.FITOPTS['BinByRange']==1:
             Ihtbm=self.FITOPTS['Nrngs']-1
         else:
-            ii=scipy.where(Ihtbm==Ihtbm.max())[0][0]
+            ii=np.where(Ihtbm==Ihtbm.max())[0][0]
             Ihtbm=Ihtbm.max()
 
         Ihtbm = int(Ihtbm)
@@ -943,10 +943,10 @@ class Run_Fitter:
         self.FITOPTS['molmodFile']=io_utils.ini_tool(config,'FIT_OPTIONS','molmodFile',required=0,defaultParm='')
         self.FITOPTS['z50']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','z50',required=0,defaultParm='150.0')))
         self.FITOPTS['fitSpectra']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','fitSpectra',required=0,defaultParm='0'))
-        self.FITOPTS['mi']=scipy.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','mi',required=0,defaultParm='[16.0]')))
+        self.FITOPTS['mi']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','mi',required=0,defaultParm='[16.0]')))
         if self.FITOPTS['DO_FITS']==1:
-            self.FITOPTS['SUMMATION_RULE']=scipy.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','SUMMATION_RULE',required=1,defaultParm='')))
-            self.FITOPTS['Lags2fit']=scipy.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Lags2fit',required=0,defaultParm='[]')))
+            self.FITOPTS['SUMMATION_RULE']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','SUMMATION_RULE',required=1,defaultParm='')))
+            self.FITOPTS['Lags2fit']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Lags2fit',required=0,defaultParm='[]')))
             self.FITOPTS['htmin']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','htmin',required=0,defaultParm='50e3')); htmin=self.FITOPTS['htmin']
             self.FITOPTS['htmax']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','htmax',required=0,defaultParm='10000e3')); htmax=self.FITOPTS['htmax']
             self.FITOPTS['rngmin']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','rngmin',required=0,defaultParm='50e3'))
@@ -954,8 +954,8 @@ class Run_Fitter:
             self.FITOPTS['BinByRange']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','BinByRange',required=0,defaultParm='0'))
             self.FITOPTS['Ngroup']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','Ngroup',required=0,defaultParm='1'))
             self.FITOPTS['NION']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','NION',required=0,defaultParm='1'))
-            self.FITOPTS['GroupHt']=scipy.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','GroupHt',required=0,defaultParm="[self.FITOPTS['htmax']]")))
-            self.FITOPTS['Ifit']=scipy.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Ifit',required=0,defaultParm='[[[0,1,0,1],[0,1,0,-1]]]')))
+            self.FITOPTS['GroupHt']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','GroupHt',required=0,defaultParm="[self.FITOPTS['htmax']]")))
+            self.FITOPTS['Ifit']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Ifit',required=0,defaultParm='[[[0,1,0,1],[0,1,0,-1]]]')))
         self.FITOPTS['FullProfile']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','FullProfile',required=0,defaultParm='0'))
         self.FITOPTS['DEFOPTS']=self.DEFOPTS
 
@@ -1002,7 +1002,13 @@ class Run_Fitter:
                         continue
                     output[group._v_pathname]={}
                     for array in h5file.list_nodes(group, classname = 'Array'):
-                        output[group._v_pathname][array.name]=array.read()
+                        temp = array.read()
+                        shape = np.shape(temp)
+                        if len(shape) == 0:
+                            temp = temp.tolist()
+                            if isinstance(temp,bytes):
+                                temp = temp.decode('utf-8')
+                        output[group._v_pathname][array.name]=temp
             else: # we do need to worry about preserving records
                 output_cp=output
                 output={}
@@ -1015,9 +1021,16 @@ class Run_Fitter:
                         continue
                     output[group._v_pathname]={}
                     for array in h5file.list_nodes(group, classname = 'Array'):
-                        output[group._v_pathname][array.name]=array.read()
-                        if (scipy.ndim(scipy.asarray(output_cp[group._v_pathname][array.name]))>0) and (scipy.asarray(output_cp[group._v_pathname][array.name]).shape[0]==nrecs): # it is a record we should preserve
-                            output[group._v_pathname][array.name]=scipy.concatenate((output_cp[group._v_pathname][array.name][Irec:],output[group._v_pathname][array.name]),axis=0)
+                        temp = array.read()
+                        shape = np.shape(temp)
+                        if len(shape) == 0:
+                            temp = temp.tolist()
+                            if isinstance(temp,bytes):
+                                temp = temp.decode('utf-8')
+                        output[group._v_pathname][array.name]=temp
+                        if (np.ndim(np.asarray(output_cp[group._v_pathname][array.name]))>0) and (np.asarray(output_cp[group._v_pathname][array.name]).shape[0]==nrecs): # it is a record we should preserve
+                            output[group._v_pathname][array.name]=np.concatenate((output_cp[group._v_pathname][array.name][Irec:],output[group._v_pathname][array.name]),axis=0)
+
 
         return output
 
@@ -1025,9 +1038,11 @@ class Run_Fitter:
     def get_expname(self,fname):
         try:
             with tables.open_file(fname) as h5file:
-                expname = str(h5file.get_node('/Setup/Experimentfile').read())
-
-            expname=expname.splitlines()[1].split('=')[1]
+                expname = h5file.get_node('/Setup/Experimentfile').read().tolist()
+            if isinstance(expname,bytes):
+                expname = expname.decode('utf-8')
+            expname = expname.replace('\r','')
+            expname = expname.splitlines()[1].split('=')[1]
         except Exception as e:
             print("Could not determine Experiment Name because: %s" % (str(e)))
             print("Defaulting to blank name.")
@@ -1253,11 +1268,11 @@ class Run_Fitter:
         for ii in range(NFREQ):
             outputAll.append(self.read_a_datafile(files[ii],frec)) # read the first data files
             if self.FITOPTS['MOTION_TYPE'] == 1: # Az,El
-                Ibad.append(scipy.where((outputAll[ii]['/Antenna']['Mode'][:,0] != outputAll[ii]['/Antenna']['Mode'][:,1]) | (outputAll[ii]['/Antenna']['Event'][:,0] != outputAll[ii]['/Antenna']['Event'][:,1]))[0])
+                Ibad.append(np.where((outputAll[ii]['/Antenna']['Mode'][:,0] != outputAll[ii]['/Antenna']['Mode'][:,1]) | (outputAll[ii]['/Antenna']['Event'][:,0] != outputAll[ii]['/Antenna']['Event'][:,1]))[0])
 
         output      = outputAll[0]
         curexpname  = self.get_expname(files[0][frec])
-        RecInt      = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
+        RecInt      = np.mean(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
 
         print('Experiment: %s' % (curexpname))
 
@@ -1274,14 +1289,14 @@ class Run_Fitter:
                     AntennaEvent = output['/Antenna']['Event'][Irec,0]
                 Irecs=[]
                 for ii in range(NFREQ):
-                    uTime = scipy.mean(outputAll[ii]['/Time']['UnixTime'],axis=1)
-                    trecs = scipy.where((uTime>=RecStartTime) & (uTime<=RecEndTime))[0]
+                    uTime = np.mean(outputAll[ii]['/Time']['UnixTime'],axis=1)
+                    trecs = np.where((uTime>=RecStartTime) & (uTime<=RecEndTime))[0]
                     if len(trecs)==0:
                         trecs=[min([Irec,uTime.shape[0]-1])]
                     Irecs.append(trecs)
 
                     if self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                        I=scipy.where((outputAll[ii]['/Antenna']['Mode'][Irecs[ii],0] != AntennaMode) | (outputAll[ii]['/Antenna']['Mode'][Irecs[ii],1] != AntennaMode) |
+                        I=np.where((outputAll[ii]['/Antenna']['Mode'][Irecs[ii],0] != AntennaMode) | (outputAll[ii]['/Antenna']['Mode'][Irecs[ii],1] != AntennaMode) |
                             (outputAll[ii]['/Antenna']['Event'][Irecs[ii],0] != AntennaEvent) | (outputAll[ii]['/Antenna']['Event'][Irecs[ii],1] != AntennaEvent))[0]
                         if len(I)>0:
                             Irecs[ii]=Irecs[ii][:I[0]]
@@ -1310,7 +1325,7 @@ class Run_Fitter:
                                 trec=-1
                             outputAll[ifreq]=self.read_a_datafile(files[ifreq],frec,outputAll[ifreq],trec,outputAll[ifreq]['/Time']['UnixTime'].shape[0])
                             if self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                                Ibad[ifreq]=scipy.where((outputAll[ifreq]['/Antenna']['Mode'][:,0] != outputAll[ifreq]['/Antenna']['Mode'][:,1]) | (outputAll[ifreq]['/Antenna']['Event'][:,0] != outputAll[ifreq]['/Antenna']['Event'][:,1]))[0]
+                                Ibad[ifreq]=np.where((outputAll[ifreq]['/Antenna']['Mode'][:,0] != outputAll[ifreq]['/Antenna']['Mode'][:,1]) | (outputAll[ifreq]['/Antenna']['Event'][:,0] != outputAll[ifreq]['/Antenna']['Event'][:,1]))[0]
                         output=outputAll[0]
                     elif Irec<output['/Time']['UnixTime'].shape[0]: # case where next file is a new experiment, but we want to process the last group of recs
                             frec-=-1
@@ -1336,13 +1351,13 @@ class Run_Fitter:
                         AntennaEvent = output['/Antenna']['Event'][Irec,0]
                     Irecs=[]
                     for ii in range(NFREQ):
-                        uTime = scipy.mean(outputAll[ii]['/Time']['UnixTime'],axis=1)
-                        trecs = scipy.where((uTime>=RecStartTime) & (uTime<=RecEndTime))[0]
+                        uTime = np.mean(outputAll[ii]['/Time']['UnixTime'],axis=1)
+                        trecs = np.where((uTime>=RecStartTime) & (uTime<=RecEndTime))[0]
                         if len(trecs)==0:
                             trecs=[Irec]
                         Irecs.append(trecs)
                         if self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                            I=scipy.where((output['/Antenna']['Mode'][Irecs[ii],0] != AntennaMode) | (outputAll[ii]['/Antenna']['Mode'][Irecs[ii],1] != AntennaMode) |
+                            I=np.where((output['/Antenna']['Mode'][Irecs[ii],0] != AntennaMode) | (outputAll[ii]['/Antenna']['Mode'][Irecs[ii],1] != AntennaMode) |
                                 (outputAll[ii]['/Antenna']['Event'][Irecs[ii],0] != AntennaEvent) | (outputAll[ii]['/Antenna']['Event'][Irecs[ii],1] != AntennaEvent))[0]
                             if len(I)>0:
                                 Irecs[ii]=Irecs[ii][:I[0]]
@@ -1368,7 +1383,7 @@ class Run_Fitter:
 
             #
             if self.FITOPTS['MOTION_TYPE']==0:
-                output['/Setup']['BeamcodeMap']=scipy.asarray(output['/Setup']['BeamcodeMap'])
+                output['/Setup']['BeamcodeMap']=np.asarray(output['/Setup']['BeamcodeMap'])
 
             try:
                 output['/Rx']['CalTemp']
@@ -1408,49 +1423,49 @@ class Run_Fitter:
             # Transmitter
             Tx={}
             try:
-                Tx['Frequency']=scipy.median(scipy.mean(output['/Tx']['Frequency'][Irecs[0],:],axis=1))
+                Tx['Frequency']=np.median(np.mean(output['/Tx']['Frequency'][Irecs[0],:],axis=1))
                 if Tx['Frequency']<1.0e6:
                     raise ValueError("Tx Frequency Not Set, Using Default")
             except: Tx['Frequency']=self.DEFOPTS['TX_FREQ_DEF']
             if self.FITOPTS['txpow'] is not None:
                 Tx['Power'] = self.FITOPTS['txpow']
             else:
-                try: Tx['Power']=scipy.median(scipy.mean(output['/Tx']['Power'][Irecs[0],:],axis=1))
+                try: Tx['Power']=np.median(np.mean(output['/Tx']['Power'][Irecs[0],:],axis=1))
                 except: Tx['Power']=self.DEFOPTS['TX_POWER_DEF']
             if Tx['Power']==0.0:
                 Tx['Power']=self.DEFOPTS['TX_POWER_DEF']
-            try: Tx['Aeu']=scipy.median(scipy.mean(output['/Tx']['AeuTx'][Irecs[0],:],axis=1))
+            try: Tx['Aeu']=np.median(np.mean(output['/Tx']['AeuTx'][Irecs[0],:],axis=1))
             except: Tx['Aeu']=-1
             try: S['Acf']['Psc']=S['Acf']['Psc']*Tx['Power'];
             except: '' # Power scaling factor
             self.k_radar0=4.0*pi*Tx['Frequency']/v_lightspeed
-            self.FITOPTS['p_om0']=self.k_radar0*scipy.sqrt(2.0*v_Boltzmann*self.FITOPTS['p_T0']/(self.FITOPTS['p_M0']*v_amu))
+            self.FITOPTS['p_om0']=self.k_radar0*np.sqrt(2.0*v_Boltzmann*self.FITOPTS['p_T0']/(self.FITOPTS['p_M0']*v_amu))
 
 
             # Receive
             Rx={}
-            try: Rx['Frequency']=scipy.median(scipy.mean(output['/Rx']['Frequency'][Irecs[0],:],axis=1))
+            try: Rx['Frequency']=np.median(np.mean(output['/Rx']['Frequency'][Irecs[0],:],axis=1))
             except: Rx['Frequency']=self.DEFOPTS['TX_FREQ_DEF']
-            try: Rx['Aeu']=scipy.median(scipy.mean(output['/Rx']['AeuRx'][Irecs[0],:],axis=1))
+            try: Rx['Aeu']=np.median(np.mean(output['/Rx']['AeuRx'][Irecs[0],:],axis=1))
             except: Rx['Aeu']=-1
-            try: Rx['AeuTotal']=scipy.median(scipy.mean(output['/Site']['AeuTotal'][Irecs[0],:],axis=1))
+            try: Rx['AeuTotal']=np.median(np.mean(output['/Site']['AeuTotal'][Irecs[0],:],axis=1))
             except: Rx['AeuTotal']=-1;
 
             # Time
-            self.Time['UnixTime']=scipy.array([output['/Time']['UnixTime'][Irecs[0][0],0],output['/Time']['UnixTime'][Irecs[0][-1],1]])
+            self.Time['UnixTime']=np.array([output['/Time']['UnixTime'][Irecs[0][0],0],output['/Time']['UnixTime'][Irecs[0][-1],1]])
             tmp1=datetime.datetime.utcfromtimestamp(self.Time['UnixTime'][0]); r1=datetime.date(tmp1.year,tmp1.month,tmp1.day)
             tmp2=datetime.datetime.utcfromtimestamp(self.Time['UnixTime'][1]); r2=datetime.date(tmp2.year,tmp2.month,tmp2.day)
-            self.Time['Year']=scipy.array([tmp1.year,tmp2.year])
-            self.Time['Month']=scipy.array([tmp1.month,tmp2.month])
-            self.Time['Day']=scipy.array([tmp1.day,tmp2.day])
-            self.Time['dtime']=scipy.array([(float(tmp1.hour)+float(tmp1.minute)/60.0+float(tmp1.second)/3600.0),(float(tmp2.hour)+float(tmp2.minute)/60.0+float(tmp2.second)/3600.0)])
-            self.Time['doy']=scipy.array([int(r1.strftime('%j')),int(r2.strftime('%j'))])
+            self.Time['Year']=np.array([tmp1.year,tmp2.year])
+            self.Time['Month']=np.array([tmp1.month,tmp2.month])
+            self.Time['Day']=np.array([tmp1.day,tmp2.day])
+            self.Time['dtime']=np.array([(float(tmp1.hour)+float(tmp1.minute)/60.0+float(tmp1.second)/3600.0),(float(tmp2.hour)+float(tmp2.minute)/60.0+float(tmp2.second)/3600.0)])
+            self.Time['doy']=np.array([int(r1.strftime('%j')),int(r2.strftime('%j'))])
 
             # get some standard info the first time through
             if self.BMCODES is None or newexp:
 
                 self.BMCODES=S['BMCODES'] # beamcodes
-                self.BMCODES[:,2]=scipy.absolute(self.BMCODES[:,2])
+                self.BMCODES[:,2]=np.absolute(self.BMCODES[:,2])
 
                 # read site information
                 self.Site['Latitude']=float(output['/Site']['Latitude']) # site latitude
@@ -1471,12 +1486,12 @@ class Run_Fitter:
                                 del self.Gmag
                             except:
                                 ""
-                        Im1=scipy.where(self.BMCODES[:,0]!=-1.0)[0]
+                        Im1=np.where(self.BMCODES[:,0]!=-1.0)[0]
                         if len(self.FITOPTS['Beams2do'])>0:
                             Ibeams=[]
                             for ii in range(len(self.FITOPTS['Beams2do'])):
                                 try:
-                                    Ibeams.append(int(scipy.where(self.BMCODES[:,0]==self.FITOPTS['Beams2do'][ii])[0]))
+                                    Ibeams.append(int(np.where(self.BMCODES[:,0]==self.FITOPTS['Beams2do'][ii])[0]))
                                 except:
                                     raise RuntimeError('No beamcode: %d!!' % (self.FITOPTS['Beams2do'][ii]))
                         elif len(Im1)!=Nbeams:
@@ -1503,12 +1518,12 @@ class Run_Fitter:
 
                 else: # Az, El
                     self.Nbeams=1
-                    self.gmag=geomag.geomag(self.ct_geolib,self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=scipy.array([0.0])) # run the geomag model
+                    self.gmag=geomag.geomag(self.ct_geolib,self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=np.array([0.0])) # run the geomag model
 
                 # get geomag info of site to 2 decimal places
-                self.Site['MagneticLatitude']=float(scipy.asarray(self.gmag['MagneticLatitude'][0,0]).round(decimals=2))
-                self.Site['MagneticLongitude']=float(scipy.asarray(self.gmag['MagneticLongitude'][0,0]).round(decimals=2))
-                self.Site['MagneticLocalTimeMidnight']=float(scipy.asarray(self.gmag['MLTMidnightUT'][0,0]).round(decimals=3))
+                self.Site['MagneticLatitude']=float(np.asarray(self.gmag['MagneticLatitude'][0,0]).round(decimals=2))
+                self.Site['MagneticLongitude']=float(np.asarray(self.gmag['MagneticLongitude'][0,0]).round(decimals=2))
+                self.Site['MagneticLocalTimeMidnight']=float(np.asarray(self.gmag['MLTMidnightUT'][0,0]).round(decimals=3))
 
             # calculate MLT at the site
             if self.OPTS['ComputeMLT']>=1: # just calculates MLT at the site
@@ -1519,14 +1534,14 @@ class Run_Fitter:
             # get altitude using geodetic conversion
             if S.has_key('Power'):
                 if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Power']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,np.squeeze(S['Power']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
                 elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Power']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,np.squeeze(S['Power']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
             if S.has_key('Acf'):
                 if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Acf']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,np.squeeze(S['Acf']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
                 elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,scipy.squeeze(S['Acf']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,np.squeeze(S['Acf']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
 
             # Trim data based on beam
             if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
@@ -1540,24 +1555,24 @@ class Run_Fitter:
 
             # model for computing Ne from power
             Mod={}
-            Mod['Te']=scipy.ones(S['Power']['Altitude'].shape)*1000
-            Mod['Ti']=scipy.ones(S['Power']['Altitude'].shape)*1000
-            Mod['Ne']=scipy.ones(S['Power']['Altitude'].shape)*1.0e11
+            Mod['Te']=np.ones(S['Power']['Altitude'].shape)*1000
+            Mod['Ti']=np.ones(S['Power']['Altitude'].shape)*1000
+            Mod['Ne']=np.ones(S['Power']['Altitude'].shape)*1.0e11
 
             # compute density profile using apriori model for temperatures
-            S['Power']['SNR']=scipy.real(S['Power']['SNR'])
+            S['Power']['SNR']=np.real(S['Power']['SNR'])
             if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
                 (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'][0,:],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['BMCODES'][:,3])
             elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
                 (S['Power']['Ne_Mod'],S['Power']['Ne_NoTr'],tPsc)=proc_utils.ne_prof(S['Power']['Data'],S['Power']['Range'][0,:],S['Power']['Altitude'],Mod,Tx['Power'],S['Power']['Pulsewidth'],Tx['Frequency'],S['Ksys'])
-            S['Power']['dNeFrac']=1.0/scipy.sqrt(S['Power']['Kint']*S['Power']['PulsesIntegrated'])*(1.0+scipy.absolute(1.0/S['Power']['SNR'])+S['Power']['iSCR'])
-            S['Power']['dNeFrac'][scipy.where(S['Power']['SNR']<0.0)]=scipy.nan
+            S['Power']['dNeFrac']=1.0/np.sqrt(S['Power']['Kint']*S['Power']['PulsesIntegrated'])*(1.0+np.absolute(1.0/S['Power']['SNR'])+S['Power']['iSCR'])
+            S['Power']['dNeFrac'][np.where(S['Power']['SNR']<0.0)]=np.nan
             if self.FITOPTS['uselag1']: # if we are using the 1st lag to estimate the density, then we need to scale it a bit
-                S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/scipy.sum(scipy.absolute(self.AMB['Wlag'][S['Acf']['Lag1Index'],:]))
-                S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/scipy.sum(scipy.absolute(self.AMB['Wlag'][S['Acf']['Lag1Index'],:]))
+                S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/np.sum(np.absolute(self.AMB['Wlag'][S['Acf']['Lag1Index'],:]))
+                S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/np.sum(np.absolute(self.AMB['Wlag'][S['Acf']['Lag1Index'],:]))
             else:
-                S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
-                S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/scipy.sum(scipy.absolute(self.AMB['Wlag'][0,:]))
+                S['Power']['Ne_Mod']=S['Power']['Ne_Mod']/np.sum(np.absolute(self.AMB['Wlag'][0,:]))
+                S['Power']['Ne_NoTr']=S['Power']['Ne_NoTr']/np.sum(np.absolute(self.AMB['Wlag'][0,:]))
 
 
                 
@@ -1567,11 +1582,11 @@ class Run_Fitter:
             def compute_noise_acf(num_lags,sample_time,impulse_response):
 
                 t_num_taps = impulse_response.size
-                t_times = scipy.arange(t_num_taps)*1e-6         # we have 1 us samples before decimating to final raw output
-                t_acf = scipy.convolve(impulse_response,impulse_response)[t_num_taps-1:]
+                t_times = np.arange(t_num_taps)*1e-6         # we have 1 us samples before decimating to final raw output
+                t_acf = np.convolve(impulse_response,impulse_response)[t_num_taps-1:]
                 t_acf = t_acf / t_acf[0]
 
-                t_lag_times = scipy.arange(num_lags)*sample_time
+                t_lag_times = np.arange(num_lags)*sample_time
                 interp_func = scipy.interpolate.interp1d(t_times,t_acf,bounds_error=0, fill_value=0)
                 noise_acf = interp_func(t_lag_times)
 
@@ -1585,19 +1600,19 @@ class Run_Fitter:
                 sample_time = float(temp)
                 temp = output['/Setup']['RxFilterfile']
                 # old files, from 2007 require this check
-                if isinstance(temp,scipy.ndarray):
+                if isinstance(temp,np.ndarray):
                     if len(temp.shape) > 0:
                         temp = temp[0]
                 temp = str(temp)
                 temp = temp.replace('\r','') 
-                filter_coefficients = scipy.array([float(x) for x in temp.split('\n')[:-1]])
+                filter_coefficients = np.array([float(x) for x in temp.split('\n')[:-1]])
 
                 # Compute the perturbation noise acf
                 num_lags = self.Nlags
                 if self.FITOPTS['PERTURBATION_NOISE']:
                     perturbation_noise_acf = compute_noise_acf(num_lags,sample_time,filter_coefficients)
                 else:
-                    perturbation_noise_acf = scipy.nan * scipy.zeros(num_lags)
+                    perturbation_noise_acf = np.nan * np.zeros(num_lags)
 
                 if self.FITOPTS['FullProfile']:
                     (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo)=self.call_fitter_FP(S,Noise,sstr=fstr)
@@ -1613,8 +1628,8 @@ class Run_Fitter:
                 self.FITS['FitInfo']=tfitinfo
                 if self.OPTS['saveACFs']:
                     tshape=list(tmeas_ACF.shape); #tshape.append(2)
-                    #ttmeas=scipy.zeros(tshape,dtype='Float64'); ttmeas[:,:,:,0]=tmeas_ACF.real; ttmeas[:,:,:,1]=tmeas_ACF.imag
-                    #ttmod=scipy.zeros(tshape,dtype='Float64'); ttmod[:,:,:,0]=tmod_ACF.real; ttmeas[:,:,:,1]=tmod_ACF.imag
+                    #ttmeas=np.zeros(tshape,dtype='Float64'); ttmeas[:,:,:,0]=tmeas_ACF.real; ttmeas[:,:,:,1]=tmeas_ACF.imag
+                    #ttmod=np.zeros(tshape,dtype='Float64'); ttmod[:,:,:,0]=tmod_ACF.real; ttmeas[:,:,:,1]=tmod_ACF.imag
                     self.FITS['ACFs']={}
                     self.FITS['ACFs']['ModelACF']=tmod_ACF #ttmod
                     self.FITS['ACFs']['MeasACF']=tmeas_ACF #ttmeas
@@ -1716,27 +1731,27 @@ class Run_Fitter:
             with tables.open_file(self.OPTS['outfileLocked'], mode = "a") as outh5file:
                 # Processing params
                 if IIrec==0:
-                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/ProcessingTimeStamp',scipy.array(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())))
+                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/ProcessingTimeStamp',np.array(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())))
                     # Tx/Rx frequency and stuff
-                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/TxFrequency',scipy.array(Tx['Frequency']))
-                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/RxFrequency',scipy.array(Rx['Frequency']))
-                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/BaudLength',scipy.array(S['Power']['TxBaud']))
-                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/PulseLength',scipy.array(S['Power']['Pulsewidth']))
+                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/TxFrequency',np.array(Tx['Frequency']))
+                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/RxFrequency',np.array(Rx['Frequency']))
+                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/BaudLength',np.array(S['Power']['TxBaud']))
+                    io_utils.createStaticArray(outh5file,self.h5Paths['Params'][0]+'/PulseLength',np.array(S['Power']['Pulsewidth']))
                     # Site
                     io_utils.createStaticArray(outh5file,self.h5Paths['Site'][0],self.Site,self.Site.keys())
                     # Beamcodes
                     if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
                         io_utils.createStaticArray(outh5file,'/BeamCodes',self.BMCODES)
-                io_utils.createDynamicArray(outh5file,self.h5Paths['Params'][0]+'/TxPower',scipy.array(Tx['Power']))
+                io_utils.createDynamicArray(outh5file,self.h5Paths['Params'][0]+'/TxPower',np.array(Tx['Power']))
                 if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                    io_utils.createDynamicArray(outh5file,self.h5Paths['Params'][0]+'/AeuTx',scipy.array(Tx['Aeu']))
-                    io_utils.createDynamicArray(outh5file,self.h5Paths['Params'][0]+'/AeuRx',scipy.array(Rx['Aeu']))
-                    io_utils.createDynamicArray(outh5file,self.h5Paths['Params'][0]+'/AeuTotal',scipy.array(Rx['AeuTotal']))
+                    io_utils.createDynamicArray(outh5file,self.h5Paths['Params'][0]+'/AeuTx',np.array(Tx['Aeu']))
+                    io_utils.createDynamicArray(outh5file,self.h5Paths['Params'][0]+'/AeuRx',np.array(Rx['Aeu']))
+                    io_utils.createDynamicArray(outh5file,self.h5Paths['Params'][0]+'/AeuTotal',np.array(Rx['AeuTotal']))
                 # Antenna motion
                 if self.FITOPTS['MOTION_TYPE']==1: # Az,El
                     io_utils.createDynamicArray(outh5file,self.h5Paths['Antenna'][0],S,['Azimuth','Elevation','AvgAzimuth','AvgElevation'])
-                    io_utils.createDynamicArray(outh5file,self.h5Paths['Antenna'][0]+'/Mode',scipy.array(output['/Antenna']['Mode'][Irec,0]))
-                    io_utils.createDynamicArray(outh5file,self.h5Paths['Antenna'][0]+'/Event',scipy.array(output['/Antenna']['Event'][Irec,0]))
+                    io_utils.createDynamicArray(outh5file,self.h5Paths['Antenna'][0]+'/Mode',np.array(output['/Antenna']['Mode'][Irec,0]))
+                    io_utils.createDynamicArray(outh5file,self.h5Paths['Antenna'][0]+'/Event',np.array(output['/Antenna']['Event'][Irec,0]))
                 # Time
                 io_utils.createDynamicArray(outh5file,self.h5Paths['Time'][0],self.Time,self.Time.keys())
                 # MSIS model
