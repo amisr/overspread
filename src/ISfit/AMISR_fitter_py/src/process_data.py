@@ -17,22 +17,22 @@ from constants import *
 
 def trim_Ibeams(inDict,Ibeams,Nbeams):
 
-    keyz=inDict.keys()
+    keyz = list(inDict.keys())
     for ik in range(len(keyz)):
     
-        if type(inDict[keyz[ik]])==dict:
-            keyz2=inDict[keyz[ik]].keys()
+        if isinstance(inDict[keyz[ik]], dict):
+            keyz2 = list(inDict[keyz[ik]].keys())
             for ik2 in range(len(keyz2)):
-                nd=scipy.ndim(inDict[keyz[ik]][keyz2[ik2]])
-                if nd>0:
-                    if inDict[keyz[ik]][keyz2[ik2]].shape[0]==Nbeams:
-                        inDict[keyz[ik]][keyz2[ik2]]=inDict[keyz[ik]][keyz2[ik2]][Ibeams]
+                nd = scipy.ndim(inDict[keyz[ik]][keyz2[ik2]])
+                if nd > 0:
+                    if inDict[keyz[ik]][keyz2[ik2]].shape[0] == Nbeams:
+                        inDict[keyz[ik]][keyz2[ik2]] = inDict[keyz[ik]][keyz2[ik2]][Ibeams]
 
         else:
-            nd=scipy.ndim(inDict[keyz[ik]])
-            if nd>0:
-                if inDict[keyz[ik]].shape[0]==Nbeams:
-                    inDict[keyz[ik]]=inDict[keyz[ik]][Ibeams]
+            nd = scipy.ndim(inDict[keyz[ik]])
+            if nd > 0:
+                if inDict[keyz[ik]].shape[0] == Nbeams:
+                    inDict[keyz[ik]] = inDict[keyz[ik]][Ibeams]
 
     return inDict
 

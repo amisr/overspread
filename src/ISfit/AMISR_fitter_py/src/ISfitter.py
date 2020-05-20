@@ -9,6 +9,7 @@ last revised: xx/xx/2007
 """
 
 import sys, ctypes 
+import numpy as np
 import scipy, scipy.fftpack, scipy.interpolate, scipy.optimize, scipy.signal
 
 import io_utils
@@ -291,44 +292,44 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     tpsi=psi.copy()
     tvi=vi.copy()
         
-    if scipy.isfinite(pertubation_noise_acf[0]):
+    if np.isfinite(pertubation_noise_acf[0]):
         noise_power = parameter[0]  # first fitting parameter is always perturbation noise power
         ne=parameter[1]*p_N0        # second fitting parameter is always Ne
         ii=2
     else:
-        noise_power = scipy.nan     # first fitting parameter is always perturbation noise power
+        noise_power = np.nan     # first fitting parameter is always perturbation noise power
         ne=parameter[0]*p_N0        # second fitting parameter is always Ne
         ii=1
 
     # are we fitting for  fraction?
-    I=scipy.where(Ifit[:,0]==1)[0]
+    I=np.where(Ifit[:,0]==1)[0]
     if I.size != 0: 
         tni[I]=parameter[ii:ii+I.size]
         ii=ii+I.size
-        I1=scipy.where(Ifit[:,0]==-1)[0]
+        I1=np.where(Ifit[:,0]==-1)[0]
         tni[I1]=1.0-tni[I[0]]
     # are we fitting for temperature?
-    I=scipy.where(Ifit[:,1]==1)[0]
+    I=np.where(Ifit[:,1]==1)[0]
     if I.size != 0: 
         tti[I]=parameter[ii:ii+I.size]
         ii=ii+I.size
-        I1=scipy.where(Ifit[:,1]==-1)[0]
+        I1=np.where(Ifit[:,1]==-1)[0]
         tti[I1]=tti[I[0]]
     # are we fitting for collision frequency?
-    I=scipy.where(Ifit[:,2]==1)[0]
+    I=np.where(Ifit[:,2]==1)[0]
     if I.size != 0: 
         tpsi[I]=parameter[ii:ii+I.size]
         ii=ii+I.size
-        I1=scipy.where(Ifit[:,2]==-1)[0]
+        I1=np.where(Ifit[:,2]==-1)[0]
         tpsi[I1]=tpsi[I[0]]
         if Ifit[-1,2]==-1:
             tpsi[-1]=tpsi[-1]*0.35714
     # are we fitting for velocity?
-    I=scipy.where(Ifit[:,3]==1)[0]
+    I=np.where(Ifit[:,3]==1)[0]
     if I.size != 0: 
         tvi[I]=parameter[ii:ii+I.size]
         ii=ii+I.size
-        I1=scipy.where(Ifit[:,3]==-1)[0]
+        I1=np.where(Ifit[:,3]==-1)[0]
         tvi[I1]=tvi[I[0]]
     
     tni=tni/p_N0
@@ -339,14 +340,14 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     (tau,acf)=spec2acf(freq,s)
 
     # Interpolate the modeled Acf
-    m2=scipy.zeros(dtau.size,dtype='Complex64');
+    m2=np.zeros(dtau.size,dtype='Complex64');
     m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
     m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
         
     # Apply the lag ambiguity function - weighted average to the modeled Acf
-    m=scipy.zeros(Wl.shape[1],dtype='Complex64')
+    m=np.zeros(Wl.shape[1],dtype='Complex64')
     for i in range(Wl.shape[1]):  
-        m[i]=scipy.sum(Wl[:,i]*m2)
+        m[i]=np.sum(Wl[:,i]*m2)
 
     # scaling factor
     m=m*Psc
@@ -371,33 +372,33 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
         # pyplot.show()
 
         # If we didn't want perturbation noise fitting, the perturbation_noise_acf will be all nans
-        if scipy.isfinite(noise_power):
+        if np.isfinite(noise_power):
             m.real = m.real + scaled_pertubation_noise_acf
 
         return m,m2[0],tni,tti,tpsi,tvi
                 
     # if we want to fit spectra, transform
     if fitSpectra==1:
-        tmp=scipy.concatenate((m,scipy.conjugate(m[:0:-1])),axis=0) # hermitian extension
-        m=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
-        y=(data-m)/scipy.sqrt(var)
+        tmp=np.concatenate((m,np.conjugate(m[:0:-1])),axis=0) # hermitian extension
+        m=np.fft.fftshift(np.fft.fft(tmp,axis=0),axes=[0]) # compute spectra
+        y=(data-m)/np.sqrt(var)
     else:
-        if scipy.isfinite(noise_power):
-            real_diff = (data.real-m.real-scaled_pertubation_noise_acf)/scipy.sqrt(var)
+        if np.isfinite(noise_power):
+            real_diff = (data.real-m.real-scaled_pertubation_noise_acf)/np.sqrt(var)
         else:
-            real_diff = (data.real-m.real)/scipy.sqrt(var)
-        imag_diff = (data.imag-m.imag)/scipy.sqrt(var)
-        y=scipy.concatenate((real_diff, imag_diff))
+            real_diff = (data.real-m.real)/np.sqrt(var)
+        imag_diff = (data.imag-m.imag)/np.sqrt(var)
+        y=np.concatenate((real_diff, imag_diff))
 
     # Add constraint for ion/electron temps > neutral temps
-    y = scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
+    y = np.concatenate((y,[np.sqrt(L[0]*np.exp(-min([0.0,tti[-1]-tn]))),np.sqrt(L[1]*np.exp(-min([0.0,tti[0]-tn])))]))
 
     # Density can't be negative...
-    y = scipy.concatenate((y,[scipy.sqrt(L[2]*scipy.exp(-max([0.0,((ne-1e8)/1e9)])))]))
+    y = np.concatenate((y,[np.sqrt(L[2]*np.exp(-max([0.0,((ne-1e8)/1e9)])))]))
 
-    # Intended to remove NaNs caused by variance = 0 (such as for the imaginary component of lag0)
     y = y.astype('float64')
-    y = y[scipy.where(scipy.isfinite(y))]
+    # Intended to remove NaNs caused by variance = 0 (such as for the imaginary component of lag0)
+    y[np.where(~np.isfinite(y))] = 1e6
 
     return y
 
@@ -431,17 +432,17 @@ def spec2acf(f,s):
     Nspec=s.size
 
     zsize=Nspec*3
-    if scipy.mod(Nspec,2.0)==0.0:
+    if np.mod(Nspec,2.0)==0.0:
         zsize=Nspec/2.0
 
-    spec=scipy.concatenate((scipy.zeros((zsize),dtype='float64'),s,scipy.zeros((zsize),dtype='float64')),axis=0) # zero pad the spectra
+    spec=np.concatenate((np.zeros((zsize),dtype='float64'),s,np.zeros((zsize),dtype='float64')),axis=0) # zero pad the spectra
     
     NFFT=spec.size
     df=f[1]-f[0]
-    tau=scipy.linspace(-1.0/df/2.0,1.0/df/2.0,NFFT)
+    tau=np.linspace(-1.0/df/2.0,1.0/df/2.0,NFFT)
     dtau=tau[1]-tau[0]
 
-    m=scipy.fftpack.fftshift(scipy.fftpack.ifft(scipy.fftpack.ifftshift(spec)))/dtau
+    m=np.fft.fftshift(np.fft.ifft(np.fft.ifftshift(spec)))/dtau
             
     return tau, m
 
