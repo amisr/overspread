@@ -34,7 +34,7 @@ LDLIBS = -lm
 UNAME := $(shell uname -s)
 
 ifeq ($(UNAME), Linux)
-	FFLAGS = -O -fPIC -Wall -Wuninitialized -fno-second-underscore
+	FFLAGS = -O -fPIC -Wall -Wuninitialized -fno-second-underscore -std=legacy
 endif
 ifeq ($(UNAME), Darwin)
 	FFLAGS = -D_GNU_SOURCE -D_DARWIN -Wuninitialized -fno-second-underscore
