@@ -500,7 +500,7 @@ class Run_Fitter:
                 print(sstr + 'Alt ' + str(np.asarray(HT[Ibm,Iht]/1000.).round(decimals=2)) + ', Rng ' + str(np.asarray(RNG[Ibm,Iht]/1000.).round(decimals=2)))
 
                 # using guess for Ne from density profile
-                tNe=np.absolute(np.mean(S['Power']['Ne_Mod'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]))
+                tNe = np.absolute(np.mean(S['Power']['Ne_Mod'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]))
 
                 if len(self.FITOPTS['Lags2fit'])==0:
                     Iy=range(Nlags)
@@ -589,7 +589,7 @@ class Run_Fitter:
 
                 # check if altitude is above 300 km
 
-                fc = Flipchem(self.Time['datetime'])
+                fc = Flipchem(self.Time['datetime'],altop=300.0)
                 outputs = fc.get_point(glat,glon,alt,tNe,tn,tn)
                 LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = outputs
                 models['SolarZen'][Ibm,Iht]=SZAD
@@ -597,6 +597,12 @@ class Run_Fitter:
                 models['SolarDec'][Ibm,Iht]=DEC
                 models['nNO'][Ibm,Iht]=NNO
                 models['nN2D'][Ibm,Iht]=N2D
+
+                OXPLUS /= tNe
+                O2PLUS /= tNe
+                NOPLUS /= tNe
+                N2PLUS /= tNe
+                NPLUS /= tNe
 
 
                 ### Set up parameter arrays
@@ -660,15 +666,15 @@ class Run_Fitter:
                                     print(HT[Ibm,Iht]/1000.0, ni[I[a]], mi[I[a]])
                                 elif self.FITOPTS['molecularModel']==1:
                                     if mi[I[a]]==16.0: # O+
-                                        ni[I[a]] = OXPLUS / tNe
+                                        ni[I[a]] = OXPLUS
                                     elif mi[I[a]]==32.0: # O2+
-                                        ni[I[a]] = O2PLUS / tNe
+                                        ni[I[a]] = O2PLUS
                                     elif mi[I[a]]==30.0: # NO+
-                                        ni[I[a]] = NOPLUS / tNe
+                                        ni[I[a]] = NOPLUS
                                     elif mi[I[a]]==28.0: # N2+
-                                        ni[I[a]] = N2PLUS / tNe
+                                        ni[I[a]] = N2PLUS
                                     elif mi[I[a]]==14.0: # N+
-                                        ni[I[a]] = NPLUS / tNe
+                                        ni[I[a]] = NPLUS
                                     else:
                                         ni[I[a]]=0.0
                         I=np.where(Ifit[:,0]==-1)[0]
@@ -790,10 +796,10 @@ class Run_Fitter:
                         psi=psi*self.FITOPTS['p_om0']
                         vi=vi*self.FITOPTS['p_om0']/self.k_radar0
                         if self.FITOPTS['PERTURBATION_NOISE']:
-                            tNe=x[1]
+                            tNe = x[1]
                             noise0 = x[0]
                         else:
-                            tNe=x[0]
+                            tNe = x[0]
                             noise0 = np.nan
 
                         # re-evaluate FLIP ion chemistry
@@ -808,14 +814,20 @@ class Run_Fitter:
                             #     self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
 
                             # check if altitude is above 300 km
-                            fc = Flipchem(self.Time['datetime'])
+                            fc = Flipchem(self.Time['datetime'],altop=300.0)
                             # print(tNe,tte,tti)
                             outputs = fc.get_point(glat,glon,alt,tNe,tte,tti)
                             LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = outputs
+                            
+                            OXPLUS /= tNe
+                            O2PLUS /= tNe
+                            NOPLUS /= tNe
+                            N2PLUS /= tNe
+                            NPLUS /= tNe
 
                             # break loop or continue
                             # print(OXPLUS,tOXPLUS,tNe,tte,tti,np.absolute(OXPLUS-tOXPLUS))
-                            if (np.absolute(OXPLUS-tOXPLUS) < 0.02e6): # break loop
+                            if (np.absolute(OXPLUS-tOXPLUS) < 0.02): # break loop
                                 break
                             elif nloops>=10:            # Increased from 5 to 10. Empirically found 
                                                         # that this helps prevent too many BadComposition
@@ -1387,26 +1399,26 @@ class Run_Fitter:
                         Irec=0
                         for ifreq in range(NFREQ):
                             try:
-                                trec=Irecs[ifreq][0]
+                                trec = Irecs[ifreq][0]
                             except:
-                                trec=-1
-                            outputAll[ifreq]=self.read_a_datafile(files[ifreq],frec,outputAll[ifreq],trec,outputAll[ifreq]['/Time']['UnixTime'].shape[0])
-                            if self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                                Ibad[ifreq]=np.where((outputAll[ifreq]['/Antenna']['Mode'][:,0] != outputAll[ifreq]['/Antenna']['Mode'][:,1]) | (outputAll[ifreq]['/Antenna']['Event'][:,0] != outputAll[ifreq]['/Antenna']['Event'][:,1]))[0]
-                        output=outputAll[0]
-                    elif Irec<output['/Time']['UnixTime'].shape[0]: # case where next file is a new experiment, but we want to process the last group of recs
-                            frec-=-1
+                                trec = -1
+                            outputAll[ifreq] = self.read_a_datafile(files[ifreq],frec,outputAll[ifreq],trec,outputAll[ifreq]['/Time']['UnixTime'].shape[0])
+                            if self.FITOPTS['MOTION_TYPE'] == 1: # Az,El
+                                Ibad[ifreq] = np.where((outputAll[ifreq]['/Antenna']['Mode'][:,0] != outputAll[ifreq]['/Antenna']['Mode'][:,1]) | (outputAll[ifreq]['/Antenna']['Event'][:,0] != outputAll[ifreq]['/Antenna']['Event'][:,1]))[0]
+                        output = outputAll[0]
+                    elif Irec < output['/Time']['UnixTime'].shape[0]: # case where next file is a new experiment, but we want to process the last group of recs
+                            frec -= -1
                             breakout=1
                     else: # we've transitioned to a new experiment
                         print('New experiment: ' + expname)
-                        curexpname=expname
-                        newexp=1
-                        self.BMCODES=None
-                        outputAll=[]
+                        curexpname = expname
+                        newexp = 1
+                        self.BMCODES = None
+                        outputAll = list()
                         for ii in range(NFREQ):
                             outputAll.append(self.read_a_datafile(files[ii],frec)) # read the first data files
-                        output=outputAll[0]
-                        Irec=0
+                        output = outputAll[0]
+                        Irec = 0
 
 
 
@@ -1535,8 +1547,8 @@ class Run_Fitter:
             # get some standard info the first time through
             if self.BMCODES is None or newexp:
 
-                self.BMCODES=S['BMCODES'] # beamcodes
-                self.BMCODES[:,2]=np.absolute(self.BMCODES[:,2])
+                self.BMCODES = S['BMCODES'] # beamcodes
+                self.BMCODES[:,2] = np.absolute(self.BMCODES[:,2])
 
                 # read site information
                 self.Site['Latitude']=float(output['/Site']['Latitude']) # site latitude
@@ -1697,6 +1709,9 @@ class Run_Fitter:
                 self.FITS['Fits']=tfits
                 self.FITS['Errors']=terrs
                 self.FITS['FitInfo']=tfitinfo
+
+                del self.Time['datetime']
+
                 if self.OPTS['saveACFs']:
                     tshape=list(tmeas_ACF.shape); #tshape.append(2)
                     #ttmeas=np.zeros(tshape,dtype='Float64'); ttmeas[:,:,:,0]=tmeas_ACF.real; ttmeas[:,:,:,1]=tmeas_ACF.imag
