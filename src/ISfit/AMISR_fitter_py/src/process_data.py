@@ -461,33 +461,41 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         Nranges = acf_nrange
     
     # ACF
-    S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,0].astype('complex64')
-    S['Acf']['Data'].imag=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,1]
-    (Nrecs,Nbeams,Nlags,_)=S['Acf']['Data'].shape
-    S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][0,0:Nranges] # range assumed same for all beams
+    S['Acf']['Data'] = fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,0].astype('complex64')
+    S['Acf']['Data'].imag = fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,1]
+    (Nrecs,Nbeams,Nlags,_) = S['Acf']['Data'].shape
+    S['Acf']['Range'] = fconts[h5DataPath+'/Acf']['Range'][0,0:Nranges] # range assumed same for all beams
     S['Acf']['Range'] = S['Acf']['Range'].reshape((1,Nranges))
-    S['Acf']['Lags']=fconts[h5DataPath+'/Acf']['Lags']
-    if Nlags==Nbauds:
-        S['Acf']['Kint']=1.0/scipy.arange(Nbauds,0.0,-1.0)
-    else: # fractional lag       
-        try:
-            Lagind=fconts[h5DataPath+'/Acf']['Lagind']
-            Lagmat=fconts[h5DataPath+'/Acf']['Lagmat']
-            maxLag=Lagmat.max()+1
-            if Nlags!=maxLag: # need to sum
-                tdata=S['Acf']['Data']
-                tlags=S['Acf']['Lags']
-                S['Acf']['Data']=scipy.zeros((Nrecs,Nbeams,maxLag,Nranges),dtype=tdata.dtype)
-                S['Acf']['Lags']=scipy.zeros((1,maxLag),dtype=tlags.dtype)
+    S['Acf']['Lags'] = fconts[h5DataPath+'/Acf']['Lags']
+    if Nlags == Nbauds:
+        # S['Acf']['Kint'] = 1 / scipy.arange(Nbauds,0.0,-1.0)
+        S['Acf']['Kint'] = scipy.arange(Nbauds,0.0,-1.0)
+    else: # fractional lag  
+        # try:
+        if 1==1:
+            Lagind = fconts[h5DataPath+'/Acf']['Lagind']
+            Lagmat = fconts[h5DataPath+'/Acf']['Lagmat']
+            maxLag = Lagmat.max()+1
+            factor = scipy.zeros((maxLag))
+            S['Acf']['Kint'] = scipy.zeros((maxLag))
+            if Nlags != maxLag: # need to sum
+                tdata = S['Acf']['Data']
+                tlags = S['Acf']['Lags']
+                S['Acf']['Data'] = scipy.zeros((Nrecs,Nbeams,maxLag,Nranges),dtype=tdata.dtype)
+                S['Acf']['Lags'] = scipy.zeros((1,maxLag),dtype=tlags.dtype)
                 for ilag in range(Nlags):
-                    S['Acf']['Data'][:,:,Lagmat[ilag],:]+=tdata[:,:,ilag,:]
-                    S['Acf']['Lags'][0,Lagmat[ilag]]=tlags[0,ilag]
-                    #S['Acf']['Kint']=???
-                Nlags=maxLag
-            S['Acf']['Kint']=scipy.ones((maxLag))/(Nbauds)**2                 
-        except:
-            S['Acf']['Kint']=scipy.ones((Nlags))/(Nbauds)**2
-    S['Acf']['Lag1Index']=scipy.where(scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud'])==scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']).min())[0][0]
+                    S['Acf']['Data'][:,:,Lagmat[ilag],:] += tdata[:,:,ilag,:]
+                    S['Acf']['Lags'][0,Lagmat[ilag]] = tlags[0,ilag]
+                    whole_lag_num = scipy.floor(S['Acf']['Lags'][0,Lagmat[ilag]] / S['Acf']['TxBaud'])
+                    factor[Lagmat[ilag]] += 1
+                    S['Acf']['Kint'][Lagmat[ilag]] = Nbauds - whole_lag_num
+                Nlags = maxLag
+            S['Acf']['Kint'] *= factor
+        # except Exception as e:
+        #     print('Exception: %s' % str(e))
+        #     S['Acf']['Kint'] = scipy.ones((Nlags))/(Nbauds)
+
+    S['Acf']['Lag1Index'] = scipy.where(scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']) == scipy.absolute(scipy.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']).min())[0][0]
 
 
 
@@ -748,12 +756,12 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     S['Power']['SNR']   = S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1)
 
     # Noise subtract and calibrate the ACF
-    S['Acf']['Data']=S['Acf']['Data']/S['Acf']['PulsesIntegrated']
-    S['Acf']['PulsesIntegrated']=scipy.sum(S['Acf']['PulsesIntegrated'],axis=0)
-    S['Acf']['StDev']=scipy.std(scipy.absolute(S['Acf']['Data'][:,:,1,:]),axis=0)/scipy.sqrt(Nrecs)
-    S['Acf']['Data']=eval(funcname+"(S['Acf']['Data'],axis=0)")
-    S['Acf']['StDev']=S['Acf']['StDev']/scipy.absolute(S['Acf']['Data'][:,1,:])
-    S['Acf']['Data']=C['Pcal']*(S['Acf']['Data'])/scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
+    S['Acf']['Data'] = S['Acf']['Data']/S['Acf']['PulsesIntegrated']
+    S['Acf']['PulsesIntegrated'] = scipy.sum(S['Acf']['PulsesIntegrated'],axis=0)
+    S['Acf']['StDev'] = scipy.std(scipy.absolute(S['Acf']['Data'][:,:,1,:]),axis=0)/scipy.sqrt(Nrecs)
+    S['Acf']['Data'] = eval(funcname+"(S['Acf']['Data'],axis=0)")
+    S['Acf']['StDev'] = S['Acf']['StDev'] / scipy.absolute(S['Acf']['Data'][:,1,:])
+    S['Acf']['Data'] = C['Pcal']*(S['Acf']['Data']) / scipy.repeat(scipy.repeat(C['Power']['Data'][:,scipy.newaxis,scipy.newaxis],Nlags,axis=1),Nranges,axis=2)
 
     # Subtract the modeled noise ACF scaled by the estimated lag0 noise power from the data ACF
     # Parameters needed for calculating the perturbation noise_acf
@@ -782,30 +790,46 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     S['Acf']['Psc']=S['Acf']['Pulsewidth']*Ksys/(Range*Range)
     
     # Clutter to Noise ratio
-    S['Acf']['iSCR']=(Nbauds-1.0)*scipy.ones(Nlags)
-    S['Power']['iSCR']=0.0
+    S['Acf']['iSCR'] = (Nbauds-1.0)*scipy.ones(Nlags)
+    S['Power']['iSCR'] = 0.0
     
     # if uselag1=1, use the 1st lag to compute the apriori density
     if uselag1:
-        S['Power']['Data']=scipy.absolute(S['Acf']['Data'][:,S['Acf']['Lag1Index'],:])
-        S['Power']['StDev']=S['Acf']['StDev']
-        S['Power']['PulsesIntegrated']=S['Acf']['PulsesIntegrated'][:,S['Acf']['Lag1Index'],:]
-        S['Power']['Pulsewidth']=S['Acf']['Pulsewidth']
-        S['Power']['TxBaud']=S['Acf']['TxBaud']
-        S['Power']['Range']=S['Acf']['Range']
-        S['Acf']['Kint'][1:]=S['Acf']['Kint'][1:]*(Nbauds-1.0)**2.0
-        S['Acf']['Kint'][0]=S['Acf']['Kint'][0]*(Nbauds*scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))**2.0
-        S['Power']['SNR']=scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/((Nbauds-1.0)*scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))
+        # S['Power']['Data']=scipy.real(S['Acf']['Data'][:,S['Acf']['Lag1Index'],:])
+        # S['Power']['StDev']=S['Acf']['StDev']
+        # S['Power']['PulsesIntegrated']=S['Acf']['PulsesIntegrated'][:,S['Acf']['Lag1Index'],:]
+        # S['Power']['Pulsewidth']=S['Acf']['Pulsewidth']
+        # S['Power']['TxBaud']=S['Acf']['TxBaud']
+        # S['Power']['Range']=S['Acf']['Range']
+        # S['Acf']['Kint'][1:]=S['Acf']['Kint'][1:]*(Nbauds-1.0)**2.0
+        # S['Acf']['Kint'][0]=S['Acf']['Kint'][0]*(Nbauds*scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))**2.0
+        # S['Power']['SNR']=scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/((Nbauds-1.0)*scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))
+        # #S['Power']['SNR']=scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/(scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))
+        # S['Power']['iSCR']=Nbauds-1.0
+        # #S['Power']['Kint']=Nbauds-1.0
+        # S['Power']['Kint']=S['Acf']['Kint'][S['Acf']['Lag1Index']]
+
+
+        S['Power']['Data'] = scipy.real(S['Acf']['Data'][:,S['Acf']['Lag1Index'],:])
+        S['Power']['StDev'] = S['Acf']['StDev']
+        S['Power']['PulsesIntegrated'] = S['Acf']['PulsesIntegrated'][:,S['Acf']['Lag1Index'],:]
+        S['Power']['Pulsewidth'] = S['Acf']['Pulsewidth']
+        S['Power']['TxBaud'] = S['Acf']['TxBaud']
+        S['Power']['Range'] = S['Acf']['Range']
+        # S['Acf']['Kint'][1:] = S['Acf']['Kint'][1:]*(Nbauds-1.0)**2.0
+        S['Acf']['Kint'][0] = S['Acf']['Kint'][0]*(Nbauds*scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))**2.0
+        S['Power']['SNR'] = scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/((Nbauds-1.0)*scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))
         #S['Power']['SNR']=scipy.absolute(S['Power']['Data']/scipy.repeat(N['Power']['Data'][:,scipy.newaxis],Nranges,axis=1))/(scipy.sum(scipy.squeeze(Amb['Wlag'][S['Acf']['Lag1Index'],:])))
-        S['Power']['iSCR']=Nbauds-1.0
+        S['Power']['iSCR'] = Nbauds-1.0
         #S['Power']['Kint']=Nbauds-1.0
-        S['Power']['Kint']=S['Acf']['Kint'][S['Acf']['Lag1Index']]
+        S['Power']['Kint'] = S['Acf']['Kint'][S['Acf']['Lag1Index']]
+
     else:
         # set the 0 lag of the ACF to the short pulse zerolag measurement
-        S['Acf']['Data'][:,0,:]=S['Power']['Data']
-        S['Acf']['Psc'][:,0,:]=S['Acf']['Psc'][:,0,:]*S['Power']['Pulsewidth']/S['Acf']['Pulsewidth']
+        S['Acf']['Data'][:,0,:] = S['Power']['Data']
+        S['Acf']['Psc'][:,0,:] = S['Acf']['Psc'][:,0,:]*S['Power']['Pulsewidth']/S['Acf']['Pulsewidth']
         S['Acf']['Kint'][0]=1.0
-        S['Acf']['Kint'][1:]=S['Acf']['Kint'][1:]*(Nbauds-1.0)**2.0
+        # S['Acf']['Kint'][1:]=S['Acf']['Kint'][1:]*(Nbauds-1.0)**2.0
         S['Acf']['iSCR'][0]=0.0
 
     return S,N,C

@@ -361,23 +361,23 @@ class Run_Fitter:
         f    = np.linspace(-self.DEFOPTS['FREQ_EVAL'],self.DEFOPTS['FREQ_EVAL'],NFFT+1)
 
         ### Output variables
-        Ihtbm=np.zeros(Nbeams)
-        HT=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan # Altitude
-        RNG=np.zeros((Nbeams,Nranges),dtype='Float64')*np.nan # Range
-        ne_out=np.zeros((Nbeams,Nranges,2),dtype='Float64')*np.nan # Fitted densities
-        noise_out = np.zeros((Nbeams,Nranges,3),dtype='Float64')*np.nan # Fitted noise
-        FITS_out=np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*np.nan # Fitted parameters
-        ERRS_out=np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*np.nan # Errors from fits
-        mod_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')*np.nan # model ACFs
-        meas_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')*np.nan # measured ACFs
+        Ihtbm = np.zeros(Nbeams)
+        HT = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan # Altitude
+        RNG = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan # Range
+        ne_out = np.zeros((Nbeams,Nranges,2),dtype='Float64') * np.nan # Fitted densities
+        noise_out = np.zeros((Nbeams,Nranges,3),dtype='Float64') * np.nan # Fitted noise
+        FITS_out = np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64') * np.nan # Fitted parameters
+        ERRS_out = np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64') * np.nan # Errors from fits
+        mod_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64') * np.nan # model ACFs
+        meas_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64') * np.nan # measured ACFs
         #ind_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Int16') # measured ACFs
-        errs_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Float64')*np.nan # errors on the ACFs
-        fitinfo={} # dict containing information on fit
-        fitinfo['fitcode']=np.zeros((Nbeams,Nranges),dtype='Int16') # a fit code
-        fitinfo['dof']=np.zeros((Nbeams,Nranges),dtype='Int16') # degrees of freedom
-        fitinfo['chi2']=np.zeros((Nbeams,Nranges),dtype='Float32') # reduced chi2
-        fitinfo['nfev']=np.zeros((Nbeams,Nranges),dtype='Int16') # number of function evals
-        models={} # dict containing model params
+        errs_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype='Float64') * np.nan # errors on the ACFs
+        fitinfo = {} # dict containing information on fit
+        fitinfo['fitcode'] = np.zeros((Nbeams,Nranges),dtype='Int16') # a fit code
+        fitinfo['dof'] = np.zeros((Nbeams,Nranges),dtype='Int16') # degrees of freedom
+        fitinfo['chi2'] = np.zeros((Nbeams,Nranges),dtype='Float32') # reduced chi2
+        fitinfo['nfev'] = np.zeros((Nbeams,Nranges),dtype='Int16') # number of function evals
+        models = {} # dict containing model params
         models['nHe'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
         models['nO'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
         models['nN2'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
@@ -396,16 +396,9 @@ class Run_Fitter:
         models['nN2D'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
         models['qOp'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
         try:
-            gmag=self.Gmag
+            gmag = self.Gmag
         except:
-            gmag=geomag.blankGmag(Nbeams,Nranges)
-
-        ### geophys indices
-        decTime = self.Time['dtime'][0] #(self.Time['dtime'][0]+self.Time['dtime'][1]+24.0*(self.Time['doy'][1]-self.Time['doy'][0]))/2.0
-        # (f107, f107a, ap)=model_utils.read_geophys(int(self.Time['Year'][0]),int(self.Time['doy'][0]),decTime,self.GEOPHYS_PATH)
-        # models['f107']=f107
-        # models['f107a']=f107a
-        # models['AP']=ap
+            gmag = geomag.blankGmag(Nbeams,Nranges)
 
         f107, f107a, ap = flipchem.read_geophys(self.Time['datetime'])
         models['f107'] = f107
@@ -414,7 +407,7 @@ class Run_Fitter:
 
         ### Debug
         if self.OPTS['plotson'] > 2:
-            gf=pyplot.figure()
+            gf = pyplot.figure()
 
         if self.FITOPTS['molecularModel'] == 2:
             myfrac = np.loadtxt(self.FITOPTS['molmodFile'])
@@ -442,57 +435,57 @@ class Run_Fitter:
                 Nrs=1.0e6
                 Altitude=S['Acf']['Altitude']
 
-            htI=Ialt[0]
-            Iht=-1
+            htI = Ialt[0]
+            Iht = -1
             ### Loop over altitudes
-            while (htI+NSUM[0])<Ialt[-1] and Iht<Nrs:
-                Iht=Iht+1
+            while (htI + NSUM[0]) < Ialt[-1] and Iht < Nrs:
+                Iht = Iht + 1
 
                 ### Number of gates to sum as a function of lag
-                htI=htI+NSUM[0]
+                htI = htI + NSUM[0]
 
                 #if Altitude[Ibm,htI]>=self.FITOPTS['GroupHt'][IfitIndex]:
-                if Altitude[Ibm,int(htI)]>=self.FITOPTS['GroupHt'][int(IfitIndex)]:
-                    if IfitIndex<(self.FITOPTS['Ngroup']-1):
-                        IfitIndex=IfitIndex+1
-                        Ifit=np.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
-                        IfitMR=np.where(np.transpose(Ifit)==1)
-                        NFIT=int(self.FITOPTS['NFIT'][IfitIndex]+1)
-                        SummationRule=self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
-                        NSUM=SummationRule[1,:]-SummationRule[0,:]+1
+                if Altitude[Ibm,int(htI)] >= self.FITOPTS['GroupHt'][int(IfitIndex)]:
+                    if IfitIndex < (self.FITOPTS['Ngroup'] - 1):
+                        IfitIndex = IfitIndex + 1
+                        Ifit = np.squeeze(self.FITOPTS['Ifit'][IfitIndex,:,:])
+                        IfitMR = np.where(np.transpose(Ifit) == 1)
+                        NFIT = int(self.FITOPTS['NFIT'][IfitIndex] + 1)
+                        SummationRule = self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
+                        NSUM = SummationRule[1,:] - SummationRule[0,:] + 1
 
                 #RngAll=S['Acf']['Range'][0,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]
-                RngAll=S['Acf']['Range'][0,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]
-                RngMean=np.mean(RngAll)
-                SumFactor=np.squeeze(RngMean**2.0/np.power(RngAll,2.0))
+                RngAll = S['Acf']['Range'][0,int(htI + SummationRule[0,0]):int(htI + SummationRule[1,0] + 1)]
+                RngMean = np.mean(RngAll)
+                SumFactor = np.squeeze(RngMean**2.0 / RngAll**2.0)
 
                 # sum using the summation rule
 
-                pulses_integrated = np.sum(S['Acf']['PulsesIntegrated'][Ibm][:,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)],axis=1)
+                pulses_integrated = np.sum(S['Acf']['PulsesIntegrated'][Ibm][:,int(htI + SummationRule[0,0]):int(htI + SummationRule[1,0] + 1)],axis=1)
 
-                K=pulses_integrated*S['Acf']['Kint']
-                tAcf=np.zeros(Nlags,dtype='Complex64')
-                tAcfVar=np.zeros(Nlags,dtype='Float64')
-                Psc=np.zeros(Nlags,dtype='Float64')
+                K    = pulses_integrated * S['Acf']['Kint']
+                Psc  = np.zeros(Nlags,dtype='Float64')
+                tAcf = np.zeros(Nlags,dtype='Complex64')
+                tAcfVar = np.zeros(Nlags,dtype='Float64')
                 for aa in range(Nlags):
                     # Acf
-                    tAcf[aa]=np.mean(S['Acf']['Data'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
+                    tAcf[aa] = np.mean(S['Acf']['Data'][Ibm,aa,int(htI + SummationRule[0,aa]):int(htI + SummationRule[1,aa] + 1)])
                     # scaling factor for power
-                    Psc[aa]=np.mean(S['Acf']['Psc'][Ibm,aa,int(htI+SummationRule[0,aa]):int(htI+SummationRule[1,aa]+1)])
+                    Psc[aa] = np.mean(S['Acf']['Psc'][Ibm,aa,int(htI + SummationRule[0,aa]):int(htI + SummationRule[1,aa] + 1)])
 
                 ### compute variance
                 # Whether to use first or 0 lag
-                if self.FITOPTS['uselag1']==1:
-                    sig=np.absolute(tAcf[S['Acf']['Lag1Index']]) # first lag
+                if self.FITOPTS['uselag1'] == 1:
+                    sig = np.real(tAcf[S['Acf']['Lag1Index']]) # first lag
                 else:
-                    sig=np.absolute(tAcf[0]) # 0 lag
+                    sig = np.absolute(tAcf[0]) # 0 lag
                 # Signal to noise ratio
-                tSnr=np.mean(S['Power']['SNR'][Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)]*SumFactor)
+                tSnr = np.mean(S['Power']['SNR'][Ibm,int(htI + SummationRule[0,0]):int(htI + SummationRule[1,0] + 1)] * SumFactor)
 
                 # Variance
-                tAcfVar=np.power(sig,2)/K.astype('Float64')*np.power(1.0 + 1.0/np.absolute(tSnr) + S['Acf']['iSCR'],2.0) # theoretical variances
+                tAcfVar = sig**2 * (1.0 + 1.0 / np.absolute(tSnr) + S['Acf']['iSCR'] * NSUM)**2.0 / (K.astype('Float64') * NSUM) # theoretical variances
                 # Additional variance due to noise subtraction
-                tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2/Noise['Power']['PulsesIntegrated'][Ibm].astype('Float64')
+                tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2 / Noise['Power']['PulsesIntegrated'][Ibm].astype('Float64')
 
                 # Height and range
                 HT[Ibm,Iht]=np.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
@@ -523,23 +516,6 @@ class Run_Fitter:
                         else:
                             gmag[key][Ibm,:]=tgmag[key]
 
-                # MSIS
-                # tmp=self.FITOPTS['mi'].tolist(); tmp.extend([self.FITOPTS['p_M0']])
-                # (HEdens,Odens,N2dens,O2dens,ARdens,MassDens,Hdens,Ndens,AnomOdens,Texo,tn,nui,nue,qOp) = model_utils.call_MSIS(self.ct_msis,self.Time['doy'][0],
-                #     decTime,gmag['Latitude'][Ibm,Iht],gmag['Longitude'][Ibm,Iht],self.Time['Year'][0],HT[Ibm,Iht]/1000.0,ap,f107a,f107,self.FITOPTS['z50'],mass=tmp)
-                # models['nHe'][Ibm,Iht]=HEdens*1.0e6
-                # models['nO'][Ibm,Iht]=Odens*1.0e6
-                # models['nN2'][Ibm,Iht]=N2dens*1.0e6
-                # models['nO2'][Ibm,Iht]=O2dens*1.0e6
-                # models['nAr'][Ibm,Iht]=ARdens*1.0e6
-                # models['nMass'][Ibm,Iht]=MassDens*1.0e6/1.0e3
-                # models['nH'][Ibm,Iht]=Hdens*1.0e6
-                # models['nN'][Ibm,Iht]=Ndens*1.0e6
-                # models['nOanom'][Ibm,Iht]=AnomOdens*1.0e6
-                # models['Texo'][Ibm,Iht]=Texo
-                # models['Tn'][Ibm,Iht]=tn
-                # models['qOp'][Ibm,Iht]=qOp
-
                 # common params for msis, flipchem, collfreqs
                 glat = gmag['Latitude'][Ibm,Iht]
                 glon = gmag['Longitude'][Ibm,Iht]
@@ -547,8 +523,8 @@ class Run_Fitter:
 
                 # MSIS
                 msis = MSIS(self.Time['datetime'])
-                outputs = msis.get_point(glat,glon,alt)
-                H,He,N,O,N2,O2,Ar,Mass,AnomO,Texo,tn = outputs
+                msis_outputs = msis.get_point(glat,glon,alt)
+                H,He,N,O,N2,O2,Ar,Mass,AnomO,Texo,tn = msis_outputs
 
                 models['nH'][Ibm,Iht]     = H
                 models['nHe'][Ibm,Iht]    = He
@@ -565,48 +541,32 @@ class Run_Fitter:
 
                 # collision frequencies, initial guess, Te=Ti=Tn
                 ion_masses = self.FITOPTS['mi'].tolist()
-                ion_masses.extend([self.FITOPTS['p_M0']])
                 nui = list()
                 neutral_densities = (H,He,N,O,N2,O2)
                 for mass in ion_masses:
                     nui.append(compute_ion_neutral_collfreq(neutral_densities, tn, mass, tn))
-                nui = np.array(nui)
                 nue = compute_electron_neutral_collfreq(neutral_densities, tn)
-                nui[-1] = nue
-
-
-                # initial flip ion chemistry, with te=ti=tn and Ne = initial guess
-                # LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT=flipchem.call_flip(self.ct_flipchem,int(self.Time['Year'][0]),int(self.Time['doy'][0]),decTime,HT[Ibm,Iht]/1000.0,
-                #     gmag['Latitude'][Ibm,Iht],gmag['Longitude'][Ibm,Iht],ap,f107,f107a,tn,tn,tn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
-                # models['SolarZen'][Ibm,Iht]=SZAD
-                # models['LocalSolarTime'][Ibm,Iht]=LTHRS
-                # models['SolarDec'][Ibm,Iht]=DEC
-                # models['nNO'][Ibm,Iht]=NNO*1.0e6
-                # models['nN2D'][Ibm,Iht]=N2D*1.0e6
-
+                nui.append(nue)
+                nui = np.array(nui)
 
                 # initial flip ion chemistry, with te=ti=tn and Ne = initial guess
-
-                # check if altitude is above 300 km
-
                 fc = Flipchem(self.Time['datetime'],altop=300.0)
-                outputs = fc.get_point(glat,glon,alt,tNe,tn,tn)
-                LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = outputs
-                models['SolarZen'][Ibm,Iht]=SZAD
-                models['LocalSolarTime'][Ibm,Iht]=LTHRS
-                models['SolarDec'][Ibm,Iht]=DEC
-                models['nNO'][Ibm,Iht]=NNO
-                models['nN2D'][Ibm,Iht]=N2D
+                fc_outputs = fc.get_point(glat,glon,alt,tNe,tn,tn,msis_outputs=msis_outputs)
+                LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = fc_outputs
+                models['SolarZen'][Ibm,Iht] = SZAD
+                models['LocalSolarTime'][Ibm,Iht] = LTHRS
+                models['SolarDec'][Ibm,Iht] = DEC
+                models['nNO'][Ibm,Iht] = NNO
+                models['nN2D'][Ibm,Iht] = N2D
 
+                # convert density to fractions
                 OXPLUS /= tNe
                 O2PLUS /= tNe
                 NOPLUS /= tNe
                 N2PLUS /= tNe
                 NPLUS /= tNe
 
-
                 ### Set up parameter arrays
-
                 # Initialize
                 ti = np.ones(self.FITOPTS['NION']+1,dtype='float64')*tn*1.1; ti[-1]*=1.1
                 mi = np.concatenate((self.FITOPTS['mi'],[v_electronmass/v_amu]))
@@ -810,14 +770,10 @@ class Run_Fitter:
                             tte=ti[-1] # te
                             if tte<ttn:  tte=ttn
                             tOXPLUS = OXPLUS
-                            # LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = flipchem.call_flip(self.ct_flipchem,int(self.Time['Year'][0]),int(self.Time['doy'][0]),self.Time['dtime'][0],HT[Ibm,Iht]/1000.0,
-                            #     self.Site['Latitude'],self.Site['Longitude'],ap,f107,f107a,tte,tti,ttn,Odens,O2dens,N2dens,HEdens,0.5*Ndens,tNe*1.0e-6)
 
-                            # check if altitude is above 300 km
                             fc = Flipchem(self.Time['datetime'],altop=300.0)
-                            # print(tNe,tte,tti)
-                            outputs = fc.get_point(glat,glon,alt,tNe,tte,tti)
-                            LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = outputs
+                            fc_outputs = fc.get_point(glat,glon,alt,tNe,tte,tti,msis_outputs=msis_outputs)
+                            LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = fc_outputs
                             
                             OXPLUS /= tNe
                             O2PLUS /= tNe
@@ -826,7 +782,6 @@ class Run_Fitter:
                             NPLUS /= tNe
 
                             # break loop or continue
-                            # print(OXPLUS,tOXPLUS,tNe,tte,tti,np.absolute(OXPLUS-tOXPLUS))
                             if (np.absolute(OXPLUS-tOXPLUS) < 0.02): # break loop
                                 break
                             elif nloops>=10:            # Increased from 5 to 10. Empirically found 
