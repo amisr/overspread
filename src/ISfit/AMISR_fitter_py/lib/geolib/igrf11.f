@@ -938,7 +938,8 @@ c
       x     = 0.0
       y     = 0.0
       z     = 0.0
-      if (date.lt.1900.0.or.date.gt.2020.0) go to 11
+C commented out by Ashton Reimer 29 Jan 2021
+C      if (date.lt.1900.0.or.date.gt.2020.0) go to 11
 C     Warning commented out by Bill Rideout
 C      if (date.gt.2015.0) write (6,960) date
   960 format (/' This version of the IGRF is intended for use up',
