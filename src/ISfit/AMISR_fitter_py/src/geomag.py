@@ -145,9 +145,8 @@ def geomagTime(ct_geolib,YR,az,el,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.
     #
         
     num_times = az.shape[0]
-    if rng.ndim ==1 :
+    if rng.ndim == 1 :
         num_ranges = rng.shape[0]
-        rngIt = rng
     else:
         num_ranges = rng.shape[1]    
         
@@ -192,7 +191,7 @@ def geomagTime(ct_geolib,YR,az,el,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.
         if rng.ndim == 2:
             rngIt = np.squeeze(rng[i,:])
         else:
-            xxx
+            rngIt = rng
                    
         # loop over ranges
         for j in range(num_ranges):
