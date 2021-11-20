@@ -8,37 +8,12 @@ last revised: xx/xx/2007
 
 """
 
-import ctypes, datetime
-import scipy, scipy.interpolate
+import ctypes
+import numpy as np
 import geolib
 
-from constants import *
-
-R_EARTH=6371.2
-
-# getmlt
-def getmlt(aacgm,time,plong):
-
-    aacgm.AACGMConvertMLT.restype=ctypes.c_double
-        
-    Nbeams,Nranges=plong.shape
-    Ntimes=time.shape[0]
-    
-    MLTtime=scipy.zeros((Ntimes,Nbeams,Nranges),dtype='float64')
-    
-    for itm in range(Ntimes):
-        tmp=datetime.datetime.utcfromtimestamp(time[itm])
-        r1=datetime.date(tmp.year,tmp.month,tmp.day)
-        doy=int(r1.strftime('%j'))
-        secs=doy*24*3600+tmp.hour*3600+tmp.minute*60+tmp.second
-        for ibm in range(Nbeams):
-            for irng in range(Nranges):    
-                MLTtime[itm,ibm,irng]=aacgm.AACGMConvertMLT(ctypes.c_int(tmp.year),ctypes.c_int(secs),ctypes.c_double(plong[ibm,irng]))
-        
-    return MLTtime
-
 # geomag
-def geomag(ct_geolib,YR,BMCODES,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,50.)):
+def geomag(ct_geolib,YR,BMCODES,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
     #
     # This function computes geomagnetic information for each of the beams.
     # Includes calls to .
@@ -47,29 +22,29 @@ def geomag(ct_geolib,YR,BMCODES,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,50
     Nbeams=BMCODES.shape[0]
         
     # initialize all the output vars
-    kvec=scipy.zeros((Nbeams,3),'Float64') # k vector (geographic)
-    lat=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # lat
-    long=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # long
-    plat=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # mag lat
-    plong=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # mag long
-    dip=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # dip angle
-    dec=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # dec angle
-    ht=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # altitude
-    kpn=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # k component, perp north
-    kpe=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # k component, perp east
-    kpar=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # k component, anti-parallel
-    kn=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # k component, north
-    ke=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # k component, east
-    kz=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # k component, up    
-    kgeo=scipy.zeros((Nbeams,rng.shape[0],3),'Float64') # k vector, geodetic coords
-    kgmag=scipy.zeros((Nbeams,rng.shape[0],3),'Float64') # k vector, geomag coords
-    Bx=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # B north
-    By=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # B east
-    Bz=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # B down
-    B=scipy.zeros((Nbeams,rng.shape[0],3),'Float64') # B vector
-    Babs=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # magnitude of B
-    Lshell=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # L shell value in Re
-    MagMN=scipy.zeros((Nbeams,rng.shape[0]),'Float64') # Magnetic local time midnight in UT hours
+    kvec = np.zeros((Nbeams,3),float) # k vector (geographic)
+    lat = np.zeros((Nbeams,rng.shape[0]),float) # lat
+    lon = np.zeros((Nbeams,rng.shape[0]),float) # long
+    plat = np.zeros((Nbeams,rng.shape[0]),float) # mag lat
+    plong = np.zeros((Nbeams,rng.shape[0]),float) # mag long
+    dip = np.zeros((Nbeams,rng.shape[0]),float) # dip angle
+    dec = np.zeros((Nbeams,rng.shape[0]),float) # dec angle
+    ht = np.zeros((Nbeams,rng.shape[0]),float) # altitude
+    kpn = np.zeros((Nbeams,rng.shape[0]),float) # k component, perp north
+    kpe = np.zeros((Nbeams,rng.shape[0]),float) # k component, perp east
+    kpar = np.zeros((Nbeams,rng.shape[0]),float) # k component, anti-parallel
+    kn = np.zeros((Nbeams,rng.shape[0]),float) # k component, north
+    ke = np.zeros((Nbeams,rng.shape[0]),float) # k component, east
+    kz = np.zeros((Nbeams,rng.shape[0]),float) # k component, up    
+    kgeo = np.zeros((Nbeams,rng.shape[0],3),float) # k vector, geodetic coords
+    kgmag = np.zeros((Nbeams,rng.shape[0],3),float) # k vector, geomag coords
+    Bx = np.zeros((Nbeams,rng.shape[0]),float) # B north
+    By = np.zeros((Nbeams,rng.shape[0]),float) # B east
+    Bz = np.zeros((Nbeams,rng.shape[0]),float) # B down
+    B = np.zeros((Nbeams,rng.shape[0],3),float) # B vector
+    Babs = np.zeros((Nbeams,rng.shape[0]),float) # magnitude of B
+    Lshell = np.zeros((Nbeams,rng.shape[0]),float) # L shell value in Re
+    MagMN = np.zeros((Nbeams,rng.shape[0]),float) # Magnetic local time midnight in UT hours
                 
     # get station geocentric lat and distance 
     SLAT,SR=geolib.convrt(ct_geolib,CLAT,CALT,dir=1)
@@ -78,7 +53,7 @@ def geomag(ct_geolib,YR,BMCODES,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,50
     for i in range(Nbeams):
         AZ=BMCODES[i,1]; EL=BMCODES[i,2]
         az=AZ*pi/180.; el=EL*pi/180.
-        a=scipy.array([scipy.cos(el)*scipy.cos(az),scipy.cos(el)*scipy.sin(az),scipy.sin(el)],'Float64') # unit vector in k direction (geographic)
+        a=np.array([np.cos(el)*np.cos(az),np.cos(el)*np.sin(az),np.sin(el)],float) # unit vector in k direction (geographic)
         kvec[i]=a
                
         # loop over ranges
@@ -86,7 +61,7 @@ def geomag(ct_geolib,YR,BMCODES,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,50
             
             # geodetic lat, long, altitude
             PR,GCLAT,GLON,GDLAT,GDALT = geolib.point(ct_geolib,SR,SLAT,CLONG,AZ,EL,rng[j])
-            ht[i,j]=GDALT; lat[i,j]=GDLAT; long[i,j]=GLON
+            ht[i,j]=GDALT; lat[i,j]=GDLAT; lon[i,j]=GLON
             RCOR=geolib.coord(ct_geolib,CLAT,CLONG,SR,SLAT,YR,AZ,EL,rng[j],GDLAT,GLON,GDALT)
             dat1,dat2,dat3,dat4=geolib.geocgm01(ct_geolib,YR,GDALT,GCLAT,GLON)
             
@@ -120,7 +95,7 @@ def geomag(ct_geolib,YR,BMCODES,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,50
     # assign output parameters
     gmag={}
     gmag['Range']=rng*1000.0; gmag['Altitude']=ht*1000.0
-    gmag['Latitude']=lat; gmag['Longitude']=long
+    gmag['Latitude']=lat; gmag['Longitude']=lon
     gmag['MagneticLatitude']=plat; gmag['MagneticLongitude']=plong
     gmag['kpn']=kpn; gmag['kpe']=kpe; gmag['kpar']=kpar
     gmag['kn']=kn; gmag['ke']=ke; gmag['kz']=kz
@@ -131,9 +106,10 @@ def geomag(ct_geolib,YR,BMCODES,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,50
     gmag['LshellRe']=Lshell; gmag['MLTMidnightUT']=MagMN
         
     return gmag
-    
+
+
 # geomag
-def geomagTime(ct_geolib,YR,AZ,EL,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,50.)):
+def geomagTime(ct_geolib,YR,AZ,EL,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
     #
     # This function computes geomagnetic information for each of the beams.
     # Includes calls to .
@@ -147,51 +123,51 @@ def geomagTime(ct_geolib,YR,AZ,EL,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,
         Nranges=rng.shape[1]    
         
     # initialize all the output vars
-    kvec=scipy.zeros((Ntimes,3),'Float64')*scipy.nan # k vector (geographic)
-    lat=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # lat
-    long=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # long
-    plat=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # mag lat
-    plong=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # mag long
-    dip=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # dip angle
-    dec=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # dec angle
-    ht=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # altitude
-    kpn=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # k component, perp north
-    kpe=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # k component, perp east
-    kpar=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # k component, anti-parallel
-    kn=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # k component, north
-    ke=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # k component, east
-    kz=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # k component, up    
-    kgeo=scipy.zeros((Ntimes,Nranges,3),'Float64')*scipy.nan # k vector, geodetic coords
-    kgmag=scipy.zeros((Ntimes,Nranges,3),'Float64')*scipy.nan # k vector, geomag coords
-    Bx=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # B north
-    By=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # B east
-    Bz=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # B down
-    B=scipy.zeros((Ntimes,Nranges,3),'Float64')*scipy.nan # B vector
-    Babs=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # magnitude of B
-    Lshell=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # L shell value in Re
-    MagMN=scipy.zeros((Ntimes,Nranges),'Float64')*scipy.nan # Magnetic local time midnight in UT hours
+    kvec=np.zeros((Ntimes,3),float)*np.nan # k vector (geographic)
+    lat=np.zeros((Ntimes,Nranges),float)*np.nan # lat
+    lon=np.zeros((Ntimes,Nranges),float)*np.nan # long
+    plat=np.zeros((Ntimes,Nranges),float)*np.nan # mag lat
+    plong=np.zeros((Ntimes,Nranges),float)*np.nan # mag long
+    dip=np.zeros((Ntimes,Nranges),float)*np.nan # dip angle
+    dec=np.zeros((Ntimes,Nranges),float)*np.nan # dec angle
+    ht=np.zeros((Ntimes,Nranges),float)*np.nan # altitude
+    kpn=np.zeros((Ntimes,Nranges),float)*np.nan # k component, perp north
+    kpe=np.zeros((Ntimes,Nranges),float)*np.nan # k component, perp east
+    kpar=np.zeros((Ntimes,Nranges),float)*np.nan # k component, anti-parallel
+    kn=np.zeros((Ntimes,Nranges),float)*np.nan # k component, north
+    ke=np.zeros((Ntimes,Nranges),float)*np.nan # k component, east
+    kz=np.zeros((Ntimes,Nranges),float)*np.nan # k component, up    
+    kgeo=np.zeros((Ntimes,Nranges,3),float)*np.nan # k vector, geodetic coords
+    kgmag=np.zeros((Ntimes,Nranges,3),float)*np.nan # k vector, geomag coords
+    Bx=np.zeros((Ntimes,Nranges),float)*np.nan # B north
+    By=np.zeros((Ntimes,Nranges),float)*np.nan # B east
+    Bz=np.zeros((Ntimes,Nranges),float)*np.nan # B down
+    B=np.zeros((Ntimes,Nranges,3),float)*np.nan # B vector
+    Babs=np.zeros((Ntimes,Nranges),float)*np.nan # magnitude of B
+    Lshell=np.zeros((Ntimes,Nranges),float)*np.nan # L shell value in Re
+    MagMN=np.zeros((Ntimes,Nranges),float)*np.nan # Magnetic local time midnight in UT hours
                 
     # get station geocentric lat and distance 
-    SLAT,SR=geolib.convrt(ct_geolib,CLAT,CALT,dir=1)
+    SLAT, SR = geolib.convrt(ct_geolib,CLAT,CALT,dir=1)
                     
     # loop over beams
     for i in range(Ntimes):
         azp=AZ[i]; elp=EL[i]
         az=AZ[i]*pi/180.; el=EL[i]*pi/180.
-        a=scipy.array([scipy.cos(el)*scipy.cos(az),scipy.cos(el)*scipy.sin(az),scipy.sin(el)],'Float64') # unit vector in k direction (geographic)
+        a=np.array([np.cos(el)*np.cos(az),np.cos(el)*np.sin(az),np.sin(el)],float) # unit vector in k direction (geographic)
         kvec[i]=a
              
         if rng.ndim==2:
-            rngIt=scipy.squeeze(rng[i,:])
+            rngIt=np.squeeze(rng[i,:])
                    
         # loop over ranges
         for j in range(Nranges):
             
-            if scipy.isfinite(rngIt[j]):
+            if np.isfinite(rngIt[j]):
             
                 # geodetic lat, long, altitude
                 PR,GCLAT,GLON,GDLAT,GDALT = geolib.point(ct_geolib,SR,SLAT,CLONG,azp,elp,rngIt[j])
-                ht[i,j]=GDALT; lat[i,j]=GDLAT; long[i,j]=GLON
+                ht[i,j]=GDALT; lat[i,j]=GDLAT; lon[i,j]=GLON
 
                 RCOR=geolib.coord(ct_geolib,CLAT,CLONG,SR,SLAT,YR,azp,elp,rngIt[j],GDLAT,GLON,GDALT)
                 dat1,dat2,dat3,dat4=geolib.geocgm01(ct_geolib,YR,GDALT,GCLAT,GLON)
@@ -226,7 +202,7 @@ def geomagTime(ct_geolib,YR,AZ,EL,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,
     # assign output parameters
     gmag={}
     gmag['Range']=rngIt*1000.0; gmag['Altitude']=ht*1000.0
-    gmag['Latitude']=lat; gmag['Longitude']=long
+    gmag['Latitude']=lat; gmag['Longitude']=lon
     gmag['MagneticLatitude']=plat; gmag['MagneticLongitude']=plong
     gmag['kpn']=kpn; gmag['kpe']=kpe; gmag['kpar']=kpar
     gmag['kn']=kn; gmag['ke']=ke; gmag['kz']=kz
@@ -242,58 +218,27 @@ def geomagTime(ct_geolib,YR,AZ,EL,CLAT,CLONG,CALT=0.0,rng=scipy.arange(0.,1050.,
 def blankGmag(Nx=1,Ny=1):
     
     gmag={}
-    gmag['Range']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['Altitude']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['Latitude']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['Longitude']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['MagneticLatitude']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan 
-    gmag['MagneticLongitude']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['kpn']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan 
-    gmag['kpe']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['kpar']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['kn']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan 
-    gmag['ke']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['kz']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['kvec']=scipy.zeros((Nx,3),dtype='Float32')*scipy.nan
-    gmag['Dip']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['Declination']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['Bx']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['By']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['Bz']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['Babs']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['LshellRe']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
-    gmag['MLTMidnightUT']=scipy.zeros((Nx,Ny),dtype='Float32')*scipy.nan
+    gmag['Range']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['Altitude']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['Latitude']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['Longitude']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['MagneticLatitude']=np.zeros((Nx,Ny),dtype=float)*np.nan 
+    gmag['MagneticLongitude']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['kpn']=np.zeros((Nx,Ny),dtype=float)*np.nan 
+    gmag['kpe']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['kpar']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['kn']=np.zeros((Nx,Ny),dtype=float)*np.nan 
+    gmag['ke']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['kz']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['kvec']=np.zeros((Nx,3),dtype=float)*np.nan
+    gmag['Dip']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['Declination']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['Bx']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['By']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['Bz']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['Babs']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['LshellRe']=np.zeros((Nx,Ny),dtype=float)*np.nan
+    gmag['MLTMidnightUT']=np.zeros((Nx,Ny),dtype=float)*np.nan
 
     return gmag	
     
-# rturn_gmag
-def rturn_gmag(gmag,Range,extras=['kvec']):
-    #
-    # This function just interpolates over the geomagnetic data 
-    # keeping only 2 dimensional arrays (throws out some redundant info)
-    #
-
-    dd={}
-    dd['Range']=Range
-    for key in gmag.keys():
-        if (scipy.ndim(scipy.asarray(gmag[key]))==2) and (gmag[key].shape[1]==gmag['Range'].shape[0]):
-            dd[key]=scipy.zeros(Range.shape)
-            for ibm in range(Range.shape[0]):
-                dd[key][ibm,:]=scipy.interpolate.interp1d(gmag['Range'],gmag[key][ibm,:],bounds_error=0)(Range[ibm,:])
-
-    for key in range(len(extras)):
-        try:
-            dd[extras[key]]=gmag[extras[key]]
-        except:
-            ''
-            
-    return dd
-
-def trim_gmag(gmag,Nbeams,Ibeams):
-    
-    dd=gmag
-    for key in gmag.keys():
-        if (gmag[key].shape[0]==Nbeams):
-            dd[key]=dd[key][Ibeams,:]
-    
-    return dd
