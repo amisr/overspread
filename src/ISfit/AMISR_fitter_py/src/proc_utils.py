@@ -9,7 +9,7 @@ last revised: xx/xx/2007
 """
 
 import numpy as np
-import geolib
+import pymap3d
 
 from constants import *
 
@@ -61,23 +61,24 @@ def range2heightSimple(rng,el):
     return alt
 
 
-def range2height(ct_geolib,rng,az,el,CLAT,CLONG,CALT,m=1):
+def range2height(rng,az,el,CLAT,CLONG,CALT):
     # 
     # Converts range to geodetic altitude
     #
     # get station geocentric lat and distance 
-    SLAT,SR = geolib.convrt(ct_geolib,CLAT,CALT,dir=1)
-    
     Nhts = len(rng)
     Nbeams = len(el)
     alt = np.zeros((Nbeams,Nhts),dtype=float)   
     for ibm in range(Nbeams):
         for iht in range(Nhts):
-            PR,GCLAT,GLON,GDLAT,GDALT = geolib.point(ct_geolib,SR,SLAT,CLONG,az[ibm],el[ibm],rng[iht])
-            alt[ibm,iht] = GDALT
+            sign = np.sign(rng[iht]) # range can't be negative, so we'll flip the elevation angle and mirror the az
+            if sign == -1:
+                azim = ((az[ibm] + 180) + 360) % 360
+            else:
+                azim = az[ibm]
 
-    if m == 1:
-        alt = alt*1000.0
+            _, _, GDALT = pymap3d.aer2geodetic(azim,sign*el[ibm],sign*rng[iht]*1000.,CLAT,CLONG,CALT*1000,deg=True) # uses meters...
+            alt[ibm,iht] = GDALT
 
     return alt
 

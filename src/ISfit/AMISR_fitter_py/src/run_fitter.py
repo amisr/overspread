@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version='0.1.2020.05.19-dev0'   #1.0 to be released when fitter is made public
+version='0.1.2021.11.19-dev0'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
@@ -20,11 +20,7 @@ import tables, ctypes
 import scipy.interpolate
 from matplotlib import pyplot
 
-#python 2 and 3 compatability
-try:
-    import ConfigParser
-except Exception:
-    import configparser as ConfigParser
+import configparser as ConfigParser
 
 import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_data
 from ISfitter import *
@@ -33,10 +29,6 @@ from constants import *
 # flipchem: https://github.com/amisr/flipchem
 from flipchem import Flipchem, MSIS
 from flipchem import compute_ion_neutral_collfreq, compute_electron_neutral_collfreq
-
-#Leftover from amisrwrapper code
-#from loggerinit.LoggerInit import *
-#from amisrplotting import amisrwrapper
 
 #For fitcal files (files that are calibrated and fitted at the same time)
 #we need to add a Calibration record
@@ -147,19 +139,23 @@ class Run_Fitter:
             '/Geomag/Dip' : [('TITLE','Dip Angle')],\
             '/Geomag/Latitude' : [('TITLE','Latitude')],\
             '/Geomag/Longitude' : [('TITLE','Longitude')],\
-            '/Geomag/MagneticLatitude' : [('TITLE','Magnetic Latitude')],\
-            '/Geomag/MagneticLongitude' : [('TITLE','Magnetic Longitude')],\
+            '/Geomag/MagneticLatitude' : [('TITLE','Modified Apex Magnetic Latitude')],\
+            '/Geomag/MagneticLongitude' : [('TITLE','Modified Apex Magnetic Longitude')],\
             '/Geomag/LshellRe' : [('TITLE','L Shell'),('Unit','Earth radii')],\
             '/Geomag/MLTMidnightUT' : [('TITLE','MLT Midnight'),('Unit','UT Hours')],\
             '/Geomag/ke' : [('TITLE','k East',),('Description','Eastward component of radar k vector')],\
             '/Geomag/kn' : [('TITLE','k North',),('Description','Northward component of radar k vector')],\
             '/Geomag/kz' : [('TITLE','k Up',),('Description','Vertical component of radar k vector')],\
             '/Geomag/kgeo' : [('TITLE','k Vector - Geographic',),('Description','North, East, Up')],\
-            '/Geomag/kgmag' : [('TITLE','k Vector - Geomagnetic',),('Description','Anti-Parallel, Perp-East, Perp-North')],\
+            '/Geomag/kgmagCovariant' : [('TITLE','k Vector - Covariant Modified Apex Magnetic',),('Description','Anti-Parallel, Perp-East, Perp-North')],\
+            '/Geomag/kgmagContravariant' : [('TITLE','k Vector - Contravariant Modified Apex Magnetic',),('Description','Anti-Parallel, Perp-East, Perp-North')],\
             '/Geomag/kvec' : [('TITLE','k Vector - Geographic Flat Eart',),('Description','North, East, Up')],\
-            '/Geomag/kpar' : [('TITLE','k Anti-Parallel',),('Description','Parallel and upward to geomagnetic field component of radar k vector')],\
-            '/Geomag/kpe' : [('TITLE','k Perp East',),('Description','Perpendicular to geomagnetic field and eastward component of radar k vector')],\
-            '/Geomag/kpn' : [('TITLE','k Perp North',),('Description','Perpendicular to geomagnetic field and northward component of radar k vector')],\
+            '/Geomag/kparCovariant' : [('TITLE','k Anti-Parallel - Covariant Modified Apex Magnetic',),('Description','Covariant Parallel and upward to geomagnetic field component of radar k vector')],\
+            '/Geomag/kpeCovariant' : [('TITLE','k Perp East - Covariant Modified Apex Magnetic',),('Description','Covariant Perpendicular to geomagnetic field and eastward component of radar k vector')],\
+            '/Geomag/kpnCovariant' : [('TITLE','k Perp North - Covariant Modified Apex Magnetic',),('Description','Covariant Perpendicular to geomagnetic field and northward component of radar k vector')],\
+            '/Geomag/kparContravariant' : [('TITLE','k Anti-Parallel - Contravariant Modified Apex Magnetic',),('Description','Parallel and upward to geomagnetic field component of radar k vector')],\
+            '/Geomag/kpeContravariant' : [('TITLE','k Perp East - Contravariant Modified Apex Magnetic',),('Description','Perpendicular to geomagnetic field and eastward component of radar k vector')],\
+            '/Geomag/kpnContravariant' : [('TITLE','k Perp North - Contravariant Modified Apex Magnetic',),('Description','Perpendicular to geomagnetic field and northward component of radar k vector')],\
             '/MSIS/AP' : [('TITLE','AP Array',),('Description','Array elements: daily AP, 3-hr AP index cur time, for -3 hrs, for -6 hrs, for -9 hrs, Avg. for -12 to -33 hrs, Avg. for -36 to -57 hrs')],\
             '/MSIS/f107' : [('TITLE','F107 Index',),('Description','F107 index for previous day')],\
             '/MSIS/f107a' : [('TITLE','F107 Index',),('Description','81-day average F107 index')],\
@@ -186,16 +182,9 @@ class Run_Fitter:
 
         # load libraries
         try:
-            self.ct_spec     = ctypes.CDLL(self.LIB_SPEC)       # spectra library
-            self.ct_msis     = ctypes.CDLL(self.LIB_MSIS)       # MSIS library
-            self.ct_geolib   = ctypes.CDLL(self.LIB_GEOLIB)     # GEOLIB library
-            self.ct_flipchem = ctypes.CDLL(self.LIB_FLIPCHEM)   # FLIP chemistry library
+            self.ct_spec = ctypes.CDLL(self.LIB_SPEC)       # spectra library
         except Exception as e:
             raise Exception('Problem loading libraries: %s' % (str(e)))
-
-        # set some environment variables
-        # os.putenv('AACGM_DAT_PREFIX',self.AACGM_DAT_PREFIX)
-        # os.putenv('IGRF_PATH',self.IGRF_PATH)
 
         # load ISR spectrum model data files
         (self.pldfvvr,self.pldfvvi) = load_disp_table(self.DAT_PLDFVV)
@@ -204,20 +193,20 @@ class Run_Fitter:
         try:
             if type(self.OPTS['AMB_PATH']) != tuple:
                 if os.path.exists(self.OPTS['AMB_PATH']):
-                    self.AMB=io_utils.load_amb_func(self.OPTS['AMB_PATH'],full=self.FITOPTS['FullProfile'])
-                    self.AMB['Loaded']=1
+                    self.AMB = io_utils.load_amb_func(self.OPTS['AMB_PATH'],full=0)
+                    self.AMB['Loaded'] = 1
                     print('Read ambiguity function from external file - %s' % (self.OPTS['AMB_PATH']))
             else:
                 if len(self.OPTS['AMB_PATH']) != 2:
                    print('Ambiguity Function as tuple must be length 2')
                 else:
-                    tmp      = io_utils.load_amb_func(self.OPTS['AMB_PATH'][0],full=self.FITOPTS['FullProfile'])
-                    self.AMB = io_utils.load_amb_func(self.OPTS['AMB_PATH'][1],full=self.FITOPTS['FullProfile'])
+                    tmp      = io_utils.load_amb_func(self.OPTS['AMB_PATH'][0],full=0)
+                    self.AMB = io_utils.load_amb_func(self.OPTS['AMB_PATH'][1],full=0)
                     self.AMB['Wlag'][0,:]    = scipy.interpolate.interp1d(tmp['Delay'],tmp['Wlag'],bounds_error=0,fill_value=0.0)(self.AMB['Delay']) # linear interpolation
                     self.AMB['Wrange'][0,:]  = scipy.interpolate.interp1d(tmp['Range'], tmp['Wrange'],bounds_error=0,fill_value=0.0)(self.AMB['Range']) # linear interpolation
                     self.AMB['WlagSum'][0]   = tmp['WlagSum'][0]
                     self.AMB['WrangeSum'][0] = tmp['WrangeSum'][0]
-                    self.AMB['Loaded']=1
+                    self.AMB['Loaded'] = 1
                     print('Read ambiguity function from external file - %s' % (self.OPTS['AMB_PATH'][0]))
                     print('Read ambiguity function from external file - %s' % (self.OPTS['AMB_PATH'][1]))
         except:
@@ -225,130 +214,13 @@ class Run_Fitter:
 
         # set some other variables
         if self.FITOPTS['DO_FITS']:
-            self.FITOPTS['NFIT']=np.zeros(self.FITOPTS['Ngroup'])
+            self.FITOPTS['NFIT'] = np.zeros(self.FITOPTS['Ngroup'])
             for i in range(self.FITOPTS['Ngroup']):
-                self.FITOPTS['NFIT'][i]=np.where(self.FITOPTS['Ifit'][i,:,:]==1)[0].shape[0]
+                self.FITOPTS['NFIT'][i] = np.where(self.FITOPTS['Ifit'][i,:,:] == 1)[0].shape[0]
 
         return
 
 
-    def call_fitter_FP(self,S,Noise,sstr=''):
-
-        KNOT_SP=5e3
-        ht_knots = np.arange(self.FITOPTS['htmin']-self.S['Power']['TxBaud']*v_lightspeed/4.0,self.FITOPTS['htmax']+self.S['Power']['TxBaud']*v_lightspeed/4.0,KNOT_SP)
-        Nknots = ht_knots.shape[0]
-        N_params = Nknots*4 # Ne, Te, Ti, Vlos
-
-        Nbeams=self.Nbeams # number of beams
-        Nlags=self.Nlags # number of lags
-        Nranges=self.Nranges # number of ranges
-
-        # frequency array
-        NFFT=2048.0/4.0
-        f=np.linspace(-30e3,30e3,NFFT+1)
-
-        tnuin=scipy.interpolate.splrep(self.MSIS['ht'],np.log10(self.MSIS['nu_in']))
-
-        Ihtbm=np.zeros(Nbeams)
-        HT=np.zeros(S['Acf']['Altitude'].shape,dtype='Float64')*np.nan
-        RNG=np.zeros(S['Acf']['Altitude'].shape,dtype='Float64')*np.nan
-        ne_out=np.zeros((Nbeams,Nranges,2),dtype='Float64')*np.nan
-        FITS_out=np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*np.nan
-        ERRS_out=np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64')*np.nan
-
-        mod_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')
-        meas_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64')
-        errs_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Float64')
-        fitcode=np.zeros((Nbeams,Nranges))
-
-        for Ibm in range(Nbeams):
-
-            if self.FITOPTS['BinByRange']==0:
-                Ialt=np.where((S['Acf']['Range'][Ibm,:]>=self.FITOPTS['rngmin']))[0]
-            else:
-                Ialt=np.where((S['Acf']['Altitude'][Ibm,:]>=self.FITOPTS['htmin'])&(S['Acf']['Altitude'][Ibm,:]<=self.FITOPTS['htmax']))[0]
-
-            ht=S['Acf']['Altitude'][Ibm,Ialt]
-            K=S['Acf']['PulsesIntegrated'][Ibm]
-            tAcf=S['Acf']['Data'][Ibm,:,Ialt]
-
-            if self.FITOPTS['uselag1']==1:
-                sig=tAcf[:,S['Acf']['Lag1Index']].real # first lag
-            else:
-                sig=tAcf[:,0].real # 0 lag
-                #nois=Noise['Power']['Data'][Ibm].real
-
-            snr=np.mean(S['Power']['SNR'][Ibm,Ialt])
-            tAcfVar=np.power(sig,2)/K.astype('Float64')*np.power(1.0+1.0/snr,2) # theoretical variances
-
-            tNe=S['Power']['Ne_Mod'][Ibm,:]; tNe=scipy.interpolate.interp1d(S['Acf']['Altitude'][Ibm,:], tNe, bounds_error=0)(ht_knots)
-            tPsc=S['Acf']['Psc'][Ibm,0,:]; tPsc=scipy.interpolate.interp1d(S['Acf']['Altitude'][Ibm,:], tPsc, bounds_error=0)(ht_knots)
-
-            ### Set up parameter arrays
-
-            # Initialize
-            ni = np.ones((self.FITOPTS['NION']+1,Nknots),dtype='float64')
-            ti = np.ones((self.FITOPTS['NION']+1,Nknots),dtype='float64')
-            mi = np.concatenate((self.FITOPTS['mi'],[v_electronmass/v_amu]))
-            psi = np.zeros((self.FITOPTS['NION']+1,Nknots),dtype='float64')
-            vi = np.zeros((self.FITOPTS['NION']+1,Nknots),dtype='float64')
-
-            a=np.where(ht_knots[0]<=self.FITOPTS['GroupHt'])[0]
-            a=a[0]
-            Ifit=np.squeeze(self.FITOPTS['Ifit'][a,:,:])
-            NFIT=self.FITOPTS['NFIT'][a]+1
-            IfitMR=np.where(np.transpose(Ifit)==1)
-
-            ### set to model parameters if we are supposed to
-
-            # set ion density
-            ni[np.where((Ifit[:-1,0]==0) | (Ifit[:-1,0]==1)),:]=0.0
-            I=np.where(Ifit[:,0]==-2)[0]
-            if I.size != 0:
-                for a in range(I.size):
-                    if mi[I[a]]>=28 and mi[I[a]]<=32: # its a molecular
-                        tfrac=1.0-scipy.interpolate.interp1d(self.MSIS['ht'], self.MSIS['qOp'],bounds_error=0)(ht_knots/1000.0)
-                        ni[I[a],:]=tfrac
-            I=np.where(Ifit[:,0]==-1)[0]
-            if I.size==1:
-                ni[I,:]=1.0-(np.sum(ni,axis=0)-2.0)
-            elif I.size>1:
-                raise ValueError("Can't have more than one ion -1")
-
-            # set temperature
-            tn=scipy.interpolate.interp1d(self.MSIS['ht'], self.MSIS['Tn'],bounds_error=0)(ht_knots/1000.0) # neutral temperature
-            I=np.where(Ifit[:,1]==-2)[0]
-            if I.size != 0:
-                ''
-            ti=ti*tn/self.FITOPTS['p_T0']
-
-            # set collision frequency
-            I=np.where(Ifit[:,2]==-2)[0]
-            if I.size != 0:
-                tpsi=scipy.interpolate.splev(ht_knots/1000.0,tnuin)
-                tpsi=np.power(10.0,tpsi)
-                psi[I,:]=tpsi/self.FITOPTS['p_om0']
-                psi[-1,:]=psi[-1,:]*0.35714
-            # set velocity
-            I=np.where(Ifit[:,3]==-2)[0]
-            if I.size != 0:
-                ''
-
-            # initial guess
-            params0=np.concatenate((tNe,tn,tn,tn*0.0),axis=0)
-            scaler=np.concatenate((tNe/tNe*self.FITOPTS['p_N0'],tn/tn*self.FITOPTS['p_T0'],tn/tn*self.FITOPTS['p_T0'],tn/tn*self.FITOPTS['p_om0']/self.k_radar0),axis=0)
-            params0=params0/scaler
-
-            (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_FP,params0,(tAcf,tAcfVar,ht,ht_knots,
-                np.squeeze(self.S['Acf']['Lags']),self.AMB['Delay'],self.AMB['Range']*np.sin(self.BMCODES[Ibm,2]*pi/180.0),self.AMB['WttAll'],tPsc,self.pldfvvr,self.pldfvvi,self.ct_spec,
-                Ifit,f,ni,ti,mi,psi,vi,self.k_radar0,self.FITOPTS['p_N0'],self.FITOPTS['p_T0'],self.FITOPTS['p_M0']),
-                full_output=1,epsfcn=1.0e-5,ftol=1.0e-5, xtol=1.0e-5, gtol=0.0, maxfev=MAXFEV_C*params0.shape[0],factor=0.5,diag=None)
-
-
-
-            xxx
-
-    #
     def call_fitter(self,S,Noise,perturbation_noise_acf,sstr=''):
 
         ### Beams, Lags, Ranges
@@ -362,39 +234,38 @@ class Run_Fitter:
 
         ### Output variables
         Ihtbm = np.zeros(Nbeams)
-        HT = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan # Altitude
-        RNG = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan # Range
-        ne_out = np.zeros((Nbeams,Nranges,2),dtype='Float64') * np.nan # Fitted densities
-        noise_out = np.zeros((Nbeams,Nranges,3),dtype='Float64') * np.nan # Fitted noise
-        FITS_out = np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64') * np.nan # Fitted parameters
-        ERRS_out = np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype='Float64') * np.nan # Errors from fits
-        mod_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64') * np.nan # model ACFs
-        meas_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype='Complex64') * np.nan # measured ACFs
-        #ind_ACF=np.zeros((Nbeams,Nlags,Nranges),dtype='Int16') # measured ACFs
-        errs_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype='Float64') * np.nan # errors on the ACFs
+        HT = np.zeros((Nbeams,Nranges),dtype=float) * np.nan # Altitude
+        RNG = np.zeros((Nbeams,Nranges),dtype=float) * np.nan # Range
+        ne_out = np.zeros((Nbeams,Nranges,2),dtype=float) * np.nan # Fitted densities
+        noise_out = np.zeros((Nbeams,Nranges,3),dtype=float) * np.nan # Fitted noise
+        FITS_out = np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype=float) * np.nan # Fitted parameters
+        ERRS_out = np.zeros((Nbeams,Nranges,self.FITOPTS['NION']+1,4),dtype=float) * np.nan # Errors from fits
+        mod_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype=complex) * np.nan # model ACFs
+        meas_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype=complex) * np.nan # measured ACFs
+        errs_ACF = np.zeros((Nbeams,Nlags,Nranges),dtype=float) * np.nan # errors on the ACFs
         fitinfo = {} # dict containing information on fit
-        fitinfo['fitcode'] = np.zeros((Nbeams,Nranges),dtype='Int16') # a fit code
-        fitinfo['dof'] = np.zeros((Nbeams,Nranges),dtype='Int16') # degrees of freedom
-        fitinfo['chi2'] = np.zeros((Nbeams,Nranges),dtype='Float32') # reduced chi2
-        fitinfo['nfev'] = np.zeros((Nbeams,Nranges),dtype='Int16') # number of function evals
+        fitinfo['fitcode'] = np.zeros((Nbeams,Nranges),dtype=int) # a fit code
+        fitinfo['dof'] = np.zeros((Nbeams,Nranges),dtype=int) # degrees of freedom
+        fitinfo['chi2'] = np.zeros((Nbeams,Nranges),dtype=float) # reduced chi2
+        fitinfo['nfev'] = np.zeros((Nbeams,Nranges),dtype=int) # number of function evals
         models = {} # dict containing model params
-        models['nHe'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nO'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nN2'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nO2'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nAr'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nMass'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nH'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nN'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nOanom'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['Texo'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
-        models['Tn'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
-        models['SolarZen'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
-        models['LocalSolarTime'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
-        models['SolarDec'] = np.zeros((Nbeams,Nranges),dtype='Float32') * np.nan
-        models['nNO'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['nN2D'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
-        models['qOp'] = np.zeros((Nbeams,Nranges),dtype='Float64') * np.nan
+        models['nHe'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nO'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nN2'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nO2'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nAr'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nMass'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nH'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nN'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nOanom'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['Texo'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['Tn'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['SolarZen'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['LocalSolarTime'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['SolarDec'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nNO'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['nN2D'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
+        models['qOp'] = np.zeros((Nbeams,Nranges),dtype=float) * np.nan
         try:
             gmag = self.Gmag
         except:
@@ -444,7 +315,6 @@ class Run_Fitter:
                 ### Number of gates to sum as a function of lag
                 htI = htI + NSUM[0]
 
-                #if Altitude[Ibm,htI]>=self.FITOPTS['GroupHt'][IfitIndex]:
                 if Altitude[Ibm,int(htI)] >= self.FITOPTS['GroupHt'][int(IfitIndex)]:
                     if IfitIndex < (self.FITOPTS['Ngroup'] - 1):
                         IfitIndex = IfitIndex + 1
@@ -454,19 +324,17 @@ class Run_Fitter:
                         SummationRule = self.FITOPTS['SUMMATION_RULE'][IfitIndex,:,:]
                         NSUM = SummationRule[1,:] - SummationRule[0,:] + 1
 
-                #RngAll=S['Acf']['Range'][0,(htI+SummationRule[0,0]):(htI+SummationRule[1,0]+1)]
                 RngAll = S['Acf']['Range'][0,int(htI + SummationRule[0,0]):int(htI + SummationRule[1,0] + 1)]
                 RngMean = np.mean(RngAll)
                 SumFactor = np.squeeze(RngMean**2.0 / RngAll**2.0)
 
                 # sum using the summation rule
-
                 pulses_integrated = np.sum(S['Acf']['PulsesIntegrated'][Ibm][:,int(htI + SummationRule[0,0]):int(htI + SummationRule[1,0] + 1)],axis=1)
 
                 K    = pulses_integrated * S['Acf']['Kint']
-                Psc  = np.zeros(Nlags,dtype='Float64')
-                tAcf = np.zeros(Nlags,dtype='Complex64')
-                tAcfVar = np.zeros(Nlags,dtype='Float64')
+                Psc  = np.zeros(Nlags,dtype=float)
+                tAcf = np.zeros(Nlags,dtype=complex)
+                tAcfVar = np.zeros(Nlags,dtype=float)
                 for aa in range(Nlags):
                     # Acf
                     tAcf[aa] = np.mean(S['Acf']['Data'][Ibm,aa,int(htI + SummationRule[0,aa]):int(htI + SummationRule[1,aa] + 1)])
@@ -483,9 +351,9 @@ class Run_Fitter:
                 tSnr = np.mean(S['Power']['SNR'][Ibm,int(htI + SummationRule[0,0]):int(htI + SummationRule[1,0] + 1)] * SumFactor)
 
                 # Variance
-                tAcfVar = sig**2 * (1.0 + 1.0 / np.absolute(tSnr) + S['Acf']['iSCR'] * NSUM)**2.0 / (K.astype('Float64') * NSUM) # theoretical variances
+                tAcfVar = sig**2 * (1.0 + 1.0 / np.absolute(tSnr) + S['Acf']['iSCR'] * NSUM)**2.0 / (K.astype(float) * NSUM) # theoretical variances
                 # Additional variance due to noise subtraction
-                tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2 / Noise['Power']['PulsesIntegrated'][Ibm].astype('Float64')
+                tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2 / Noise['Power']['PulsesIntegrated'][Ibm].astype(float)
 
                 # Height and range
                 HT[Ibm,Iht]=np.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
@@ -509,7 +377,7 @@ class Run_Fitter:
 
                 # geomag
                 if np.isnan(gmag['Latitude'][Ibm,Iht]):
-                    tgmag=geomag.geomagTime(self.ct_geolib,self.Time['Year'][0],np.array([AzAng]),np.array([ElAng]),self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=np.array([RNG[Ibm,Iht]/1000.0])) # run the geomag model
+                    tgmag=geomag.geomagTime(self.Time['Year'][0],np.array([AzAng]),np.array([ElAng]),self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=np.array([RNG[Ibm,Iht]/1000.0])) # run the geomag model
                     for key in list(gmag.keys()):
                         if gmag[key].shape == (Nbeams,Nranges):
                             gmag[key][Ibm,Iht]=tgmag[key]
@@ -542,7 +410,7 @@ class Run_Fitter:
                 # collision frequencies, initial guess, Te=Ti=Tn
                 ion_masses = self.FITOPTS['mi'].tolist()
                 nui = list()
-                neutral_densities = (H,He,N,O,N2,O2)
+                neutral_densities = (H,He,N,O,N2,O2,0) #H,He,N,O,N2,O2,Ar
                 for mass in ion_masses:
                     nui.append(compute_ion_neutral_collfreq(neutral_densities, tn, mass, tn))
                 nue = compute_electron_neutral_collfreq(neutral_densities, tn)
@@ -568,17 +436,17 @@ class Run_Fitter:
 
                 ### Set up parameter arrays
                 # Initialize
-                ti = np.ones(self.FITOPTS['NION']+1,dtype='float64')*tn*1.1; ti[-1]*=1.1
+                ti = np.ones(self.FITOPTS['NION']+1,dtype=float)*tn*1.1; ti[-1]*=1.1
                 mi = np.concatenate((self.FITOPTS['mi'],[v_electronmass/v_amu]))
-                psi = np.zeros(self.FITOPTS['NION']+1,dtype='float64')
-                vi = np.zeros(self.FITOPTS['NION']+1,dtype='float64')
+                psi = np.zeros(self.FITOPTS['NION']+1,dtype=float)
+                vi = np.zeros(self.FITOPTS['NION']+1,dtype=float)
 
                 # set collision frequency
                 I = np.where(Ifit[:,2] == -2)[0]
                 psi[I] = nui[I]
                 psi[-1] = psi[-1] * 0.35714
 
-                terr=np.transpose(np.zeros((self.FITOPTS['NION']+1,4),dtype='Float64'))*np.nan
+                terr = np.transpose(np.zeros((self.FITOPTS['NION']+1,4),dtype=float))*np.nan
 
                 try:
                 # if 1==1:
@@ -592,7 +460,7 @@ class Run_Fitter:
                         vi=vi/self.FITOPTS['p_om0']*self.k_radar0
 
                         # set ion density
-                        ni = np.ones(self.FITOPTS['NION']+1,dtype='float64')
+                        ni = np.ones(self.FITOPTS['NION']+1,dtype=float)
                         ni[np.where((Ifit[:-1,0]==0) | (Ifit[:-1,0]==1))]=0.0
 
                         if mi[1]==mi[0]:
@@ -646,7 +514,7 @@ class Run_Fitter:
                         ### Initial guess
                         if Iht>0 and iparams0.size==NFIT and 1==0:
                             tmp=np.transpose(np.squeeze(FITS_out[Ibm,Iht-1,:,:]))
-                            params0=np.zeros(NFIT,dtype='Float64')
+                            params0=np.zeros(NFIT,dtype=float)
                             if self.FITOPTS['PERTURBATION_NOISE']:
                                 params0[1:]=tmp[IfitMR]
                             else:
@@ -657,8 +525,8 @@ class Run_Fitter:
                             params0[0]=tNe
                             params0[0]=params0[0]/scaler[0]
                         else:
-                            params0=np.zeros(NFIT,dtype='Float64')
-                            scaler=np.zeros(NFIT,dtype='Float64')
+                            params0=np.zeros(NFIT,dtype=float)
+                            scaler=np.zeros(NFIT,dtype=float)
                             params0[0]=tNe/self.FITOPTS['p_N0']
                             scaler[0]=self.FITOPTS['p_N0']
                             ii=1
@@ -706,7 +574,7 @@ class Run_Fitter:
                             tmp=np.concatenate((nAcf,np.conjugate(nAcf[Iy[-1]:0:-1])),axis=0)
                             nSpc=np.fft.fftshift(np.fft.fft(tmp,axis=0),axes=[0]) # compute spectra
                             tSn=tSpc/nSpc
-                            #tSpcVar=scipy.power(scipy.sum(tSpc)*tSpc/tSpc*scipy.sqrt(tAcfVar[0])/tAcf[0],2.0); tSpcVar=tSpcVar.astype('float64')
+                            #tSpcVar=scipy.power(scipy.sum(tSpc)*tSpc/tSpc*scipy.sqrt(tAcfVar[0])/tAcf[0],2.0); tSpcVar=tSpcVar.astype(float)
                             tSpcVar=np.power(tSpc,2.0)/Kmed*np.power(1.0+np.absolute(1.0/tSn),2.0)
 
                             (x,cov_x,infodict,mesg,ier)=scipy.optimize.leastsq(fit_fun_with_noise,params0,(tSpc,tSpcVar,self.AMB['Delay'],np.transpose(self.AMB['Wlag'][Iy,:]),Psc[Iy],self.pldfvvr,self.pldfvvi,self.ct_spec,
@@ -745,7 +613,6 @@ class Run_Fitter:
                         mod_ACF[Ibm,Iy,Iht]=m[Iy]
                         meas_ACF[Ibm,Iy,Iht]=tAcf[Iy]
                         errs_ACF[Ibm,Iy,Iht]=tAcfVar[Iy]
-                        #ind_ACF[Ibm,:,Iht]=Iy
                         if not self.FITOPTS['fit0lag']:
                             mod_ACF[Ibm,0,Iht]=m[0]*Psc[Iy[0]]/Psc[0]
 
@@ -856,7 +723,6 @@ class Run_Fitter:
         ERRS_out=ERRS_out[:,0:(Ihtbm+1),:,:]
         mod_ACF=mod_ACF[:,:,0:(Ihtbm+1)]
         meas_ACF=meas_ACF[:,:,0:(Ihtbm+1)]
-        #ind_ACF=ind_ACF[:,:,0:(Ihtbm+1)]
         errs_ACF=errs_ACF[:,:,0:(Ihtbm+1)]
         for key in list(fitinfo.keys()):
             fitinfo[key]= fitinfo[key][:,0:(Ihtbm+1)]
@@ -896,102 +762,95 @@ class Run_Fitter:
             raise Exception('Configuration files must contain at least section: OUTPUT')
 
         # General section
-        self.FITTER_PATH=io_utils.ini_tool(config,'DEFAULT','FITTER_PATH',required=1,defaultParm='')
-        self.FITOPTS['MOTION_TYPE']=eval(io_utils.ini_tool(config,'DEFAULT','MOTION_TYPE',required=0,defaultParm='0'))
-        self.LIB_SPEC=io_utils.ini_tool(config,'GENERAL','LIB_SPEC',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/spec/spec.1'))
-        self.LIB_FLIPCHEM=io_utils.ini_tool(config,'GENERAL','LIB_FLIPCHEM',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/FLIPCHEM/FLIPCHEM'))
-        self.LIB_GEOLIB=io_utils.ini_tool(config,'GENERAL','LIB_GEOLIB',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/GEOLIB/GEOLIB'))
-        self.LIB_IRI=io_utils.ini_tool(config,'GENERAL','LIB_IRI',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/iri/iri'))
-        self.LIB_MSIS=io_utils.ini_tool(config,'GENERAL','LIB_MSIS',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/msis/msis'))
-        self.DAT_PLDFVV=io_utils.ini_tool(config,'GENERAL','DAT_PLDFVV',required=0,defaultParm=os.path.join(self.FITTER_PATH,'dat/pldfvv.dat'))
-        self.AACGM_DAT_PREFIX=io_utils.ini_tool(config,'GENERAL','AACGM_DAT_PREFIX',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/aacgm/aacgm_coeffs'))
-        self.IGRF_PATH=io_utils.ini_tool(config,'GENERAL','IGRF_PATH',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/igrf'))
-        self.GEOPHYS_PATH=io_utils.ini_tool(config,'GENERAL','GEOPHYS_PATH',required=0,defaultParm=os.path.join(self.FITTER_PATH,'dat/geophys_params'))
+        self.FITTER_PATH = io_utils.ini_tool(config,'DEFAULT','FITTER_PATH',required=1,defaultParm='')
+        self.FITOPTS['MOTION_TYPE'] = eval(io_utils.ini_tool(config,'DEFAULT','MOTION_TYPE',required=0,defaultParm='0'))
+        self.LIB_SPEC = io_utils.ini_tool(config,'GENERAL','LIB_SPEC',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/spec/spec.1'))
+        self.DAT_PLDFVV = io_utils.ini_tool(config,'GENERAL','DAT_PLDFVV',required=0,defaultParm=os.path.join(self.FITTER_PATH,'dat/pldfvv.dat'))
+        self.GEOPHYS_PATH = io_utils.ini_tool(config,'GENERAL','GEOPHYS_PATH',required=0,defaultParm=os.path.join(self.FITTER_PATH,'dat/geophys_params'))
 
         # Default Options section
-        self.DEFOPTS['BMCODEMAP_DEF']=io_utils.ini_tool(config,'DEFAULT_OPTIONS','BMCODEMAP_DEF',required=0,defaultParm='')
-        self.DEFOPTS['KSYS_DEF']=float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','KSYS_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['TX_POWER_DEF']=float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TX_POWER_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['TX_FREQ_DEF']=float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TX_FREQ_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['TXBAUD_DEF']=float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TXBAUD_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['PW_DEF']=float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','PW_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['h5DataPaths_DEF']=eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','h5DataPaths_DEF',required=1,defaultParm=''))
-        self.DEFOPTS['NFFT']=eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','NFFT',required=0,defaultParm='512'))
-        self.DEFOPTS['FREQ_EVAL']=eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','FREQ_EVAL',required=0,defaultParm='50.0e3'))
-        self.DEFOPTS['CAL_TEMP_DEF']=eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','CAL_TEMP_DEF',required=0,defaultParm='100.0'))
+        self.DEFOPTS['BMCODEMAP_DEF'] = io_utils.ini_tool(config,'DEFAULT_OPTIONS','BMCODEMAP_DEF',required=0,defaultParm='')
+        self.DEFOPTS['KSYS_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','KSYS_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['TX_POWER_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TX_POWER_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['TX_FREQ_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TX_FREQ_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['TXBAUD_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TXBAUD_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['PW_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','PW_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['h5DataPaths_DEF'] = eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','h5DataPaths_DEF',required=1,defaultParm=''))
+        self.DEFOPTS['NFFT'] = eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','NFFT',required=0,defaultParm='512'))
+        self.DEFOPTS['FREQ_EVAL'] = eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','FREQ_EVAL',required=0,defaultParm='50.0e3'))
+        self.DEFOPTS['CAL_TEMP_DEF'] = eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','CAL_TEMP_DEF',required=0,defaultParm='100.0'))
 
         # Input section
         # Get filelist or list of filelists
-        self.OPTS['FILELIST']=io_utils.ini_tool(config,'INPUT','FILELIST',required=1,defaultParm='')
-        try: self.OPTS['FILELIST']=eval(self.OPTS['FILELIST'])
-        except: ''
+        self.OPTS['FILELIST'] = io_utils.ini_tool(config,'INPUT','FILELIST',required=1,defaultParm='')
+        try: self.OPTS['FILELIST'] = eval(self.OPTS['FILELIST'])
+        except: pass
         
         # Get input rawfile paths or list of them
-        self.OPTS['ipath']=io_utils.ini_tool(config,'INPUT','FILE_PATH',required=0,defaultParm='')
+        self.OPTS['ipath'] = io_utils.ini_tool(config,'INPUT','FILE_PATH',required=0,defaultParm='')
         try: self.OPTS['ipath'] = eval(self.OPTS['ipath'])
         except: pass
         
-        self.OPTS['AMB_PATH']=io_utils.ini_tool(config,'INPUT','AMB_PATH',required=0,defaultParm='')
-        try: self.OPTS['AMB_PATH']=eval(self.OPTS['AMB_PATH'])
+        self.OPTS['AMB_PATH'] = io_utils.ini_tool(config,'INPUT','AMB_PATH',required=0,defaultParm='')
+        try: self.OPTS['AMB_PATH'] = eval(self.OPTS['AMB_PATH'])
         except: ''
 
         # Output section
-        self.OPTS['outputpath']=io_utils.ini_tool(config,'OUTPUT','OUTPUT_PATH',required=0,defaultParm=self.FITTER_PATH)
-        self.OPTS['outfile']=io_utils.ini_tool(config,'OUTPUT','OUTPUT_NAME',required=0,defaultParm='output.h5')
-        self.OPTS['plotson']=eval(io_utils.ini_tool(config,'OUTPUT','plotson',required=0,defaultParm='0'))
-        self.OPTS['nplots']=eval(io_utils.ini_tool(config,'OUTPUT','nplots',required=0,defaultParm='1'))
-        self.OPTS['plotsdir']=io_utils.ini_tool(config,'OUTPUT','plotsdir',required=0,defaultParm='plots')
-        self.OPTS['saveplots']=eval(io_utils.ini_tool(config,'OUTPUT','saveplots',required=0,defaultParm='0'))
-        self.OPTS['proc_funcname']=io_utils.ini_tool(config,'OUTPUT','proc_funcname',required=1,defaultParm='')
-        self.OPTS['xlims']=eval(io_utils.ini_tool(config,'OUTPUT','xlims',required=0,defaultParm='[(0.01,10),(0,4),(-20,20)]'))
-        self.OPTS['plotfrac']=eval(io_utils.ini_tool(config,'OUTPUT','plotfrac',required=0,defaultParm='0'))
-        self.OPTS['pcolYlims']=eval(io_utils.ini_tool(config,'OUTPUT','pcolYlims',required=0,defaultParm='[]'))
-        self.OPTS['pcolClims']=eval(io_utils.ini_tool(config,'OUTPUT','pcolClims',required=0,defaultParm='[]'))
-        self.OPTS['ComputeMLT']=eval(io_utils.ini_tool(config,'OUTPUT','ComputeMLT',required=0,defaultParm='1'))
-        self.OPTS['dumpSpectra']=eval(io_utils.ini_tool(config,'OUTPUT','dumpSpectra',required=0,defaultParm='0'))
-        self.OPTS['h5DataPath']=io_utils.ini_tool(config,'OUTPUT','h5DataPath',required=0,defaultParm=self.DEFOPTS['h5DataPaths_DEF'][self.OPTS['proc_funcname']])
-        self.OPTS['dynamicAlts']=eval(io_utils.ini_tool(config,'OUTPUT','dynamicAlts',required=0,defaultParm='0'))
-        self.OPTS['saveACFs']=eval(io_utils.ini_tool(config,'OUTPUT','saveACFs',required=0,defaultParm='0'))
+        self.OPTS['outputpath'] = io_utils.ini_tool(config,'OUTPUT','OUTPUT_PATH',required=0,defaultParm=self.FITTER_PATH)
+        self.OPTS['outfile'] = io_utils.ini_tool(config,'OUTPUT','OUTPUT_NAME',required=0,defaultParm='output.h5')
+        self.OPTS['plotson'] = eval(io_utils.ini_tool(config,'OUTPUT','plotson',required=0,defaultParm='0'))
+        self.OPTS['nplots'] = eval(io_utils.ini_tool(config,'OUTPUT','nplots',required=0,defaultParm='1'))
+        self.OPTS['plotsdir'] = io_utils.ini_tool(config,'OUTPUT','plotsdir',required=0,defaultParm='plots')
+        self.OPTS['saveplots'] = eval(io_utils.ini_tool(config,'OUTPUT','saveplots',required=0,defaultParm='0'))
+        self.OPTS['proc_funcname'] = io_utils.ini_tool(config,'OUTPUT','proc_funcname',required=1,defaultParm='')
+        self.OPTS['xlims'] = eval(io_utils.ini_tool(config,'OUTPUT','xlims',required=0,defaultParm='[(0.01,10),(0,4),(-20,20)]'))
+        self.OPTS['plotfrac'] = eval(io_utils.ini_tool(config,'OUTPUT','plotfrac',required=0,defaultParm='0'))
+        self.OPTS['pcolYlims'] = eval(io_utils.ini_tool(config,'OUTPUT','pcolYlims',required=0,defaultParm='[]'))
+        self.OPTS['pcolClims'] = eval(io_utils.ini_tool(config,'OUTPUT','pcolClims',required=0,defaultParm='[]'))
+        self.OPTS['ComputeMLT'] = eval(io_utils.ini_tool(config,'OUTPUT','ComputeMLT',required=0,defaultParm='1'))
+        self.OPTS['dumpSpectra'] = eval(io_utils.ini_tool(config,'OUTPUT','dumpSpectra',required=0,defaultParm='0'))
+        self.OPTS['h5DataPath'] = io_utils.ini_tool(config,'OUTPUT','h5DataPath',required=0,defaultParm=self.DEFOPTS['h5DataPaths_DEF'][self.OPTS['proc_funcname']])
+        self.OPTS['dynamicAlts'] = eval(io_utils.ini_tool(config,'OUTPUT','dynamicAlts',required=0,defaultParm='0'))
+        self.OPTS['saveACFs'] = eval(io_utils.ini_tool(config,'OUTPUT','saveACFs',required=0,defaultParm='0'))
 
         # Fit Options section
-        self.FITOPTS['txpow']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','txpow',required=0,defaultParm='None'))
-        self.FITOPTS['DO_FITS']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','DO_FITS',required=1,defaultParm=''))
-        self.FITOPTS['PERTURBATION_NOISE']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','PERTURBATION_NOISE',required=1,defaultParm=''))
-        self.FITOPTS['useExternalCal']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','useExternalCal',required=0,defaultParm='0'))
-        self.FITOPTS['CalToNoiseRatio']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','CalToNoiseRatio',required=0,defaultParm='1.0'))
-        self.FITOPTS['beamMapScale']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','beamMapScale',required=0,defaultParm='0'))
-        self.FITOPTS['beamMapScaleFile']=io_utils.ini_tool(config,'INPUT','beamMapScaleFile',required=0,defaultParm='')
-        self.FITOPTS['fitcal'] =eval(io_utils.ini_tool(config,'FIT_OPTIONS','fitcal',required=0,defaultParm='0'))
-        self.FITOPTS['fit0lag']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','fit0lag',required=0,defaultParm='1'))
-        self.FITOPTS['uselag1']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','uselag1',required=0,defaultParm='0'))
-        self.FITOPTS['Recs2Integrate']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Recs2Integrate',required=1,defaultParm='')))
-        self.FITOPTS['Beams2do']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','Beams2do',required=0,defaultParm='[]'))
-        self.FITOPTS['p_N0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_N0',required=0,defaultParm='1.0e11'))
-        self.FITOPTS['p_T0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_T0',required=0,defaultParm='1000.0'))
-        self.FITOPTS['p_M0']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_M0',required=0,defaultParm='16.0'))
-        self.FITOPTS['LagrangeParams']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','LagrangeParams',required=0,defaultParm='[1.0e4,1.0e4,1.0e2]'))
+        self.FITOPTS['txpow'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','txpow',required=0,defaultParm='None'))
+        self.FITOPTS['DO_FITS'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','DO_FITS',required=1,defaultParm=''))
+        self.FITOPTS['PERTURBATION_NOISE'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','PERTURBATION_NOISE',required=1,defaultParm=''))
+        self.FITOPTS['useExternalCal'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','useExternalCal',required=0,defaultParm='0'))
+        self.FITOPTS['CalToNoiseRatio'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','CalToNoiseRatio',required=0,defaultParm='1.0'))
+        self.FITOPTS['beamMapScale'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','beamMapScale',required=0,defaultParm='0'))
+        self.FITOPTS['beamMapScaleFile'] = io_utils.ini_tool(config,'INPUT','beamMapScaleFile',required=0,defaultParm='')
+        self.FITOPTS['fitcal']  = eval(io_utils.ini_tool(config,'FIT_OPTIONS','fitcal',required=0,defaultParm='0'))
+        self.FITOPTS['fit0lag'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','fit0lag',required=0,defaultParm='1'))
+        self.FITOPTS['uselag1'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','uselag1',required=0,defaultParm='0'))
+        self.FITOPTS['Recs2Integrate'] = float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Recs2Integrate',required=1,defaultParm='')))
+        self.FITOPTS['Beams2do'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','Beams2do',required=0,defaultParm='[]'))
+        self.FITOPTS['p_N0'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_N0',required=0,defaultParm='1.0e11'))
+        self.FITOPTS['p_T0'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_T0',required=0,defaultParm='1000.0'))
+        self.FITOPTS['p_M0'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','p_M0',required=0,defaultParm='16.0'))
+        self.FITOPTS['LagrangeParams'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','LagrangeParams',required=0,defaultParm='[1.0e4,1.0e4,1.0e2]'))
         if len(self.FITOPTS['LagrangeParams']) != 3:
             raise ValueError("LagrangeParams must be a list of length 3. Te, Ti, and Ne penalties.")
-        self.FITOPTS['procMedian']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','procMedian',required=0,defaultParm='0'))
-        self.FITOPTS['molecularModel']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','molecularModel',required=0,defaultParm='0')))
-        self.FITOPTS['molmodFile']=io_utils.ini_tool(config,'FIT_OPTIONS','molmodFile',required=0,defaultParm='')
-        self.FITOPTS['z50']=float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','z50',required=0,defaultParm='150.0')))
-        self.FITOPTS['fitSpectra']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','fitSpectra',required=0,defaultParm='0'))
-        self.FITOPTS['mi']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','mi',required=0,defaultParm='[16.0]')))
+        self.FITOPTS['procMedian'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','procMedian',required=0,defaultParm='0'))
+        self.FITOPTS['molecularModel'] = float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','molecularModel',required=0,defaultParm='0')))
+        self.FITOPTS['molmodFile'] = io_utils.ini_tool(config,'FIT_OPTIONS','molmodFile',required=0,defaultParm='')
+        self.FITOPTS['z50'] = float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','z50',required=0,defaultParm='150.0')))
+        self.FITOPTS['fitSpectra'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','fitSpectra',required=0,defaultParm='0'))
+        self.FITOPTS['mi'] = np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','mi',required=0,defaultParm='[16.0]')))
         if self.FITOPTS['DO_FITS']==1:
-            self.FITOPTS['SUMMATION_RULE']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','SUMMATION_RULE',required=1,defaultParm='')))
-            self.FITOPTS['Lags2fit']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Lags2fit',required=0,defaultParm='[]')))
-            self.FITOPTS['htmin']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','htmin',required=0,defaultParm='50e3')); htmin=self.FITOPTS['htmin']
-            self.FITOPTS['htmax']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','htmax',required=0,defaultParm='10000e3')); htmax=self.FITOPTS['htmax']
-            self.FITOPTS['rngmin']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','rngmin',required=0,defaultParm='50e3'))
-            self.FITOPTS['Nrngs']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','Nrngs',required=0,defaultParm='10'))
-            self.FITOPTS['BinByRange']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','BinByRange',required=0,defaultParm='0'))
-            self.FITOPTS['Ngroup']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','Ngroup',required=0,defaultParm='1'))
-            self.FITOPTS['NION']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','NION',required=0,defaultParm='1'))
-            self.FITOPTS['GroupHt']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','GroupHt',required=0,defaultParm="[self.FITOPTS['htmax']]")))
-            self.FITOPTS['Ifit']=np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Ifit',required=0,defaultParm='[[[0,1,0,1],[0,1,0,-1]]]')))
-        self.FITOPTS['FullProfile']=eval(io_utils.ini_tool(config,'FIT_OPTIONS','FullProfile',required=0,defaultParm='0'))
-        self.FITOPTS['DEFOPTS']=self.DEFOPTS
+            self.FITOPTS['SUMMATION_RULE'] = np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','SUMMATION_RULE',required=1,defaultParm='')))
+            self.FITOPTS['Lags2fit'] = np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Lags2fit',required=0,defaultParm='[]')))
+            self.FITOPTS['htmin'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','htmin',required=0,defaultParm='50e3')); htmin=self.FITOPTS['htmin']
+            self.FITOPTS['htmax'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','htmax',required=0,defaultParm='10000e3')); htmax=self.FITOPTS['htmax']
+            self.FITOPTS['rngmin'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','rngmin',required=0,defaultParm='50e3'))
+            self.FITOPTS['Nrngs'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','Nrngs',required=0,defaultParm='10'))
+            self.FITOPTS['BinByRange'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','BinByRange',required=0,defaultParm='0'))
+            self.FITOPTS['Ngroup'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','Ngroup',required=0,defaultParm='1'))
+            self.FITOPTS['NION'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','NION',required=0,defaultParm='1'))
+            self.FITOPTS['GroupHt'] = np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','GroupHt',required=0,defaultParm="[self.FITOPTS['htmax']]")))
+            self.FITOPTS['Ifit'] = np.array(eval(io_utils.ini_tool(config,'FIT_OPTIONS','Ifit',required=0,defaultParm='[[[0,1,0,1],[0,1,0,-1]]]')))
+        self.FITOPTS['DEFOPTS'] = self.DEFOPTS
 
         # do some error checking
         if self.FITOPTS['DO_FITS']:
@@ -1429,9 +1288,9 @@ class Run_Fitter:
 #            try:
             #if 1==1:
             if NFREQ==1:
-                [S,Noise,Cal]=eval('process_data.'+self.OPTS['proc_funcname']+"(output,Irecs[0],self.FITOPTS,self.AMB,doamb=(not self.AMB['Loaded']),extCal=self.FITOPTS['useExternalCal'],h5DataPath=self.OPTS['h5DataPath'],BeamCodes=self.BMCODES)")
+                [S,Noise,Cal] = eval('process_data.'+self.OPTS['proc_funcname']+"(output,Irecs[0],self.FITOPTS,self.AMB,doamb=(not self.AMB['Loaded']),extCal=self.FITOPTS['useExternalCal'],h5DataPath=self.OPTS['h5DataPath'],BeamCodes=self.BMCODES)")
             else:
-                [S,Noise,Cal]=eval('process_data.'+self.OPTS['proc_funcname']+"(outputAll,Irecs,self.FITOPTS,self.AMB,doamb=(not self.AMB['Loaded']),extCal=self.FITOPTS['useExternalCal'],h5DataPath=self.OPTS['h5DataPath'],BeamCodes=self.BMCODES)")
+                [S,Noise,Cal] = eval('process_data.'+self.OPTS['proc_funcname']+"(outputAll,Irecs,self.FITOPTS,self.AMB,doamb=(not self.AMB['Loaded']),extCal=self.FITOPTS['useExternalCal'],h5DataPath=self.OPTS['h5DataPath'],BeamCodes=self.BMCODES)")
 #            except:
 #                raise RuntimeError('Error calling %s' % self.OPTS['proc_funcname'])
             try:
@@ -1523,7 +1382,7 @@ class Run_Fitter:
                             try:
                                 del self.Gmag
                             except:
-                                ""
+                                pass
                         Im1=np.where(self.BMCODES[:,0]!=-1.0)[0]
                         if len(self.FITOPTS['Beams2do'])>0:
                             Ibeams=[]
@@ -1541,9 +1400,7 @@ class Run_Fitter:
 
 
                     # run the geomagnetic model
-                    #print(self.ct_geolib,self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
-
-                    self.gmag=geomag.geomag(self.ct_geolib,self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0) # run the geomag model
+                    self.gmag=geomag.geomag(self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0) # run the geomag model
 
                     if self.OPTS['plotson']>0: # plot the geomag
                         gfig=plot_utils.geoplot(self.BMCODES[:,1],self.BMCODES[:,2],self.gmag['Range'],self.gmag['Altitude'],self.gmag['MagneticLatitude'],self.gmag['MagneticLongitude'],self.gmag['Dip'],self.gmag['Declination'])
@@ -1556,7 +1413,7 @@ class Run_Fitter:
 
                 else: # Az, El
                     self.Nbeams=1
-                    self.gmag=geomag.geomag(self.ct_geolib,self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=np.array([0.0])) # run the geomag model
+                    self.gmag=geomag.geomag(self.Time['Year'][0],self.BMCODES,self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=np.array([0.0])) # run the geomag model
 
                 # get geomag info of site to 2 decimal places
                 self.Site['MagneticLatitude']=float(np.asarray(self.gmag['MagneticLatitude'][0,0]).round(decimals=2))
@@ -1572,14 +1429,14 @@ class Run_Fitter:
             # get altitude using geodetic conversion
             if 'Power' in S:
                 if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,np.squeeze(S['Power']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Power']['Altitude']=proc_utils.range2height(np.squeeze(S['Power']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
                 elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                    S['Power']['Altitude']=proc_utils.range2height(self.ct_geolib,np.squeeze(S['Power']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Power']['Altitude']=proc_utils.range2height(np.squeeze(S['Power']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
             if 'Acf' in S:
                 if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,np.squeeze(S['Acf']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Acf']['Altitude']=proc_utils.range2height(np.squeeze(S['Acf']['Range'][0,:])/1000.0,S['BMCODES'][:,1],S['BMCODES'][:,2],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
                 elif self.FITOPTS['MOTION_TYPE']==1: # Az,El
-                    S['Acf']['Altitude']=proc_utils.range2height(self.ct_geolib,np.squeeze(S['Acf']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
+                    S['Acf']['Altitude']=proc_utils.range2height(np.squeeze(S['Acf']['Range'][0,:])/1000.0,[S['AvgAzimuth']],[S['AvgElevation']],self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0)
 
             # Trim data based on beam
             if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
@@ -1652,10 +1509,8 @@ class Run_Fitter:
                 else:
                     perturbation_noise_acf = np.nan * np.zeros(num_lags)
 
-                if self.FITOPTS['FullProfile']:
-                    (trng,tht,tne,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo)=self.call_fitter_FP(S,Noise,sstr=fstr)
-                else:
-                    (trng,tht,tne,tnoise,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,perturbation_noise_acf,sstr=fstr)
+                (trng,tht,tne,tnoise,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,perturbation_noise_acf,sstr=fstr)
+
                 self.FITS['Range']=trng
                 self.FITS['Altitude']=tht
                 self.FITS['Ne']=tne[:,:,0]
@@ -1668,18 +1523,13 @@ class Run_Fitter:
                 del self.Time['datetime']
 
                 if self.OPTS['saveACFs']:
-                    tshape=list(tmeas_ACF.shape); #tshape.append(2)
-                    #ttmeas=np.zeros(tshape,dtype='Float64'); ttmeas[:,:,:,0]=tmeas_ACF.real; ttmeas[:,:,:,1]=tmeas_ACF.imag
-                    #ttmod=np.zeros(tshape,dtype='Float64'); ttmod[:,:,:,0]=tmod_ACF.real; ttmeas[:,:,:,1]=tmod_ACF.imag
+                    tshape=list(tmeas_ACF.shape)
+
                     self.FITS['ACFs']={}
-                    self.FITS['ACFs']['ModelACF']=tmod_ACF #ttmod
-                    self.FITS['ACFs']['MeasACF']=tmeas_ACF #ttmeas
+                    self.FITS['ACFs']['ModelACF']=tmod_ACF
+                    self.FITS['ACFs']['MeasACF']=tmeas_ACF
                     self.FITS['ACFs']['ErrsACF']=terrs_ACF
-                    #print(tmeas_ACF[0,:,5])
-                    #print(tmeas_ACF.imag[0,:,5])
-                    #print(ttmeas[0,:,5])
-                    #print(self.FITS['ACFs']['MeasACF'][0,:,5])
-                    #xxxx
+
 
                 # make the plots if we are supposed to
                 if (self.OPTS['plotson']>0) and (Iplot>=self.OPTS['nplots']):

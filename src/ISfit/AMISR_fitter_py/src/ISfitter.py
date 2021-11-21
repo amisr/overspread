@@ -110,7 +110,7 @@ def fit_fun_FP(parameter,data,var,ht,ht_knots,lags,dtau,drng,Wtt,Psc,pldfvvr,pld
         (tau,acf)=spec2acf(freq,s)
 
         # interpolate acf
-        m2=scipy.zeros(dtau.size,dtype='Complex64');
+        m2=scipy.zeros(dtau.size,dtype=complex);
         m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
         m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
     
@@ -132,7 +132,7 @@ def fit_fun_FP(parameter,data,var,ht,ht_knots,lags,dtau,drng,Wtt,Psc,pldfvvr,pld
         
         for irng in range(Nalts):
             tRng=drng+ht[irng]-rngs # actually, height
-            tsmr=scipy.zeros((tWtt.shape),dtype='Complex64')
+            tsmr=scipy.zeros((tWtt.shape),dtype=complex)
             tsmr.real=scipy.interpolate.interp1d(Rgrid,scipy.transpose(smrModel.real),bounds_error=0,fill_value=0.0)(tRng)
             tsmr.imag=scipy.interpolate.interp1d(Rgrid,scipy.transpose(smrModel.imag),bounds_error=0,fill_value=0.0)(tRng)
 
@@ -142,7 +142,7 @@ def fit_fun_FP(parameter,data,var,ht,ht_knots,lags,dtau,drng,Wtt,Psc,pldfvvr,pld
             Model[irng,ilag]=scipy.sum(tmp*tPsc) # sum in range
       
     y=scipy.concatenate((scipy.reshape(data.real-Model.real,(Nlags*Nalts)),scipy.reshape(data.imag-Model.imag,(Nlags*Nalts))))
-    y=y.astype('float64')
+    y=y.astype(float)
 
     return y
 
@@ -210,7 +210,7 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     (tau,acf)=spec2acf(freq,s)
 
     # interpolate acf
-    m2=scipy.zeros(dtau.size,dtype='Complex64');
+    m2=scipy.zeros(dtau.size,dtype=complex);
     m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
     m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
 #   t=scipy.interpolate.splrep(tau,acf.real) 
@@ -219,7 +219,7 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
 #   m2.imag=scipy.interpolate.splev(dtau,t) # cubic spline interpolation
         
     # lag ambiguity function - weighted average
-    m=scipy.zeros(Wl.shape[1],dtype='Complex64')
+    m=scipy.zeros(Wl.shape[1],dtype=complex)
     for i in range(Wl.shape[1]):  
         #print(Wl[:,i])
         m[i]=scipy.sum(Wl[:,i]*m2)
@@ -242,7 +242,7 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
         y=scipy.concatenate(((data.real-m.real)/scipy.sqrt(var),(data.imag-m.imag)/scipy.sqrt(var)))
 
     y=scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
-    y=y.astype('float64')
+    y=y.astype(float)
     
     if DEBUG:
     
@@ -266,9 +266,9 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
         #pylab.show()
 
 #   pylab.figure()
-#   pylab.errorbar(scipy.arange(data.size,dtype='float64')*30e-6,data.imag,scipy.sqrt(var))
+#   pylab.errorbar(scipy.arange(data.size,dtype=float)*30e-6,data.imag,scipy.sqrt(var))
 #   pylab.hold(1)
-#   pylab.plot(scipy.arange(data.size,dtype='float64')*30e-6,m.imag,'k.')
+#   pylab.plot(scipy.arange(data.size,dtype=float)*30e-6,m.imag,'k.')
 #   pylab.plot(dtau,m2.imag,'r')
 #   pylab.show()
 
@@ -340,12 +340,12 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     (tau,acf)=spec2acf(freq,s)
 
     # Interpolate the modeled Acf
-    m2=np.zeros(dtau.size,dtype='Complex64');
+    m2=np.zeros(dtau.size,dtype=complex);
     m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
     m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
         
     # Apply the lag ambiguity function - weighted average to the modeled Acf
-    m=np.zeros(Wl.shape[1],dtype='Complex64')
+    m=np.zeros(Wl.shape[1],dtype=complex)
     for i in range(Wl.shape[1]):  
         m[i]=np.sum(Wl[:,i]*m2)
 
@@ -396,7 +396,7 @@ def fit_fun_with_noise(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,If
     # Density can't be negative...
     y = np.concatenate((y,[np.sqrt(L[2]*np.exp(-max([0.0,((ne-1e8)/1e9)])))]))
 
-    y = y.astype('float64')
+    y = y.astype(float)
     # Intended to remove NaNs caused by variance = 0 (such as for the imaginary component of lag0)
     y[np.where(~np.isfinite(y))] = 1e6
 
@@ -418,9 +418,9 @@ def load_disp_table(path):
     if sys.byteorder=='little':
         pldfvv=pldfvv.byteswap()
     pldfvvr=pldfvv[0:int(pldfvv.size/2)]
-    pldfvvr=pldfvvr.astype('float64')
+    pldfvvr=pldfvvr.astype(float)
     pldfvvi=pldfvv[int(pldfvv.size/2):]
-    pldfvvi=pldfvvi.astype('float64')
+    pldfvvi=pldfvvi.astype(float)
 
     return pldfvvr,pldfvvi
 
@@ -435,7 +435,7 @@ def spec2acf(f,s):
     if np.mod(Nspec,2.0)==0.0:
         zsize=Nspec/2.0
 
-    spec=np.concatenate((np.zeros((zsize),dtype='float64'),s,np.zeros((zsize),dtype='float64')),axis=0) # zero pad the spectra
+    spec=np.concatenate((np.zeros((zsize),dtype=float),s,np.zeros((zsize),dtype=float)),axis=0) # zero pad the spectra
     
     NFFT=spec.size
     df=f[1]-f[0]

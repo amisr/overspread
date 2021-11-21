@@ -152,7 +152,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
         S['Elevation']=scipy.array([el[0,0],el[-1,-1]])
     
     # ACF
-    S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,0].astype('complex64')
+    S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,0].astype(complex)
     S['Acf']['Data'].imag=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,1]
     (Nrecs,Nbeams,Nlags,Nranges)=S['Acf']['Data'].shape
     S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][[0]];
@@ -276,7 +276,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
                     f.close()
                 except:
                     raise IOError('BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF'])
-            S['BMCODES']=scipy.zeros((Nbeams,4),dtype='Float64')-1 # beamcode table (beamcode,az,el,ksys)
+            S['BMCODES']=scipy.zeros((Nbeams,4),dtype=float)-1 # beamcode table (beamcode,az,el,ksys)
             for i in range(Nbeams):
                 I=scipy.where(fconts['/Setup']['BeamcodeMap'][:,0]==beamcodes[i])[0]
                 S['BMCODES'][i,:]=fconts['/Setup']['BeamcodeMap'][I,:]
@@ -461,7 +461,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         Nranges = acf_nrange
     
     # ACF
-    S['Acf']['Data'] = fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,0].astype('complex64')
+    S['Acf']['Data'] = fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,0].astype(complex)
     S['Acf']['Data'].imag = fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,0:Nranges,1]
     (Nrecs,Nbeams,Nlags,_) = S['Acf']['Data'].shape
     S['Acf']['Range'] = fconts[h5DataPath+'/Acf']['Range'][0,0:Nranges] # range assumed same for all beams
@@ -690,7 +690,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
                     f.close()
                 except:
                     raise IOError('BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF'])
-            S['BMCODES']=scipy.zeros((Nbeams,4),dtype='Float64')-1 # beamcode table (beamcode,az,el,ksys)
+            S['BMCODES']=scipy.zeros((Nbeams,4),dtype=float)-1 # beamcode table (beamcode,az,el,ksys)
             for i in range(Nbeams):
                 I=scipy.where(fconts['/Setup']['BeamcodeMap'][:,0]==beamcodes[i])[0]
                 S['BMCODES'][i,:]=fconts['/Setup']['BeamcodeMap'][I,:]
@@ -962,15 +962,15 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
         S['Elevation']=scipy.array([el[0,0],el[-1,-1]])
                 
     # ACF
-    S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,0].astype('complex64')
+    S['Acf']['Data']=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,0].astype(complex)
     S['Acf']['Data'].imag=fconts[h5DataPath+'/Acf']['Data'][Irecs,:,:,:,1]
-    N['Acf']['Data']=fconts['/S/Noise/Acf']['Data'][Irecs,:,:,:,0].astype('complex64')
+    N['Acf']['Data']=fconts['/S/Noise/Acf']['Data'][Irecs,:,:,:,0].astype(complex)
     N['Acf']['Data'].imag=fconts['/S/Noise/Acf']['Data'][Irecs,:,:,:,1]
     (Nrecs,Nbeams,Nlags,Nranges)=S['Acf']['Data'].shape; NbeamsIn=Nbeams
     S['Acf']['Range']=fconts[h5DataPath+'/Acf']['Range'][[0]];
     S['Acf']['Lags']=fconts[h5DataPath+'/Acf']['Lags']
-    S['Acf']['Kint']=scipy.ones(Nlags,dtype='float64')
-    S['Acf']['iSCR']=scipy.zeros(Nlags,dtype='float64')
+    S['Acf']['Kint']=scipy.ones(Nlags,dtype=float)
+    S['Acf']['iSCR']=scipy.zeros(Nlags,dtype=float)
 
 
     input_power = fconts[h5DataPath+'/Power']['Data'][Irecs,:,:]
@@ -1114,7 +1114,7 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
                     f.close()
                 except:
                     raise IOError('BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF'])
-            S['BMCODES']=scipy.zeros((Nbeams,4),dtype='Float64')-1 # beamcode table (beamcode,az,el,ksys)
+            S['BMCODES']=scipy.zeros((Nbeams,4),dtype=float)-1 # beamcode table (beamcode,az,el,ksys)
             for i in range(Nbeams):
                 I=scipy.where(fconts['/Setup']['BeamcodeMap'][:,0]==beamcodes[i])[0]
                 S['BMCODES'][i,:]=fconts['/Setup']['BeamcodeMap'][I,:]
@@ -1416,7 +1416,7 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
                     f.close()
                 except:
                     raise IOError('BeamCode error: Could not read %s' % acfopts['DEFOPTS']['BMCODEMAP_DEF'])
-            S['BMCODES']=scipy.zeros((Nbeams,4),dtype='Float64')-1 # beamcode table (beamcode,az,el,ksys)
+            S['BMCODES']=scipy.zeros((Nbeams,4),dtype=float)-1 # beamcode table (beamcode,az,el,ksys)
             for i in range(Nbeams):
                 I=scipy.where(fconts['/Setup']['BeamcodeMap'][:,0]==beamcodes[i])[0]
                 S['BMCODES'][i,:]=fconts['/Setup']['BeamcodeMap'][I,:]
