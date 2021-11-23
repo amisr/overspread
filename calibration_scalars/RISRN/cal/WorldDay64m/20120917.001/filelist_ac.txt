@@ -1,8 +1,0 @@
-/Volumes/ISR_DATA_02/processed_data/RISR-N/2012/09/
-WorldDay64m/20120917.001/cal-0/WorldDay64m-60617-plline-000_ac_3min_.txt
-WorldDay64m/20120917.001/cal-0/WorldDay64m-60617-plline-001_ac_3min_.txt
-WorldDay64m/20120917.001/cal-0/WorldDay64m-63443-plline-000_ac_3min_.txt
-WorldDay64m/20120917.001/cal-0/WorldDay64m-63443-plline-001_ac_3min_.txt
-WorldDay64m/20120917.001/cal-0/WorldDay64m-64280-plline-000_ac_3min_.txt
-WorldDay64m/20120917.001/cal-0/WorldDay64m-64280-plline-001_ac_3min_.txt
-WorldDay64m/20120917.001/cal-0/WorldDay64m-64280-plline-002_ac_3min_.txt
