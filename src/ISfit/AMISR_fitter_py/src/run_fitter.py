@@ -16,7 +16,9 @@ matplotlib.use('agg')
 import numpy as np
 import sys, os.path, glob, datetime, time, copy
 import optparse
-import tables, ctypes
+import tables
+import ctypes
+import scipy
 import scipy.interpolate
 from matplotlib import pyplot
 
@@ -30,6 +32,9 @@ from constants import *
 import flipchem
 from flipchem import Flipchem, MSIS
 from flipchem import compute_ion_neutral_collfreq, compute_electron_neutral_collfreq
+
+import apexpy
+import pymap3d
 
 #For fitcal files (files that are calibrated and fitted at the same time)
 #we need to add a Calibration record
@@ -974,6 +979,16 @@ class Run_Fitter:
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/System',System)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/User',User)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/Host',Hostname)
+
+        # Python Package Versions
+        io_utils.createh5groups(h5fhandle,[('/ProcessingParams/ComputerInfo/PythonPackages','Dependency Information')])
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/numpy',np.__version__)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/matplotlib',matplotlib.__version__)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/tables',tables.__version__)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/scipy',scipy.__version__)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/flipchem',flipchem.__version__)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/apexpy',apexpy.__version__)
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/pymap3d',pymap3d.__version__)
 
         # Fitter configuration information
         Version = version  # Eventually replaced by self.__version__
