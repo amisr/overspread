@@ -19,11 +19,13 @@ It is generally a good idea to work within a python virtual environment. This is
 
 After activating the python environment, you can install numpy using `pip`::
 
-    pip install numpy
+    pip install numpy scipy matplotlib tables pymap3d apexpy
 
-Installing flipchem
-===================
+Consult https://github.com/amisr/flipchem for the latest instructions on installing it.
 
-Now you can install flipchem to the same python environment using `pip`::
+Installing overspread
+=====================
+
+Now you can install overspread to the same python environment using `pip`::
 
     git clone git@github.com:amisr/overspread.git
