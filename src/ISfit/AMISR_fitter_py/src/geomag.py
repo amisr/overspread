@@ -34,18 +34,22 @@ def geomag(YR,beamcodes,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
     dip         = np.zeros((num_beams,rng.shape[0]),dtype=float) # dip angle
     dec         = np.zeros((num_beams,rng.shape[0]),dtype=float) # dec angle
     ht          = np.zeros((num_beams,rng.shape[0]),dtype=float) # altitude
-    kpncovar    = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, perp north
-    kpecovar    = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, perp east
-    kparcovar   = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, anti-parallel
-    kpncontra   = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, perp north
-    kpecontra   = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, perp east
-    kparcontra  = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, anti-parallel
+    kgmag       = np.zeros((num_beams,rng.shape[0],3),dtype=float)
+    kpn         = np.zeros((num_beams,rng.shape[0]),dtype=float)
+    kpe         = np.zeros((num_beams,rng.shape[0]),dtype=float)
+    kpar        = np.zeros((num_beams,rng.shape[0]),dtype=float)
+    kvece       = np.zeros((num_beams,rng.shape[0],3),dtype=float)
+    kvece1      = np.zeros((num_beams,rng.shape[0]),dtype=float)
+    kvece2      = np.zeros((num_beams,rng.shape[0]),dtype=float)
+    kvece3      = np.zeros((num_beams,rng.shape[0]),dtype=float)
+    kvecd       = np.zeros((num_beams,rng.shape[0],3),dtype=float)
+    kvecd1      = np.zeros((num_beams,rng.shape[0]),dtype=float)
+    kvecd2      = np.zeros((num_beams,rng.shape[0]),dtype=float)
+    kvecd3      = np.zeros((num_beams,rng.shape[0]),dtype=float)
     kn          = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, north
     ke          = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, east
     kz          = np.zeros((num_beams,rng.shape[0]),dtype=float) # k component, up    
     kgeo        = np.zeros((num_beams,rng.shape[0],3),dtype=float) # k vector, geodetic coords
-    kgmagcovar  = np.zeros((num_beams,rng.shape[0],3),dtype=float) # k vector, geomag coords
-    kgmagcontra = np.zeros((num_beams,rng.shape[0],3),dtype=float) # k vector, geomag coords
     Bx          = np.zeros((num_beams,rng.shape[0]),dtype=float) # B north
     By          = np.zeros((num_beams,rng.shape[0]),dtype=float) # B east
     Bz          = np.zeros((num_beams,rng.shape[0]),dtype=float) # B down
@@ -68,19 +72,23 @@ def geomag(YR,beamcodes,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
             lon[i,j] = output['Longitude']
             plat[i,j] = output['MagneticLatitude']
             plong[i,j] = output['MagneticLongitude']
-            kpncovar[i,j] = output['kpnCovariant']
-            kpecovar[i,j] = output['kpeCovariant']
-            kparcovar[i,j] = output['kparCovariant']
-            kpncontra[i,j] = output['kpnContravariant']
-            kpecontra[i,j] = output['kpeContravariant']
-            kparcontra[i,j] = output['kparContravariant']
+            kgmag[i,j,:] = output['kgmag']
+            kpn[i,j] = output['kpn']
+            kpe[i,j] = output['kpe']
+            kpar[i,j] = output['kpar']
+            kvece[i,j,:] = output['kgmage']
+            kvece1[i,j] = output['ke1']
+            kvece2[i,j] = output['ke2']
+            kvece3[i,j] = output['ke3']
+            kvecd[i,j,:] = output['kgmagd']
+            kvecd1[i,j] = output['kd1']
+            kvecd2[i,j] = output['kd2']
+            kvecd3[i,j] = output['kd3']
+            kgeo[i,j,:] = output['kgeo']
             kn[i,j] = output['kn']
             ke[i,j] = output['ke']
             kz[i,j] = output['kz']
             kvec[i] = output['kvec']
-            kgmagcovar[i,j,:] = output['kgmagCovariant']
-            kgmagcontra[i,j,:] = output['kgmagContravariant']
-            kgeo[i,j,:] = output['kgeo']
             dip[i,j] = output['Dip']
             dec[i,j] = output['Declination']
             Bx[i,j] = output['Bx']
@@ -93,25 +101,30 @@ def geomag(YR,beamcodes,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
 
     # assign output parameters
     gmag = {}
-    gmag['Range'] = rng * 1000.0
-    gmag['Altitude'] = ht * 1000.0
+    gmag['Range'] = rng
+    gmag['Altitude'] = ht
     gmag['Latitude'] = lat
     gmag['Longitude'] = lon
     gmag['MagneticLatitude'] = plat
     gmag['MagneticLongitude'] = plong
-    gmag['kpnCovariant'] = kpncovar
-    gmag['kpeCovariant'] = kpecovar
-    gmag['kparCovariant'] = kparcovar
-    gmag['kpnContravariant'] = kpncontra
-    gmag['kpeContravariant'] = kpecontra
-    gmag['kparContravariant'] = kparcontra
+    gmag['kgmag'] = kgmag
+    gmag['kpn'] = kpn
+    gmag['kpe'] = kpe
+    gmag['kpar'] = kpar
+    gmag['kgmage'] = kvece
+    gmag['ke1'] = kvece1
+    gmag['ke2'] = kvece2
+    gmag['ke3'] = kvece3
+    gmag['kgmagd'] = kvecd
+    gmag['kd1'] = kvecd1
+    gmag['kd2'] = kvecd2
+    gmag['kd3'] = kvecd3
+    gmag['kgeo'] = kgeo
     gmag['kn'] = kn
     gmag['ke'] = ke
     gmag['kz'] = kz
     gmag['kvec'] = kvec
-    gmag['kgmagCovariant'] = kgmagcovar
-    gmag['kgmagContravariant'] = kgmagcontra
-    gmag['kgeo'] = kgeo
+    gmag['kgmag'] = kgmag
     gmag['Dip'] = dip
     gmag['Declination'] = dec
     gmag['Bx'] = Bx
@@ -145,18 +158,22 @@ def geomagTime(YR,az,el,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
     dip         = np.zeros((num_times,num_ranges),float) * np.nan # dip angle
     dec         = np.zeros((num_times,num_ranges),float) * np.nan # dec angle
     ht          = np.zeros((num_times,num_ranges),float) * np.nan # altitude
-    kpncovar    = np.zeros((num_times,num_ranges),float) * np.nan # k component, perp north
-    kpecovar    = np.zeros((num_times,num_ranges),float) * np.nan # k component, perp east
-    kparcovar   = np.zeros((num_times,num_ranges),float) * np.nan # k component, anti-parallel
-    kpncontra   = np.zeros((num_times,num_ranges),float) * np.nan # k component, perp north
-    kpecontra   = np.zeros((num_times,num_ranges),float) * np.nan # k component, perp east
-    kparcontra  = np.zeros((num_times,num_ranges),float) * np.nan # k component, anti-parallel
+    kgmag       = np.zeros((num_times,num_ranges,3),float) * np.nan
+    kpn         = np.zeros((num_times,num_ranges),float) * np.nan
+    kpe         = np.zeros((num_times,num_ranges),float) * np.nan
+    kpar        = np.zeros((num_times,num_ranges),float) * np.nan
+    kvece       = np.zeros((num_times,num_ranges,3),float) * np.nan
+    kvece1      = np.zeros((num_times,num_ranges),float) * np.nan
+    kvece2      = np.zeros((num_times,num_ranges),float) * np.nan
+    kvece3      = np.zeros((num_times,num_ranges),float) * np.nan
+    kvecd       = np.zeros((num_times,num_ranges,3),float) * np.nan
+    kvecd1      = np.zeros((num_times,num_ranges),float) * np.nan
+    kvecd2      = np.zeros((num_times,num_ranges),float) * np.nan
+    kvecd3      = np.zeros((num_times,num_ranges),float) * np.nan
+    kgeo        = np.zeros((num_times,num_ranges,3),float) * np.nan # k vector, geodetic coords
     kn          = np.zeros((num_times,num_ranges),float) * np.nan # k component, north
     ke          = np.zeros((num_times,num_ranges),float) * np.nan # k component, east
     kz          = np.zeros((num_times,num_ranges),float) * np.nan # k component, up    
-    kgeo        = np.zeros((num_times,num_ranges,3),float) * np.nan # k vector, geodetic coords
-    kgmagcovar  = np.zeros((num_times,num_ranges,3),float) * np.nan # k vector, geomag coords
-    kgmagcontra = np.zeros((num_times,num_ranges,3),float) * np.nan # k vector, geomag coords
     Bx          = np.zeros((num_times,num_ranges),float) * np.nan # B north
     By          = np.zeros((num_times,num_ranges),float) * np.nan # B east
     Bz          = np.zeros((num_times,num_ranges),float) * np.nan # B down
@@ -249,30 +266,40 @@ def geomagTime(YR,az,el,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
                 d = output[6:9] # covariant (mag east, mag south, parallel)
                 e = output[9:]  # contravariant (mag east, mag south, parallel)
 
-                # covariant (tangent to coordinate system direction) apex kvector
-                covar_kpar = np.dot(kgeodetic,d[2])
-                covar_kpe = np.dot(kgeodetic,d[0])
-                covar_kpn = -np.dot(kgeodetic,d[1])
+                # See equations 60 and 61 of https://link.springer.com/content/pdf/10.1007/s11214-016-0275-y.pdf
+                # doi: 10.1007/s11214-016-0275-y for definitions
+                # ke kvector modified apex components
+                ke1 = np.dot(kgeodetic,d[0])
+                ke2 = np.dot(kgeodetic,d[1])
+                ke3 = np.dot(kgeodetic,d[2])
+                kvece[i,j,0] = ke1
+                kvece1[i,j] = ke1
+                kvece[i,j,1] = ke2
+                kvece2[i,j] = ke2
+                kvece[i,j,2] = ke3
+                kvece3[i,j] = ke3
 
-                # contravariant (normal to coordinate system direction) apex kvector
-                contra_kpar = np.dot(kgeodetic,e[2])
-                contra_kpe = np.dot(kgeodetic,e[0])
-                contra_kpn = -np.dot(kgeodetic,e[1])
+                # ke kvector modified apex components
+                kd1 = np.dot(kgeodetic,e[0])
+                kd2 = np.dot(kgeodetic,e[1])
+                kd3 = np.dot(kgeodetic,e[2])
+                kvecd[i,j,0] = kd1
+                kvecd1[i,j] = kd1
+                kvecd[i,j,1] = kd2
+                kvecd2[i,j] = kd2
+                kvecd[i,j,2] = kd3
+                kvecd3[i,j] = kd3
 
                 # geomagnetic kvectors
-                kgmagcovar[i,j,0] = -covar_kpar
-                kparcovar[i,j] = -covar_kpar # anti-parallel
-                kgmagcovar[i,j,1] = covar_kpe
-                kpecovar[i,j] = covar_kpe # perp-east
-                kgmagcovar[i,j,2] = covar_kpn
-                kpncovar[i,j] = covar_kpn # perp-north
+                # define anti-parallel as -ke3/|d3|, kpe as ke1/|d1|, and kpn as ke2/|d2|
+                kgmag[i,j,0] = -ke3 / np.sqrt(np.sum(d[2]**2))
+                kpar[i,j] = kgmag[i,j,0] # anti-parallel
+                kgmag[i,j,1] = ke1 / np.sqrt(np.sum(d[0]**2))
+                kpe[i,j] = kgmag[i,j,1] # perp-east
+                kgmag[i,j,2] = -ke2 / np.sqrt(np.sum(d[1]**2))
+                kpn[i,j] = kgmag[i,j,2] # perp-north
 
-                kgmagcontra[i,j,0] = -contra_kpar
-                kparcontra[i,j] = -contra_kpar # anti-parallel
-                kgmagcontra[i,j,1] = contra_kpe
-                kpecontra[i,j] = contra_kpe # perp-east
-                kgmagcontra[i,j,2] = contra_kpn
-                kpncontra[i,j] = contra_kpn # perp-north
+
 
     # assign output parameters
     gmag = {}
@@ -282,19 +309,23 @@ def geomagTime(YR,az,el,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
     gmag['Longitude'] = lon
     gmag['MagneticLatitude'] = plat
     gmag['MagneticLongitude'] = plong
-    gmag['kpnCovariant'] = kpncovar
-    gmag['kpeCovariant'] = kpecovar
-    gmag['kparCovariant'] = kparcovar
-    gmag['kpnContravariant'] = kpncontra
-    gmag['kpeContravariant'] = kpecontra
-    gmag['kparContravariant'] = kparcontra
+    gmag['kgmag'] = kgmag
+    gmag['kpn'] = kpn
+    gmag['kpe'] = kpe
+    gmag['kpar'] = kpar
+    gmag['kgmage'] = kvece
+    gmag['ke1'] = kvece1
+    gmag['ke2'] = kvece2
+    gmag['ke3'] = kvece3
+    gmag['kgmagd'] = kvecd
+    gmag['kd1'] = kvecd1
+    gmag['kd2'] = kvecd2
+    gmag['kd3'] = kvecd3
+    gmag['kgeo'] = kgeo
     gmag['kn'] = kn
     gmag['ke'] = ke
     gmag['kz'] = kz
     gmag['kvec'] = kvec
-    gmag['kgmagCovariant'] = kgmagcovar
-    gmag['kgmagContravariant'] = kgmagcontra
-    gmag['kgeo'] = kgeo
     gmag['Dip'] = dip
     gmag['Declination'] = dec
     gmag['Bx'] = Bx
@@ -321,7 +352,7 @@ def find_magnetic_midnight_UT(mlon,date):
         dtime = starting_date + timedelta(seconds=float(seconds[0]))
         return apex.mlt2mlon(24, dtime) - mlon
 
-    initial_guess=12.*3600.  # in seconds
+    initial_guess = 12. * 3600.  # in seconds
     result = scipy.optimize.fsolve(f, np.array([initial_guess]),full_output=True,epsfcn=0.1,factor=0.1)
 
     # now calculate UT hours
@@ -336,23 +367,29 @@ def find_magnetic_midnight_UT(mlon,date):
 
 def blankGmag(Nx=1,Ny=1):
     
-    gmag={}
+    gmag = {}
     gmag['Range'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['Altitude'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['Latitude'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['Longitude'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['MagneticLatitude'] = np.zeros((Nx,Ny),dtype=float) * np.nan 
     gmag['MagneticLongitude'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kpnCovariant'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kpeCovariant'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kparCovariant'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kpnContravariant'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kpeContravariant'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kparContravariant'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kgmag'] = np.zeros((Nx,Ny,3),float) * np.nan
+    gmag['kpn'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kpe'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kpar'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kgmage'] = np.zeros((Nx,Ny,3),float) * np.nan
+    gmag['ke1'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['ke2'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['ke3'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kgmagd'] = np.zeros((Nx,Ny,3),float) * np.nan
+    gmag['kd1'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kd2'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kd3'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kvec'] = np.zeros((Nx,3),dtype=float) * np.nan
     gmag['kn'] = np.zeros((Nx,Ny),dtype=float) * np.nan 
     gmag['ke'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['kz'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kvec'] = np.zeros((Nx,3),dtype=float) * np.nan
     gmag['Dip'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['Declination'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['Bx'] = np.zeros((Nx,Ny),dtype=float) * np.nan

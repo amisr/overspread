@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version='0.1.2021.11.19-dev0'   #1.0 to be released when fitter is made public
+version = '0.1.2021.11.19-dev0'   #1.0 to be released when fitter is made public
 
 import matplotlib
 matplotlib.use('agg')
@@ -22,11 +22,12 @@ from matplotlib import pyplot
 
 import configparser as ConfigParser
 
-import io_utils, plot_utils, model_utils, flipchem, proc_utils, geomag, process_data
+import io_utils, plot_utils, model_utils, proc_utils, geomag, process_data
 from ISfitter import *
 from constants import *
 
 # flipchem: https://github.com/amisr/flipchem
+import flipchem
 from flipchem import Flipchem, MSIS
 from flipchem import compute_ion_neutral_collfreq, compute_electron_neutral_collfreq
 
@@ -37,7 +38,7 @@ from add_calibration_record import *
 from make_summary_plots_sondre import replot_pcolor_antenna_all
 from make_summary_plots_amisr import replot_pcolor_all
 
-MAXFEV_C=20
+MAXFEV_C = 20
 
 
 
@@ -53,30 +54,31 @@ class Run_Fitter:
     def __init__(self,options):
         #
         # initialize vars
-        self.options=options
-        self.OPTS={}
-        self.FITOPTS={}
-        self.DEFOPTS={}
-        self.AMB={}; self.AMB['Loaded']=0
-        self.FITS={}
-        self.Time={}
-        self.Site={}
-        self.Params={}
-        self.Antenna={}
-        self.BMCODES=None
+        self.options = options
+        self.OPTS = {}
+        self.FITOPTS = {}
+        self.DEFOPTS = {}
+        self.AMB = {}
+        self.AMB['Loaded'] = 0
+        self.FITS = {}
+        self.Time = {}
+        self.Site = {}
+        self.Params = {}
+        self.Antenna = {}
+        self.BMCODES = None
 
         self.ContinueFromLocked=1 # whether to allow fitter to continue from a locked file
 
         # output file definition
-        self.h5Paths = {'Params'    :   ('/ProcessingParams','Experiment Parameters'),\
-                        'Geomag'    :   ('/Geomag','Geomagnetic Parameters'),\
-                        'RawPower'  :   ('/NeFromPower','Electron density From Power'),\
-                        'Site'      :   ('/Site','Site Parameters'),\
-                        'Time'      :   ('/Time','Time Information'),\
-                        'Fitted'    :   ('/FittedParams','Fitted Parameters'),\
-                        'FitInfo'   :   ('/FittedParams/FitInfo','Fitting Info'),\
-                        'Antenna'   :   ('/Antenna','Antenna Motion Parameters'), \
-                        'MSIS'      :   ('/MSIS', 'MSIS Output'), \
+        self.h5Paths = {'Params'    :   ('/ProcessingParams','Experiment Parameters'),
+                        'Geomag'    :   ('/Geomag','Geomagnetic Parameters'),
+                        'RawPower'  :   ('/NeFromPower','Electron density From Power'),
+                        'Site'      :   ('/Site','Site Parameters'),
+                        'Time'      :   ('/Time','Time Information'),
+                        'Fitted'    :   ('/FittedParams','Fitted Parameters'),
+                        'FitInfo'   :   ('/FittedParams/FitInfo','Fitting Info'),
+                        'Antenna'   :   ('/Antenna','Antenna Motion Parameters'),
+                        'MSIS'      :   ('/MSIS', 'MSIS Output'),
                         'ACFs'      :   ('/FittedParams/ACFs','Autocorrelation Functions')}
 
         self.h5Attribs = {
@@ -143,19 +145,23 @@ class Run_Fitter:
             '/Geomag/MagneticLongitude' : [('TITLE','Modified Apex Magnetic Longitude')],\
             '/Geomag/LshellRe' : [('TITLE','L Shell'),('Unit','Earth radii')],\
             '/Geomag/MLTMidnightUT' : [('TITLE','MLT Midnight'),('Unit','UT Hours')],\
+            '/Geomag/kvec' : [('TITLE','k Vector - Geographic Flat Eart',),('Description','North, East, Up')],\
+            '/Geomag/kgeo' : [('TITLE','k Vector - Geographic',),('Description','North, East, Up')],\
             '/Geomag/ke' : [('TITLE','k East',),('Description','Eastward component of radar k vector')],\
             '/Geomag/kn' : [('TITLE','k North',),('Description','Northward component of radar k vector')],\
             '/Geomag/kz' : [('TITLE','k Up',),('Description','Vertical component of radar k vector')],\
-            '/Geomag/kgeo' : [('TITLE','k Vector - Geographic',),('Description','North, East, Up')],\
-            '/Geomag/kgmagCovariant' : [('TITLE','k Vector - Covariant Modified Apex Magnetic',),('Description','Anti-Parallel, Perp-East, Perp-North')],\
-            '/Geomag/kgmagContravariant' : [('TITLE','k Vector - Contravariant Modified Apex Magnetic',),('Description','Anti-Parallel, Perp-East, Perp-North')],\
-            '/Geomag/kvec' : [('TITLE','k Vector - Geographic Flat Eart',),('Description','North, East, Up')],\
-            '/Geomag/kparCovariant' : [('TITLE','k Anti-Parallel - Covariant Modified Apex Magnetic',),('Description','Covariant Parallel and upward to geomagnetic field component of radar k vector')],\
-            '/Geomag/kpeCovariant' : [('TITLE','k Perp East - Covariant Modified Apex Magnetic',),('Description','Covariant Perpendicular to geomagnetic field and eastward component of radar k vector')],\
-            '/Geomag/kpnCovariant' : [('TITLE','k Perp North - Covariant Modified Apex Magnetic',),('Description','Covariant Perpendicular to geomagnetic field and northward component of radar k vector')],\
-            '/Geomag/kparContravariant' : [('TITLE','k Anti-Parallel - Contravariant Modified Apex Magnetic',),('Description','Parallel and upward to geomagnetic field component of radar k vector')],\
-            '/Geomag/kpeContravariant' : [('TITLE','k Perp East - Contravariant Modified Apex Magnetic',),('Description','Perpendicular to geomagnetic field and eastward component of radar k vector')],\
-            '/Geomag/kpnContravariant' : [('TITLE','k Perp North - Contravariant Modified Apex Magnetic',),('Description','Perpendicular to geomagnetic field and northward component of radar k vector')],\
+            '/Geomag/kgmag' : [('TITLE','LEGACY: k Vector - Geomagnetic Components',),('Description','LEGACY: Anti-Parallel, Perp-East, Perp-North. Derived from Modified Apex Coordinates where Anti-Parallel is -ke3 / |d3|, Perp-East is ke1 / |d1|, Perp-North is -ke2 / |d2|. See doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kpar' : [('TITLE','LEGACY: k Anti-Parallel - Geomagnetic Components',),('Description','LEGACY: Anti-Parallel to geomagnetic field component of radar k vector. Derived from Modified Apex Coordinates where Anti-Parallel is -ke3 / |d3|. See doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kpe' : [('TITLE','LEGACY: k Perp East - Geomagnetic Components',),('Description','LEGACY: Perpendicular to geomagnetic field and eastward component of radar k vector. Derived from Modified Apex Coordinates where Perp-East is ke1 / |d1|. See doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kpn' : [('TITLE','LEGACY: k Perp North - Geomagnetic Components',),('Description','LEGACY: Perpendicular to geomagnetic field and northward component of radar k vector. Derived from Modified Apex Coordinates where Perp-North is -ke2 / |d2|. See doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kgmagd' : [('TITLE','k Vector - Modified Apex "d" Components',),('Description','Modified Apex Base Vectors: Perp-East, Perp-Equatorward, Parallel to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kd1' : [('TITLE','k East - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Perp-East to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kd2' : [('TITLE','k Equatorward - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Perp-Equatorward to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kd3' : [('TITLE','k Parallel - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Parallel to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kgmage' : [('TITLE','k Vector - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-East, Approximately Perp-Equatorward-and-Downward, Parallel to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/ke1' : [('TITLE','k East - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-East to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/ke2' : [('TITLE','k Equatorward - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-Equatorward to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/ke3' : [('TITLE','k Parallel - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Parallel to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
             '/MSIS/AP' : [('TITLE','AP Array',),('Description','Array elements: daily AP, 3-hr AP index cur time, for -3 hrs, for -6 hrs, for -9 hrs, Avg. for -12 to -33 hrs, Avg. for -36 to -57 hrs')],\
             '/MSIS/f107' : [('TITLE','F107 Index',),('Description','F107 index for previous day')],\
             '/MSIS/f107a' : [('TITLE','F107 Index',),('Description','81-day average F107 index')],\
