@@ -149,8 +149,8 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                 # dump data
                 arr.append(tarr)
             else:
-                tshape=list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
-                data=scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
+                tshape = list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
+                data = scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
         arr.append(data)
         arr.flush()
     else:
