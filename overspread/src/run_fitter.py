@@ -35,6 +35,7 @@ from flipchem import compute_ion_neutral_collfreq, compute_electron_neutral_coll
 
 import apexpy
 import pymap3d
+import pkg_resources
 
 #For fitcal files (files that are calibrated and fitted at the same time)
 #we need to add a Calibration record
@@ -988,7 +989,8 @@ class Run_Fitter:
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/scipy',scipy.__version__)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/flipchem',flipchem.__version__)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/apexpy',apexpy.__version__)
-        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/pymap3d',pymap3d.__version__)
+        pymap3d_version = pkg_resources.get_distribution('pymap3d').version
+        io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/pymap3d',pymap3d_version)
 
         # Fitter configuration information
         Version = version  # Eventually replaced by self.__version__
