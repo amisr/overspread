@@ -8,7 +8,7 @@ last revised: xx/xx/2017
 
 """
 
-version = '0.1.2021.11.19-dev0'   #1.0 to be released when fitter is made public
+version = '0.1.2021.11.23-dev0'
 
 import matplotlib
 matplotlib.use('agg')
