@@ -62,4 +62,40 @@ class _SwigNonDynamicMeta(type):
 
 
 
+def pldfas(retR, retI, zR, zI):
+    return _c_spec_worker.pldfas(retR, retI, zR, zI)
+
+def adminvec(nom, pldfvPr, pldfvPi, apuprv, apupiv, omv, vi, psi, gam):
+    return _c_spec_worker.adminvec(nom, pldfvPr, pldfvPi, apuprv, apupiv, omv, vi, psi, gam)
+
+def specCalc(pldfvPr, pldfvPi, nin0Pr, tit0Pr, nion, mim0Pr, psiPr, viPr, kd2Pr, scr, nom, omPr, resPr, ifref):
+    return _c_spec_worker.specCalc(pldfvPr, pldfvPi, nin0Pr, tit0Pr, nion, mim0Pr, psiPr, viPr, kd2Pr, scr, nom, omPr, resPr, ifref)
+class doubleArray(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+
+    def __init__(self, nelements):
+        _c_spec_worker.doubleArray_swiginit(self, _c_spec_worker.new_doubleArray(nelements))
+    __swig_destroy__ = _c_spec_worker.delete_doubleArray
+
+    def __getitem__(self, index):
+        return _c_spec_worker.doubleArray___getitem__(self, index)
+
+    def __setitem__(self, index, value):
+        return _c_spec_worker.doubleArray___setitem__(self, index, value)
+
+    def cast(self):
+        return _c_spec_worker.doubleArray_cast(self)
+
+    @staticmethod
+    def frompointer(t):
+        return _c_spec_worker.doubleArray_frompointer(t)
+
+# Register doubleArray in _c_spec_worker:
+_c_spec_worker.doubleArray_swigregister(doubleArray)
+
+def doubleArray_frompointer(t):
+    return _c_spec_worker.doubleArray_frompointer(t)
+
+
 
