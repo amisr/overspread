@@ -8,14 +8,17 @@ last revised: xx/xx/2007
 
 """
 
-import sys, ctypes 
+
+import sys 
 import numpy as np
 import scipy, scipy.fftpack, scipy.interpolate, scipy.optimize, scipy.signal
 
 import io_utils
 from constants import *
 
-from matplotlib import pyplot
+
+import ._c_spec_worker as _specworker
+
 
 DEBUG=0 # turn on debugging
 
@@ -315,13 +318,59 @@ def compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,ni,ti,mi,psi,vi,k_radar0,sc=0,p
     scr=scipy.zeros((NION+2)*(3+4*NOM),dtype='double')
     res=scipy.zeros(freq.size,dtype='double')
 
-    ct_spec.specCalc(pldfvvr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),pldfvvi.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-        NIN0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),TIT0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(NION),
-        MIM0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),PSI.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-        VI.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_double(kd2),scr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-        ctypes.c_long(NOM),OM.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),res.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(0))
-        
-    res=res*scipy.sqrt((p_M0/30.5)*(300.0/p_T0))*(p_N0/1.0e11);
-    res=res*v_lightspeed*5.1823/(k_radar0*scat_fac);
+    # ct_spec.specCalc(pldfvvr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),pldfvvi.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+    #     NIN0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),TIT0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(NION),
+    #     MIM0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),PSI.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+    #     VI.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_double(kd2),scr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+    #     ctypes.c_long(NOM),OM.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),res.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(0))
+
+    res = _call_specCalc(pldfvvr,pldfvvi,NIN0,TIT0,NION,MIM0,PSI,VI,kd2,scr,NOM,OM,res,0)
+
+    res = res * scipy.sqrt((p_M0 / 30.5) * (300.0 / p_T0)) * (p_N0 / 1.0e11);
+    res = res * v_lightspeed * 5.1823 / (k_radar0 * scat_fac);
     
     return res
+
+def _call_specCalc(pldfvvr,pldfvvi,NIN0,TIT0,NION,MIM0,PSI,VI,kd2,scr,NOM,OM,res,ifref):
+    # set up pointer arrays needed for specCalc
+    _pldfvvr = _create_and_populate(pldfvvr)
+    _pldfvvi = _create_and_populate(pldfvvi)
+    _NIN0 = _create_and_populate(NIN0)
+    _TIT0 = _create_and_populate(TIT0)
+    _MIM0 = _create_and_populate(MIM0)
+    _PSI = _create_and_populate(PSI)
+    _VI = _create_and_populate(VI)
+    _scr = _create_and_populate(scr)
+    _OM = _create_and_populate(OM)
+    _res = _create_and_populate(res)
+
+    # call specCalc
+    _specworker.specCalc(_pldfvvr,_pldfvvi,_NIN0,_TIT0,NION,_MIM0,_PSI,_VI,kd2,_scr,NOM,_OM,_res,ifref)
+
+    # save the output res array
+    for i in range(len(res)):
+        res[i] = _specworker.doubleArray___getitem__(_res,i)
+
+    # destroy the pointer arrays (no one likes memory leaks)
+    _specworker.delete_doubleArray(_pldfvvr)
+    _specworker.delete_doubleArray(_pldfvvi)
+    _specworker.delete_doubleArray(_NIN0)
+    _specworker.delete_doubleArray(_TIT0)
+    _specworker.delete_doubleArray(_MIM0)
+    _specworker.delete_doubleArray(_PSI)
+    _specworker.delete_doubleArray(_VI)
+    _specworker.delete_doubleArray(_scr)
+    _specworker.delete_doubleArray(_OM)
+    _specworker.delete_doubleArray(_res)
+
+    return res
+
+
+def _create_and_populate(input_array):
+    size = len(input_array)
+
+    array = _specworker.new_doubleArray(size)
+    for i,value in enumerate(input_array):
+        _specworker.doubleArray___setitem__(array,i,value)
+
+    return array
