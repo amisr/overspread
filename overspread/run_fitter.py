@@ -77,7 +77,7 @@ class Run_Fitter:
         self.Antenna = {}
         self.BMCODES = None
 
-        self.ContinueFromLocked=1 # whether to allow fitter to continue from a locked file
+        self.ContinueFromLocked = 1 # whether to allow fitter to continue from a locked file
 
         # output file definition
         self.h5Paths = {'Params'    :   ('/ProcessingParams','Experiment Parameters'),
@@ -160,18 +160,18 @@ class Run_Fitter:
             '/Geomag/ke' : [('TITLE','k East',),('Description','Eastward component of radar k vector')],\
             '/Geomag/kn' : [('TITLE','k North',),('Description','Northward component of radar k vector')],\
             '/Geomag/kz' : [('TITLE','k Up',),('Description','Vertical component of radar k vector')],\
-            '/Geomag/kgmag' : [('TITLE','LEGACY: k Vector - Geomagnetic Components',),('Description','LEGACY: Anti-Parallel, Perp-East, Perp-North. Derived from Modified Apex Coordinates where Anti-Parallel is -ke3 / |d3|, Perp-East is ke1 / |d1|, Perp-North is -ke2 / |d2|. See doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kgmag' : [('TITLE','LEGACY: k Vector - Geomagnetic Components',),('Description','LEGACY: Anti-Parallel, Perp-East, Perp-North. Derived from Modified Apex Coordinates where Anti-Parallel is -ke3 / |d3|, Perp-East is ke1 / |d1|, Perp-North is -kd2 / |e2|. See doi: 10.1007/s11214-016-0275-y')],\
             '/Geomag/kpar' : [('TITLE','LEGACY: k Anti-Parallel - Geomagnetic Components',),('Description','LEGACY: Anti-Parallel to geomagnetic field component of radar k vector. Derived from Modified Apex Coordinates where Anti-Parallel is -ke3 / |d3|. See doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/kpe' : [('TITLE','LEGACY: k Perp East - Geomagnetic Components',),('Description','LEGACY: Perpendicular to geomagnetic field and eastward component of radar k vector. Derived from Modified Apex Coordinates where Perp-East is ke1 / |d1|. See doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/kpn' : [('TITLE','LEGACY: k Perp North - Geomagnetic Components',),('Description','LEGACY: Perpendicular to geomagnetic field and northward component of radar k vector. Derived from Modified Apex Coordinates where Perp-North is -ke2 / |d2|. See doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/kgmagd' : [('TITLE','k Vector - Modified Apex "d" Components',),('Description','Modified Apex Base Vectors: Perp-East, Perp-Equatorward, Parallel to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/kd1' : [('TITLE','k East - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Perp-East to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/kd2' : [('TITLE','k Equatorward - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Perp-Equatorward to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/kd3' : [('TITLE','k Parallel - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Parallel to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/kgmage' : [('TITLE','k Vector - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-East, Approximately Perp-Equatorward-and-Downward, Parallel to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/ke1' : [('TITLE','k East - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-East to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/ke2' : [('TITLE','k Equatorward - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-Equatorward to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
-            '/Geomag/ke3' : [('TITLE','k Parallel - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Parallel to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kpe' : [('TITLE','LEGACY: k Perp East - Geomagnetic Components',),('Description','LEGACY: Perpendicular to geomagnetic field and approximately eastward. Parallel to line of constant magnetic latitude. Derived from Modified Apex Coordinates where Perp-East is ke1 / |d1|. See doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kpn' : [('TITLE','LEGACY: k Perp North - Geomagnetic Components',),('Description','LEGACY: Perpendicular to geomagnetic field and approximately northward. Perpendicular to line of constant magnetic latitude. Derived from Modified Apex Coordinates where Perp-North is -ke2 / |d2|. See doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kapexd' : [('TITLE','k Vector - Modified Apex "d" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-East, Approximately Perp-Equatorward, Parallel to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kapexd1' : [('TITLE','k East - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Approximately Perp-East to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kapexd2' : [('TITLE','k Equatorward - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Approximately Perp-Equatorward to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kapexd3' : [('TITLE','k Parallel - Modified Apex "d" Components',),('Description','Modified Apex Base Vector Component Parallel to Magnetic field. See equation 61 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kapexe' : [('TITLE','k Vector - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-East, Approximately Perp-Equatorward-and-Downward, Parallel to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kapexe1' : [('TITLE','k East - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-East. Parallel to line of constant magnetic latitude field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kapexe2' : [('TITLE','k Equatorward - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Approximately Perp-Equatorward to Magnetic field. Perpendicular to line of constant magnetic latitude. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
+            '/Geomag/kapexe3' : [('TITLE','k Parallel - Modified Apex "e" Components',),('Description','Modified Apex Base Vectors: Parallel to Magnetic field. See equation 60 of doi: 10.1007/s11214-016-0275-y')],\
             '/MSIS/AP' : [('TITLE','AP Array',),('Description','Array elements: daily AP, 3-hr AP index cur time, for -3 hrs, for -6 hrs, for -9 hrs, Avg. for -12 to -33 hrs, Avg. for -36 to -57 hrs')],\
             '/MSIS/f107' : [('TITLE','F107 Index',),('Description','F107 index for previous day')],\
             '/MSIS/f107a' : [('TITLE','F107 Index',),('Description','81-day average F107 index')],\

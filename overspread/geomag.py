@@ -76,14 +76,14 @@ def geomag(YR,beamcodes,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
             kpn[i,j] = output['kpn']
             kpe[i,j] = output['kpe']
             kpar[i,j] = output['kpar']
-            kvece[i,j,:] = output['kgmage']
-            kvece1[i,j] = output['ke1']
-            kvece2[i,j] = output['ke2']
-            kvece3[i,j] = output['ke3']
-            kvecd[i,j,:] = output['kgmagd']
-            kvecd1[i,j] = output['kd1']
-            kvecd2[i,j] = output['kd2']
-            kvecd3[i,j] = output['kd3']
+            kvece[i,j,:] = output['kapexe']
+            kvece1[i,j] = output['kapexe1']
+            kvece2[i,j] = output['kapexe2']
+            kvece3[i,j] = output['kapexe3']
+            kvecd[i,j,:] = output['kapexd']
+            kvecd1[i,j] = output['kapexd1']
+            kvecd2[i,j] = output['kapexd2']
+            kvecd3[i,j] = output['kapexd3']
             kgeo[i,j,:] = output['kgeo']
             kn[i,j] = output['kn']
             ke[i,j] = output['ke']
@@ -111,14 +111,14 @@ def geomag(YR,beamcodes,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
     gmag['kpn'] = kpn
     gmag['kpe'] = kpe
     gmag['kpar'] = kpar
-    gmag['kgmage'] = kvece
-    gmag['ke1'] = kvece1
-    gmag['ke2'] = kvece2
-    gmag['ke3'] = kvece3
-    gmag['kgmagd'] = kvecd
-    gmag['kd1'] = kvecd1
-    gmag['kd2'] = kvecd2
-    gmag['kd3'] = kvecd3
+    gmag['kapexe'] = kvece
+    gmag['kapexe1'] = kvece1
+    gmag['kapexe2'] = kvece2
+    gmag['kapexe3'] = kvece3
+    gmag['kapexd'] = kvecd
+    gmag['kapexd1'] = kvecd1
+    gmag['kapexd2'] = kvecd2
+    gmag['kapexd3'] = kvecd3
     gmag['kgeo'] = kgeo
     gmag['kn'] = kn
     gmag['ke'] = ke
@@ -296,7 +296,7 @@ def geomagTime(YR,az,el,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
                 kpar[i,j] = kgmag[i,j,0] # anti-parallel
                 kgmag[i,j,1] = ke1 / np.sqrt(np.sum(d[0]**2))
                 kpe[i,j] = kgmag[i,j,1] # perp-east
-                kgmag[i,j,2] = -ke2 / np.sqrt(np.sum(d[1]**2))
+                kgmag[i,j,2] = -kd2 / np.sqrt(np.sum(e[1]**2))
                 kpn[i,j] = kgmag[i,j,2] # perp-north
 
 
@@ -313,14 +313,14 @@ def geomagTime(YR,az,el,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
     gmag['kpn'] = kpn
     gmag['kpe'] = kpe
     gmag['kpar'] = kpar
-    gmag['kgmage'] = kvece
-    gmag['ke1'] = kvece1
-    gmag['ke2'] = kvece2
-    gmag['ke3'] = kvece3
-    gmag['kgmagd'] = kvecd
-    gmag['kd1'] = kvecd1
-    gmag['kd2'] = kvecd2
-    gmag['kd3'] = kvecd3
+    gmag['kapexe'] = kvece
+    gmag['kapexe1'] = kvece1
+    gmag['kapexe2'] = kvece2
+    gmag['kapexe3'] = kvece3
+    gmag['kapexd'] = kvecd
+    gmag['kapexd1'] = kvecd1
+    gmag['kapexd2'] = kvecd2
+    gmag['kapexd3'] = kvecd3
     gmag['kgeo'] = kgeo
     gmag['kn'] = kn
     gmag['ke'] = ke
@@ -378,14 +378,14 @@ def blankGmag(Nx=1,Ny=1):
     gmag['kpn'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['kpe'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['kpar'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kgmage'] = np.zeros((Nx,Ny,3),float) * np.nan
-    gmag['ke1'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['ke2'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['ke3'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kgmagd'] = np.zeros((Nx,Ny,3),float) * np.nan
-    gmag['kd1'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kd2'] = np.zeros((Nx,Ny),dtype=float) * np.nan
-    gmag['kd3'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kapexe'] = np.zeros((Nx,Ny,3),float) * np.nan
+    gmag['kapexe1'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kapexe2'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kapexe3'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kapexd'] = np.zeros((Nx,Ny,3),float) * np.nan
+    gmag['kapexd1'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kapexd2'] = np.zeros((Nx,Ny),dtype=float) * np.nan
+    gmag['kapexd3'] = np.zeros((Nx,Ny),dtype=float) * np.nan
     gmag['kvec'] = np.zeros((Nx,3),dtype=float) * np.nan
     gmag['kn'] = np.zeros((Nx,Ny),dtype=float) * np.nan 
     gmag['ke'] = np.zeros((Nx,Ny),dtype=float) * np.nan
