@@ -8,7 +8,8 @@ last revised: xx/xx/2017
 
 """
 
-version = '0.1.2021.11.23-dev0'
+import overspread
+version = overspread.__version__
 
 import matplotlib
 matplotlib.use('agg')
@@ -1749,8 +1750,8 @@ class Run_Fitter:
 
 #######
 
-if __name__ == '__main__':
 
+def main():
     # parse input options
     usage = 'run_fitter [OPTIONS]'
     parser = optparse.OptionParser(usage=usage)
@@ -1765,3 +1766,7 @@ if __name__ == '__main__':
     RF.run()
 
     sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()
