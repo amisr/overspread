@@ -7,15 +7,18 @@ xxxxx
 last revised: xx/xx/2017
 
 """
+import os
+import sys
 
-import overspread
-version = overspread.__version__
+from .__init__ import __version__, __file__
+version = __version__
+current_dir = os.path.dirname(__file__)
 
 import matplotlib
 matplotlib.use('agg')
 
 import numpy as np
-import sys, os.path, glob, datetime, time, copy
+import glob, datetime, time, copy
 import optparse
 import tables
 import ctypes
@@ -25,9 +28,9 @@ from matplotlib import pyplot
 
 import configparser as ConfigParser
 
-import io_utils, plot_utils, model_utils, proc_utils, geomag, process_data
-from ISfitter import *
-from constants import *
+from . import io_utils, plot_utils, proc_utils, geomag, process_data
+from .ISfitter import *
+from .constants import *
 
 # flipchem: https://github.com/amisr/flipchem
 import flipchem
@@ -40,10 +43,10 @@ import pkg_resources
 
 #For fitcal files (files that are calibrated and fitted at the same time)
 #we need to add a Calibration record
-from add_calibration_record import *
+from .add_calibration_record import *
 
-from make_summary_plots_sondre import replot_pcolor_antenna_all
-from make_summary_plots_amisr import replot_pcolor_all
+from .make_summary_plots_sondre import replot_pcolor_antenna_all
+from .make_summary_plots_amisr import replot_pcolor_all
 
 MAXFEV_C = 20
 
@@ -194,8 +197,11 @@ class Run_Fitter:
         self.ini_parse(options.conffile)
 
         # load libraries
+
         try:
-            self.ct_spec = ctypes.CDLL(self.LIB_SPEC)       # spectra library
+            specworkerpath = os.path.join(current_dir,"_c_spec_worker*")
+            candidate = glob.glob(specworkerpath)[0]
+            self.ct_spec = ctypes.CDLL(candidate)       # spectra library
         except Exception as e:
             raise Exception('Problem loading libraries: %s' % (str(e)))
 
@@ -777,7 +783,6 @@ class Run_Fitter:
         # General section
         self.FITTER_PATH = io_utils.ini_tool(config,'DEFAULT','FITTER_PATH',required=1,defaultParm='')
         self.FITOPTS['MOTION_TYPE'] = eval(io_utils.ini_tool(config,'DEFAULT','MOTION_TYPE',required=0,defaultParm='0'))
-        self.LIB_SPEC = io_utils.ini_tool(config,'GENERAL','LIB_SPEC',required=0,defaultParm=os.path.join(self.FITTER_PATH,'lib/spec/spec.1'))
         self.DAT_PLDFVV = io_utils.ini_tool(config,'GENERAL','DAT_PLDFVV',required=0,defaultParm=os.path.join(self.FITTER_PATH,'dat/pldfvv.dat'))
         self.GEOPHYS_PATH = io_utils.ini_tool(config,'GENERAL','GEOPHYS_PATH',required=0,defaultParm=os.path.join(self.FITTER_PATH,'dat/geophys_params'))
 

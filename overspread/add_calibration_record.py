@@ -10,13 +10,13 @@ import sys
 
 # Now we need to import io_utils. Normally it's located where the fitter source is, but
 #it may also be in the same directory as this code is.
-amisr_fitter_path = os.getenv("AMISR_FITTER_PATH")
-# If no AMISR_FITTER_PATH, then assume io_utils is in current working directory
-if amisr_fitter_path is not None:
-    amisr_fitter_path = os.path.join(amisr_fitter_path, 'src')
-    sys.path.append(amisr_fitter_path)
+# amisr_fitter_path = os.getenv("AMISR_FITTER_PATH")
+# # If no AMISR_FITTER_PATH, then assume io_utils is in current working directory
+# if amisr_fitter_path is not None:
+#     amisr_fitter_path = os.path.join(amisr_fitter_path, 'src')
+#     sys.path.append(amisr_fitter_path)
 
-import io_utils
+from . import io_utils
 
 # Intention of this is that is will be added to the fitter code and used after the fitting
 #has already been done. It will add information to the fitted h5 file about the calibration

@@ -11,9 +11,9 @@ last revised: xx/xx/2007
 import scipy.interpolate
 import numpy as np
 
-import io_utils
-from proc_utils import *
-from constants import *
+from . import io_utils
+from .proc_utils import *
+from .constants import *
 
 def trim_Ibeams(inDict,Ibeams,Nbeams):
 

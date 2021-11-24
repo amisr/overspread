@@ -11,7 +11,7 @@ last revised: xx/xx/2007
 import os, ctypes 
 import scipy, scipy.fftpack, scipy.interpolate, scipy.optimize
 
-from constants import *
+from .constants import *
 
 class MSIS_FLAGS(ctypes.Structure):
     _fields_ = [("switches",ctypes.ARRAY(ctypes.c_int,24)),

@@ -9,16 +9,13 @@ last revised: xx/xx/2007
 """
 
 
-import sys 
+import sys
+import ctypes
 import numpy as np
 import scipy, scipy.fftpack, scipy.interpolate, scipy.optimize, scipy.signal
 
-import io_utils
-from constants import *
-
-
-import ._c_spec_worker as _specworker
-
+from . import io_utils
+from .constants import *
 
 DEBUG=0 # turn on debugging
 
@@ -318,13 +315,13 @@ def compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,ni,ti,mi,psi,vi,k_radar0,sc=0,p
     scr=scipy.zeros((NION+2)*(3+4*NOM),dtype='double')
     res=scipy.zeros(freq.size,dtype='double')
 
-    # ct_spec.specCalc(pldfvvr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),pldfvvi.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-    #     NIN0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),TIT0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(NION),
-    #     MIM0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),PSI.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-    #     VI.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_double(kd2),scr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-    #     ctypes.c_long(NOM),OM.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),res.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(0))
+    ct_spec.specCalc(pldfvvr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),pldfvvi.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+        NIN0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),TIT0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(NION),
+        MIM0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),PSI.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+        VI.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_double(kd2),scr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+        ctypes.c_long(NOM),OM.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),res.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(0))
 
-    res = _call_specCalc(pldfvvr,pldfvvi,NIN0,TIT0,NION,MIM0,PSI,VI,kd2,scr,NOM,OM,res,0)
+    # res = _call_specCalc(pldfvvr,pldfvvi,NIN0,TIT0,NION,MIM0,PSI,VI,kd2,scr,NOM,OM,res,0)
 
     res = res * scipy.sqrt((p_M0 / 30.5) * (300.0 / p_T0)) * (p_N0 / 1.0e11);
     res = res * v_lightspeed * 5.1823 / (k_radar0 * scat_fac);

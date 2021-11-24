@@ -11,7 +11,7 @@ last revised: xx/xx/2007
 import numpy as np
 import pymap3d
 
-from constants import *
+from .constants import *
 
 
 def azAverage(input):

@@ -16,7 +16,7 @@ matplotlib.interactive(False)
 from matplotlib import pyplot
 import matplotlib.dates
 
-from constants import *
+from .constants import *
 
 
 def geoplot(az,el,rng,ht,plat,plong,dip,dec,Ibeam=[]):
