@@ -1,20 +1,27 @@
 #!/bin/sh
 
-if [ $# -ne 3 ]; then
-	echo 1>&2 Usage: $0 EXPERIMENT LP_IO_FILE FIT_FILE
-	exit 127
+FIT_CONFIG='config_fit_LP.ini'
+IO_CONFIG='config_io_LP.ini'
+
+if [ $# -gt 3 ]; then
+    echo 1>&2 Usage: $0 EXPERIMENT [FIT_CONFIG] [IO_CONFIG]
+    exit 127
 fi
 
-python="python"
-
-srcdir="$AMISR_FITTER_PATH/src" # should point to src directory in fitter directory
+if [ $# -eq 2 ]; then
+    FIT_CONFIG=$2
+fi
+if [ $# -eq 3 ]; then
+    FIT_CONFIG=$2
+    IO_CONFIG=$3
+fi
 
 # configuration files
 configsys="$AMISR_FITTER_PATH/config/config_sys.ini,$AMISR_FITTER_PATH/config/config_PFISR.ini" # system conf file
-configfiles="$3,$2" # fit and io config files
+configfiles="$FIT_CONFIG,$IO_CONFIG" # fit and io config files
 configexp="$1/config_exp.ini" # experiment specific config file(s)
 
 # run the fitter
-command="$python $srcdir/run_fitter.py -c $configsys,$configfiles,$configexp"
+command="run_fitter -c $configsys,$configfiles,$configexp"
 echo $command
 $command
