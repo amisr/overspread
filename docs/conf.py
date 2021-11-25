@@ -24,7 +24,7 @@ import sys
 # Get version number from __init__.py
 here = os.path.abspath(os.path.dirname(__file__))
 regex = "(?<=version..\s)\S+"
-with open(os.path.join(here,'../overspread/src/run_fitter.py'),'r', encoding='utf-8') as f:
+with open(os.path.join(here,'../overspread/__init__.py'),'r', encoding='utf-8') as f:
     text = f.read()
 match = re.findall(regex,text)
 __version__ = match[0].strip("'")
