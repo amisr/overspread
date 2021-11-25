@@ -28,4 +28,4 @@ Installing overspread
 
 Now you can install overspread to the same python environment using `pip`::
 
-    git clone git@github.com:amisr/overspread.git
+    pip install git+https://github.com:amisr/overspread.git@v1.0.0
