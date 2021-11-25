@@ -48,19 +48,6 @@ def ne_prof(Power,Range,Altitude,Model,TxPower,Pulsewidth,TxFrequency,KSYS):
     return Ne_Parm, Ne_NoTr, Psc
 
 
-def range2heightSimple(rng,el):
-    # 
-    # Converts range to height assuming flat earth
-    #
-    Nhts = rng.size
-    Nbeams = el.size
-    el2 = np.repeat(np.reshape(el,(Nbeams,1)),Nhts,axis=1)
-    range2 = np.repeat(np.reshape(rng,(1,Nhts)),Nbeams,axis=0)
-    alt = range2 * np.sin(el2 * pi / 180.)
-
-    return alt
-
-
 def range2height(rng,az,el,CLAT,CLONG,CALT):
     # 
     # Converts range to geodetic altitude
