@@ -2,4 +2,4 @@
 
 from . import run_fitter
 
-__version__ = '0.1.2021.11.23-dev0'
+__version__ = '1.0.0rc1'
