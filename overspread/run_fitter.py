@@ -64,7 +64,7 @@ class Run_Fitter:
     def __init__(self,radar,conffile):
         #
         # initialize vars
-        self.conffile = conffile
+        self.conffile = ','.join([conffile,os.path.join(current_dir,'radars.ini')])
         self.OPTS = {}
         self.FITOPTS = {}
         self.DEFOPTS = {}
