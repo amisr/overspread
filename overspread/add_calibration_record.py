@@ -8,14 +8,6 @@ import scipy
 import os
 import sys
 
-# Now we need to import io_utils. Normally it's located where the fitter source is, but
-#it may also be in the same directory as this code is.
-# amisr_fitter_path = os.getenv("AMISR_FITTER_PATH")
-# # If no AMISR_FITTER_PATH, then assume io_utils is in current working directory
-# if amisr_fitter_path is not None:
-#     amisr_fitter_path = os.path.join(amisr_fitter_path, 'src')
-#     sys.path.append(amisr_fitter_path)
-
 from . import io_utils
 
 # Intention of this is that is will be added to the fitter code and used after the fitting
@@ -25,15 +17,14 @@ cal_method = ['Plasma Line','Ionosonde','Swarm']
 
 def add_calibration_info(fname,calFname,calMethodIndex):
 
-    useCalData = True                #Beam-dependent factor
-   # corrChirp=True; chirpCorr=-20.0  #Why -20? This is arbitrary?
+    #Beam-dependent factor
+    useCalData = True
 
-
-    t=datetime.date.today()
-    datestr=t.strftime("%Y-%m-%d")
+    t = datetime.date.today()
+    datestr = t.strftime("%Y-%m-%d")
 
     # Open the calibration file
-    calData=scipy.loadtxt(calFname)
+    calData = scipy.loadtxt(calFname)
 
     # Determine the calibration Method
     method = cal_method[calMethodIndex]
@@ -50,10 +41,6 @@ def add_calibration_info(fname,calFname,calMethodIndex):
         # Specifiy the calibration method
         io_utils.write_outputfile(h5file,method,groupname='Calibration',name='CalibrationMethod')
 
-        #IS THIS REALLY NECESSARY? NO, remove later
-        #io_utils.write_outputfile(h5file,chirpCorr,groupname='Calibration',name='ChirpCorrection')
-
-
 
 # This is intended to be used to append the CalibrationMethod to files that have already been calibrated.
 #Another function will need to be used to identify what the method used to calibrate the data was (or, this
@@ -69,14 +56,14 @@ def add_calibration_method(fname,calMethodIndex):
 
 
 # This function is indended to be used to filter a -fitcal file according to 
-#the SNR and power limits hardcoded in the function. This is intended to do
-#the same thing as cal_processed_file3.py did in this regard.
+# the SNR and power limits hardcoded in the function. This is intended to do
+# the same thing as cal_processed_file3.py did in this regard.
 def filter_calibrated_data(fname,type_flag):
 
     # replacement factor
     # Use this to remove data that isn't consistent with the calibration
-    #example: TX power drops due to an UDU dying, calibration for this
-    #period of time wouldn't be valid
+    # example: TX power drops due to an UDU dying, calibration for this
+    # period of time wouldn't be valid
     replaceVal=1; powLims=[2.0e6]; aeuLims=[0]; Psc=[scipy.nan]
 
     # snr filter
@@ -105,7 +92,7 @@ def filter_calibrated_data(fname,type_flag):
     BeamCodes=h5file.get_node('/BeamCodes').read()
 
     # If we are going to filter using power limits read in the
-    #aeu and txpower values
+    # aeu and txpower values
     if replaceVal:
         AeuRx=h5file.get_node('/ProcessingParams/AeuRx').read()
         AeuTx=h5file.get_node('/ProcessingParams/AeuTx').read()

@@ -61,10 +61,10 @@ class BadComposition(Exception):
 class Run_Fitter:
 
     # Initializes the class
-    def __init__(self,options):
+    def __init__(self,radar,conffile):
         #
         # initialize vars
-        self.options = options
+        self.conffile = conffile
         self.OPTS = {}
         self.FITOPTS = {}
         self.DEFOPTS = {}
@@ -78,6 +78,8 @@ class Run_Fitter:
         self.BMCODES = None
 
         self.ContinueFromLocked = 1 # whether to allow fitter to continue from a locked file
+
+        self.radarname = radar.upper()
 
         # output file definition
         self.h5Paths = {'Params'    :   ('/ProcessingParams','Experiment Parameters'),
@@ -194,10 +196,12 @@ class Run_Fitter:
             '/MSIS/nMass' : [('TITLE','Neutral Mass Density',),('Unit','kg/m^{-3}')]}
 
         # parse the ini file
-        self.ini_parse(options.conffile)
+        self.ini_parse(self.conffile)
 
-        # load libraries
+        # set path to dat
+        self.DAT_PLDFVV = os.path.join(current_dir,'dat/pldfvv.dat')
 
+        # load spec worker library
         try:
             specworkerpath = os.path.join(current_dir,"_c_spec_worker*")
             candidate = glob.glob(specworkerpath)[0]
@@ -769,10 +773,9 @@ class Run_Fitter:
         # setup ConfigParser object
         config = ConfigParser.ConfigParser()
         config.read(inifile.split(','))
+        config.set('DEFAULT','FITTER_PATH',current_dir)
 
         # make sure all necessary sections exist
-        if (not config.has_section('GENERAL')):
-            raise Exception('Configuration files must contain at least section: GENERAL')
         if (not config.has_section('FIT_OPTIONS')):
             raise Exception('Configuration files must contain at least section: FIT_OPTIONS')
         if (not config.has_section('INPUT')):
@@ -781,22 +784,19 @@ class Run_Fitter:
             raise Exception('Configuration files must contain at least section: OUTPUT')
 
         # General section
-        self.FITTER_PATH = io_utils.ini_tool(config,'DEFAULT','FITTER_PATH',required=1,defaultParm='')
-        self.FITOPTS['MOTION_TYPE'] = eval(io_utils.ini_tool(config,'DEFAULT','MOTION_TYPE',required=0,defaultParm='0'))
-        self.DAT_PLDFVV = io_utils.ini_tool(config,'GENERAL','DAT_PLDFVV',required=0,defaultParm=os.path.join(self.FITTER_PATH,'dat/pldfvv.dat'))
-        self.GEOPHYS_PATH = io_utils.ini_tool(config,'GENERAL','GEOPHYS_PATH',required=0,defaultParm=os.path.join(self.FITTER_PATH,'dat/geophys_params'))
+        self.FITOPTS['MOTION_TYPE'] = eval(io_utils.ini_tool(config,self.radarname,'MOTION_TYPE',required=0,defaultParm='0'))
 
         # Default Options section
-        self.DEFOPTS['BMCODEMAP_DEF'] = io_utils.ini_tool(config,'DEFAULT_OPTIONS','BMCODEMAP_DEF',required=0,defaultParm='')
-        self.DEFOPTS['KSYS_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','KSYS_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['TX_POWER_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TX_POWER_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['TX_FREQ_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TX_FREQ_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['TXBAUD_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','TXBAUD_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['PW_DEF'] = float(eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','PW_DEF',required=0,defaultParm='0.0')))
-        self.DEFOPTS['h5DataPaths_DEF'] = eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','h5DataPaths_DEF',required=1,defaultParm=''))
-        self.DEFOPTS['NFFT'] = eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','NFFT',required=0,defaultParm='512'))
-        self.DEFOPTS['FREQ_EVAL'] = eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','FREQ_EVAL',required=0,defaultParm='50.0e3'))
-        self.DEFOPTS['CAL_TEMP_DEF'] = eval(io_utils.ini_tool(config,'DEFAULT_OPTIONS','CAL_TEMP_DEF',required=0,defaultParm='100.0'))
+        self.DEFOPTS['BMCODEMAP_DEF'] = io_utils.ini_tool(config,self.radarname,'BMCODEMAP_DEF',required=0,defaultParm='')
+        self.DEFOPTS['KSYS_DEF'] = float(eval(io_utils.ini_tool(config,self.radarname,'KSYS_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['TX_POWER_DEF'] = float(eval(io_utils.ini_tool(config,self.radarname,'TX_POWER_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['TX_FREQ_DEF'] = float(eval(io_utils.ini_tool(config,self.radarname,'TX_FREQ_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['TXBAUD_DEF'] = float(eval(io_utils.ini_tool(config,self.radarname,'TXBAUD_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['PW_DEF'] = float(eval(io_utils.ini_tool(config,self.radarname,'PW_DEF',required=0,defaultParm='0.0')))
+        self.DEFOPTS['h5DataPaths_DEF'] = eval(io_utils.ini_tool(config,self.radarname,'h5DataPaths_DEF',required=1,defaultParm=''))
+        self.DEFOPTS['NFFT'] = eval(io_utils.ini_tool(config,self.radarname,'NFFT',required=0,defaultParm='512'))
+        self.DEFOPTS['FREQ_EVAL'] = eval(io_utils.ini_tool(config,self.radarname,'FREQ_EVAL',required=0,defaultParm='50.0e3'))
+        self.DEFOPTS['CAL_TEMP_DEF'] = eval(io_utils.ini_tool(config,self.radarname,'CAL_TEMP_DEF',required=0,defaultParm='100.0'))
 
         # Input section
         # Get filelist or list of filelists
@@ -814,7 +814,7 @@ class Run_Fitter:
         except: ''
 
         # Output section
-        self.OPTS['outputpath'] = io_utils.ini_tool(config,'OUTPUT','OUTPUT_PATH',required=0,defaultParm=self.FITTER_PATH)
+        self.OPTS['outputpath'] = io_utils.ini_tool(config,'OUTPUT','OUTPUT_PATH',required=1)
         self.OPTS['outfile'] = io_utils.ini_tool(config,'OUTPUT','OUTPUT_NAME',required=0,defaultParm='output.h5')
         self.OPTS['plotson'] = eval(io_utils.ini_tool(config,'OUTPUT','plotson',required=0,defaultParm='0'))
         self.OPTS['nplots'] = eval(io_utils.ini_tool(config,'OUTPUT','nplots',required=0,defaultParm='1'))
@@ -1006,7 +1006,7 @@ class Run_Fitter:
 
         # Get all the configuration files
         i = 1
-        for cf in self.options.conffile.split(','):
+        for cf in self.conffile.split(','):
             Path = os.path.dirname(os.path.abspath(cf))
             Name = os.path.basename(cf)
 
@@ -1757,17 +1757,17 @@ class Run_Fitter:
 
 
 def main():
-    # parse input options
-    usage = 'run_fitter [OPTIONS]'
-    parser = optparse.OptionParser(usage=usage)
-    parser.add_option('-c','--conf',dest='conffile',
-                        default='configuration.ini',
-                        metavar="FILE",
-                        help='Configuration file or list of configuration files (default configuration.ini)')
-    (options,args) = parser.parse_args()
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser(description="The command line interface to running the AMISR fitter.")
+    arg = parser.add_argument('radar',help='The shortname of the radar: pfisr, risrn, risrc, or sondre.')
+    arg = parser.add_argument('-c','--conf',dest='conffile',metavar="FILE",required=True,
+                              help='A comma separated list of configuration files.')
+
+    args = parser.parse_args()
 
     # go go go
-    RF=Run_Fitter(options)
+    RF = Run_Fitter(args.radar,args.conffile)
     RF.run()
 
     sys.exit(0)
