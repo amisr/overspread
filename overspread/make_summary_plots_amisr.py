@@ -1,6 +1,7 @@
 
 import os
 import numpy as np
+import datetime as dt
 import tables
 import matplotlib
 matplotlib.use('Agg')
@@ -110,8 +111,10 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,save_fig_name=No
         formatter   = matplotlib.dates.DateFormatter("%H:%M")
 
     # Convert times to from epoch to numbers
-    x = matplotlib.dates.epoch2num(x)
-    xlim = [matplotlib.dates.epoch2num(xlim[0]),matplotlib.dates.epoch2num(xlim[-1])]
+    x = np.array([dt.datetime.utcfromtimestamp(x0) for x0 in x])
+    x = matplotlib.dates.date2num(x)
+    xlim = np.array([dt.datetime.utcfromtimestamp(x0) for x0 in xlim])
+    xlim = [matplotlib.dates.date2num(xlim[0]),matplotlib.dates.date2num(xlim[-1])]
 
     # How many beams do we have left to plot?
     if remaining_beams_to_plot > max_beams:
