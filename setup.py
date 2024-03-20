@@ -33,7 +33,10 @@ else:
     # Check if we can even import numpy, if not, provide a more helpful
     # exception message to the user than what it typically provided.
     try:
-        from numpy.distutils.core import setup, Extension
+        #from numpy.distutils.core import setup, Extension
+        import setuptools
+        from skbuild import setup
+        from setuptools import Extension
     except ImportError as e:
         text = "There was a problem importing numpy. Do you have it installed?"
         text += "\nImportError Exception:\n%s" % str(e)
@@ -142,6 +145,7 @@ if __name__ == "__main__":
         entry_points={
             'console_scripts': [
                 'run_fitter=overspread.run_fitter:main',
+                'run_fitter_msis=overspread.run_fitter_msis:main',
             ],
         },
     )

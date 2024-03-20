@@ -1,0 +1,4 @@
+[console_scripts]
+run_fitter = overspread.run_fitter:main
+run_fitter_msis = overspread.run_fitter_msis:main
+

@@ -24,6 +24,7 @@ def read_whole_h5file(fname):
     return output
 
 def ini_tool(config,secName,parmName,required=0,defaultParm=''):
+
     try:
         if config.has_option(secName,parmName):
             parm=config.get(secName,parmName)

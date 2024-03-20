@@ -9,6 +9,7 @@ last revised: xx/xx/2017
 """
 import os
 import sys
+import h5py
 
 from .__init__ import __version__, __file__
 version = __version__
@@ -244,7 +245,7 @@ class Run_Fitter:
         return
 
 
-    def call_fitter(self,S,Noise,perturbation_noise_acf,sstr=''):
+    def call_fitter(self,S,Noise,perturbation_noise_acf,IIrec,sstr=''):
 
         ### Beams, Lags, Ranges
         Nbeams  = self.Nbeams  # number of beams
@@ -376,7 +377,7 @@ class Run_Fitter:
                 # Variance
                 tAcfVar = sig**2 * (1.0 + 1.0 / np.absolute(tSnr) + S['Acf']['iSCR'] * NSUM)**2.0 / (K.astype(float) * NSUM) # theoretical variances
                 # Additional variance due to noise subtraction
-                tAcfVar[0] = tAcfVar[0] + np.real(Noise['Power']['Data'][Ibm])**2 / Noise['Power']['PulsesIntegrated'][Ibm].astype(float)
+                tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2 / Noise['Power']['PulsesIntegrated'][Ibm].astype(float)
 
                 # Height and range
                 HT[Ibm,Iht]=np.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
@@ -417,17 +418,32 @@ class Run_Fitter:
                 msis_outputs = msis.get_point(glat,glon,alt)
                 H,He,N,O,N2,O2,Ar,Mass,AnomO,Texo,tn = msis_outputs
 
-                models['nH'][Ibm,Iht]     = H
-                models['nHe'][Ibm,Iht]    = He
-                models['nN'][Ibm,Iht]     = N
-                models['nO'][Ibm,Iht]     = O
-                models['nN2'][Ibm,Iht]    = N2
-                models['nO2'][Ibm,Iht]    = O2
-                models['nAr'][Ibm,Iht]    = Ar
-                models['nMass'][Ibm,Iht]  = Mass / 1000.0
-                models['nOanom'][Ibm,Iht] = AnomO
-                models['Texo'][Ibm,Iht]   = Texo
-                models['Tn'][Ibm,Iht]     = tn
+              #  models['nH'][Ibm,Iht]     = H
+              #  models['nHe'][Ibm,Iht]    = He
+              #  models['nN'][Ibm,Iht]     = N
+              #  models['nO'][Ibm,Iht]     = O
+              #  models['nN2'][Ibm,Iht]    = N2
+              #  models['nO2'][Ibm,Iht]    = O2
+              #  models['nAr'][Ibm,Iht]    = Ar
+              #  models['nMass'][Ibm,Iht]  = Mass / 1000.0
+              #  models['nOanom'][Ibm,Iht] = AnomO
+              #  models['Texo'][Ibm,Iht]   = Texo
+              #  models['Tn'][Ibm,Iht]     = tn
+              #  models['qOp'][Ibm,Iht]    = np.nan
+
+                file = '/Volumes/AMISR_PROCESSED/processed_data/lkamal/PFISR/2013/04/Themis36/20130413.001/20130413.001_lp_1min-fitcal.h5'
+                h5 = h5py.File(file, 'r')
+                models['nH'][Ibm,Iht]     = h5['MSIS/nH'][IIrec,Ibm,Iht] 
+                models['nHe'][Ibm,Iht]    = h5['MSIS/nHe'][IIrec,Ibm,Iht] 
+                models['nN'][Ibm,Iht]     = h5['MSIS/nN'][IIrec,Ibm,Iht] 
+                models['nO'][Ibm,Iht]     = h5['MSIS/nO'][IIrec,Ibm,Iht] 
+                models['nN2'][Ibm,Iht]    = h5['MSIS/nN2'][IIrec,Ibm,Iht] 
+                models['nO2'][Ibm,Iht]    = h5['MSIS/nO2'][IIrec,Ibm,Iht] 
+                models['nAr'][Ibm,Iht]    = h5['MSIS/nAr'][IIrec,Ibm,Iht] 
+                models['nMass'][Ibm,Iht]  = h5['MSIS/nMass'][IIrec,Ibm,Iht] / 1000.0
+                models['nOanom'][Ibm,Iht] = h5['MSIS/nOanom'][IIrec,Ibm,Iht] 
+                models['Texo'][Ibm,Iht]   = h5['MSIS/Texo'][IIrec,Ibm,Iht] 
+                models['Tn'][Ibm,Iht]     = h5['MSIS/Tn'][IIrec,Ibm,Iht] 
                 models['qOp'][Ibm,Iht]    = np.nan
 
                 # collision frequencies, initial guess, Te=Ti=Tn
@@ -579,7 +595,7 @@ class Run_Fitter:
                         # get initial guess for additional noise as 1% of measured noise
                         # Then add it to the param0 and scaler arrays, but at the beginning.
                         if nloops == 1:
-                            noise0 = np.real(Noise['Power']['Data'][Ibm]) * 0.01
+                            noise0 = float(Noise['Power']['Data'][Ibm]) * 0.01
 
                         if self.FITOPTS['PERTURBATION_NOISE']:
                             params0 = np.concatenate((np.array([noise0]),params0))
@@ -588,7 +604,7 @@ class Run_Fitter:
                         # The variance of the measured noise will be used to weight the amount of allowed
                         # perturbation noise ACF. 
                         K_noise = Noise['Power']['PulsesIntegrated'][Ibm]
-                        noise_var = np.real(Noise['Power']['Data'][Ibm]) / K_noise
+                        noise_var = float(Noise['Power']['Data'][Ibm]) / K_noise
 
                         # do the fit
                         if self.FITOPTS['fitSpectra']==1:
@@ -686,7 +702,7 @@ class Run_Fitter:
                     # store output
                     ne_out[Ibm,Iht,0]=tNe
                     noise_out[Ibm,Iht,0]=noise0
-                    noise_out[Ibm,Iht,2]=np.real(Noise['Power']['Data'][Ibm])
+                    noise_out[Ibm,Iht,2]=float(Noise['Power']['Data'][Ibm])
                     FITS_out[Ibm,Iht,:,0]=ni
                     FITS_out[Ibm,Iht,:,1]=ti
                     FITS_out[Ibm,Iht,:,2]=psi
@@ -1544,7 +1560,7 @@ class Run_Fitter:
                 else:
                     perturbation_noise_acf = np.nan * np.zeros(num_lags)
 
-                (trng,tht,tne,tnoise,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,perturbation_noise_acf,sstr=fstr)
+                (trng,tht,tne,tnoise,tfits,terrs,tmod_ACF,tmeas_ACF,terrs_ACF,tfitinfo,modelOut,Gmag)=self.call_fitter(S,Noise,perturbation_noise_acf,IIrec, sstr=fstr)
 
                 self.FITS['Range']=trng
                 self.FITS['Altitude']=tht

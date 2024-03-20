@@ -376,7 +376,7 @@ class Run_Fitter:
                 # Variance
                 tAcfVar = sig**2 * (1.0 + 1.0 / np.absolute(tSnr) + S['Acf']['iSCR'] * NSUM)**2.0 / (K.astype(float) * NSUM) # theoretical variances
                 # Additional variance due to noise subtraction
-                tAcfVar[0] = tAcfVar[0] + np.real(Noise['Power']['Data'][Ibm])**2 / Noise['Power']['PulsesIntegrated'][Ibm].astype(float)
+                tAcfVar[0] = tAcfVar[0] + float(Noise['Power']['Data'][Ibm])**2 / Noise['Power']['PulsesIntegrated'][Ibm].astype(float)
 
                 # Height and range
                 HT[Ibm,Iht]=np.mean(Altitude[Ibm,int(htI+SummationRule[0,0]):int(htI+SummationRule[1,0]+1)])
@@ -579,7 +579,7 @@ class Run_Fitter:
                         # get initial guess for additional noise as 1% of measured noise
                         # Then add it to the param0 and scaler arrays, but at the beginning.
                         if nloops == 1:
-                            noise0 = np.real(Noise['Power']['Data'][Ibm]) * 0.01
+                            noise0 = float(Noise['Power']['Data'][Ibm]) * 0.01
 
                         if self.FITOPTS['PERTURBATION_NOISE']:
                             params0 = np.concatenate((np.array([noise0]),params0))
@@ -588,7 +588,7 @@ class Run_Fitter:
                         # The variance of the measured noise will be used to weight the amount of allowed
                         # perturbation noise ACF. 
                         K_noise = Noise['Power']['PulsesIntegrated'][Ibm]
-                        noise_var = np.real(Noise['Power']['Data'][Ibm]) / K_noise
+                        noise_var = float(Noise['Power']['Data'][Ibm]) / K_noise
 
                         # do the fit
                         if self.FITOPTS['fitSpectra']==1:
@@ -686,7 +686,7 @@ class Run_Fitter:
                     # store output
                     ne_out[Ibm,Iht,0]=tNe
                     noise_out[Ibm,Iht,0]=noise0
-                    noise_out[Ibm,Iht,2]=np.real(Noise['Power']['Data'][Ibm])
+                    noise_out[Ibm,Iht,2]=float(Noise['Power']['Data'][Ibm])
                     FITS_out[Ibm,Iht,:,0]=ni
                     FITS_out[Ibm,Iht,:,1]=ti
                     FITS_out[Ibm,Iht,:,2]=psi
