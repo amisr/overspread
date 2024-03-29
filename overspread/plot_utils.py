@@ -528,8 +528,13 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
     if len(ax)==0 or figg==-542:
         (figg,ax)=multi_axes(nrows,ncols)
     pyplot.figure(figg.number)
-
+    spec_data = []
     for ii in range(ncols):
+        freq_data = []
+        err_data = []
+        model_data = []
+        measure_data = []
+        alt_data = []
         rr=Ibeams[ii]
         ax[ii].clear()
         if Ialt==-1:
@@ -546,11 +551,21 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
             if ploterrs:
                 yerr=sc*smeas[rr,:,jj]*derr
                 #print(yerr)
-                ax[ii].errorbar(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],yerr=sc*smeas[rr,:,jj]*derr,fmt='r-')
+                yerr = abs(yerr)
+                ax[ii].errorbar(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],yerr=yerr,fmt='r-')
+                err_data.append(sc*smeas[rr,:,jj]*derr)
+                measure_data.append(alt[rr,jj]+sc*smeas[rr,:,jj])
             else:
                 ax[ii].plot(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],'r-')
+                measure_data.append(alt[rr,jj]+sc*smeas[rr,:,jj])
+                err_data.append(np.zeros_like(alt[rr,jj]+sc*smeas[rr,:,jj]))
+
             ax[ii].plot(freqs,alt[rr,jj]+sc*smod[rr,:,jj],'k')
             ax[ii].plot(freqs,freqs/freqs*alt[rr,jj],'k--')
+            model_data.append(alt[rr,jj]+sc*smod[rr,:,jj])
+            alt_data.append(freqs/freqs*alt[rr,jj])
+            freq_data.append(freqs)
+        spec_data.append([measure_data, err_data, model_data, alt_data, freq_data])
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlim([freqs[0],freqs[-1]])
         ax[ii].set_xlabel(xl, fontsize=labsize)
@@ -562,7 +577,7 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
         tt=r"$(%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (bmcodes[rr,1],bmcodes[rr,2])
         ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
 
-    return figg,ax
+    return figg,ax,spec_data
 
 def test_plot(RF,irec,ax=[],figg=-542,xlims=[(0.01,10),(0,3),(-1,1)],maxbeams=10,Ibeams=[],dofrac=0):
 

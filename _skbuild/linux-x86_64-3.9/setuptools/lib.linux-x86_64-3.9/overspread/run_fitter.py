@@ -9,6 +9,7 @@ last revised: xx/xx/2017
 """
 import os
 import sys
+import h5py
 
 from .__init__ import __version__, __file__
 version = __version__
@@ -827,6 +828,7 @@ class Run_Fitter:
         self.OPTS['pcolClims'] = eval(io_utils.ini_tool(config,'OUTPUT','pcolClims',required=0,defaultParm='[]'))
         self.OPTS['ComputeMLT'] = eval(io_utils.ini_tool(config,'OUTPUT','ComputeMLT',required=0,defaultParm='1'))
         self.OPTS['dumpSpectra'] = eval(io_utils.ini_tool(config,'OUTPUT','dumpSpectra',required=0,defaultParm='0'))
+        self.OPTS['saveSpectra'] = eval(io_utils.ini_tool(config,'OUTPUT','saveSpectra',required=0,defaultParm='0'))
         self.OPTS['h5DataPath'] = io_utils.ini_tool(config,'OUTPUT','h5DataPath',required=0,defaultParm=self.DEFOPTS['h5DataPaths_DEF'][self.OPTS['proc_funcname']])
         self.OPTS['dynamicAlts'] = eval(io_utils.ini_tool(config,'OUTPUT','dynamicAlts',required=0,defaultParm='0'))
         self.OPTS['saveACFs'] = eval(io_utils.ini_tool(config,'OUTPUT','saveACFs',required=0,defaultParm='0'))
@@ -1614,10 +1616,15 @@ class Run_Fitter:
                             oname='acf ' + title + '.png'
                             figg2.savefig(os.path.join(self.OPTS['plotsdir'],oname))
 
+
+                        
                         if self.OPTS['dumpSpectra']>0:
                             print("Plotting Spectra...")
+                            spec_data = []
                             try:
-                                (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
+                            	terrs_ACF = np.abs(terrs_ACF)
+                            #print(terrs_ACF)
+                            	(figg6,ax6,spec_data)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                             except Exception as e:
                                 print("Plotting failed: "+str(e))
                                 figg6 = None
@@ -1626,7 +1633,16 @@ class Run_Fitter:
                                 oname='spc ' + title + '.png'
                                 figg6.savefig(os.path.join(self.OPTS['plotsdir'],oname))
 
+                            if (self.OPTS['saveSpectra']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg6 is not None):
+                                with h5py.File(os.path.join(self.OPTS['plotsdir'],'Spectra.h5'),'w') as f:
+                                    f.create_dataset('measured_frequency',data=spec_data[0])
+                                    f.create_dataset('measured_frequency_err', data=spec_data[1])
+                                    f.create_dataset('model_frequency', data=spec_data[2])
+                                    f.create_dataset('altitude', data=spec_data[3])
+                                    f.create_dataset('frequency', data=spec_data[4])
 
+                               # np.savetxt(os.path.join(self.OPTS['plotsdir'],np.array(spec_data)))
+  
                     if self.OPTS['dumpSpectra']>1:
                         try:
                             (figg3,ax3,figg4,ax4,figg5,ax5)=plot_utils.spc_pcolor_plot(tmeas_ACF,tmod_ACF,1.0/self.S['Acf']['Lags'][0,-1]/2.0,tht/1000.0,
@@ -1639,6 +1655,8 @@ class Run_Fitter:
                             figg3.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Measured.png'))
                             figg4.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Modeled.png'))
                             figg5.savefig(os.path.join(self.OPTS['plotsdir'],'Spectra','Spectra ' + title + ' Residual.png'))
+
+
 
                     pyplot.close('all')
                     del figg1
