@@ -1621,26 +1621,29 @@ class Run_Fitter:
                         if self.OPTS['dumpSpectra']>0:
                             print("Plotting Spectra...")
                             spec_data = []
+                            bm_info = []
                             try:
                             	terrs_ACF = np.abs(terrs_ACF)
                             #print(terrs_ACF)
-                            	(figg6,ax6,spec_data)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
+                            	(figg6,ax6,spec_data,bm_info)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                             except Exception as e:
                                 print("Plotting failed: "+str(e))
                                 figg6 = None
-
                             if (self.OPTS['saveplots']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg6 is not None):
                                 oname='spc ' + title + '.png'
                                 figg6.savefig(os.path.join(self.OPTS['plotsdir'],oname))
 
                             if (self.OPTS['saveSpectra']==1) and (os.path.exists(self.OPTS['plotsdir'])) and (figg6 is not None):
-                                with h5py.File(os.path.join(self.OPTS['plotsdir'],'Spectra.h5'),'w') as f:
-                                    f.create_dataset('measured_frequency',data=spec_data[0])
-                                    f.create_dataset('measured_frequency_err', data=spec_data[1])
-                                    f.create_dataset('model_frequency', data=spec_data[2])
-                                    f.create_dataset('altitude', data=spec_data[3])
-                                    f.create_dataset('frequency', data=spec_data[4])
-
+                                oname='spc ' + title + '.h5'
+                                with h5py.File(os.path.join(self.OPTS['plotsdir'],oname),'w') as f:
+                                    f.create_dataset('measured_spectra',data=spec_data[0])
+                                    f.create_dataset('measured_spectra_err', data=spec_data[1])
+                                    f.create_dataset('model_spectra', data=spec_data[2])
+                                    f.create_dataset('altitude', data=np.array(spec_data[3][0]).T[0], dtype='f')
+                                    f.create_dataset('frequency', data=spec_data[4][0][0], dtype='f')
+                                    f.create_dataset('beamcode', data=bm_info[0], dtype='i')
+                                    f.create_dataset('azimuth', data=bm_info[1], dtype='f')
+                                    f.create_dataset('elevation', data=bm_info[2], dtype='f')
                                # np.savetxt(os.path.join(self.OPTS['plotsdir'],np.array(spec_data)))
   
                     if self.OPTS['dumpSpectra']>1:

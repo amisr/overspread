@@ -484,12 +484,14 @@ def acf_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
 
 
 def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibeams=[],measSpc=0,fsc=1.0,Ialt=-1,ylim=-1,scfac=1.0,ploterrs=1,zeroline=1):
-
     textsize = 8        # size for axes text
     labsize = 10
     #print(alt)
     (Nbeams,Nlags,Nhts)=meas.shape
     nrows=1
+
+    total_beams = Ibeams
+
     if len(Ibeams)==0:
         ncols=Nbeams
         Ibeams=range(ncols)
@@ -528,13 +530,9 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
     if len(ax)==0 or figg==-542:
         (figg,ax)=multi_axes(nrows,ncols)
     pyplot.figure(figg.number)
-    spec_data = []
+
+
     for ii in range(ncols):
-        freq_data = []
-        err_data = []
-        model_data = []
-        measure_data = []
-        alt_data = []
         rr=Ibeams[ii]
         ax[ii].clear()
         if Ialt==-1:
@@ -553,19 +551,13 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
                 #print(yerr)
                 yerr = abs(yerr)
                 ax[ii].errorbar(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],yerr=yerr,fmt='r-')
-                err_data.append(sc*smeas[rr,:,jj]*derr)
-                measure_data.append(alt[rr,jj]+sc*smeas[rr,:,jj])
+             
             else:
                 ax[ii].plot(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],'r-')
-                measure_data.append(alt[rr,jj]+sc*smeas[rr,:,jj])
-                err_data.append(np.zeros_like(alt[rr,jj]+sc*smeas[rr,:,jj]))
 
             ax[ii].plot(freqs,alt[rr,jj]+sc*smod[rr,:,jj],'k')
             ax[ii].plot(freqs,freqs/freqs*alt[rr,jj],'k--')
-            model_data.append(alt[rr,jj]+sc*smod[rr,:,jj])
-            alt_data.append(freqs/freqs*alt[rr,jj])
-            freq_data.append(freqs)
-        spec_data.append([measure_data, err_data, model_data, alt_data, freq_data])
+       
         ax[ii].set_ylim(ylim)
         ax[ii].set_xlim([freqs[0],freqs[-1]])
         ax[ii].set_xlabel(xl, fontsize=labsize)
@@ -577,7 +569,124 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
         tt=r"$(%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (bmcodes[rr,1],bmcodes[rr,2])
         ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')
 
-    return figg,ax,spec_data
+    ncols = len(total_beams)
+    Ibeams=range(ncols)
+    nrows=1
+
+    ii=np.where(np.isfinite(alt))
+    dh=(alt[Ibeams[0],1]-alt[Ibeams[0],0])/2.0
+
+    if measSpc==0:
+        Iy=np.where(np.absolute(np.nansum(mod[0,:,:],1))>0.0)[0]
+        meas=meas[:,Iy,:]; mod=mod[:,Iy,:]; errs=errs[:,Iy,:]
+        if np.all(np.isnan(np.absolute(meas[:,0,:]))):
+            meas[:,0,:]=mod[:,0,:]
+
+        # compute spectra
+        tmp=np.concatenate((meas,np.conjugate(meas[:,:0:-1,:])),axis=1) # hermitian extension
+        smeas=np.real(np.fft.fftshift(np.fft.fft(tmp,axis=1),axes=[1])) # compute spectra
+
+        # compute spectra
+        tmp=np.concatenate((mod,np.conjugate(mod[:,:0:-1,:])),axis=1) # hermitian extension
+        smod=np.real(np.fft.fftshift(np.fft.fft(tmp,axis=1),axes=[1])) # compute spectra
+
+        freqs=np.arange(-meas.shape[1]+1,meas.shape[1])*fsc
+
+    else:
+        smeas=meas; smod=mod
+        freqs=np.arange(-np.ceil(meas.shape[1]/2.0)+1,np.ceil(meas.shape[1]/2.0))*fsc
+
+
+    spec_data = []
+    freq_data_bm = []
+    err_data_bm = []
+    model_data_bm = []
+    measure_data_bm = []
+    alt_data_bm = []
+    bm_bm = []
+    bm_az = []
+    bm_el = []
+    bm_info = []
+    Ialt=-1
+
+    for ii in range(ncols):
+       # print('ii', ii)
+        freq_data = []
+        err_data = []
+        model_data = []
+        measure_data = []
+        alt_data = []
+
+       # print('rr')
+        rr=Ibeams[ii]
+       # print('end rr')
+        #ax[ii].clear()
+
+       # print('Ialt')
+        if Ialt==-1:
+            Ialtt=range(Nhts)
+        else:
+            Ialtt=Ialt[ii]
+       # print('End Ialt')
+        for jj in Ialtt:
+         #   print('dh')
+            try:
+                dh=(alt[rr,jj+1]-alt[rr,jj])/2.0
+            except:
+                ''
+            #print('end dh')
+
+            #print('sc')
+            sc=scfac/np.absolute(smeas[rr,:,jj]).max()*dh
+            derr=np.sqrt(errs[rr,1,jj])/meas[rr,1,jj]
+            #print('end')
+            if ploterrs:
+                #print('yerr')
+                yerr=sc*smeas[rr,:,jj]*derr
+                #print(yerr)
+                yerr = abs(yerr)
+                #print('end yerr')
+               # ax[ii].errorbar(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],yerr=yerr,fmt='r-')
+                err_data.append(sc*smeas[rr,:,jj]*derr)
+                measure_data.append(alt[rr,jj]+sc*smeas[rr,:,jj])
+            else:
+                #ax[ii].plot(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],'r-')
+                measure_data.append(alt[rr,jj]+sc*smeas[rr,:,jj])
+                err_data.append(np.zeros_like(alt[rr,jj]+sc*smeas[rr,:,jj]))
+
+           # ax[ii].plot(freqs,alt[rr,jj]+sc*smod[rr,:,jj],'k')
+           #ax[ii].plot(freqs,freqs/freqs*alt[rr,jj],'k--')
+            model_data.append(alt[rr,jj]+sc*smod[rr,:,jj])
+            alt_data.append(freqs/freqs*alt[rr,jj])
+            freq_data.append(freqs)
+       
+        #spec_data.append([measure_data, err_data, model_data, alt_data, freq_data])
+        measure_data_bm.append(measure_data)
+        err_data_bm.append(err_data)
+        model_data_bm.append(model_data)
+        alt_data_bm.append(alt_data)
+        freq_data_bm.append(freq_data)
+        #ax[ii].set_ylim(ylim)
+        #ax[ii].set_xlim([freqs[0],freqs[-1]])
+        #ax[ii].set_xlabel(xl, fontsize=labsize)
+        
+
+       #tt=r"$(%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (bmcodes[rr,1],bmcodes[rr,2])
+        bm_bm.append(bmcodes[rr,0])
+        bm_az.append(bmcodes[rr,1])
+        bm_el.append(bmcodes[rr,2])
+        #ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')    
+    #spec_data.append([measure_data_bm, err_data_bm, model_data_bm, alt_data_bm, freq_data_bm])
+    spec_data.append(measure_data_bm)
+    spec_data.append(err_data_bm)
+    spec_data.append(model_data_bm)
+    spec_data.append(alt_data_bm)
+    spec_data.append(freq_data_bm)
+    bm_info.append(bm_bm)
+    bm_info.append(bm_az)
+    bm_info.append(bm_el)
+    
+    return figg,ax,spec_data,bm_info
 
 def test_plot(RF,irec,ax=[],figg=-542,xlims=[(0.01,10),(0,3),(-1,1)],maxbeams=10,Ibeams=[],dofrac=0):
 
