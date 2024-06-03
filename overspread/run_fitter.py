@@ -442,7 +442,7 @@ class Run_Fitter:
                 nui = np.array(nui)
 
                 # initial flip ion chemistry, with te=ti=tn and Ne = initial guess
-                fc = Flipchem(self.Time['datetime'],altop=300.0)
+                fc = Flipchem(self.Time['datetime'], altop=self.FITOPTS['FlipchemAltop'])
                 fc_outputs = fc.get_point(glat,glon,alt,tNe,tn,tn,msis_outputs=msis_outputs)
                 LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = fc_outputs
                 models['SolarZen'][Ibm,Iht] = SZAD
@@ -662,10 +662,10 @@ class Run_Fitter:
                             if tte<ttn:  tte=ttn
                             tOXPLUS = OXPLUS
 
-                            fc = Flipchem(self.Time['datetime'],altop=300.0)
+                            fc = Flipchem(self.Time['datetime'], altop=self.FITOPTS['FlipchemAltop'])
                             fc_outputs = fc.get_point(glat,glon,alt,tNe,tte,tti,msis_outputs=msis_outputs)
                             LTHRS,SZAD,DEC,OXPLUS,O2PLUS,NOPLUS,N2PLUS,NPLUS,NNO,N2D,INEWT = fc_outputs
-                            
+
                             OXPLUS /= tNe
                             O2PLUS /= tNe
                             NOPLUS /= tNe
@@ -854,6 +854,7 @@ class Run_Fitter:
             raise ValueError("LagrangeParams must be a list of length 3. Te, Ti, and Ne penalties.")
         self.FITOPTS['procMedian'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','procMedian',required=0,defaultParm='0'))
         self.FITOPTS['molecularModel'] = float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','molecularModel',required=0,defaultParm='0')))
+        self.FITOPTS['FlipchemAltop'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','FlipchemAltop',required=0,defaultParm='300.0'))
         self.FITOPTS['molmodFile'] = io_utils.ini_tool(config,'FIT_OPTIONS','molmodFile',required=0,defaultParm='')
         self.FITOPTS['z50'] = float(eval(io_utils.ini_tool(config,'FIT_OPTIONS','z50',required=0,defaultParm='150.0')))
         self.FITOPTS['fitSpectra'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','fitSpectra',required=0,defaultParm='0'))
