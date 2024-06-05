@@ -1,4 +1,5 @@
 
+import sys
 import os
 import numpy as np
 import datetime as dt
@@ -8,6 +9,7 @@ matplotlib.use('Agg')
 from matplotlib import pyplot
 from matplotlib import cm
 import matplotlib.dates
+import copy
 
 
 # TO DO, add the ability to plot all ions back in to the code.
@@ -94,7 +96,8 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,save_fig_name=No
 
     # Colormap to use.
     cmap='jet'
-    cmap_to_use = cm.get_cmap(cmap)
+    cmap_to_use = copy.copy(cm.get_cmap(cmap))
+    # future versions will not allow to modify registered colormaps in-place
     cmap_to_use.set_bad('w',0)
 
     # Then set up some x-axis time formatting that is common to all of the
@@ -220,8 +223,10 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,save_fig_name=No
         ax[ii].yaxis.set_ticklabels([])
         ax[ii].tick_params(axis='y',labelsize=textsize)
 
-        t = ax[ii].get_xticklabels()
-        ax[ii].set_xticklabels(t,rotation=90)
+        cbar_labels = ax[ii].get_xticklabels()
+        for cbar_label in cbar_labels:
+            cbar_label.set_rotation(90)
+        #ax[ii].set_xticklabels(t,rotation=90)
         cl.set_label(text,fontsize=labsize*1.25)
 
         # Set any remaining axes invisible (ones where we didn't plot data)
@@ -280,6 +285,7 @@ def pcolor_plot_all(plot_info, data):
     ne_notr = np.real(np.log10(ne_notr))
 
     snr = data['NeFromPower']['snr']
+    inds = np.where(snr <= 0)
     snr[inds] = np.nan
     snr = 10.0*np.real(np.log10(snr))
 
@@ -625,8 +631,6 @@ def usage():
 
 if __name__ == "__main__":
 
-    from datetime import datetime
-    import sys
 
     # Parse input
     data_file = sys.argv[1]
@@ -648,6 +652,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
     # Make the plots
-    now = datetime.now()
-    replot_pcolor_all(data_file,saveplots=1,opath=plots_dir) #,clims=clims)
-    print('It took %d seconds to plot the data.' % (datetime.now()-now).total_seconds())
+    now = dt.datetime.now()
+    clims=[[10,12],[0,2000],[0,3000],[0,4],[-500,500]]
+    replot_pcolor_all(data_file,saveplots=1,opath=plots_dir, clims=clims)
+    print('It took %d seconds to plot the data.' % (dt.datetime.now()-now).total_seconds())

@@ -1765,7 +1765,7 @@ class Run_Fitter:
             if len(self.OPTS['pcolClims']) > 0:
                 clim = self.OPTS['pcolClims']
             else:
-                clim = [[10,12],[0,1500],[0,3000],[0,4],[-500,500]]
+                clim = [[10,12],[0,2000],[0,3000],[0,4],[-500,500]]
             if len(self.OPTS['pcolYlims']) > 0:
                 nonfitted_ylim = self.OPTS['pcolYlims']
                 fitted_ylim = self.OPTS['pcolYlims']
