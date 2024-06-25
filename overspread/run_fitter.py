@@ -1640,7 +1640,7 @@ class Run_Fitter:
                                     f.create_dataset('measured_spectra',data=spec_data[0])
                                     f.create_dataset('measured_spectra_err', data=spec_data[1])
                                     f.create_dataset('model_spectra', data=spec_data[2])
-                                    f.create_dataset('altitude', data=np.array(spec_data[3][0]).T[0], dtype='f')
+                                    f.create_dataset('altitude', data=np.array(spec_data[3]).T[0], dtype='f')
                                     f.create_dataset('frequency', data=spec_data[4][0][0], dtype='f')
                                     f.create_dataset('beamcode', data=bm_info[0], dtype='i')
                                     f.create_dataset('azimuth', data=bm_info[1], dtype='f')

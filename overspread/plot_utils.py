@@ -610,73 +610,50 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
     Ialt=-1
 
     for ii in range(ncols):
-       # print('ii', ii)
         freq_data = []
         err_data = []
         model_data = []
         measure_data = []
         alt_data = []
 
-       # print('rr')
         rr=Ibeams[ii]
-       # print('end rr')
-        #ax[ii].clear()
 
-       # print('Ialt')
         if Ialt==-1:
             Ialtt=range(Nhts)
         else:
             Ialtt=Ialt[ii]
-       # print('End Ialt')
         for jj in Ialtt:
-         #   print('dh')
             try:
                 dh=(alt[rr,jj+1]-alt[rr,jj])/2.0
             except:
                 ''
-            #print('end dh')
 
-            #print('sc')
             sc=scfac/np.absolute(smeas[rr,:,jj]).max()*dh
             derr=np.sqrt(errs[rr,1,jj])/meas[rr,1,jj]
-            #print('end')
             if ploterrs:
-                #print('yerr')
                 yerr=sc*smeas[rr,:,jj]*derr
-                #print(yerr)
                 yerr = abs(yerr)
-                #print('end yerr')
-               # ax[ii].errorbar(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],yerr=yerr,fmt='r-')
                 err_data.append(sc*smeas[rr,:,jj]*derr)
                 measure_data.append(alt[rr,jj]+sc*smeas[rr,:,jj])
             else:
-                #ax[ii].plot(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],'r-')
                 measure_data.append(alt[rr,jj]+sc*smeas[rr,:,jj])
                 err_data.append(np.zeros_like(alt[rr,jj]+sc*smeas[rr,:,jj]))
 
-           # ax[ii].plot(freqs,alt[rr,jj]+sc*smod[rr,:,jj],'k')
-           #ax[ii].plot(freqs,freqs/freqs*alt[rr,jj],'k--')
             model_data.append(alt[rr,jj]+sc*smod[rr,:,jj])
             alt_data.append(freqs/freqs*alt[rr,jj])
             freq_data.append(freqs)
        
-        #spec_data.append([measure_data, err_data, model_data, alt_data, freq_data])
         measure_data_bm.append(measure_data)
         err_data_bm.append(err_data)
         model_data_bm.append(model_data)
         alt_data_bm.append(alt_data)
         freq_data_bm.append(freq_data)
-        #ax[ii].set_ylim(ylim)
-        #ax[ii].set_xlim([freqs[0],freqs[-1]])
-        #ax[ii].set_xlabel(xl, fontsize=labsize)
         
 
-       #tt=r"$(%.1f^o \ \rm{az} , \ %.1f^o \ \rm{el})$" % (bmcodes[rr,1],bmcodes[rr,2])
         bm_bm.append(bmcodes[rr,0])
         bm_az.append(bmcodes[rr,1])
         bm_el.append(bmcodes[rr,2])
-        #ax[ii].set_title(tt, fontsize=labsize, horizontalalignment='center')    
-    #spec_data.append([measure_data_bm, err_data_bm, model_data_bm, alt_data_bm, freq_data_bm])
+    
     spec_data.append(measure_data_bm)
     spec_data.append(err_data_bm)
     spec_data.append(model_data_bm)
