@@ -1,4 +1,0 @@
-16 baud randomized strong alternating code with 20 us bauds and boxcar filter impulse response corresponding to 5 us sampling (fraction=2)
-
-a16code,signs=amb_func_utils.a16rand()
-compute_lamb(44,'../exps/filterfiles/blackman_05.00usec_020525.fco',[2,5],scipy.transpose(signs),[20,4],'../exps/ac16_20_os4/')

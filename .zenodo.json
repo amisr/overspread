@@ -1,0 +1,26 @@
+{
+  "license": {
+  "id": "GPL-v3.0"
+  }, 
+  "notes": "When referencing this package, please cite the package DOI, the apexpy (10.5281/zenodo.1214206), flipchem (doi:10.5281/zenodo.3688853), and pymap3d (doi:10.5281/zenodo.595430).", 
+  "keywords": [
+    "Fitting Algorithm",
+    "Ionosphere",
+    "MSIS",
+    "AMISR",
+    "Incoherent Scatter Radar",
+    "Collective Thomson Scatter",
+    "Space Physics",
+    "Heliophysics"
+  ], 
+  "creators": [
+    {
+      "orcid": "0000-0001-8267-6327",
+      "name": "Michael Nicolls",
+    }
+    {
+      "orcid": "0000-0002-4621-3453",
+      "name": "Ashton S. Reimer"
+    },
+  ]
+}

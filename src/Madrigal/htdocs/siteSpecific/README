@@ -1,3 +1,0 @@
-This directory is meant to hold site-specific documentation.  Put site-specific web documentation in this directory, and then add links to those files in the file madroot/doc/siteSpecific.html.  To install these changes on your server, cd madroot and run:
-
-tclsh configureHtml

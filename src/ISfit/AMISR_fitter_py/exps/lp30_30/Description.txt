@@ -1,3 +1,0 @@
-30 us long pulse with true filter impulse response corresponding to 30 us sampling
-
-compute_lamb(0,'../exps/filterfiles/blackman_30.00usec_051030.fco',[5,10],1,[30],'../exps/lp30_30/')

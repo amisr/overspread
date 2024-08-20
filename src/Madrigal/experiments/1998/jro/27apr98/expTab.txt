@@ -1,1 +1,0 @@
-330000000,http://www.invalid.edu/cgi-bin/madrigal/madtoc/1998/jro/27apr98,Wide Latitude Substorm Study,33,19980427,000000,19980501,000000,10,0
