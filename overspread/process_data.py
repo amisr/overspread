@@ -471,8 +471,8 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
         # S['Acf']['Kint'] = 1 / np.arange(Nbauds,0.0,-1.0)
         S['Acf']['Kint'] = np.arange(Nbauds,0.0,-1.0)
     else: # fractional lag  
-        # try:
-        if 1==1:
+         try:
+        #if 1==1:
             Lagind = fconts[h5DataPath+'/Acf']['Lagind']
             Lagmat = fconts[h5DataPath+'/Acf']['Lagmat']
             maxLag = Lagmat.max()+1
@@ -491,9 +491,9 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
                     S['Acf']['Kint'][Lagmat[ilag]] = Nbauds - whole_lag_num
                 Nlags = maxLag
             S['Acf']['Kint'] *= factor
-        # except Exception as e:
-        #     print('Exception: %s' % str(e))
-        #     S['Acf']['Kint'] = np.ones((Nlags))/(Nbauds)
+         except Exception as e:
+             print('Exception: %s' % str(e))
+             S['Acf']['Kint'] = np.ones((Nlags))/(Nbauds)
 
     S['Acf']['Lag1Index'] = np.where(np.absolute(np.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']) == np.absolute(np.squeeze(S['Acf']['Lags'])-S['Acf']['TxBaud']).min())[0][0]
 
@@ -1407,8 +1407,6 @@ def process_barkercode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',B
         # get the beamcodes
         if BeamCodes is None:
             a=fconts['/Setup']['BeamcodeMap']
-            #print(fconts['/Setup'])
-            #print(fconts['/Setup']['BeamcodeMap'][:,3])
             if np.sum(fconts['/Setup']['BeamcodeMap'][:,3])==0.0:
                 try:
                     f=open(acfopts['DEFOPTS']['BMCODEMAP_DEF'])
@@ -1488,8 +1486,6 @@ def process_barkercode_multifreq(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5Dat
     for ii in range(Nfreqs):
         if len(Irecs[ii])>0:
             tS,tN,tC=process_barkercode(fconts[ii],Irecs[ii],acfopts,Amb,doamb=doamb,extCal=extCal,h5DataPath=h5DataPath,BeamCodes=BeamCodes)
-            print(tN['Power']['PulsesIntegrated'].shape)
-            print(tN['Power']['Data'].shape)
             if ii==0:
                 S=tS.copy(); N=tN.copy(); C=tC.copy()
                 # Power

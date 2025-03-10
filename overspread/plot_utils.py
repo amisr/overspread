@@ -63,7 +63,6 @@ def geoplot(az,el,rng,ht,plat,plong,dip,dec,Ibeam=[]):
 #       t=r'$%d: \ %2.1f^o,\ %2.1f^o$' % (ii,az[ii],el[ii])
         ri=np.where(np.array(Ibeam)==ii)[0]
         t=r'$%d$' % (ri+1)
-        #print(ri)
 
         ax.text(theta[ii],r[ii],t,fontsize=labsize, horizontalalignment='right')
 
@@ -320,7 +319,6 @@ def pcolor_plot(x,y,data,cax,xlim,ylim,xl,yl,title,text,bmcodes,log=0,ax=[],figg
     for ii in range(Nbeams):
         iiB=Ibeam[ii]
         ialt = np.where(np.isfinite(y[iiB,:]))[0]
-        print(data.shape[0]*data.shape[2])
         ax[ii].clear()
         if (data.shape[0]*data.shape[2])>2.5e4:
             pc=ax[ii].imshow(np.transpose(data[:,iiB,ialt]),vmin=cax[0],vmax=cax[1],origin='lower',extent=(x.min(), x.max(), np.nanmin(y[iiB,:]), np.nanmax(y[iiB,:])),aspect='auto')
@@ -486,7 +484,6 @@ def acf_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
 def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibeams=[],measSpc=0,fsc=1.0,Ialt=-1,ylim=-1,scfac=1.0,ploterrs=1,zeroline=1):
     textsize = 8        # size for axes text
     labsize = 10
-    #print(alt)
     (Nbeams,Nlags,Nhts)=meas.shape
     nrows=1
 
@@ -548,7 +545,6 @@ def spc_plot(meas,errs,mod,alt,bmcodes,title='',ax=[],figg=-542,maxbeams=10,Ibea
             derr=np.sqrt(errs[rr,1,jj])/meas[rr,1,jj]
             if ploterrs:
                 yerr=sc*smeas[rr,:,jj]*derr
-                #print(yerr)
                 yerr = abs(yerr)
                 ax[ii].errorbar(freqs,alt[rr,jj]+sc*smeas[rr,:,jj],yerr=yerr,fmt='r-')
              

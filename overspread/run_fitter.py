@@ -576,7 +576,6 @@ class Run_Fitter:
                                 ii=ii+I.size
                         iparams0=params0.copy()
 
-
                         # get initial guess for additional noise as 1% of measured noise
                         # Then add it to the param0 and scaler arrays, but at the beginning.
                         if nloops == 1:
@@ -619,7 +618,6 @@ class Run_Fitter:
                                 fitinfo['fitcode'][Ibm,Iht]=-45
                         else:
                             cov_x=np.sqrt(np.diag(cov_x))*scaler
-                            #print(np.shape(terr[IfitMR]),np.shape(cov_x))
                             if self.FITOPTS['PERTURBATION_NOISE']:
                                 terr[IfitMR]=cov_x[2:]
                             else:
@@ -832,7 +830,6 @@ class Run_Fitter:
         self.OPTS['h5DataPath'] = io_utils.ini_tool(config,'OUTPUT','h5DataPath',required=0,defaultParm=self.DEFOPTS['h5DataPaths_DEF'][self.OPTS['proc_funcname']])
         self.OPTS['dynamicAlts'] = eval(io_utils.ini_tool(config,'OUTPUT','dynamicAlts',required=0,defaultParm='0'))
         self.OPTS['saveACFs'] = eval(io_utils.ini_tool(config,'OUTPUT','saveACFs',required=0,defaultParm='0'))
-
         # Fit Options section
         self.FITOPTS['txpow'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','txpow',required=0,defaultParm='None'))
         self.FITOPTS['DO_FITS'] = eval(io_utils.ini_tool(config,'FIT_OPTIONS','DO_FITS',required=1,defaultParm=''))
@@ -1095,26 +1092,21 @@ class Run_Fitter:
         files=[]
         input_files = []
         for ii in range(NFREQ): # for each of the frequencies
-            #print(self.OPTS['FILELIST'][ii])
             f=open(self.OPTS['FILELIST'][ii]) # open
             files.append(f.readlines()) # read list
             f.close() # close
             input_files.append(list())
-            #print(files)
             for ir in range(len(files[ii])):
                 files[ii][ir]=files[ii][ir].rstrip('\n')
                 files[ii][ir]=files[ii][ir].rstrip('\r')
-            #print(files)
             for ir in range(files[ii].count('')):
                 files[ii].remove('')
                 files[ii].remove('\n')
                 files[ii].remove('\r')
-            #print(files)
             files2=copy.copy(files[ii])
             for ir in range(len(files2)):
                 for path in self.OPTS['ipath']:
                     tfiles=glob.glob(os.path.join(path,files2[ir]))
-                        # print(tfiles)
                     files[ii].extend(tfiles)
                 files[ii].remove(files2[ir])
 
@@ -1295,7 +1287,6 @@ class Run_Fitter:
             if done==1 and Irecs[0][-1]==-1:
                 break;
 
-            # print(the record numbers)
             print('\nFile Group ' + str(frec) + ' of ' + str(num_file_groups))
             print('Integration Number: ' + str(IIrec+1) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1]))
             fstr='File Group %d of %d, Rec %d, ' % (frec,num_file_groups,IIrec+1)
@@ -1478,8 +1469,6 @@ class Run_Fitter:
 
             # Trim data based on beam
             if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes
-                #print(Cal)
-                #print(Noise)
                 S=process_data.trim_Ibeams(S,Ibeams,Nbeams)
                 Noise=process_data.trim_Ibeams(Noise,Ibeams,Nbeams)
 
@@ -1625,7 +1614,6 @@ class Run_Fitter:
                             bm_info = []
                             try:
                             	terrs_ACF = np.abs(terrs_ACF)
-                            #print(terrs_ACF)
                             	(figg6,ax6,spec_data,bm_info)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                             except Exception as e:
                                 print("Plotting failed: "+str(e))
