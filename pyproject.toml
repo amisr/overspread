@@ -13,7 +13,7 @@ maintainers = [
   {name = 'Pablo M. Reyes', email = 'pablo.reyes@sri.com'},
 ]
 
-dependencies = ["numpy", "h5py", "matplotlib", "tables", "apexpy", "scipy"]
+dependencies = ["numpy", "h5py", "matplotlib", "tables", "apexpy", "scipy", "pymap3d", "flipchem"]
 
 [project.scripts]
 run_fitter = "overspread.run_fitter:main"

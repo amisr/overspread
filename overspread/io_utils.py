@@ -6,7 +6,13 @@ xxxxx
 ~M. Nicolls
 last revised: xx/xx/2007
 
+-P. Reyes
+last revised: 04/14/2026
+changing some deprecated scipy functions to numpy
+
 """
+
+import numpy as np
 import scipy
 import tables
 import os
@@ -81,7 +87,7 @@ def write_outputfile(fhandle,dict2do,keys2do=[],groupname='',name='',grouploc='/
         except:
             ''
         if isinstance(dict2do,str):
-            dict2do = scipy.array(dict2do)
+            dict2do = np.array(dict2do)
         fhandle.create_array(group,name, dict2do, "Dataset")
     else:
         for key in keys2do:
@@ -104,14 +110,14 @@ def createStaticArray(fhandle,path,data,keys2do=[]):
     if len(keys2do) == 0:
         dp,dn = os.path.split(path)
         if isinstance(data,str):
-            dat = scipy.array(data)
+            dat = np.array(data)
         else:
             dat = data
         fhandle.create_array(dp,dn,dat,'Static array')
     else:
         for key in keys2do:
             if isinstance(data[key],str):
-                dat = scipy.array(data[key])
+                dat = np.array(data[key])
             else:
                 dat = data[key]
             fhandle.create_array(path,key,dat,'Static array')
@@ -137,7 +143,7 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                 # remove old node
                 arr.remove()
                 tshape=list(tarr.shape); tshape[2]=data.shape[2]-tarr.shape[2]
-                tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)
+                tarr=np.append(tarr,np.zeros(tshape)*np.nan,axis=2)
                 # create new node
                 shape = list(tarr.shape)
                 shape[0] = 0
@@ -149,12 +155,12 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                 arr.append(tarr)
             else:
                 tshape = list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
-                data = scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
+                data = np.append(data,np.zeros(tshape)*np.nan,axis=2)
         arr.append(data)
         arr.flush()
     else:
         for key in keys2do:
-            data = scipy.array(rec[key])
+            data = np.array(rec[key])
             data.shape = (1,)+data.shape  ## add integration dimension to data array
             if not fhandle.__contains__(path+'/'+key):
                 shape = list(data.shape)
@@ -170,7 +176,7 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                     # remove old node
                     arr.remove()
                     tshape=list(tarr.shape); tshape[2]=data.shape[2]-tarr.shape[2]
-                    tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)
+                    tarr=np.append(tarr,np.zeros(tshape)*np.nan,axis=2)
                     # create new node
                     shape = list(tarr.shape)
                     shape[0] = 0
@@ -182,7 +188,7 @@ def createDynamicArray(fhandle,path,rec,keys2do=[]):
                     arr.append(tarr)
                 else:
                     tshape=list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
-                    data=scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
+                    data=np.append(data,np.zeros(tshape)*np.nan,axis=2)
             arr.append(data)
             arr.flush()
     return
@@ -215,7 +221,7 @@ def createDynamicArray2(fhandle,path,rec,keys2do=[]):
                 # remove old node
                 arr.remove()
                 tshape=list(tarr.shape); tshape[2]=data.shape[2]-tarr.shape[2]
-                tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)
+                tarr=np.append(tarr,np.zeros(tshape)*np.nan,axis=2)
                 # create new node
                 shape = list(tarr.shape)
                 shape[0] = 0
@@ -227,12 +233,12 @@ def createDynamicArray2(fhandle,path,rec,keys2do=[]):
                 arr.append(tarr)
             else:
                 tshape=list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
-                data=scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
+                data=np.append(data,np.zeros(tshape)*np.nan,axis=2)
         arr.append(data)
         arr.flush()
     else:
         for key in keys2do:
-            data = scipy.array(rec[key])
+            data = np.array(rec[key])
             #data.shape = (1,)+data.shape  ## add integration dimension to data array
             if not fhandle.__contains__(path+'/'+key):
                 shape = list(data.shape)
@@ -248,7 +254,7 @@ def createDynamicArray2(fhandle,path,rec,keys2do=[]):
                     # remove old node
                     arr.remove()
                     tshape=list(tarr.shape); tshape[2]=data.shape[2]-tarr.shape[2]
-                    tarr=scipy.append(tarr,scipy.zeros(tshape)*scipy.nan,axis=2)
+                    tarr=np.append(tarr,np.zeros(tshape)*np.nan,axis=2)
                     # create new node
                     shape = list(tarr.shape)
                     shape[0] = 0
@@ -260,7 +266,7 @@ def createDynamicArray2(fhandle,path,rec,keys2do=[]):
                     arr.append(tarr)
                 else:
                     tshape=list(data.shape); tshape[2]=arr.shape[2]-data.shape[2]
-                    data=scipy.append(data,scipy.zeros(tshape)*scipy.nan,axis=2)
+                    data=np.append(data,np.zeros(tshape)*np.nan,axis=2)
             arr.append(data)
             arr.flush()
     return

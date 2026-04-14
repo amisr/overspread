@@ -38,34 +38,34 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
         
     ii=1
     # are we fitting for  fraction?
-    I=scipy.where(Ifit[:,0]==1)[0]
+    I=np.where(Ifit[:,0]==1)[0]
     if I.size != 0: 
         tni[I]=parameter[ii:ii+I.size]
         ii=ii+I.size
-        I1=scipy.where(Ifit[:,0]==-1)[0]
+        I1=np.where(Ifit[:,0]==-1)[0]
         tni[I1]=1.0-tni[I[0]]
     # are we fitting for temperature?
-    I=scipy.where(Ifit[:,1]==1)[0]
+    I=np.where(Ifit[:,1]==1)[0]
     if I.size != 0: 
         tti[I]=parameter[ii:ii+I.size]
         ii=ii+I.size
-        I1=scipy.where(Ifit[:,1]==-1)[0]
+        I1=np.where(Ifit[:,1]==-1)[0]
         tti[I1]=tti[I[0]]
     # are we fitting for collision frequency?
-    I=scipy.where(Ifit[:,2]==1)[0]
+    I=np.where(Ifit[:,2]==1)[0]
     if I.size != 0: 
         tpsi[I]=parameter[ii:ii+I.size]
         ii=ii+I.size
-        I1=scipy.where(Ifit[:,2]==-1)[0]
+        I1=np.where(Ifit[:,2]==-1)[0]
         tpsi[I1]=tpsi[I[0]]
         if Ifit[-1,2]==-1:
             tpsi[-1]=tpsi[-1]*0.35714
     # are we fitting for velocity?
-    I=scipy.where(Ifit[:,3]==1)[0]
+    I=np.where(Ifit[:,3]==1)[0]
     if I.size != 0: 
         tvi[I]=parameter[ii:ii+I.size]
         ii=ii+I.size
-        I1=scipy.where(Ifit[:,3]==-1)[0]
+        I1=np.where(Ifit[:,3]==-1)[0]
         tvi[I1]=tvi[I[0]]
     
     tni=tni/p_N0
@@ -83,14 +83,14 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
     (tau,acf)=spec2acf(freq,s)
 
     # interpolate acf
-    m2=scipy.zeros(dtau.size,dtype=complex);
+    m2=np.zeros(dtau.size,dtype=complex);
     m2.real=scipy.interpolate.interp1d(tau,acf.real,bounds_error=0)(dtau) # linear interpolation
     m2.imag=scipy.interpolate.interp1d(tau,acf.imag,bounds_error=0)(dtau) # linear interpolation
 
     # lag ambiguity function - weighted average
-    m=scipy.zeros(Wl.shape[1],dtype=complex)
+    m=np.zeros(Wl.shape[1],dtype=complex)
     for i in range(Wl.shape[1]):  
-        m[i]=scipy.nansum(Wl[:,i]*m2)
+        m[i]=np.nansum(Wl[:,i]*m2)
 
     # scaling factor
     m=m*Psc
@@ -100,16 +100,16 @@ def fit_fun(parameter,data,var,dtau,Wl,Psc,pldfvvr,pldfvvi,ct_spec,Ifit,freq,ni,
 		        
     # if we want to fit spectra, transform
     if fitSpectra==1:
-        tmp=scipy.concatenate((m,scipy.conjugate(m[:0:-1])),axis=0) # hermitian extension
+        tmp=np.concatenate((m,np.conjugate(m[:0:-1])),axis=0) # hermitian extension
         m=scipy.fftpack.fftshift(scipy.fftpack.fft(tmp,axis=0),axes=[0]) # compute spectra
-        y=(data-m)/scipy.sqrt(var)
+        y=(data-m)/np.sqrt(var)
     else:
-        y=scipy.concatenate(((data.real-m.real)/scipy.sqrt(var),(data.imag-m.imag)/scipy.sqrt(var)))
+        y=np.concatenate(((data.real-m.real)/np.sqrt(var),(data.imag-m.imag)/np.sqrt(var)))
 
-    y=scipy.concatenate((y,[scipy.sqrt(L[0]*scipy.exp(-min([0.0,tti[-1]-tn]))),scipy.sqrt(L[1]*scipy.exp(-min([0.0,tti[0]-tn])))]))
+    y=np.concatenate((y,[np.sqrt(L[0]*np.exp(-min([0.0,tti[-1]-tn]))),np.sqrt(L[1]*np.exp(-min([0.0,tti[0]-tn])))]))
     y=y.astype(float)
     
-    y=y[scipy.where(scipy.isfinite(y))]
+    y=y[np.where(np.isfinite(y))]
 
     return y
 
@@ -234,7 +234,7 @@ def load_ct_spec(path):
 def load_disp_table(path):
     
     # the plasma dispersion table
-    pldfvv=scipy.fromfile(path,dtype=scipy.float32)
+    pldfvv=np.fromfile(path,dtype=np.float32)
     if sys.byteorder=='little':
         pldfvv=pldfvv.byteswap()
     pldfvvr=pldfvv[0:int(pldfvv.size/2)]
@@ -286,8 +286,8 @@ def compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,ni,ti,mi,psi,vi,k_radar0,sc=0,p
     # OUTPUTS:
     #   res: spectrum estimate, in SI units (m^-3xs)
     
-    p_om0=k_radar0*scipy.sqrt(2.0*v_Boltzmann*p_T0/(p_M0*v_amu))
-    p_D0=scipy.sqrt(v_epsilon0*v_Boltzmann*p_T0/(p_N0*v_elemcharge*v_elemcharge))
+    p_om0=k_radar0*np.sqrt(2.0*v_Boltzmann*p_T0/(p_M0*v_amu))
+    p_D0=np.sqrt(v_epsilon0*v_Boltzmann*p_T0/(p_N0*v_elemcharge*v_elemcharge))
     
     NION=ni.size-1 
     NOM=freq.size
@@ -297,14 +297,14 @@ def compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,ni,ti,mi,psi,vi,k_radar0,sc=0,p
         #te=ti[-1]*p_T0
         TIT0=ti
         MIM0=mi/p_M0
-        PSI=psi/(scipy.sqrt(TIT0/MIM0)*scat_fac)
+        PSI=psi/(np.sqrt(TIT0/MIM0)*scat_fac)
         VI=-1.0*vi      
     else:
         NIN0=ni*ne/p_N0
         #te=ti[-1]
         TIT0=ti/p_T0
         MIM0=mi/p_M0
-        PSI=psi/(p_om0*scipy.sqrt(TIT0/MIM0)*scat_fac)
+        PSI=psi/(p_om0*np.sqrt(TIT0/MIM0)*scat_fac)
         VI=-1.0*vi/(p_om0/k_radar0)
     
     kd2=(k_radar0*scat_fac)*p_D0
@@ -312,8 +312,8 @@ def compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,ni,ti,mi,psi,vi,k_radar0,sc=0,p
     
     OM=2*pi*freq/p_om0
 
-    scr=scipy.zeros((NION+2)*(3+4*NOM),dtype='double')
-    res=scipy.zeros(freq.size,dtype='double')
+    scr=np.zeros((NION+2)*(3+4*NOM),dtype='double')
+    res=np.zeros(freq.size,dtype='double')
 
     ct_spec.specCalc(pldfvvr.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),pldfvvi.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
         NIN0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),TIT0.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),ctypes.c_long(NION),
@@ -323,7 +323,7 @@ def compute_spec(ct_spec,pldfvvr,pldfvvi,freq,ne,ni,ti,mi,psi,vi,k_radar0,sc=0,p
 
     # res = _call_specCalc(pldfvvr,pldfvvi,NIN0,TIT0,NION,MIM0,PSI,VI,kd2,scr,NOM,OM,res,0)
 
-    res = res * scipy.sqrt((p_M0 / 30.5) * (300.0 / p_T0)) * (p_N0 / 1.0e11);
+    res = res * np.sqrt((p_M0 / 30.5) * (300.0 / p_T0)) * (p_N0 / 1.0e11);
     res = res * v_lightspeed * 5.1823 / (k_radar0 * scat_fac);
     
     return res
