@@ -20,6 +20,14 @@ py3.extension_module('_c_spec_worker',
                     install : true
                     )
 
+list_cmd = run_command('sh', '-c', 'ls overspread/*.py', check: true)
+python_files = list_cmd.stdout().strip().split('\n')
+
+py3.install_sources(
+  python_files,
+  subdir: 'overspread'
+)
+
 install_data('overspread/radars.ini', install_dir : py3.get_install_dir() / 'overspread')
 
 install_subdir('overspread/dat',
