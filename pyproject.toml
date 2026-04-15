@@ -1,6 +1,12 @@
 [build-system]
-build-backend = 'mesonpy'
-requires = ['meson-python','numpy']
+requires = [
+    "wheel",
+    "meson-python", 
+    "numpy", 
+     "meson",  
+     "ninja"]
+build-backend = "mesonpy"
+
 
 
 [project]
@@ -13,8 +19,9 @@ maintainers = [
   {name = 'Pablo M. Reyes', email = 'pablo.reyes@sri.com'},
 ]
 
-dependencies = ["numpy", "h5py", "matplotlib", "tables", "apexpy", "scipy", "pymap3d", "flipchem"]
+dependencies = ["numpy", "h5py", "matplotlib", "tables", "apexpy", "scipy", "pymap3d"]
 
 [project.scripts]
 run_fitter = "overspread.run_fitter:main"
 run_fitter_msis = "overspread.run_fitter_msis:main"
+
