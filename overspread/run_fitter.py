@@ -406,7 +406,8 @@ class Run_Fitter:
                     tgmag=geomag.geomagTime(self.Time['Year'][0],np.array([AzAng]),np.array([ElAng]),self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=np.array([RNG[Ibm,Iht]/1000.0])) # run the geomag model
                     for key in list(gmag.keys()):
                         if gmag[key].shape == (Nbeams,Nranges):
-                            gmag[key][Ibm,Iht]=tgmag[key]
+                            assert len(tgmag[key]) == 1
+                            gmag[key][Ibm,Iht]=tgmag[key].item()
                         else:
                             gmag[key][Ibm,:]=tgmag[key]
 

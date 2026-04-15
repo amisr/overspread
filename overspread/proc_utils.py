@@ -86,7 +86,7 @@ def deal_data(beamcodes,data,BMCODES):
             try:
                 cols = np.where(beamcodes[j,:] == bm)[0]
                 if len(cols) == 1:
-                    cols = int(cols)
+                    cols = int(cols.item())
                     if ndims == 3:
                         output[j,i,:] = data[j,cols,:]
                     elif ndims == 2:

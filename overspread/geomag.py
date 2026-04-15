@@ -66,38 +66,38 @@ def geomag(YR,beamcodes,CLAT,CLONG,CALT=0.0,rng=np.arange(0.,1050.,50.)):
         for j in range(rng.shape[0]):
 
             output = geomagTime(YR,np.array([az]),np.array([el]),CLAT,CLONG,CALT,rng=np.array([rng[j]]))
-
-            ht[i,j] = output['Altitude']
-            lat[i,j] = output['Latitude']
-            lon[i,j] = output['Longitude']
-            plat[i,j] = output['MagneticLatitude']
-            plong[i,j] = output['MagneticLongitude']
+            assert len(output['Altitude']) == 1
+            ht[i,j] = output['Altitude'].item()
+            lat[i,j] = output['Latitude'].item()
+            lon[i,j] = output['Longitude'].item()
+            plat[i,j] = output['MagneticLatitude'].item()
+            plong[i,j] = output['MagneticLongitude'].item()
             kgmag[i,j,:] = output['kgmag']
-            kpn[i,j] = output['kpn']
-            kpe[i,j] = output['kpe']
-            kpar[i,j] = output['kpar']
+            kpn[i,j] = output['kpn'].item()
+            kpe[i,j] = output['kpe'].item()
+            kpar[i,j] = output['kpar'].item()
             kvece[i,j,:] = output['kapexe']
-            kvece1[i,j] = output['kapexe1']
-            kvece2[i,j] = output['kapexe2']
-            kvece3[i,j] = output['kapexe3']
+            kvece1[i,j] = output['kapexe1'].item()
+            kvece2[i,j] = output['kapexe2'].item()
+            kvece3[i,j] = output['kapexe3'].item()
             kvecd[i,j,:] = output['kapexd']
-            kvecd1[i,j] = output['kapexd1']
-            kvecd2[i,j] = output['kapexd2']
-            kvecd3[i,j] = output['kapexd3']
+            kvecd1[i,j] = output['kapexd1'].item()
+            kvecd2[i,j] = output['kapexd2'].item()
+            kvecd3[i,j] = output['kapexd3'].item()
             kgeo[i,j,:] = output['kgeo']
-            kn[i,j] = output['kn']
-            ke[i,j] = output['ke']
-            kz[i,j] = output['kz']
+            kn[i,j] = output['kn'].item()
+            ke[i,j] = output['ke'].item()
+            kz[i,j] = output['kz'].item()
             kvec[i] = output['kvec']
-            dip[i,j] = output['Dip']
-            dec[i,j] = output['Declination']
-            Bx[i,j] = output['Bx']
-            By[i,j] = output['By']
-            Bz[i,j] = output['Bz']
+            dip[i,j] = output['Dip'].item()
+            dec[i,j] = output['Declination'].item()
+            Bx[i,j] = output['Bx'].item()
+            By[i,j] = output['By'].item()
+            Bz[i,j] = output['Bz'].item()
             B[i,j,:] = output['B']
-            Babs[i,j] = output['Babs']
-            Lshell[i,j] = output['LshellRe']
-            MagMN[i,j] = output['MLTMidnightUT']
+            Babs[i,j] = output['Babs'].item()
+            Lshell[i,j] = output['LshellRe'].item()
+            MagMN[i,j] = output['MLTMidnightUT'].item()
 
     # assign output parameters
     gmag = {}

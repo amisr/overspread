@@ -1134,8 +1134,8 @@ def process_longpulse(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath=None,
                     
                     if len(I)>0:
                         # replace
-                        
-                        S['BMCODES'][i,3]=BmScaler[I,3]
+                        assert len(I) == 1 
+                        S['BMCODES'][i,3]=BmScaler[int(I.item()),3]
                     else:
                         raise IOError('No Beam %d in %s!' % (beamcodes[i], acfopts['beamMapScaleFile']))
         else:
