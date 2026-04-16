@@ -137,7 +137,7 @@ def process_altcodecs(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Be
     S['Acf']['TxBaud']=fconts[h5DataPath]['TxBaud']     
     S['Power']['Pulsewidth']=fconts[h5PwrPath]['Pulsewidth']
     S['Power']['TxBaud']=fconts[h5PwrPath]['TxBaud']
-    Nbauds=np.round_(S['Acf']['Pulsewidth']/S['Acf']['TxBaud'])
+    Nbauds=np.round(S['Acf']['Pulsewidth']/S['Acf']['TxBaud'])
 
     # Antenna if necessary
     if acfopts['MOTION_TYPE']==1:   
