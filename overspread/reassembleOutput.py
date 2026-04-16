@@ -65,7 +65,7 @@ class reassembleOutput(Run_Fitter):
 
 
         #copy the zeroth part file to the (locked) main outfile
-        print 'copying',self.OPTS['infile'][0],' to ',self.OPTS['outfile']
+        print ('copying',self.OPTS['infile'][0],' to ',self.OPTS['outfile'])
         shutil.copyfile(self.OPTS['infile'][0],self.OPTS['outfile'])
 
         # Now append the other files to end of the zeroth
@@ -75,7 +75,7 @@ class reassembleOutput(Run_Fitter):
 
             partfile=io_utils.read_whole_h5file(self.OPTS['infile'][n])
 
-            print 'appending ',partfile['/ProcessingParams']['TxPower'].shape
+            print('appending ',partfile['/ProcessingParams']['TxPower'].shape)
                     
             io_utils.createDynamicArray2(outh5file,self.h5Paths['Params'][0]+'/TxPower',partfile['/ProcessingParams']['TxPower'])
             if self.FITOPTS['MOTION_TYPE']==0: # Beamcodes

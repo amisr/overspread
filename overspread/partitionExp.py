@@ -42,8 +42,8 @@ class PartitionExp(Run_Fitter):
     def run(self):
     # main routine that runs the fitting loop. 
     # call after instantiating a run_fitter instance
-        print "***************************************"
-        print self.FITOPTS['fitcal']
+        print("***************************************")
+        print(self.FITOPTS['fitcal'])
         if (self.FITOPTS['fitcal'] == 1):
             print("Appending -fitcal to file names.")
 
@@ -70,7 +70,7 @@ class PartitionExp(Run_Fitter):
                 self.OPTS['FILELIST']=tuple([self.OPTS['FILELIST']])
             NFREQ=len(self.OPTS['FILELIST'])
         except:
-            print 'Problem understanding filelist'
+            print('Problem understanding filelist')
             return
 
         # check out the raw file paths
@@ -78,14 +78,14 @@ class PartitionExp(Run_Fitter):
             if (type(self.OPTS['ipath'])!=tuple):
                 self.OPTS['ipath']=tuple([self.OPTS['ipath']])
         except:
-            print 'Problem understanding FILE_PATH'
+            print('Problem understanding FILE_PATH')
             return
 
         # read the file that contains the list of files to process
         files=[]
         input_files = []
         for ii in range(NFREQ): # for each of the frequencies
-            print self.OPTS['FILELIST'][ii]
+            print(self.OPTS['FILELIST'][ii])
             f=open(self.OPTS['FILELIST'][ii]) # open
             files.append(f.readlines()) # read list
             f.close() # close
@@ -105,7 +105,7 @@ class PartitionExp(Run_Fitter):
                 if files2[ir].rfind('*') != -1:
                     for path in self.OPTS['ipath']:
                         tfiles=glob.glob(os.path.join(path,files2[ir]))
-                        print tfiles
+                        print(tfiles)
                         files[ii].extend(tfiles)
                     files[ii].remove(files2[ir])
                     
@@ -134,7 +134,7 @@ class PartitionExp(Run_Fitter):
                 
         
         if nfiles==0: # abort!
-            print 'Nothing to do...'
+            print('Nothing to do...')
             return
     
 
@@ -162,7 +162,7 @@ class PartitionExp(Run_Fitter):
         curexpname=self.get_expname(os.path.join(self.OPTS['ipath'],files[0][frec]))
         RecInt = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
                                                                                                         
-        print 'Experiment: ' + curexpname
+        print('Experiment: ' + curexpname)
         
         ### start: main loop
         while not done:
@@ -183,8 +183,8 @@ class PartitionExp(Run_Fitter):
                         trecs=[min([Irec,uTime.shape[0]-1])]
                     Irecs.append(trecs)
                     
-                    print trecs
-                    print uTime.shape
+                    print(trecs)
+                    print(uTime.shape)
 
                     if self.FITOPTS['MOTION_TYPE']==1: # Az,El
                         I=scipy.where((outputAll[ii]['/Antenna']['Mode'][Irecs[ii],0] != AntennaMode) | (outputAll[ii]['/Antenna']['Mode'][Irecs[ii],1] != AntennaMode) |
@@ -222,7 +222,7 @@ class PartitionExp(Run_Fitter):
                             frec-=-1
                             breakout=1
                     else: # we've transitioned to a new experiment
-                        print 'New experiment: ' + expname
+                        print('New experiment: ' + expname)
                         curexpname=expname
                         newexp=1
                         self.BMCODES=None
@@ -256,8 +256,8 @@ class PartitionExp(Run_Fitter):
                 break;
             
             # print the record numbers
-            print '\nFile ' + str(frec) + ' of ' + str(nfiles)
-            print 'Integration Number: ' + str(IIrec) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1])
+            print('\nFile ' + str(frec) + ' of ' + str(nfiles))
+            print('Integration Number: ' + str(IIrec) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1]))
             fstr='File %d of %d, Rec %d, ' % (frec,nfiles,IIrec)
                         
             # skip records
@@ -303,7 +303,7 @@ if __name__ == '__main__':
     RF=PartitionExp(options)
     IIrec=RF.run()
 
-    print 'Full Experiment consists of %d records'%IIrec
+    print('Full Experiment consists of %d records'%IIrec)
 
     np=int(options.npart)
     whole = IIrec/np #integer division
@@ -318,7 +318,7 @@ if __name__ == '__main__':
         else:
             end=beg+whole
         
-        print 'Segment %d spans records %d to %d'%(n,beg,end)
+        print('Segment %d spans records %d to %d'%(n,beg,end))
 
         # Build a unique iirec name from the output name for
         # the fitted file.
