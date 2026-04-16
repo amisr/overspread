@@ -50,7 +50,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
         self.OPTS['partitionBeg']=int(io_utils.ini_tool(self.config,'PARTITION','beg',required=0,defaultParm=0))
         self.OPTS['partitionEnd']=int(io_utils.ini_tool(self.config,'PARTITION','end',required=0,defaultParm=0))
 
-        print partitioned,self.OPTS['partitioned'],self.OPTS['partitionString'],self.OPTS['partitionBeg'],self.OPTS['partitionEnd']
+        print(partitioned,self.OPTS['partitioned'],self.OPTS['partitionString'],self.OPTS['partitionBeg'],self.OPTS['partitionEnd'])
 
         if self.OPTS['partitioned']:
             self.IIrec_first=self.OPTS['partitionBeg']
@@ -61,16 +61,16 @@ class Run_Fitter_Partitioned(Run_Fitter):
         if self.OPTS['partitioned']:
             self.OPTS['outfile']=self.OPTS['outfile'][:-3]+'_'+self.OPTS['partitionString']+'.h5'
 
-        print "OUTPUT FILE NAME:"
-        print self.OPTS['outfile']
+        print("OUTPUT FILE NAME:")
+        print(self.OPTS['outfile'])
 
         
     # run
     def run(self):
     # main routine that runs the fitting loop.
     # call after instantiating a run_fitter instance
-        print "***************************************"
-        print self.FITOPTS['fitcal']
+        print("***************************************")
+        print(self.FITOPTS['fitcal'])
         if (self.FITOPTS['fitcal'] == 1):
             print("Appending -fitcal to file names.")
 
@@ -97,7 +97,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
                 self.OPTS['FILELIST']=tuple([self.OPTS['FILELIST']])
             NFREQ=len(self.OPTS['FILELIST'])
         except:
-            print 'Problem understanding filelist'
+            print('Problem understanding filelist')
             return
 
         # check out the raw file paths
@@ -105,14 +105,14 @@ class Run_Fitter_Partitioned(Run_Fitter):
             if (type(self.OPTS['ipath'])!=tuple):
                 self.OPTS['ipath']=tuple([self.OPTS['ipath']])
         except:
-            print 'Problem understanding FILE_PATH'
+            print('Problem understanding FILE_PATH')
             return
 
         # read the file that contains the list of files to process
         files=[]
         input_files = []
         for ii in range(NFREQ): # for each of the frequencies
-            print self.OPTS['FILELIST'][ii]
+            print(self.OPTS['FILELIST'][ii])
             f=open(self.OPTS['FILELIST'][ii]) # open
             files.append(f.readlines()) # read list
             f.close() # close
@@ -132,18 +132,18 @@ class Run_Fitter_Partitioned(Run_Fitter):
                 if files2[ir].rfind('*') != -1:
                     for path in self.OPTS['ipath']:
                         tfiles=glob.glob(os.path.join(path,files2[ir]))
-                        print tfiles
+                        print(tfiles)
                         files[ii].extend(tfiles)
                     files[ii].remove(files2[ir])
 
             if len(files[ii])!=len(files[0]): # abort! they need to be the same number of files
-                raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'
+                raise IOError('For multiple frequency/external cal, need the same number of files for each freq...')
             files[ii]=sorted(files[ii],key=os.path.basename)
             #files[ii].sort() # sort the file sequence
         nfiles=len(files[0]) # number of files to process
 
         if nfiles==0: # abort!
-            print 'Nothing to do...'
+            print('Nothing to do...')
             return
     
 
@@ -153,19 +153,19 @@ class Run_Fitter_Partitioned(Run_Fitter):
                 try:
                     os.mkdir(self.OPTS['plotsdir'])
                 except:
-                    print 'Cant make plots dir'
+                    print('Cant make plots dir')
         
         # create the output file
         self.OPTS['outfileLocked'] = self.OPTS['outfile']+'.lock'
         if os.path.exists(self.OPTS['outfileLocked']) and self.ContinueFromLocked:
             try:
                 output=io_utils.read_whole_h5file(self.OPTS['outfileLocked'])
-                print output.keys()
+                print(output.keys())
                 NrecsToSkip=output['/Time']['UnixTime'].shape[0]
                 del output
-                print "Continuing using " + self.OPTS['outfileLocked'] + " from record " + str(NrecsToSkip)
+                print("Continuing using " + self.OPTS['outfileLocked'] + " from record " + str(NrecsToSkip))
             except:
-                raise IOError, 'Unable to continue from locked file: ' + self.OPTS['outfileLocked']
+                raise IOError('Unable to continue from locked file: ' + self.OPTS['outfileLocked'])
         else:
             #try:
             NrecsToSkip=0
@@ -203,7 +203,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
         curexpname=self.get_expname(files[0][frec])
         RecInt = scipy.median(output['/Time']['UnixTime'][:,1] - output['/Time']['UnixTime'][:,0])
                                                                                                         
-        print 'Experiment: ' + curexpname
+        print('Experiment: ' + curexpname)
         
         ### start: main loop
         while not done:
@@ -224,8 +224,8 @@ class Run_Fitter_Partitioned(Run_Fitter):
                         trecs=[min([Irec,uTime.shape[0]-1])]
                     Irecs.append(trecs)
                     
-                    print trecs
-                    print uTime.shape
+                    print(trecs)
+                    print(uTime.shape)
 
                     if self.FITOPTS['MOTION_TYPE']==1: # Az,El
                         I=scipy.where((outputAll[ii]['/Antenna']['Mode'][Irecs[ii],0] != AntennaMode) | (outputAll[ii]['/Antenna']['Mode'][Irecs[ii],1] != AntennaMode) |
@@ -263,7 +263,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
                             frec-=-1
                             breakout=1
                     else: # we've transitioned to a new experiment
-                        print 'New experiment: ' + expname
+                        print('New experiment: ' + expname)
                         curexpname=expname
                         newexp=1
                         self.BMCODES=None
@@ -297,8 +297,8 @@ class Run_Fitter_Partitioned(Run_Fitter):
                 break;
             
             # print the record numbers
-            print '\nFile ' + str(frec) + ' of ' + str(nfiles)
-            print 'Integration Number: ' + str(IIrec) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1])
+            print('\nFile ' + str(frec) + ' of ' + str(nfiles))
+            print('Integration Number: ' + str(IIrec) + ', Recs Being Integrated: ' + str(Irecs[0][0]) + ':' + str(Irecs[0][-1]))
             fstr='File %d of %d, Rec %d, ' % (frec,nfiles,IIrec)
                         
             # skip records
@@ -328,7 +328,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
             try:
                 output['/Rx']['CalTemp']
             except:
-                print self.DEFOPTS['CAL_TEMP_DEF']
+                print(self.DEFOPTS['CAL_TEMP_DEF'])
                 output['/Rx']['CalTemp']=self.DEFOPTS['CAL_TEMP_DEF']
             
             # process a record
@@ -350,12 +350,12 @@ class Run_Fitter_Partitioned(Run_Fitter):
             if (not self.AMB['Loaded']): # if it hasn't already been loaded, we need to try to get it from data files
                 if (not S.has_key('Acf')):
                     if (not S['Power'].has_key('Ambiguity')):
-                        raise RuntimeError, 'No valid ambiguity function in data files or specified external file.'
+                        raise RuntimeError('No valid ambiguity function in data files or specified external file.')
                     else:
                         self.AMB=S['Power']['Ambiguity']
                         self.AMB['Loaded']=1   
                 elif (not S['Acf'].has_key('Ambiguity')): # this is the case where we needed to get it from the data file but unable to
-                    raise RuntimeError, 'No valid ambiguity function in data files or specified external file.'
+                    raise RuntimeError('No valid ambiguity function in data files or specified external file.')
                 else:
                     self.AMB=S['Acf']['Ambiguity']
                     self.AMB['Loaded']=1            
@@ -365,7 +365,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
             try: 
                 Tx['Frequency']=scipy.median(scipy.mean(output['/Tx']['Frequency'][Irecs[0],:],axis=1)) 
                 if Tx['Frequency']<1.0e6:
-                    raise ValueError, "Tx Frequency Not Set, Using Default"
+                    raise ValueError("Tx Frequency Not Set, Using Default")
             except: Tx['Frequency']=self.DEFOPTS['TX_FREQ_DEF']
             try: Tx['Power']=scipy.median(scipy.mean(output['/Tx']['Power'][Irecs[0],:],axis=1))
             except: Tx['Power']=self.DEFOPTS['TX_POWER_DEF']
@@ -430,7 +430,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
                                 try:
                                     Ibeams.append(int(scipy.where(self.BMCODES[:,0]==self.FITOPTS['Beams2do'][ii])[0]))
                                 except:
-                                    raise RuntimeError, 'No beamcode: %d!!' % (self.FITOPTS['Beams2do'][ii])
+                                    raise RuntimeError('No beamcode: %d!!' % (self.FITOPTS['Beams2do'][ii]))
                         elif len(Im1)!=Nbeams:
                             Ibeams=Im1
                         else:
@@ -586,7 +586,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
 
                     title= "%d-%d-%d %.3f-%.3f UT" % (self.Time['Month'][0],self.Time['Day'][0],self.Time['Year'][0],self.Time['dtime'][0],self.Time['dtime'][1])
 
-                    print "Making profile plots..."
+                    print("Making profile plots...")
                     try:
                         (figg1,ax1,_)=plot_utils.test_plot(self,IIrec,[],[],self.OPTS['xlims'],Ibeams=IbPl,dofrac=self.OPTS['plotfrac'])
                     except Exception as e:
@@ -598,11 +598,11 @@ class Run_Fitter_Partitioned(Run_Fitter):
                             oname=title + '.png'
                             figg1.savefig(os.path.join(self.OPTS['plotsdir'],oname))
                         else:
-                            print "Can't output plots, path doesn't exist"
+                            print ("Can't output plots, path doesn't exist")
                             self.OPTS['saveplots']=0
 
                     if self.OPTS['plotson']>1:
-                        print "Plotting ACFs..."
+                        print("Plotting ACFs...")
                         try:
                             (figg2,ax2)=plot_utils.acf_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                         except Exception as e:
@@ -614,7 +614,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
                             figg2.savefig(os.path.join(self.OPTS['plotsdir'],oname))
 
                         if self.OPTS['dumpSpectra']>0:
-                            print "Plotting Spectra..."
+                            print("Plotting Spectra...")
                             try:
                                 (figg6,ax6)=plot_utils.spc_plot(tmeas_ACF,terrs_ACF,tmod_ACF,tht/1000.0,self.BMCODES,title,Ibeams=IbPl)
                             except Exception as e:
@@ -739,7 +739,7 @@ class Run_Fitter_Partitioned(Run_Fitter):
                 os.remove(self.OPTS['outfile'])
             os.rename(self.OPTS['outfileLocked'],self.OPTS['outfile'])
         except:
-            raise IOError, 'Error renaming output file: ' + self.OPTS['outfileLocked'] + 'to ' + self.OPTS['outfile']
+            raise IOError('Error renaming output file: ' + self.OPTS['outfileLocked'] + 'to ' + self.OPTS['outfile'])
 
 
         # make some final color plots

@@ -127,7 +127,8 @@ class PartitionExp(Run_Fitter):
                         print("*****************************************************************")
                         print('Could find multifreq file associated with: %s' % (iterfile))
                         print("*****************************************************************")
-                raise IOError, 'For multiple frequency/external cal, need the same number of files for each freq...'                                                                                                                                                                                                                                                                                                                                                            
+                raise IOError('For multiple frequency/external cal, need the same number of files for each freq...')
+
             files[ii]=sorted(files[ii],key=os.path.basename)
             #files[ii].sort() # sort the file sequence
         nfiles=len(files[0]) # number of files to process
