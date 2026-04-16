@@ -1,0 +1,27 @@
+[build-system]
+requires = [
+    "wheel",
+    "meson-python", 
+    "numpy", 
+     "meson",  
+     "ninja"]
+build-backend = "mesonpy"
+
+
+
+[project]
+name = 'overspread'
+version = '2026.0.1'
+description = 'Production E and F region lag product fitting software for AMISRs.'
+readme = 'README.rst'
+license = 'MIT'
+maintainers = [
+  {name = 'Pablo M. Reyes', email = 'pablo.reyes@sri.com'},
+]
+
+dependencies = ["numpy", "h5py", "matplotlib", "tables", "apexpy", "scipy", "pymap3d"]
+
+[project.scripts]
+run_fitter = "overspread.run_fitter:main"
+run_fitter_msis = "overspread.run_fitter_msis:main"
+

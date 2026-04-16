@@ -40,7 +40,9 @@ from flipchem import compute_ion_neutral_collfreq, compute_electron_neutral_coll
 
 import apexpy
 import pymap3d
-import pkg_resources
+# P. Reyes 4/14/2026 setuptools.pkg_resources depectrated
+#import pkg_resources
+from importlib.metadata import version as lib_version
 
 #For fitcal files (files that are calibrated and fitted at the same time)
 #we need to add a Calibration record
@@ -404,7 +406,8 @@ class Run_Fitter:
                     tgmag=geomag.geomagTime(self.Time['Year'][0],np.array([AzAng]),np.array([ElAng]),self.Site['Latitude'],self.Site['Longitude'],self.Site['Altitude']/1000.0,rng=np.array([RNG[Ibm,Iht]/1000.0])) # run the geomag model
                     for key in list(gmag.keys()):
                         if gmag[key].shape == (Nbeams,Nranges):
-                            gmag[key][Ibm,Iht]=tgmag[key]
+                            assert len(tgmag[key]) == 1
+                            gmag[key][Ibm,Iht]=tgmag[key].item()
                         else:
                             gmag[key][Ibm,:]=tgmag[key]
 
@@ -1001,7 +1004,11 @@ class Run_Fitter:
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/scipy',scipy.__version__)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/flipchem',flipchem.__version__)
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/apexpy',apexpy.__version__)
-        pymap3d_version = pkg_resources.get_distribution('pymap3d').version
+        
+        # P. Reyes 4/14/2026 setuptools.pkg_resources depectrated
+        #pymap3d_version = pkg_resources.get_distribution('pymap3d').version
+        pymap3d_version = lib_version('pymap3d')
+
         io_utils.createStaticArray(h5fhandle,'/ProcessingParams/ComputerInfo/PythonPackages/pymap3d',pymap3d_version)
 
         # Fitter configuration information

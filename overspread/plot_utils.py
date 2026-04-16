@@ -62,7 +62,8 @@ def geoplot(az,el,rng,ht,plat,plong,dip,dec,Ibeam=[]):
     for ii in range(az.size):
 #       t=r'$%d: \ %2.1f^o,\ %2.1f^o$' % (ii,az[ii],el[ii])
         ri=np.where(np.array(Ibeam)==ii)[0]
-        t=r'$%d$' % (ri+1)
+        assert len(ri) == 1
+        t=r'$%d$' % (int(ri.item()) + 1)
 
         ax.text(theta[ii],r[ii],t,fontsize=labsize, horizontalalignment='right')
 
@@ -72,7 +73,8 @@ def geoplot(az,el,rng,ht,plat,plong,dip,dec,Ibeam=[]):
     ax = figg.add_subplot(212,facecolor=axesBG)
     for ii in range(Nbeams):
         ri=np.where(np.array(Ibeam)==ii)[0]
-        t=r'$%d$' % (ri+1)
+        assert len(ri) == 1
+        t=r'$%d$' % (int(ri.item())+1)
         tlat=plat[ii,:].copy()
         tlon=plong[ii,:].copy()
         I=np.where(np.absolute(np.diff(tlon))>300.0)[0]
