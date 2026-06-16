@@ -782,7 +782,7 @@ def process_altcode(fconts,Irecs,acfopts,Amb,doamb=0,extCal=0,h5DataPath='',Beam
     scaled_noise_acfs = np.repeat(scaled_noise_acfs[:,:,np.newaxis],Nranges,axis=2)
 
 
-    S['Acf']['Data'].real=S['Acf']['Data'].real-scaled_noise_acfs
+    S['Acf']['Data'].real = S['Acf']['Data'].real - scaled_noise_acfs.real
 
 
     # scaling constant
