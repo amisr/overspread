@@ -4,7 +4,8 @@
 
 import tables
 import datetime
-import scipy
+#import scipy
+import numpy as np
 import os
 import sys
 
@@ -24,7 +25,7 @@ def add_calibration_info(fname,calFname,calMethodIndex):
     datestr = t.strftime("%Y-%m-%d")
 
     # Open the calibration file
-    calData = scipy.loadtxt(calFname)
+    calData = np.loadtxt(calFname)
 
     # Determine the calibration Method
     method = cal_method[calMethodIndex]
@@ -64,10 +65,10 @@ def filter_calibrated_data(fname,type_flag):
     # Use this to remove data that isn't consistent with the calibration
     # example: TX power drops due to an UDU dying, calibration for this
     # period of time wouldn't be valid
-    replaceVal=1; powLims=[2.0e6]; aeuLims=[0]; Psc=[scipy.nan]
+    replaceVal=1; powLims=[2.0e6]; aeuLims=[0]; Psc=[np.nan]
 
     # snr filter
-    snrFilter=1; NsnrAvg=20; snrSc=scipy.nan
+    snrFilter=1; NsnrAvg=20; snrSc=np.nan
 
     if type_flag == 'LP':
         snrMin=0.0;snrLim=0.8# #snrLim=0.4 #for RAXbg03
@@ -80,7 +81,7 @@ def filter_calibrated_data(fname,type_flag):
     h5file=tables.open_file(fname,'r+')
 
     # Read in the arrays that we are going to filter
-    mUnixTime=scipy.mean(h5file.get_node('/Time/UnixTime').read(),1)
+    mUnixTime=np.mean(h5file.get_node('/Time/UnixTime').read(),1)
     NeFit=h5file.get_node('/FittedParams/Ne').read()
     (Nrecs,Nbeams,Nhts)=NeFit.shape
     dNeFit=h5file.get_node('/FittedParams/dNe').read()
@@ -115,27 +116,27 @@ def filter_calibrated_data(fname,type_flag):
     # Filter based on txpower, aeu tx/rx
     if replaceVal:
         for irepl in range(len(powLims)):
-            I=scipy.where((TxPower < powLims[irepl]) & (AeuTx < aeuLims[irepl]))
+            I=np.where((TxPower < powLims[irepl]) & (AeuTx < aeuLims[irepl]))
             if len(I)>0:
                 I=I[0]
                 corrNe_NoTr[I]/=Psc[irepl]  
                 corrNe_Mod[I]/=Psc[irepl]    
                 corrNeFit[I]/=Psc[irepl]
                 corrdNeFit[I]/=Psc[irepl]
-                if scipy.isnan(Psc[irepl]):
-                    corrFits[I]=scipy.nan
+                if np.isnan(Psc[irepl]):
+                    corrFits[I]=np.nan
 
     # SNR filter
     if snrFilter:
         for ibm in range(Ne_Mod.shape[1]):
-            snrm = scipy.absolute(scipy.median(SNR[:,ibm,-NsnrAvg:],axis=1))
-            I=scipy.where((snrm > snrLim) | (snrm < snrMin))
+            snrm = np.absolute(np.median(SNR[:,ibm,-NsnrAvg:],axis=1))
+            I=np.where((snrm > snrLim) | (snrm < snrMin))
             if len(I)>0:
                 I=I[0]
                 corrNeFit[I,ibm,:]=corrNeFit[I,ibm,:]/snrSc
                 corrdNeFit[I,ibm,:]=corrdNeFit[I,ibm,:]/snrSc
-                if scipy.isnan(snrSc):
-                    corrFits[I,ibm,:]=scipy.nan                                    
+                if np.isnan(snrSc):
+                    corrFits[I,ibm,:]=np.nan                                    
                 corrNe_NoTr[I,ibm,:]=corrNe_NoTr[I,ibm,:]/snrSc
                 corrNe_Mod[I,ibm,:]=corrNe_Mod[I,ibm,:]/snrSc                             
 
